@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
-import 'package:tolab/Screens/Splash/splash_controller.dart';
+import 'package:tolab/Features/Splash/splash_controller.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -18,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen>
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // ignore: 
+    // ignore:
     print("🚀 محاولة تحميل الصورة: assets/image_splash/Tolab_splash_page.png");
 
     controller = SplashController(vsync: this, context: context);

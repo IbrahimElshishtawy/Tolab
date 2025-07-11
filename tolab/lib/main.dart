@@ -1,7 +1,7 @@
 // ignore_for_file: camel_case_types
 
 import 'package:flutter/material.dart';
-import 'package:tolab/Screens/splash/splash_page.dart';
+import 'package:tolab/Features/Splash/splash_page.dart';
 
 void main() {
   runApp(const tolab());

@@ -1,6 +1,6 @@
 // 📁 splash_controller.dart
 import 'package:flutter/material.dart';
-import 'package:tolab/Screens/home/home_page.dart';
+import 'package:tolab/Features/home/home_page.dart';
 
 class SplashController {
   final BuildContext context;
