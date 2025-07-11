@@ -27,15 +27,19 @@ class _HomePageState extends State<HomePage> {
       ),
       body: _pages[_currentIndex],
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 35),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 10,
+          vertical: 10,
+        ), // تقليل الارتفاع
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(25),
           child: BottomNavigationBar(
             backgroundColor: const Color.fromARGB(255, 18, 18, 19),
             currentIndex: _currentIndex,
             type: BottomNavigationBarType.fixed,
             selectedItemColor: const Color.fromRGBO(152, 172, 201, 1),
             unselectedItemColor: const Color.fromARGB(255, 255, 255, 255),
+            iconSize: 22, // تصغير الأيقونات
             onTap: (index) => setState(() => _currentIndex = index),
             showSelectedLabels: false,
             showUnselectedLabels: false,
