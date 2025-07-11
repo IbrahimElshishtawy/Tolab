@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(30),
           child: BottomNavigationBar(
-            backgroundColor: const Color.fromRGBO(244, 231, 255, 1),
+            backgroundColor: const Color.fromARGB(255, 18, 18, 19),
             currentIndex: _currentIndex,
             type: BottomNavigationBarType.fixed,
             selectedItemColor: const Color.fromRGBO(152, 172, 201, 1),

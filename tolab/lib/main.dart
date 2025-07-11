@@ -1,21 +1,23 @@
-// ignore_for_file: camel_case_types
-
 import 'package:flutter/material.dart';
-import 'package:tolab/Features/Splash/splash_page.dart';
+import 'package:tolab/Features/settings/app_theme.dart';
+import 'package:tolab/routes/app_router.dart';
 
 void main() {
-  runApp(const tolab());
+  runApp(const TolabApp());
 }
 
-class tolab extends StatelessWidget {
-  const tolab({super.key});
+class TolabApp extends StatelessWidget {
+  const TolabApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: AppThemes.lightTheme,
+      darkTheme: AppThemes.darkTheme,
+      themeMode: ThemeMode.system, // يمكن تغييره من الإعدادات لاحقًا
       initialRoute: '/splash',
-      routes: {'/splash': (context) => const SplashScreen()},
+      onGenerateRoute: AppRouter.generateRoute,
     );
   }
 }
