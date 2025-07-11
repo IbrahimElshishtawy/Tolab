@@ -20,26 +20,28 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Tolab Home'),
-        backgroundColor: const Color.fromRGBO(152, 172, 201, 1),
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
+        elevation: 0,
       ),
       body: _pages[_currentIndex],
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 10,
-          vertical: 10,
-        ), // تقليل الارتفاع
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(25),
           child: BottomNavigationBar(
-            backgroundColor: const Color.fromARGB(255, 18, 18, 19),
             currentIndex: _currentIndex,
             type: BottomNavigationBarType.fixed,
-            selectedItemColor: const Color.fromRGBO(152, 172, 201, 1),
-            unselectedItemColor: const Color.fromARGB(255, 255, 255, 255),
-            iconSize: 22, // تصغير الأيقونات
+            backgroundColor: theme.colorScheme.primary,
+            selectedItemColor: theme.colorScheme.onPrimary,
+            unselectedItemColor: theme.colorScheme.onPrimary.withOpacity(0.6),
+            iconSize: 22,
             onTap: (index) => setState(() => _currentIndex = index),
             showSelectedLabels: false,
             showUnselectedLabels: false,

@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:tolab/Features/home/home_page.dart';
+import 'package:tolab/Features/Splash/splash_page.dart';
 
 class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
-      // case '/':
-      //   return MaterialPageRoute(builder: (_) => const SplashScreen());
-      // case '/login':
-      //   return MaterialPageRoute(builder: (_) => const LoginPage());
-      // case '/register':
-      //   return MaterialPageRoute(builder: (_) => const RegisterPage());
+      case '/splash':
+        return MaterialPageRoute(builder: (_) => const SplashScreen());
       case '/home':
         return MaterialPageRoute(builder: (_) => const HomePage());
-
-      // Add more routes here as needed
       default:
         return MaterialPageRoute(
           builder: (_) =>
