@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tolab/Features/posts/controllers/post_controllers.dart';
 import 'package:tolab/Features/settings/app_theme.dart';
 import 'package:tolab/routes/app_router.dart';
 
@@ -11,13 +13,19 @@ class TolabApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: AppThemes.lightTheme,
-      darkTheme: AppThemes.darkTheme,
-      themeMode: ThemeMode.system, // يمكن تغييره من الإعدادات لاحقًا
-      initialRoute: '/splash',
-      onGenerateRoute: AppRouter.generateRoute,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => PostsController()..fetchPosts()),
+        // يمكنك إضافة مزيد من الـ providers هنا لاحقًا
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: AppThemes.lightTheme,
+        darkTheme: AppThemes.darkTheme,
+        themeMode: ThemeMode.system,
+        initialRoute: '/splash',
+        onGenerateRoute: AppRouter.generateRoute,
+      ),
     );
   }
 }

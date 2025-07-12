@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:tolab/Features/posts/pages/posts_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,7 +14,7 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    const Center(child: Text('📢 Posts Page')),
+    PostsPage(),
     const Center(child: Text('📚 Subjects')),
     const Center(child: Text('👤 Profile')),
     const Center(child: Text('🎮 Games')),
