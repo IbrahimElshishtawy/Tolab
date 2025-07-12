@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -24,40 +26,37 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: const Text('Tolab Home'),
-        backgroundColor: theme.colorScheme.primary,
-        foregroundColor: theme.colorScheme.onPrimary,
-        elevation: 0,
-      ),
       body: _pages[_currentIndex],
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(25),
-          child: BottomNavigationBar(
-            currentIndex: _currentIndex,
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: theme.colorScheme.primary,
-            selectedItemColor: theme.colorScheme.onPrimary,
-            unselectedItemColor: theme.colorScheme.onPrimary.withOpacity(0.6),
-            iconSize: 22,
-            onTap: (index) => setState(() => _currentIndex = index),
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-              BottomNavigationBarItem(icon: Icon(Icons.book), label: ''),
-              BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.videogame_asset),
-                label: '',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.more_vert_outlined),
-                label: '',
-              ),
-            ],
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.symmetric(horizontal: 12, vertical: 30),
+        child: SizedBox(
+          height: 60,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(25),
+            child: BottomNavigationBar(
+              currentIndex: _currentIndex,
+              type: BottomNavigationBarType.fixed,
+              backgroundColor: theme.colorScheme.primary,
+              selectedItemColor: theme.colorScheme.onPrimary,
+              unselectedItemColor: theme.colorScheme.onPrimary.withOpacity(0.6),
+              iconSize: 22,
+              onTap: (index) => setState(() => _currentIndex = index),
+              showSelectedLabels: false,
+              showUnselectedLabels: false,
+              items: const [
+                BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
+                BottomNavigationBarItem(icon: Icon(Icons.book), label: ''),
+                BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.videogame_asset),
+                  label: '',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.more_vert_outlined),
+                  label: '',
+                ),
+              ],
+            ),
           ),
         ),
       ),
