@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tolab/Features/posts/Notification/Notifications_Page.dart';
 import 'package:tolab/Features/posts/add/Add_Post_Page.dart';
 import 'package:tolab/Features/posts/controllers/post_controllers.dart';
+import 'package:tolab/Features/posts/widgets/post_card.dart';
 
 class PostsPage extends StatelessWidget {
   const PostsPage({super.key});
@@ -17,26 +18,25 @@ class PostsPage extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
-
-        leadingWidth: 140, // وسّع عرض الشعار حسب الحجم الجديد
+        leadingWidth: 140,
 
         leading: Padding(
-          padding: const EdgeInsets.only(right: 8), // مسافة من الطرف الأيمن
+          padding: const EdgeInsets.only(right: 8),
           child: Row(
             children: [
-              const SizedBox(width: 15), // مسافة إضافية داخل Row
+              const SizedBox(width: 15),
               const Text(
                 'ToL',
                 style: TextStyle(
                   color: Color.fromARGB(236, 13, 20, 217),
                   fontWeight: FontWeight.bold,
-                  fontSize: 23, // ⬅️ حجم الخط الجديد
+                  fontSize: 23,
                 ),
               ),
               const SizedBox(width: 4),
               Image.asset(
                 'assets/image_App/Tolab.png',
-                width: 35, // ⬅️ حجم الصورة الجديد
+                width: 35,
                 height: 35,
                 fit: BoxFit.contain,
               ),
@@ -46,7 +46,7 @@ class PostsPage extends StatelessWidget {
                 style: TextStyle(
                   color: Color.fromARGB(236, 13, 20, 217),
                   fontWeight: FontWeight.bold,
-                  fontSize: 23, // ⬅️ حجم الخط الجديد
+                  fontSize: 23,
                 ),
               ),
             ],
@@ -83,84 +83,37 @@ class PostsPage extends StatelessWidget {
         ],
       ),
 
-      /// ✅ البوستات
       body: Consumer<PostsController>(
         builder: (context, controller, child) {
           final posts = controller.posts;
 
           if (posts.isEmpty) {
-            return const Center(child: Text('🚫 No posts available.'));
+            return const Center(
+              child: Text(
+                'لا توجد بوستات بعد 📝',
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+            );
           }
 
-          return ListView.separated(
-            padding: const EdgeInsets.all(12),
-            itemCount: posts.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              final post = posts[index];
-              return Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: const Border(
-                    bottom: BorderSide(
-                      color: Color.fromRGBO(152, 172, 201, 0.2),
-                      width: 1,
-                    ),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color.fromRGBO(152, 172, 201, 0.15),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const CircleAvatar(
-                          radius: 20,
-                          backgroundColor: Color.fromRGBO(152, 172, 201, 1),
-                          child: Icon(
-                            Icons.person,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            post.authorId,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          _formatTime(post.createdAt),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      post.content,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-              );
+          return RefreshIndicator(
+            onRefresh: () async {
+              controller.fetchPosts();
             },
+            child: ListView.separated(
+              padding: const EdgeInsets.all(12),
+              itemCount: posts.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final post = posts[index];
+                return PostCard(
+                  title: 'بوست',
+                  author: post.authorId,
+                  content: post.content,
+                  date: _formatTime(post.createdAt),
+                );
+              },
+            ),
           );
         },
       ),

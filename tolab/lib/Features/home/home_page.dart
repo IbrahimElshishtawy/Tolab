@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:tolab/Features/more/ui/More_Options_Sheet.dart';
 import 'package:tolab/Features/posts/pages/posts_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -12,14 +13,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _currentIndex = 2; // Home in center
+  int _currentIndex = 2; // Home في المنتصف
 
   final List<Widget> _pages = [
     const Center(child: Text('📚 Subjects')),
     const Center(child: Text('🔔 Notifications')),
     const PostsPage(),
     const Center(child: Text('🎮 Games')),
-    const Center(child: Text('⋯ More')),
+    const SizedBox(), // بدل صفحة التلات نقط لأنها هتفتح Bottom Sheet
   ];
 
   @override
@@ -57,7 +58,35 @@ class _HomePageState extends State<HomePage> {
                 elevation: 0,
                 type: BottomNavigationBarType.fixed,
                 currentIndex: _currentIndex,
-                onTap: (index) => setState(() => _currentIndex = index),
+                onTap: (index) {
+                  if (index == 4) {
+                    showGeneralDialog(
+                      context: context,
+                      barrierDismissible: true,
+                      barrierLabel: '',
+                      transitionDuration: const Duration(milliseconds: 300),
+                      pageBuilder: (context, animation1, animation2) {
+                        return const Align(
+                          alignment: Alignment.centerRight,
+                          child: MoreSidePanel(),
+                        );
+                      },
+                      transitionBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                            final curvedValue =
+                                Curves.easeInOut.transform(animation.value) -
+                                1.0;
+                            return Transform.translate(
+                              offset: Offset(300 * curvedValue, 0),
+                              child: child,
+                            );
+                          },
+                    );
+                  } else {
+                    setState(() => _currentIndex = index);
+                  }
+                },
+
                 selectedItemColor: selectedColor,
                 unselectedItemColor: unselectedColor,
                 showSelectedLabels: false,

@@ -1,9 +1,10 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, file_names
 
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 class PostCard extends StatelessWidget {
-  final String title; // ممكن يكون اسم الكاتب
+  final String title;
   final String content;
   final String author;
   final String date;
@@ -62,25 +63,25 @@ class PostCard extends StatelessWidget {
                         PopupMenuButton<String>(
                           onSelected: (value) {
                             if (value == 'edit') {
-                              // TODO: تنفيذ التعديل
+                              // تنفيذ التعديل
                             } else if (value == 'delete') {
-                              // TODO: تنفيذ الحذف
+                              // تنفيذ الحذف
                             } else if (value == 'report') {
-                              // TODO: تنفيذ الإبلاغ
+                              // تنفيذ الإبلاغ
                             }
                           },
                           itemBuilder: (context) => [
                             const PopupMenuItem(
                               value: 'edit',
-                              child: Text('✏️ Edit'),
+                              child: Text('✏️ تعديل'),
                             ),
                             const PopupMenuItem(
                               value: 'delete',
-                              child: Text('🗑️ Delete'),
+                              child: Text('🗑️ حذف'),
                             ),
                             const PopupMenuItem(
                               value: 'report',
-                              child: Text('🚩 Report'),
+                              child: Text('🚩 إبلاغ'),
                             ),
                           ],
                           icon: const Icon(Icons.more_vert),
@@ -99,6 +100,23 @@ class PostCard extends StatelessWidget {
           ),
 
           const SizedBox(height: 12),
+
+          /// 🔘 أزرار المشاركة والإعجاب
+          Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.favorite_border),
+                onPressed: () {},
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.share),
+                onPressed: () {
+                  Share.share('$content\n\n- $author');
+                },
+              ),
+            ],
+          ),
 
           /// 🔻 خط سفلي + ظل
           Container(height: 1, color: Colors.grey.withOpacity(0.2)),

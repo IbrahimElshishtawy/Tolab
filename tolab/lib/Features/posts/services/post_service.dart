@@ -18,14 +18,13 @@ class PostService {
 
   /// Simulated add post (replace with Supabase insert logic)
   Future<void> addPostToBackend(PostModel post) async {
-    // TODO: Use Supabase insert query like:
+    //
     // await Supabase.instance.client.from('posts').insert(post.toJson());
     await Future.delayed(const Duration(milliseconds: 300));
   }
 
   /// Simulated delete post (replace with Supabase delete logic)
   Future<void> deletePostFromBackend(String id) async {
-    // TODO: Use Supabase delete query like:
     // await Supabase.instance.client.from('posts').delete().eq('id', id);
     await Future.delayed(const Duration(milliseconds: 300));
   }
