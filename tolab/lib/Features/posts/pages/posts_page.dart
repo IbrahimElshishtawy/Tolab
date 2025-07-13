@@ -1,7 +1,7 @@
-// ignore_for_file: deprecated_member_use, unused_local_variable
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:tolab/Features/posts/Notification/Notifications_Page.dart';
 import 'package:tolab/Features/posts/controllers/post_controllers.dart';
 
 class PostsPage extends StatelessWidget {
@@ -12,47 +12,72 @@ class PostsPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
 
-      /// ✅ AppBar مع الأيقونات
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        elevation: 0,
         backgroundColor: Colors.white,
-        centerTitle: true,
+        elevation: 0,
+        automaticallyImplyLeading: false,
 
-        /// ✅ العنوان
-        title: const Text(
-          'Posts',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
+        leadingWidth: 140, // وسّع عرض الشعار حسب الحجم الجديد
+
+        leading: Padding(
+          padding: const EdgeInsets.only(right: 8), // مسافة من الطرف الأيمن
+          child: Row(
+            children: [
+              const SizedBox(width: 15), // مسافة إضافية داخل Row
+              const Text(
+                'ToL',
+                style: TextStyle(
+                  color: Color.fromARGB(236, 13, 20, 217),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 23, // ⬅️ حجم الخط الجديد
+                ),
+              ),
+              const SizedBox(width: 4),
+              Image.asset(
+                'assets/image_App/Tolab.png',
+                width: 35, // ⬅️ حجم الصورة الجديد
+                height: 35,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(width: 4),
+              const Text(
+                'Ab',
+                style: TextStyle(
+                  color: Color.fromARGB(236, 13, 20, 217),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 23, // ⬅️ حجم الخط الجديد
+                ),
+              ),
+            ],
           ),
         ),
 
-        /// ✅ الأيقونات في AppBar
-        leading: IconButton(
-          icon: const Icon(Icons.chat_bubble_outline, color: Colors.black87),
-          onPressed: () {
-            //   Navigator.push(
-            //     context,
-            //     MaterialPageRoute(builder: (_) => const ChatPage()),
-            //   );
-          },
-        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add, color: Colors.black87),
+            icon: const FaIcon(
+              FontAwesomeIcons.bell,
+              color: Colors.black87,
+              size: 20,
+            ),
             onPressed: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (_) => const AddPostPage()),
-              // );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationsPage()),
+              );
             },
+          ),
+          IconButton(
+            icon: const FaIcon(
+              FontAwesomeIcons.penToSquare,
+              color: Colors.black87,
+              size: 20,
+            ),
+            onPressed: () {},
           ),
         ],
       ),
 
-      /// ✅ محتوى البوستات
+      /// ✅ البوستات
       body: Consumer<PostsController>(
         builder: (context, controller, child) {
           final posts = controller.posts;
@@ -62,7 +87,7 @@ class PostsPage extends StatelessWidget {
           }
 
           return ListView.separated(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             itemCount: posts.length,
             separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
@@ -88,7 +113,6 @@ class PostsPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// 🔵 معلومات الكاتب
                     Row(
                       children: [
                         const CircleAvatar(
@@ -120,8 +144,6 @@ class PostsPage extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 12),
-
-                    /// 📝 نص البوست
                     Text(
                       post.content,
                       style: const TextStyle(
