@@ -1,4 +1,4 @@
-// lib/widget/more_side_panel.dart
+// ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:tolab/Features/more/items_option/more_side_items.dart';

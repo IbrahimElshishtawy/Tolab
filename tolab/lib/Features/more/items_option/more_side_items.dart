@@ -10,7 +10,7 @@ class MoreSideItems extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        /// 🧑‍🎓 صورة وأسم المستخدم
+        // 🧑‍🎓 صورة وأسم المستخدم
         const Center(
           child: CircleAvatar(
             radius: 35,
@@ -19,6 +19,7 @@ class MoreSideItems extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
+
         const Center(
           child: Text(
             'إبراهيم الششتاوي',
@@ -33,35 +34,42 @@ class MoreSideItems extends StatelessWidget {
         ),
         const Divider(),
 
-        /// ✅ عناصر القائمة
-        _buildTile(Icons.today, 'مواعيد اليوم', context),
-        _buildTile(Icons.folder_open, 'الملفات الجديدة', context),
-        _buildTile(Icons.school, 'مواعيد الكويزات والامتحانات', context),
-        _buildTile(Icons.person, 'الملف الشخصي', context),
-        _buildTile(Icons.info_outline, 'عن التطبيق', context),
-        _buildTile(
-          Icons.logout,
-          'تسجيل الخروج',
-          context,
-          iconColor: Colors.red,
-        ),
+        // ✅ أزرار القائمة
+        _buildButton(context, Icons.today, 'مواعيد اليوم'),
+        _buildButton(context, Icons.folder_open, 'الملفات الجديدة'),
+        _buildButton(context, Icons.school, 'مواعيد الكويزات والامتحانات'),
+        _buildButton(context, Icons.person, 'الملف الشخصي'),
+        _buildButton(context, Icons.info_outline, 'عن التطبيق'),
+        _buildButton(context, Icons.logout, 'تسجيل الخروج', color: Colors.red),
 
         const Spacer(),
 
-        /// ✅ الشعار في الأسفل
+        // ✅ الشعار في الأسفل
         Center(
-          child: Column(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const Text(
+                'ToL',
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(236, 13, 20, 217),
+                ),
+              ),
+              const SizedBox(width: 2),
               Image.asset(
                 'assets/image_App/Tolab.png',
-                width: 60,
-                height: 60,
+                width: 50,
+                height: 50,
                 fit: BoxFit.contain,
               ),
-              const SizedBox(height: 6),
+              const SizedBox(width: 2),
               const Text(
-                'ToLab',
+                'Ab',
                 style: TextStyle(
+                  fontSize: 30,
                   fontWeight: FontWeight.bold,
                   color: Color.fromARGB(236, 13, 20, 217),
                 ),
@@ -73,20 +81,38 @@ class MoreSideItems extends StatelessWidget {
     );
   }
 
-  /// 🔧 تبسيط إنشاء البلاطات
-  Widget _buildTile(
+  /// 🔘 زر بشكل مرتب داخل مساحة كاملة
+  Widget _buildButton(
+    BuildContext context,
     IconData icon,
-    String title,
-    BuildContext context, {
-    Color? iconColor,
+    String title, {
+    Color color = Colors.black87,
   }) {
-    return ListTile(
-      leading: Icon(icon, color: iconColor ?? Colors.black87),
-      title: Text(title),
-      onTap: () {
-        Navigator.pop(context);
-        // TODO: اضف التنقل المناسب هنا
-      },
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: color,
+            elevation: 1,
+            shadowColor: Colors.grey.withOpacity(0.2),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: color.withOpacity(0.2)),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            alignment: Alignment.centerLeft,
+          ),
+          icon: Icon(icon, size: 20),
+          label: Text(title, style: TextStyle(fontSize: 14, color: color)),
+          onPressed: () {
+            Navigator.pop(context);
+            // TODO: أضف التنقل المناسب هنا
+          },
+        ),
+      ),
     );
   }
 }
