@@ -1,93 +1,32 @@
 // services/post_service.dart
-
 import 'package:tolab/models/post_model.dart';
 
 class PostService {
+  /// Simulated fetch from Supabase or backend API
   Future<List<PostModel>> fetchPostsFromBackend() async {
-    // TODO: استبدال هذه البيانات بداتا حقيقية من Subabase أو Firebase
-    await Future.delayed(const Duration(seconds: 1)); // محاكاة التأخير
+    await Future.delayed(const Duration(seconds: 1)); // simulate network delay
 
-    return [
-      PostModel(
-        id: '1',
-        content: 'First official post from backend.',
-        authorId: 'admin_001',
-        createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-      ),
-      PostModel(
-        id: '2',
-        content: 'Course updates available in your dashboard.',
-        authorId: 'ta_002',
-        createdAt: DateTime.now().subtract(const Duration(hours: 3)),
-      ),
-      PostModel(
-        id: '3',
-        content: 'First official post from backend.',
-        authorId: 'admin_001',
-        createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-      ),
-      PostModel(
-        id: '4',
-        content: 'First official post from backend.',
-        authorId: 'admin_001',
-        createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-      ),
-      PostModel(
-        id: '5',
-        content: 'First official post from backend.',
-        authorId: 'admin_001',
-        createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-      ),
-      PostModel(
-        id: '6',
-        content: 'First official post from backend.',
-        authorId: 'admin_001',
-        createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-      ),
-      PostModel(
-        id: '7',
-        content: 'First official post from backend.',
-        authorId: 'admin_001',
-        createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-      ),
-      PostModel(
-        id: '8',
-        content: 'First official post from backend.',
-        authorId: 'admin_001',
-        createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-      ),
-      PostModel(
-        id: '9',
-        content: 'First official post from backend.',
-        authorId: 'admin_001',
-        createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-      ),
-      PostModel(
-        id: '10',
-        content: 'First official post from backend.',
-        authorId: 'admin_001',
-        createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-      ),
-      PostModel(
-        id: '11',
-        content: 'First official post from backend.',
-        authorId: 'admin_001',
-        createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-      ),
-      PostModel(
-        id: '12',
-        content: 'First official post from backend.',
-        authorId: 'admin_001',
-        createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-      ),
-    ];
+    return List.generate(12, (index) {
+      return PostModel(
+        id: '${index + 1}',
+        content: 'Post #${index + 1}: Updates from backend.',
+        authorId: index.isEven ? 'admin_001' : 'ta_002',
+        createdAt: DateTime.now().subtract(Duration(hours: index + 1)),
+      );
+    });
   }
 
+  /// Simulated add post (replace with Supabase insert logic)
   Future<void> addPostToBackend(PostModel post) async {
-    // TODO: تنفيذ كود لإرسال البوست إلى Subabase أو أي Backend تستخدمه
+    // TODO: Use Supabase insert query like:
+    // await Supabase.instance.client.from('posts').insert(post.toJson());
+    await Future.delayed(const Duration(milliseconds: 300));
   }
 
+  /// Simulated delete post (replace with Supabase delete logic)
   Future<void> deletePostFromBackend(String id) async {
-    // TODO: #1 تنفيذ كود لحذف البوست من قاعدة البيانات
+    // TODO: Use Supabase delete query like:
+    // await Supabase.instance.client.from('posts').delete().eq('id', id);
+    await Future.delayed(const Duration(milliseconds: 300));
   }
 }

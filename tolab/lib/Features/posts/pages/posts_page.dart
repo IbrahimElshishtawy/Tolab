@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, unused_local_variable
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,10 +9,23 @@ class PostsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Posts'),
-        backgroundColor: const Color.fromRGBO(152, 172, 201, 1),
+        automaticallyImplyLeading: false, // ✅ إزالة السهم
+        elevation: 0,
+        backgroundColor: Colors.white, // ✅ خلفية بيضاء
+        title: const Text(
+          'Posts',
+          style: TextStyle(
+            color: Colors.black87, // ✅ لون الخط غامق
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+        centerTitle: true,
       ),
       body: Consumer<PostsController>(
         builder: (context, controller, child) {
@@ -25,30 +38,35 @@ class PostsPage extends StatelessWidget {
           return ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: posts.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 16),
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final post = posts[index];
               return Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
+                  border: const Border(
+                    bottom: BorderSide(
+                      color: Color.fromRGBO(152, 172, 201, 0.2),
+                      width: 1,
+                    ),
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
+                      color: const Color.fromRGBO(152, 172, 201, 0.15),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    /// 🔵 العنوان العلوي: صورة، اسم الكاتب، التاريخ
                     Row(
                       children: [
                         const CircleAvatar(
-                          radius: 18,
+                          radius: 20,
                           backgroundColor: Color.fromRGBO(152, 172, 201, 1),
                           child: Icon(
                             Icons.person,
@@ -56,12 +74,16 @@ class PostsPage extends StatelessWidget {
                             size: 20,
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        Text(
-                          post.authorId,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            post.authorId,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
-                        const Spacer(),
                         Text(
                           _formatTime(post.createdAt),
                           style: const TextStyle(
@@ -71,8 +93,16 @@ class PostsPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    Text(post.content, style: const TextStyle(fontSize: 16)),
+                    const SizedBox(height: 12),
+
+                    /// 📝 نص البوست
+                    Text(
+                      post.content,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        color: Colors.black87,
+                      ),
+                    ),
                   ],
                 ),
               );

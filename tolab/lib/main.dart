@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tolab/Features/posts/controllers/post_controllers.dart';
 import 'package:tolab/Features/settings/app_theme.dart';
 import 'package:tolab/routes/app_router.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: "https://joaibmeegtvzoloekrzd.supabase.co",
+    anonKey:
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvYWlibWVlZ3R2em9sb2VrcnpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIzMTkzNjEsImV4cCI6MjA2Nzg5NTM2MX0.UjSrEmVVVYCWqf9tpO_lGmPFzjDVsEoLJYdZtYt5TSM",
+  );
+
   runApp(const TolabApp());
 }
 
