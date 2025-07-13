@@ -9,24 +9,50 @@ class PostsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       backgroundColor: Colors.white,
+
+      /// ✅ AppBar مع الأيقونات
       appBar: AppBar(
-        automaticallyImplyLeading: false, // ✅ إزالة السهم
+        automaticallyImplyLeading: false,
         elevation: 0,
-        backgroundColor: Colors.white, // ✅ خلفية بيضاء
+        backgroundColor: Colors.white,
+        centerTitle: true,
+
+        /// ✅ العنوان
         title: const Text(
           'Posts',
           style: TextStyle(
-            color: Colors.black87, // ✅ لون الخط غامق
+            color: Colors.black87,
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
         ),
-        centerTitle: true,
+
+        /// ✅ الأيقونات في AppBar
+        leading: IconButton(
+          icon: const Icon(Icons.chat_bubble_outline, color: Colors.black87),
+          onPressed: () {
+            //   Navigator.push(
+            //     context,
+            //     MaterialPageRoute(builder: (_) => const ChatPage()),
+            //   );
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add, color: Colors.black87),
+            onPressed: () {
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (_) => const AddPostPage()),
+              // );
+            },
+          ),
+        ],
       ),
+
+      /// ✅ محتوى البوستات
       body: Consumer<PostsController>(
         builder: (context, controller, child) {
           final posts = controller.posts;
@@ -62,7 +88,7 @@ class PostsPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// 🔵 العنوان العلوي: صورة، اسم الكاتب، التاريخ
+                    /// 🔵 معلومات الكاتب
                     Row(
                       children: [
                         const CircleAvatar(
