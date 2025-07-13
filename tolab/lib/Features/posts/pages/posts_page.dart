@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tolab/Features/posts/Notification/Notifications_Page.dart';
+import 'package:tolab/Features/posts/add/Add_Post_Page.dart';
 import 'package:tolab/Features/posts/controllers/post_controllers.dart';
 
 class PostsPage extends StatelessWidget {
@@ -72,7 +73,12 @@ class PostsPage extends StatelessWidget {
               color: Colors.black87,
               size: 20,
             ),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AddPostPage()),
+              );
+            },
           ),
         ],
       ),
