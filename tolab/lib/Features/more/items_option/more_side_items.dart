@@ -14,7 +14,7 @@ class MoreSideItems extends StatelessWidget {
         const Center(
           child: CircleAvatar(
             radius: 35,
-            backgroundColor: Color.fromRGBO(152, 172, 201, 1),
+            backgroundColor: Color(0xFF98ACC9),
             child: Icon(Icons.person, size: 40, color: Colors.white),
           ),
         ),
@@ -23,16 +23,27 @@ class MoreSideItems extends StatelessWidget {
         const Center(
           child: Text(
             'إبراهيم الششتاوي',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
           ),
         ),
-        const SizedBox(height: 30),
+        const SizedBox(height: 25),
 
-        const Text(
-          'المزيد من الخيارات',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text(
+            'المزيد من الخيارات',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade700,
+            ),
+          ),
         ),
-        const Divider(),
+        const Divider(thickness: 1.1),
 
         // ✅ أزرار القائمة
         _buildButton(context, Icons.today, 'مواعيد اليوم'),
@@ -48,28 +59,27 @@ class MoreSideItems extends StatelessWidget {
         Center(
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
                 'ToL',
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Color.fromARGB(236, 13, 20, 217),
                 ),
               ),
-              const SizedBox(width: 2),
+              const SizedBox(width: 4),
               Image.asset(
                 'assets/image_App/Tolab.png',
-                width: 50,
-                height: 50,
+                width: 36,
+                height: 36,
                 fit: BoxFit.contain,
               ),
-              const SizedBox(width: 2),
+              const SizedBox(width: 4),
               const Text(
                 'Ab',
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Color.fromARGB(236, 13, 20, 217),
                 ),
@@ -81,7 +91,7 @@ class MoreSideItems extends StatelessWidget {
     );
   }
 
-  /// 🔘 زر بشكل مرتب داخل مساحة كاملة
+  /// 🔘 زر أنيق ومسطّح مع أيقونة
   Widget _buildButton(
     BuildContext context,
     IconData icon,
@@ -89,28 +99,40 @@ class MoreSideItems extends StatelessWidget {
     Color color = Colors.black87,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: SizedBox(
         width: double.infinity,
-        child: ElevatedButton.icon(
+        child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: color,
-            elevation: 1,
-            shadowColor: Colors.grey.withOpacity(0.2),
+            backgroundColor: Colors.grey.shade100,
+            shadowColor: Colors.transparent,
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: color.withOpacity(0.2)),
+              borderRadius: BorderRadius.circular(14),
+              side: BorderSide(color: color.withOpacity(0.1)),
             ),
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            alignment: Alignment.centerLeft,
+            elevation: 0.8,
           ),
-          icon: Icon(icon, size: 20),
-          label: Text(title, style: TextStyle(fontSize: 14, color: color)),
           onPressed: () {
             Navigator.pop(context);
             // TODO: أضف التنقل المناسب هنا
           },
+          child: Row(
+            children: [
+              Icon(icon, size: 20, color: color),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: color,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
