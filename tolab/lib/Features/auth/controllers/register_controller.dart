@@ -32,21 +32,30 @@ class RegisterController extends ChangeNotifier {
   bool showConfirmPassword = false;
 
   void setDepartment(String? dep) {
-    selectedDepartment = dep;
-    print('🔹 القسم تم اختياره: $dep');
-    notifyListeners();
+    if (selectedDepartment != dep) {
+      selectedDepartment = dep;
+      print('🔹 القسم تم اختياره: $dep');
+      notifyListeners();
+    }
   }
 
   void setStudyYear(String? year) {
-    selectedStudyYear = year;
-    print('🔹 السنة الدراسية تم اختيارها: $year');
-    notifyListeners();
+    if (selectedStudyYear != year) {
+      selectedStudyYear = year;
+      print('🔹 السنة الدراسية تم اختيارها: $year');
+      notifyListeners();
+    }
   }
 
   void setUserType(String? type) {
-    selectedUserType = type;
-    print('🔹 نوع المستخدم تم تغييره إلى: $type');
-    notifyListeners();
+    if (selectedUserType != type) {
+      selectedUserType = type;
+      print('🔹 نوع المستخدم تم تغييره إلى: $type');
+      selectedDepartment = null;
+      selectedStudyYear = null;
+      universityEmailController.clear();
+      notifyListeners();
+    }
   }
 
   bool get isPasswordMatched =>
@@ -62,15 +71,17 @@ class RegisterController extends ChangeNotifier {
     final gend = NationalIdParser.extractGender(value);
     final cit = NationalIdParser.extractCity(value);
 
-    print(
-      '🔍 استخراج بيانات الرقم القومي: تاريخ الميلاد=$date, النوع=$gend, المحافظة=$cit',
-    );
-
     if (date != null && gend != null && cit != null) {
+      final changed = birthDate != date || gender != gend || city != cit;
+
       birthDate = date;
       gender = gend;
       city = cit;
-      notifyListeners();
+
+      if (changed) {
+        print('🔍 تم استخراج وتحديث بيانات الرقم القومي.');
+        notifyListeners();
+      }
     } else {
       print('⚠️ فشل في استخراج بيانات الرقم القومي');
     }
@@ -99,7 +110,6 @@ class RegisterController extends ChangeNotifier {
     print('القسم: $department');
     print('السنة الدراسية: $studyYear');
 
-    // التحقق من الحقول الأساسية
     if (name.isEmpty ||
         email.isEmpty ||
         password.isEmpty ||
@@ -110,7 +120,6 @@ class RegisterController extends ChangeNotifier {
       return false;
     }
 
-    // تحقق من تطابق كلمة المرور
     if (!isPasswordMatched) {
       errorMessage = 'كلمة المرور غير متطابقة';
       print('❌ فشل التسجيل: $errorMessage');
@@ -118,7 +127,6 @@ class RegisterController extends ChangeNotifier {
       return false;
     }
 
-    // التحقق حسب نوع المستخدم
     if (userType == 'طالب') {
       if (nationalId.isEmpty ||
           universityEmail.isEmpty ||
@@ -137,7 +145,6 @@ class RegisterController extends ChangeNotifier {
         return false;
       }
     } else {
-      // للدكاترة والمعيدين: تحقق من الاسم، البريد الإلكتروني، الرقم القومي، كلمة المرور فقط
       if (nationalId.isEmpty) {
         errorMessage = 'يرجى إدخال الرقم القومي';
         print('❌ فشل التسجيل: $errorMessage');
@@ -203,7 +210,6 @@ class RegisterController extends ChangeNotifier {
     }
   }
 
-  // دوال لتبديل إظهار/إخفاء كلمة المرور
   void toggleShowPassword() {
     showPassword = !showPassword;
     notifyListeners();
