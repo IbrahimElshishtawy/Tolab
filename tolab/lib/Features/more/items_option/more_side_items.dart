@@ -1,5 +1,7 @@
 // lib/widget/more_side_items.dart
 
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 
 class MoreSideItems extends StatelessWidget {

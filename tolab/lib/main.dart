@@ -5,6 +5,8 @@ import 'package:tolab/Features/posts/controllers/post_controllers.dart';
 import 'package:tolab/Features/settings/app_theme.dart';
 import 'package:tolab/routes/app_router.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -25,9 +27,9 @@ class TolabApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => PostsController()..fetchPosts()),
-        // يمكنك إضافة مزيد من الـ providers هنا لاحقًا
       ],
       child: MaterialApp(
+        navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         theme: AppThemes.lightTheme,
         darkTheme: AppThemes.darkTheme,

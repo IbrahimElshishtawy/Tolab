@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserService {
   static final SupabaseClient _client = Supabase.instance.client;
-  static const String tableName = 'users';
+  static const String tableName = 'user_data';
 
   /// ✅ إضافة مستخدم جديد ببيانات إضافية
   static Future<void> addUserData({
@@ -54,5 +54,26 @@ class UserService {
   /// ✅ حذف بيانات المستخدم
   static Future<void> deleteUser(String uid) async {
     await _client.from(tableName).delete().eq('id', uid);
+  }
+
+  /// ✅ حفظ بيانات المستخدم (إنشاء أو تحديث)
+  static Future<void> saveUserProfile({
+    required String uid,
+    required Map<String, dynamic> data,
+  }) async {
+    await _client.from(tableName).upsert({
+      'id': uid, // تأكد أن هذا العمود هو Primary Key في Supabase
+      ...data,
+    });
+  }
+
+  /// ✅ جلب ملف المستخدم (نسخة مضمونة single)
+  static Future<Map<String, dynamic>?> getUserProfile(String uid) async {
+    final response = await _client
+        .from(tableName)
+        .select()
+        .eq('id', uid)
+        .single();
+    return response;
   }
 }

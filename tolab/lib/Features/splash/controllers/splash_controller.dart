@@ -1,6 +1,4 @@
-// 📁 splash_controller.dart
 import 'package:flutter/material.dart';
-import 'package:tolab/Features/home/home_page.dart';
 
 class SplashController {
   final BuildContext context;
@@ -23,7 +21,7 @@ class SplashController {
 
   SplashController({required this.vsync, required this.context});
 
-  void startAnimation() {
+  void startAnimation() async {
     final size = MediaQuery.of(context).size;
     final maxSize = size.longestSide * 2;
     final scaleBegin = maxSize / size.width;
@@ -71,10 +69,7 @@ class SplashController {
 
           logoHideController.addStatusListener((status) {
             if (status == AnimationStatus.completed) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const HomePage()),
-              );
+              Navigator.pushReplacementNamed(context, '/login');
             }
           });
         });
