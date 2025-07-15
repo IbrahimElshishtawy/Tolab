@@ -6,7 +6,7 @@ class UserService {
   static final SupabaseClient _client = Supabase.instance.client;
   static const String tableName = 'user_data';
 
-  /// ✅ إضافة مستخدم جديد ببيانات إضافية
+  // إضافة مستخدم جديد ببيانات إضافية
   static Future<void> addUserData({
     required String uid,
     required String fullName,
@@ -23,7 +23,7 @@ class UserService {
     });
   }
 
-  /// ✅ تحديث بيانات المستخدم
+  // تحديث بيانات المستخدم
   static Future<void> updateUserData({
     required String uid,
     String? fullName,
@@ -40,7 +40,7 @@ class UserService {
     await _client.from(tableName).update(updates).eq('id', uid);
   }
 
-  /// ✅ جلب بيانات المستخدم
+  // جلب بيانات المستخدم
   static Future<Map<String, dynamic>?> getUserData(String uid) async {
     final response = await _client
         .from(tableName)
@@ -51,12 +51,12 @@ class UserService {
     return response;
   }
 
-  /// ✅ حذف بيانات المستخدم
+  // حذف بيانات المستخدم
   static Future<void> deleteUser(String uid) async {
     await _client.from(tableName).delete().eq('id', uid);
   }
 
-  /// ✅ حفظ بيانات المستخدم (إنشاء أو تحديث)
+  // حفظ بيانات المستخدم (إنشاء أو تحديث)
   static Future<void> saveUserProfile({
     required String uid,
     required Map<String, dynamic> data,
@@ -67,7 +67,7 @@ class UserService {
     });
   }
 
-  /// ✅ جلب ملف المستخدم (نسخة مضمونة single)
+  // جلب ملف المستخدم (نسخة مضمونة single)
   static Future<Map<String, dynamic>?> getUserProfile(String uid) async {
     final response = await _client
         .from(tableName)
