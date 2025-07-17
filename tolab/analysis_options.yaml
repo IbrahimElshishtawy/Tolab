@@ -7,10 +7,6 @@
 
 # The following line activates a set of recommended lints for Flutter apps,
 # packages, and plugins designed to encourage good coding practices.
-analyzer:
-  errors:
-    invalid_use_of_protected_member: ignore
-    unnecessary_cast: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:
