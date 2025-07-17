@@ -24,9 +24,9 @@ void main() async {
     print("❌ Supabase init error: $e");
   }
 
+  // ✅ ربط app_links handler
   final appLinksHandler = AppLinksHandler();
-  await appLinksHandler.handleInitialUri();
-  appLinksHandler.listenToUriChanges();
+  appLinksHandler.initialize(); // استدعاء الاستماع للرابط
 
   runApp(const TolabApp());
 }
