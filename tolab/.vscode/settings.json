@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "C:/FLutter_project_Tolab/Tolab/tolab/linux"
+    "cmake.sourceDirectory": "C:/FLutter_project_Tolab/Tolab/tolab/linux",
+    "cmake.ignoreCMakeListsMissing": true
 }
