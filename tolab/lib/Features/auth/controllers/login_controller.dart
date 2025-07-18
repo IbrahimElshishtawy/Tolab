@@ -1,9 +1,5 @@
-// lib/auth/controllers/login_controller.dart
-
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tolab/core/services/auth_service.dart';
 
 class LoginController extends ChangeNotifier {
   final emailController = TextEditingController();
@@ -11,70 +7,72 @@ class LoginController extends ChangeNotifier {
 
   bool isLoading = false;
   String? errorMessage;
-
   bool showPassword = false;
-
-  // ✅ خاصية تذكرني
   bool rememberMe = false;
 
-  /// ✅ تبديل رؤية كلمة المرور
-  void toggleShowPassword() {
+  void togglePasswordVisibility() {
     showPassword = !showPassword;
     notifyListeners();
   }
 
-  /// ✅ تبديل "تذكرني"
   void toggleRememberMe(bool? value) {
     rememberMe = value ?? false;
     notifyListeners();
   }
 
-  /// ✅ تنفيذ تسجيل الدخول
-  Future<bool> login() async {
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      errorMessage = 'يرجى ملء البريد وكلمة المرور';
-      notifyListeners();
-      return false;
-    }
-
-    isLoading = true;
-    errorMessage = null;
+  void setError(String message) {
+    errorMessage = message;
     notifyListeners();
+  }
 
+  void setLoading(bool value) {
+    isLoading = value;
+    notifyListeners();
+  }
+
+  Future<void> login(BuildContext context) async {
+    setLoading(true);
     try {
-      final response = await AuthService.signIn(
+      String emailInput = emailController.text.trim();
+      final password = passwordController.text.trim();
+
+      // إذا المستخدم لم يكتب @ نضيف دومين جامعة طنطا
+      String email;
+      if (!emailInput.contains('@')) {
+        email = '$emailInput@ics.tanta.edu.eg';
+      } else {
+        email = emailInput;
+      }
+
+      final response = await Supabase.instance.client.auth.signInWithPassword(
         email: email,
         password: password,
       );
 
-      if (response?.user != null) {
-        if (rememberMe) {
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString('saved_email', email);
-          await prefs.setString('saved_password', password);
-        }
-
-        return true;
+      if (response.user == null) {
+        setError(
+          'فشل تسجيل الدخول: ${response.session?.accessToken ?? 'بيانات غير صحيحة'}',
+        );
       } else {
-        errorMessage = 'فشل تسجيل الدخول';
-        return false;
+        setError('');
+        // يمكنك الانتقال إلى الصفحة التالية هنا
+        // Navigator.pushReplacementNamed(context, '/home');
       }
-    } on AuthException catch (e) {
-      errorMessage = e.message;
-      return false;
     } catch (e) {
-      errorMessage = 'حدث خطأ غير متوقع';
-      return false;
+      setError('حدث خطأ أثناء تسجيل الدخول');
     } finally {
-      isLoading = false;
-      notifyListeners();
+      setLoading(false);
     }
   }
 
-  /// ✅ تفريغ الموارد
+  void clear() {
+    emailController.clear();
+    passwordController.clear();
+    errorMessage = null;
+    rememberMe = false;
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     emailController.dispose();

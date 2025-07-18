@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, unused_import
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,26 +13,35 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // ✅ تهيئة Supabase
   try {
     await Supabase.initialize(
       url: "https://joaibmeegtvzoloekrzd.supabase.co",
-      anonKey:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvYWlibWVlZ3R2em9sb2VrcnpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIzMTkzNjEsImV4cCI6MjA2Nzg5NTM2MX0.UjSrEmVVVYCWqf9tpO_lGmPFzjDVsEoLJYdZtYt5TSM",
+      anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     );
     print("✅ Supabase initialized");
   } catch (e) {
     print("❌ Supabase init error: $e");
   }
 
-  // ✅ ربط app_links handler
-  final appLinksHandler = AppLinksHandler();
-  appLinksHandler.initialize(); // استدعاء الاستماع للرابط
-
   runApp(const TolabApp());
 }
 
-class TolabApp extends StatelessWidget {
+class TolabApp extends StatefulWidget {
   const TolabApp({super.key});
+
+  @override
+  State<TolabApp> createState() => _TolabAppState();
+}
+
+class _TolabAppState extends State<TolabApp> {
+  final AppLinksHandler _appLinksHandler = AppLinksHandler();
+
+  @override
+  void initState() {
+    super.initState();
+    _appLinksHandler.initialize(); // ✅ تفعيل الاستماع للرابط عند بدء التطبيق
+  }
 
   @override
   Widget build(BuildContext context) {
