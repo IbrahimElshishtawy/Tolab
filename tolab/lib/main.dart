@@ -13,16 +13,15 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ✅ تهيئة Supabase
-  try {
-    await Supabase.initialize(
-      url: "https://joaibmeegtvzoloekrzd.supabase.co",
-      anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    );
-    print("✅ Supabase initialized");
-  } catch (e) {
-    print("❌ Supabase init error: $e");
-  }
+  // try {
+  //   await Supabase.initialize(
+  //     url: "https://joaibmeegtvzoloekrzd.supabase.co",
+  //     anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  //   );
+  //   print("✅ Supabase initialized");
+  // } catch (e) {
+  //   print("❌ Supabase init error: $e");
+  // }
 
   runApp(const TolabApp());
 }
