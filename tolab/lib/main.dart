@@ -17,10 +17,7 @@ class TolabApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => LoginController()),
-        // ✅ يمكنك إضافة المزيد من Providers مثل Supabase هنا
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => LoginController())],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: AppThemes.lightTheme,

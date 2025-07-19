@@ -11,7 +11,6 @@ class RegisterForm extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => RegisterController(),
       child: Scaffold(
-        appBar: AppBar(title: const Text('تسجيل حساب جديد'), centerTitle: true),
         body: const Padding(
           padding: EdgeInsets.all(16.0),
           child: SingleChildScrollView(child: RegisterFields()),

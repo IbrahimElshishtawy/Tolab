@@ -1,5 +1,3 @@
-// ignore_for_file: unused_local_variable
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tolab/Features/auth/controllers/register_controller.dart';
@@ -11,7 +9,6 @@ class RegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return ChangeNotifierProvider(
       create: (_) => RegisterController(),
@@ -28,9 +25,18 @@ class RegisterPage extends StatelessWidget {
               elevation: 1,
               centerTitle: true,
             ),
-            body: const SingleChildScrollView(
-              padding: EdgeInsets.all(20),
-              child: RegisterForm(),
+            body: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: IntrinsicHeight(
+                      child: const RegisterForm(),
+                    ),
+                  ),
+                );
+              },
             ),
           );
         },
