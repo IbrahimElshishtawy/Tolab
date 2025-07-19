@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, unnecessary_underscores
+// ignore_for_file: avoid_print, unnecessary_underscores, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:tolab/Features/splash/controllers/splash_controller.dart';
@@ -18,7 +18,6 @@ class _SplashScreenState extends State<SplashScreen>
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // ignore:
     print("🚀 محاولة تحميل الصورة: assets/image_splash/Tolab_splash_page.png");
 
     controller = SplashController(vsync: this, context: context);
@@ -35,6 +34,7 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final maxSize = size.longestSide * 2;
+    final theme = Theme.of(context);
 
     if (!controller.isInitialized) {
       return const Scaffold(body: SizedBox());
@@ -43,8 +43,8 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       body: Stack(
         children: [
-          // خلفية بيضاء
-          Container(color: Colors.white),
+          // خلفية بلون الخلفية من الثيم
+          Container(color: theme.scaffoldBackgroundColor),
 
           // الدائرة الملونة التي تختفي تدريجيًا
           ValueListenableBuilder<bool>(
@@ -97,11 +97,12 @@ class _SplashScreenState extends State<SplashScreen>
                                 },
                               ),
                               const SizedBox(height: 20),
-                              const Text(
+                              Text(
                                 'Welcome to Tolab',
                                 style: TextStyle(
                                   fontSize: 22,
-                                  color: Colors.black54,
+                                  color: theme.textTheme.bodyLarge?.color
+                                      ?.withOpacity(0.7),
                                   fontWeight: FontWeight.w500,
                                   letterSpacing: 1.2,
                                 ),
@@ -119,7 +120,7 @@ class _SplashScreenState extends State<SplashScreen>
             },
           ),
 
-          // دائرة بيضاء تخفي الشعار
+          // دائرة تغطّي الشعار بلون خلفية الثيم
           ValueListenableBuilder<bool>(
             valueListenable: controller.hideLogoWithCircle,
             builder: (_, hideLogo, __) {
@@ -132,8 +133,8 @@ class _SplashScreenState extends State<SplashScreen>
                           child: Container(
                             width: maxSize,
                             height: maxSize,
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
+                            decoration: BoxDecoration(
+                              color: theme.scaffoldBackgroundColor,
                               shape: BoxShape.circle,
                             ),
                           ),

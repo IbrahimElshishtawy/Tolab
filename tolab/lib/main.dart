@@ -1,59 +1,31 @@
-// ignore_for_file: avoid_print, unused_import
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tolab/Features/posts/controllers/post_controllers.dart';
+import 'package:tolab/Features/auth/controllers/login_controller.dart';
 import 'package:tolab/Features/settings/app_theme.dart';
+import 'package:tolab/core/config/supabase_config.dart';
 import 'package:tolab/routes/app_router.dart';
-import 'package:tolab/core/services/app_links_handler.dart';
 
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // try {
-  //   await Supabase.initialize(
-  //     url: "https://joaibmeegtvzoloekrzd.supabase.co",
-  //     anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  //   );
-  //   print("✅ Supabase initialized");
-  // } catch (e) {
-  //   print("❌ Supabase init error: $e");
-  // }
-
+  await SupabaseConfig.initialize();
   runApp(const TolabApp());
 }
 
-class TolabApp extends StatefulWidget {
+class TolabApp extends StatelessWidget {
   const TolabApp({super.key});
-
-  @override
-  State<TolabApp> createState() => _TolabAppState();
-}
-
-class _TolabAppState extends State<TolabApp> {
-  final AppLinksHandler _appLinksHandler = AppLinksHandler();
-
-  @override
-  void initState() {
-    super.initState();
-    _appLinksHandler.initialize(); // ✅ تفعيل الاستماع للرابط عند بدء التطبيق
-  }
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => PostsController()..fetchPosts()),
+        ChangeNotifierProvider(create: (_) => LoginController()),
+        // ✅ يمكنك إضافة المزيد من Providers مثل Supabase هنا
       ],
       child: MaterialApp(
-        navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         theme: AppThemes.lightTheme,
         darkTheme: AppThemes.darkTheme,
-        themeMode: ThemeMode.system,
+        themeMode: ThemeMode.dark,
         initialRoute: '/splash',
         onGenerateRoute: AppRouter.generateRoute,
       ),

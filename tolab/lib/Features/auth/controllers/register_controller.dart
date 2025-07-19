@@ -90,7 +90,7 @@ class RegisterController extends ChangeNotifier {
   String get birthDateString =>
       "${birthDate!.year}-${birthDate!.month.toString().padLeft(2, '0')}-${birthDate!.day.toString().padLeft(2, '0')}";
 
-  Future<bool> register() async {
+  Future<bool> register(BuildContext context) async {
     print('🚀 بدء عملية التسجيل');
 
     final name = fullNameController.text.trim();

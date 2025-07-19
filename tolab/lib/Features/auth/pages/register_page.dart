@@ -1,4 +1,5 @@
-// ✅ RegisterPage.dart (واجهة التسجيل)
+// ignore_for_file: unused_local_variable
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tolab/Features/auth/controllers/register_controller.dart';
@@ -9,18 +10,21 @@ class RegisterPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return ChangeNotifierProvider(
       create: (_) => RegisterController(),
       child: Consumer<RegisterController>(
         builder: (context, controller, _) {
           return Scaffold(
             appBar: AppBar(
-              backgroundColor: Colors.white,
-              title: const Text(
+              backgroundColor: theme.scaffoldBackgroundColor,
+              title: Text(
                 "إنشاء حساب",
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(color: theme.textTheme.bodyLarge?.color),
               ),
-              iconTheme: const IconThemeData(color: Colors.black),
+              iconTheme: IconThemeData(color: theme.iconTheme.color),
               elevation: 1,
               centerTitle: true,
             ),
