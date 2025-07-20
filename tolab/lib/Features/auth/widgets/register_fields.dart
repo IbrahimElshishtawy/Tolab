@@ -1,5 +1,6 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tolab/core/utils/national_id_parser.dart'; // تأكد من المسار الصحيح
 
@@ -185,7 +186,7 @@ class _RegisterFieldsState extends State<RegisterFields> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 if (passwordController.text != confirmPasswordController.text) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("كلمتا المرور غير متطابقتين")),
@@ -193,23 +194,47 @@ class _RegisterFieldsState extends State<RegisterFields> {
                   return;
                 }
 
-                // ✅ طباعة البيانات في الكونسول
-                print("📌 الاسم: ${nameController.text}");
-                print("📌 الرقم القومي: ${nationalIdController.text}");
-                print("📌 البريد الإلكتروني: ${emailController.text}");
-                print("📌 النوع: $gender");
-                print("📌 تاريخ الميلاد: $birthDate");
-                print("📌 العنوان: $address");
-                print("📌 الدور: $role");
+                try {
+                  // ✅ التسجيل في Firebase Auth
+                  final credential = await FirebaseAuth.instance
+                      .createUserWithEmailAndPassword(
+                        email: emailController.text.trim(),
+                        password: passwordController.text.trim(),
+                      );
 
-                if (role == 'student') {
-                  print("📌 القسم: $selectedDepartment");
-                  print("📌 السنة الدراسية: $selectedYear");
+                  // ✅ طباعة UID للتأكيد
+                  print("تم إنشاء الحساب بنجاح: ${credential.user?.uid}");
+
+                  // ✅ طباعة البيانات الأخرى
+                  print("📌 الاسم: ${nameController.text}");
+                  print("📌 الرقم القومي: ${nationalIdController.text}");
+                  print("📌 البريد الإلكتروني: ${emailController.text}");
+                  print("📌 النوع: $gender");
+                  print("📌 تاريخ الميلاد: $birthDate");
+                  print("📌 العنوان: $address");
+                  print("📌 الدور: $role");
+
+                  if (role == 'student') {
+                    print("📌 القسم: $selectedDepartment");
+                    print("📌 السنة الدراسية: $selectedYear");
+                  }
+
+                  // ✅ الانتقال إلى الصفحة الرئيسية
+                  Navigator.pushReplacementNamed(context, '/home');
+                } on FirebaseAuthException catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("حدث خطأ: ${e.message}")),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("فشل التسجيل، حاول مرة أخرى."),
+                    ),
+                  );
+                  print("⚠️ خطأ غير متوقع: $e");
                 }
-
-                // ✅ الانتقال إلى صفحة /home
-                Navigator.pushReplacementNamed(context, '/home');
               },
+
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 padding: const EdgeInsets.symmetric(vertical: 14),

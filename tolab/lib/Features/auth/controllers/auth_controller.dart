@@ -1,7 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tolab/core/services/auth_service.dart';
-import 'package:tolab/core/services/user_service.dart';
 
 class AuthController with ChangeNotifier {
   final emailController = TextEditingController();
@@ -10,6 +9,9 @@ class AuthController with ChangeNotifier {
   final nameController = TextEditingController();
   final ageController = TextEditingController();
   final nationalIdController = TextEditingController();
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   bool isLoading = false;
   String? errorMessage;
@@ -34,35 +36,31 @@ class AuthController with ChangeNotifier {
     nationalIdController.clear();
   }
 
-  /// ✅ عملية تسجيل الدخول
+  /// ✅ تسجيل الدخول
   Future<bool> login() async {
     setLoading(true);
     try {
-      final response = await AuthService.signIn(
-        email: emailController.text,
-        password: passwordController.text,
+      final credential = await _auth.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
       );
 
-      if (response?.user != null) {
-        if (!AuthService.isEmailVerified()) {
-          errorMessage = "يجب تأكيد البريد الإلكتروني أولاً.";
-          setLoading(false);
-          return false;
-        }
-        return true;
-      } else {
-        errorMessage = "فشل تسجيل الدخول. تحقق من البيانات.";
+      if (!credential.user!.emailVerified) {
+        errorMessage = "يجب تأكيد البريد الإلكتروني أولاً.";
+        setLoading(false);
         return false;
       }
-    } on AuthException catch (e) {
-      errorMessage = e.message;
+
+      return true;
+    } on FirebaseAuthException catch (e) {
+      errorMessage = _handleFirebaseAuthError(e);
       return false;
     } finally {
       setLoading(false);
     }
   }
 
-  /// ✅ عملية إنشاء حساب جديد
+  /// ✅ إنشاء حساب جديد
   Future<bool> register() async {
     setLoading(true);
     try {
@@ -72,32 +70,47 @@ class AuthController with ChangeNotifier {
         return false;
       }
 
-      final response = await AuthService.signUp(
-        email: emailController.text,
-        password: passwordController.text,
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
       );
 
-      if (response?.user != null) {
-        // حفظ بيانات المستخدم في قاعدة البيانات
-        await UserService.saveUserProfile(
-          uid: response!.user!.id,
-          data: {
-            'email': emailController.text,
-            'name': nameController.text,
-            'age': ageController.text,
-            'national_id': nationalIdController.text,
-          },
-        );
-        return true;
-      } else {
-        errorMessage = "فشل إنشاء الحساب.";
-        return false;
-      }
-    } on AuthException catch (e) {
-      errorMessage = e.message;
+      // إرسال بريد التفعيل
+      await credential.user!.sendEmailVerification();
+
+      // حفظ البيانات في Firestore
+      await _firestore.collection('users').doc(credential.user!.uid).set({
+        'email': emailController.text.trim(),
+        'name': nameController.text.trim(),
+        'age': ageController.text.trim(),
+        'national_id': nationalIdController.text.trim(),
+        'created_at': FieldValue.serverTimestamp(),
+      });
+
+      return true;
+    } on FirebaseAuthException catch (e) {
+      errorMessage = _handleFirebaseAuthError(e);
       return false;
     } finally {
       setLoading(false);
+    }
+  }
+
+  /// ✅ التعامل مع رسائل الخطأ
+  String _handleFirebaseAuthError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'email-already-in-use':
+        return 'هذا البريد مسجل بالفعل.';
+      case 'invalid-email':
+        return 'البريد الإلكتروني غير صالح.';
+      case 'weak-password':
+        return 'كلمة المرور ضعيفة جداً.';
+      case 'user-not-found':
+        return 'المستخدم غير موجود.';
+      case 'wrong-password':
+        return 'كلمة المرور غير صحيحة.';
+      default:
+        return 'حدث خطأ: ${e.message}';
     }
   }
 }

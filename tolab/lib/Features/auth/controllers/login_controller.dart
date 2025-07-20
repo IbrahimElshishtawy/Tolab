@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginController extends ChangeNotifier {
   final emailController = TextEditingController();
@@ -9,7 +9,9 @@ class LoginController extends ChangeNotifier {
   bool rememberMe = false;
   String? errorMessage;
 
-  /// تسجيل الدخول
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  /// تسجيل الدخول باستخدام Firebase Auth
   Future<bool> login() async {
     isLoading = true;
     errorMessage = null;
@@ -18,44 +20,34 @@ class LoginController extends ChangeNotifier {
     final email = emailController.text.trim();
     final password = passwordController.text;
 
-    // مثال بسيط للتحقق
-    await Future.delayed(
-      const Duration(seconds: 2),
-    ); // محاكاة عملية تسجيل الدخول
-
-    if (email == "test@ics.tanta.edu.eg" && password == "123456") {
-      if (rememberMe) {
-        await saveLoginData(email);
-      }
-
+    try {
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
       isLoading = false;
       notifyListeners();
       return true;
-    } else {
-      errorMessage = "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        errorMessage = 'هذا البريد غير مسجل.';
+      } else if (e.code == 'wrong-password') {
+        errorMessage = 'كلمة المرور غير صحيحة.';
+      } else {
+        errorMessage = 'حدث خطأ أثناء تسجيل الدخول.';
+      }
       isLoading = false;
       notifyListeners();
       return false;
     }
   }
 
-  /// حفظ بيانات تسجيل الدخول
-  Future<void> saveLoginData(String email) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', true);
-    await prefs.setString('email', email);
-  }
-
-  /// التحقق من حالة تسجيل الدخول عند تشغيل التطبيق
-  Future<bool> checkLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('isLoggedIn') ?? false;
+  /// التحقق من حالة تسجيل الدخول (المستخدم الحالي)
+  bool checkLoginStatus() {
+    return _auth.currentUser != null;
   }
 
   /// تسجيل الخروج
   Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await _auth.signOut();
+    notifyListeners();
   }
 
   /// تغيير حالة "تذكرني"
