@@ -1,6 +1,7 @@
 // ignore_for_file: unused_import
 
 import 'package:flutter/material.dart';
+import 'package:tolab/Features/auth/pages/forgot_password_page.dart';
 import 'package:tolab/Features/home/home_page.dart';
 
 import 'package:tolab/Features/auth/pages/login_page.dart';
@@ -18,6 +19,9 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const HomePage());
       case '/register':
         return MaterialPageRoute(builder: (_) => const RegisterPage());
+      case '/forgot-password':
+        return MaterialPageRoute(builder: (_) => const ForgotPasswordPage());
+
       default:
         return MaterialPageRoute(
           builder: (_) =>
