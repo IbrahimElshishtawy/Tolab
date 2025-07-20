@@ -15,6 +15,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   String? message;
 
   @override
+  void dispose() {
+    emailController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('استعادة كلمة المرور')),
@@ -49,7 +55,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             ),
             if (message != null) ...[
               const SizedBox(height: 10),
-              Text(message!, style: const TextStyle(color: Colors.green)),
+              Text(
+                message!,
+                style: TextStyle(
+                  color: message!.startsWith('حدث خطأ')
+                      ? Colors.red
+                      : Colors.green,
+                ),
+              ),
             ],
           ],
         ),
