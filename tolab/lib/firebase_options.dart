@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'tolab-e1b84.firebasestorage.app',
     measurementId: 'G-7R397HKHWF',
   );
+
 }

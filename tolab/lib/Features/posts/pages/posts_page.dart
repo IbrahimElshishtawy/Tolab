@@ -13,11 +13,14 @@ class PostsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
 
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         automaticallyImplyLeading: false,
         leadingWidth: 140,
@@ -27,10 +30,10 @@ class PostsPage extends StatelessWidget {
           child: Row(
             children: [
               const SizedBox(width: 15),
-              const Text(
+              Text(
                 'ToL',
                 style: TextStyle(
-                  color: Color.fromARGB(236, 13, 20, 217),
+                  color: theme.primaryColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 23,
                 ),
@@ -43,10 +46,10 @@ class PostsPage extends StatelessWidget {
                 fit: BoxFit.contain,
               ),
               const SizedBox(width: 4),
-              const Text(
+              Text(
                 'Ab',
                 style: TextStyle(
-                  color: Color.fromARGB(236, 13, 20, 217),
+                  color: theme.primaryColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 23,
                 ),
@@ -57,9 +60,9 @@ class PostsPage extends StatelessWidget {
 
         actions: [
           IconButton(
-            icon: const FaIcon(
+            icon: FaIcon(
               FontAwesomeIcons.bell,
-              color: Colors.black87,
+              color: theme.iconTheme.color,
               size: 20,
             ),
             onPressed: () {
@@ -70,9 +73,9 @@ class PostsPage extends StatelessWidget {
             },
           ),
           IconButton(
-            icon: const FaIcon(
+            icon: FaIcon(
               FontAwesomeIcons.penToSquare,
-              color: Colors.black87,
+              color: theme.iconTheme.color,
               size: 20,
             ),
             onPressed: () {
@@ -90,10 +93,10 @@ class PostsPage extends StatelessWidget {
           final posts = controller.posts;
 
           if (posts.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
                 'لا توجد بوستات بعد 📝',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+                style: TextStyle(fontSize: 16, color: theme.hintColor),
               ),
             );
           }
