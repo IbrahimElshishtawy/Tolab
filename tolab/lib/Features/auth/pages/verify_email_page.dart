@@ -1,45 +1,68 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:mailer/mailer.dart';
-import 'package:mailer/smtp_server.dart';
+import 'set_new_password_page.dart'; // الصفحة اللي هنعملها بعد التحقق
 
-class ResetRequestPage extends StatefulWidget {
-  const ResetRequestPage({super.key});
+class VerifyCodePage extends StatefulWidget {
+  const VerifyCodePage({super.key});
 
   @override
-  State<ResetRequestPage> createState() => _ResetRequestPageState();
+  State<VerifyCodePage> createState() => _VerifyCodePageState();
 }
 
-class _ResetRequestPageState extends State<ResetRequestPage> {
-  final TextEditingController emailController = TextEditingController();
+class _VerifyCodePageState extends State<VerifyCodePage> {
+  final emailController = TextEditingController();
+  final codeController = TextEditingController();
   String? message;
   bool isLoading = false;
 
-  Future<void> sendVerificationCode(String email) async {
+  Future<void> verifyCode() async {
+    final email = emailController.text.trim();
+    final code = codeController.text.trim();
+
     setState(() {
       isLoading = true;
       message = null;
     });
 
     try {
-      final code = _generateCode();
-      final expiry = DateTime.now().add(const Duration(minutes: 5));
+      final doc = await FirebaseFirestore.instance
+          .collection('reset_codes')
+          .doc(email)
+          .get();
 
-      // حفظ الكود في Firestore
-      await FirebaseFirestore.instance.collection('reset_codes').doc(email).set(
-        {'code': code, 'expiresAt': expiry},
+      if (!doc.exists) {
+        setState(() {
+          message = '❌ لم يتم العثور على هذا البريد أو لم يُطلب رمز.';
+        });
+        return;
+      }
+
+      final data = doc.data()!;
+      final savedCode = data['code'];
+      final expiresAt = (data['expiresAt'] as Timestamp).toDate();
+
+      if (DateTime.now().isAfter(expiresAt)) {
+        setState(() {
+          message = '⏰ انتهت صلاحية الكود. الرجاء طلب كود جديد.';
+        });
+        return;
+      }
+
+      if (code != savedCode) {
+        setState(() {
+          message = '❌ الكود الذي أدخلته غير صحيح.';
+        });
+        return;
+      }
+
+      // ✅ تم التحقق بنجاح
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => SetNewPasswordPage(email: email)),
       );
-
-      // إرسال الكود عبر البريد
-      await sendEmailToUser(email, code);
-
-      setState(() {
-        message = '✅ تم إرسال كود التحقق إلى بريدك الإلكتروني.';
-      });
     } catch (e) {
       setState(() {
-        message = '❌ حدث خطأ أثناء الإرسال: $e';
+        message = '❌ حدث خطأ أثناء التحقق: $e';
       });
     } finally {
       setState(() {
@@ -48,34 +71,17 @@ class _ResetRequestPageState extends State<ResetRequestPage> {
     }
   }
 
-  String _generateCode() {
-    final random = Random();
-    return (100000 + random.nextInt(900000)).toString(); // مثال: 6 أرقام
-  }
-
-  Future<void> sendEmailToUser(String email, String code) async {
-    final smtpServer = gmail('your_email@gmail.com', 'your_app_password');
-
-    final message = Message()
-      ..from = const Address('your_email@gmail.com', 'ToLab App')
-      ..recipients.add(email)
-      ..subject = 'رمز التحقق لإعادة تعيين كلمة المرور'
-      ..text = 'رمز التحقق الخاص بك هو: $code\n\nالكود صالح لمدة 5 دقائق.';
-
-    await send(message, smtpServer);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('إعادة تعيين كلمة المرور')),
+      appBar: AppBar(title: const Text('تأكيد الكود')),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
-              'من فضلك أدخل بريدك الإلكتروني وسنرسل لك رمز تحقق (OTP) لتغيير كلمة المرور.',
+              'من فضلك أدخل بريدك الإلكتروني والكود الذي وصلك على الإيميل.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16),
             ),
@@ -86,17 +92,22 @@ class _ResetRequestPageState extends State<ResetRequestPage> {
                 labelText: 'البريد الإلكتروني',
                 border: OutlineInputBorder(),
               ),
-              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: codeController,
+              decoration: const InputDecoration(
+                labelText: 'رمز التحقق',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: isLoading
-                  ? null
-                  : () => sendVerificationCode(emailController.text.trim()),
-              icon: const Icon(Icons.send),
-              label: isLoading
-                  ? const Text('جارٍ الإرسال...')
-                  : const Text('إرسال الكود'),
+            ElevatedButton(
+              onPressed: isLoading ? null : verifyCode,
+              child: isLoading
+                  ? const CircularProgressIndicator()
+                  : const Text('تأكيد'),
             ),
             if (message != null) ...[
               const SizedBox(height: 20),
