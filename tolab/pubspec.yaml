@@ -37,6 +37,8 @@ dependencies:
   file_picker: ^10.2.0
   fluttertoast: ^8.2.12
   app_links: ^3.0.0
+  firebase_core: ^3.15.1
+  firebase_auth: ^5.6.2
  
 
 dev_dependencies:

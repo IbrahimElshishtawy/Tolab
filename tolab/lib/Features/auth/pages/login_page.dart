@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tolab/Features/auth/controllers/login_controller.dart';
+import 'package:tolab/Features/posts/controllers/post_controllers.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,9 +15,17 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   bool isPasswordVisible = false;
 
+  late PostsController _postsController;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _postsController = Provider.of<PostsController>(context, listen: false);
+  }
+
   @override
   void dispose() {
-    Provider.of<LoginController>(context, listen: false).disposeControllers();
+    _postsController.dispose(); // آمن ✅ لأننا خزنّاه مسبقًا
     super.dispose();
   }
 
