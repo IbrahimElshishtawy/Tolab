@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../controllers/register_controller.dart';
 import 'register_fields.dart';
 
 class RegisterForm extends StatelessWidget {
@@ -8,14 +6,9 @@ class RegisterForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => RegisterController(),
-      child: Scaffold(
-        body: const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: SingleChildScrollView(child: RegisterFields()),
-        ),
-      ),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ListView(children: const [RegisterFields()]),
     );
   }
 }
