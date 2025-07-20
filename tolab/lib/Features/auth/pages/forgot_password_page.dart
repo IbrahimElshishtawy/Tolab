@@ -1,6 +1,7 @@
 // lib/auth/pages/forgot_password_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:tolab/Features/auth/pages/set_new_password_page.dart';
 import 'package:tolab/core/services/auth_service.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
@@ -42,8 +43,18 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   await AuthService.sendResetPassword(
                     emailController.text.trim(),
                   );
+
                   setState(() {
                     message = 'تم إرسال رابط الاستعادة إلى بريدك.';
+                  });
+
+                  Future.delayed(const Duration(seconds: 1), () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SetNewPasswordPage(),
+                      ),
+                    );
                   });
                 } catch (e) {
                   setState(() {

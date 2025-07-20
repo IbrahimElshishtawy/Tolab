@@ -58,7 +58,7 @@ class _VerifyCodePageState extends State<VerifyCodePage> {
       // ✅ تم التحقق بنجاح
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => SetNewPasswordPage(email: email)),
+        MaterialPageRoute(builder: (_) => SetNewPasswordPage()),
       );
     } catch (e) {
       setState(() {

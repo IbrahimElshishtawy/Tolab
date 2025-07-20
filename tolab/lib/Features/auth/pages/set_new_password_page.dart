@@ -1,94 +1,131 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class SetNewPasswordPage extends StatefulWidget {
-  const SetNewPasswordPage({super.key, required String email});
+  const SetNewPasswordPage({super.key});
 
   @override
   State<SetNewPasswordPage> createState() => _SetNewPasswordPageState();
 }
 
 class _SetNewPasswordPageState extends State<SetNewPasswordPage> {
-  final newPasswordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
-  bool isLoading = false;
-  String? error;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
-  Future<void> updatePassword() async {
-    final newPassword = newPasswordController.text.trim();
-    final confirmPassword = confirmPasswordController.text.trim();
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
 
-    if (newPassword != confirmPassword) {
-      setState(() {
-        error = 'كلمتا المرور غير متطابقتين';
-      });
-      return;
-    }
+  void _submit() {
+    if (_formKey.currentState!.validate()) {
+      final newPassword = _passwordController.text;
+      // هنا تقدر تنفذ عملية حفظ كلمة المرور الجديدة
+      print('🔐 تم تعيين كلمة مرور جديدة: $newPassword');
 
-    try {
-      setState(() {
-        isLoading = true;
-        error = null;
-      });
-
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        await user.updatePassword(newPassword);
-        await FirebaseAuth.instance
-            .signOut(); // تسجيل الخروج بعد تغيير الباسورد
-
-        if (mounted) {
-          Navigator.of(context).pushReplacementNamed('/login');
-        }
-      } else {
-        setState(() {
-          error = 'لم يتم العثور على المستخدم';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        error = 'حدث خطأ: ${e.toString()}';
-      });
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
+      // انتقال لصفحة تسجيل الدخول
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('كلمة مرور جديدة')),
+      appBar: AppBar(title: const Text("Set New Password"), centerTitle: true),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: newPasswordController,
-              decoration: const InputDecoration(
-                labelText: 'كلمة المرور الجديدة',
+        padding: const EdgeInsets.all(24.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              const SizedBox(height: 40),
+              Text(
+                "Enter your new password",
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: confirmPasswordController,
-              decoration: const InputDecoration(labelText: 'تأكيد كلمة المرور'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            if (error != null)
-              Text(error!, style: const TextStyle(color: Colors.red)),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: isLoading ? null : updatePassword,
-              child: isLoading
-                  ? const CircularProgressIndicator()
-                  : const Text('تحديث كلمة المرور'),
-            ),
-          ],
+              const SizedBox(height: 30),
+
+              // كلمة المرور
+              TextFormField(
+                controller: _passwordController,
+                obscureText: _obscurePassword,
+                decoration: InputDecoration(
+                  labelText: "New Password",
+                  prefixIcon: const Icon(Icons.lock),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
+                  border: const OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter a password";
+                  } else if (value.length < 6) {
+                    return "Password must be at least 6 characters";
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+
+              // تأكيد كلمة المرور
+              TextFormField(
+                controller: _confirmPasswordController,
+                obscureText: _obscureConfirmPassword,
+                decoration: InputDecoration(
+                  labelText: "Confirm Password",
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureConfirmPassword
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureConfirmPassword = !_obscureConfirmPassword;
+                      });
+                    },
+                  ),
+                  border: const OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value != _passwordController.text) {
+                    return "Passwords do not match";
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 30),
+
+              ElevatedButton(
+                onPressed: _submit,
+                child: const Text("Save New Password"),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  textStyle: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

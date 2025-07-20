@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, unnecessary_underscores, deprecated_member_use
+// ignore_for_file: avoid_print, unnecessary_underscores
 
 import 'package:flutter/material.dart';
 import 'package:tolab/Features/splash/controllers/splash_controller.dart';
@@ -18,10 +18,20 @@ class _SplashScreenState extends State<SplashScreen>
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    print("🚀 محاولة تحميل الصورة: assets/image_splash/Tolab_splash_page.png");
-
     controller = SplashController(vsync: this, context: context);
     controller.startAnimation();
+
+    // بعد فترة بسيطة نبدأ عملية الإخفاء والانتقال
+    Future.delayed(const Duration(seconds: 2), () {
+      controller.hideLogoWithCircle.value = true;
+      controller.logoHideController.forward();
+
+      controller.logoHideController.addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          Navigator.pushReplacementNamed(context, '/login');
+        }
+      });
+    });
   }
 
   @override
@@ -43,10 +53,10 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       body: Stack(
         children: [
-          // خلفية بلون الخلفية من الثيم
+          // خلفية
           Container(color: theme.scaffoldBackgroundColor),
 
-          // الدائرة الملونة التي تختفي تدريجيًا
+          // الدائرة الملونة تظهر أولاً (Splash color)
           ValueListenableBuilder<bool>(
             valueListenable: controller.showLogoScreen,
             builder: (_, showLogo, __) {
@@ -71,7 +81,7 @@ class _SplashScreenState extends State<SplashScreen>
             },
           ),
 
-          // الشعار يظهر تدريجيًا
+          // الشعار يظهر تدريجياً
           ValueListenableBuilder<bool>(
             valueListenable: controller.hideLogoWithCircle,
             builder: (_, hideLogo, __) {
@@ -120,7 +130,7 @@ class _SplashScreenState extends State<SplashScreen>
             },
           ),
 
-          // دائرة تغطّي الشعار بلون خلفية الثيم
+          // دائرة بلون الخلفية لإخفاء الشعار بشكل أنيق
           ValueListenableBuilder<bool>(
             valueListenable: controller.hideLogoWithCircle,
             builder: (_, hideLogo, __) {
@@ -128,17 +138,23 @@ class _SplashScreenState extends State<SplashScreen>
                   ? Center(
                       child: AnimatedBuilder(
                         animation: controller.logoHideController,
-                        builder: (_, __) => Transform.scale(
-                          scale: controller.logoHideScale.value,
-                          child: Container(
-                            width: maxSize,
-                            height: maxSize,
-                            decoration: BoxDecoration(
-                              color: theme.scaffoldBackgroundColor,
-                              shape: BoxShape.circle,
+                        builder: (_, __) {
+                          double scale = Tween<double>(
+                            begin: 0,
+                            end: maxSize / 100,
+                          ).evaluate(controller.logoHideController);
+                          return Transform.scale(
+                            scale: scale,
+                            child: Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                color: theme.scaffoldBackgroundColor,
+                                shape: BoxShape.circle,
+                              ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
                     )
                   : const SizedBox();

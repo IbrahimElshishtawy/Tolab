@@ -21,9 +21,7 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const ForgotPasswordPage());
       case '/set-new-password':
         final email = settings.arguments as String;
-        return MaterialPageRoute(
-          builder: (_) => SetNewPasswordPage(email: email),
-        );
+        return MaterialPageRoute(builder: (_) => SetNewPasswordPage());
       default:
         return MaterialPageRoute(
           builder: (_) =>

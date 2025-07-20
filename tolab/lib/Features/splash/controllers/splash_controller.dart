@@ -17,11 +17,12 @@ class SplashController {
   ValueNotifier<bool> hideLogoWithCircle = ValueNotifier(false);
 
   bool isInitialized = false;
+  bool isDisposed = false; // ✅ مضافة لتجنب تشغيل الأنيميشن بعد التدمير
   final Color splashColor = const Color.fromRGBO(152, 172, 201, 1);
 
   SplashController({required this.vsync, required this.context});
 
-  void startAnimation() async {
+  void startAnimation() {
     final size = MediaQuery.of(context).size;
     final maxSize = size.longestSide * 2;
     final scaleBegin = maxSize / size.width;
@@ -59,16 +60,17 @@ class SplashController {
     bgCircleController.forward();
 
     bgCircleController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
+      if (status == AnimationStatus.completed && !isDisposed) {
         showLogoScreen.value = true;
         logoController.forward();
 
         Future.delayed(const Duration(seconds: 2), () {
+          if (isDisposed) return;
           hideLogoWithCircle.value = true;
           logoHideController.forward();
 
           logoHideController.addStatusListener((status) {
-            if (status == AnimationStatus.completed) {
+            if (status == AnimationStatus.completed && context.mounted) {
               Navigator.pushReplacementNamed(context, '/login');
             }
           });
@@ -78,9 +80,10 @@ class SplashController {
   }
 
   void dispose() {
-    if (!isInitialized) return;
+    if (!isInitialized || isDisposed) return;
     bgCircleController.dispose();
     logoController.dispose();
     logoHideController.dispose();
+    isDisposed = true; // ✅ تم التدمير
   }
 }
