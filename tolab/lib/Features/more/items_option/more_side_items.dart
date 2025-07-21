@@ -1,7 +1,3 @@
-// lib/widget/more_side_items.dart
-
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 
 class MoreSideItems extends StatelessWidget {
@@ -9,10 +5,19 @@ class MoreSideItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final sectionTextColor = isDark
+        ? Colors.grey.shade300
+        : Colors.grey.shade700;
+    final buttonBackground = isDark
+        ? Colors.grey.shade800
+        : Colors.grey.shade100;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 🧑‍🎓 صورة وأسم المستخدم
+        // ✅ صورة المستخدم
         const Center(
           child: CircleAvatar(
             radius: 35,
@@ -22,18 +27,20 @@ class MoreSideItems extends StatelessWidget {
         ),
         const SizedBox(height: 10),
 
-        const Center(
+        // ✅ اسم المستخدم
+        Center(
           child: Text(
             'إبراهيم الششتاوي',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: textColor,
             ),
           ),
         ),
         const SizedBox(height: 25),
 
+        // ✅ عنوان القسم
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Text(
@@ -41,33 +48,74 @@ class MoreSideItems extends StatelessWidget {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: Colors.grey.shade700,
+              color: sectionTextColor,
             ),
           ),
         ),
-        const Divider(thickness: 1.1),
+        Divider(
+          thickness: 1.1,
+          color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+        ),
 
-        // ✅ أزرار القائمة
-        _buildButton(context, Icons.today, 'مواعيد اليوم'),
-        _buildButton(context, Icons.folder_open, 'الملفات الجديدة'),
-        _buildButton(context, Icons.school, 'مواعيد الكويزات والامتحانات'),
-        _buildButton(context, Icons.person, 'الملف الشخصي'),
-        _buildButton(context, Icons.info_outline, 'عن التطبيق'),
-        _buildButton(context, Icons.logout, 'تسجيل الخروج', color: Colors.red),
+        // ✅ الأزرار مرتبة حسب الطلب
+        _buildButton(
+          context,
+          Icons.today,
+          'مواعيد اليوم',
+          textColor,
+          buttonBackground,
+        ),
+        _buildButton(
+          context,
+          Icons.folder_open,
+          'الملفات الجديدة',
+          textColor,
+          buttonBackground,
+        ),
+        _buildButton(
+          context,
+          Icons.school,
+          'مواعيد الكويزات والامتحانات',
+          textColor,
+          buttonBackground,
+        ),
+        _buildButton(
+          context,
+          Icons.menu_book,
+          'القرآن الكريم',
+          textColor,
+          buttonBackground,
+        ),
+        _buildButton(
+          context,
+          Icons.info_outline,
+          'عن التطبيق',
+          textColor,
+          buttonBackground,
+        ),
+        _buildButton(
+          context,
+          Icons.logout,
+          'تسجيل الخروج',
+          Colors.red,
+          buttonBackground,
+        ),
 
         const Spacer(),
 
-        // ✅ الشعار في الأسفل
+        // ✅ شعار التطبيق
         Center(
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              Text(
                 'ToL',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(236, 13, 20, 217),
+                  color: isDark
+                      ? Colors.lightBlueAccent
+                      : const Color.fromARGB(236, 13, 20, 217),
                 ),
               ),
               const SizedBox(width: 4),
@@ -78,12 +126,14 @@ class MoreSideItems extends StatelessWidget {
                 fit: BoxFit.contain,
               ),
               const SizedBox(width: 4),
-              const Text(
+              Text(
                 'Ab',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(236, 13, 20, 217),
+                  color: isDark
+                      ? Colors.lightBlueAccent
+                      : const Color.fromARGB(236, 13, 20, 217),
                 ),
               ),
             ],
@@ -93,25 +143,26 @@ class MoreSideItems extends StatelessWidget {
     );
   }
 
-  /// 🔘 زر أنيق ومسطّح مع أيقونة
+  /// 🔘 عنصر زر القائمة
   Widget _buildButton(
     BuildContext context,
     IconData icon,
-    String title, {
-    Color color = Colors.black87,
-  }) {
+    String title,
+    Color iconColor,
+    Color backgroundColor,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.grey.shade100,
+            backgroundColor: backgroundColor,
             shadowColor: Colors.transparent,
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
-              side: BorderSide(color: color.withOpacity(0.1)),
+              side: BorderSide(color: iconColor.withOpacity(0.1)),
             ),
             elevation: 0.8,
           ),
@@ -120,14 +171,14 @@ class MoreSideItems extends StatelessWidget {
           },
           child: Row(
             children: [
-              Icon(icon, size: 20, color: color),
+              Icon(icon, size: 20, color: iconColor),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   title,
                   style: TextStyle(
                     fontSize: 15,
-                    color: color,
+                    color: iconColor,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

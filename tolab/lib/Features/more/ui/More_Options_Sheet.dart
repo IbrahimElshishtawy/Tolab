@@ -8,19 +8,21 @@ class MoreSidePanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Stack(
       children: [
         /// 🟡 خلفية شفافة تغلق عند الضغط
         GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.2),
             width: double.infinity,
             height: double.infinity,
           ),
         ),
 
-        /// 🟢 اللوحة الجانبية نفسها
         Align(
           alignment: Alignment.centerRight,
           child: Material(
@@ -31,17 +33,19 @@ class MoreSidePanel extends StatelessWidget {
               margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.95),
+                color: isDark
+                    ? Colors.grey.shade900.withOpacity(0.95)
+                    : Colors.white.withOpacity(0.95),
                 borderRadius: BorderRadius.circular(24),
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(
-                    color: Colors.black26,
+                    color: isDark ? Colors.black45 : Colors.black26,
                     blurRadius: 10,
-                    offset: Offset(-4, 0),
+                    offset: const Offset(-4, 0),
                   ),
                 ],
               ),
-              child: const MoreSideItems(), // ⬅️ استدعاء المحتوى
+              child: const MoreSideItems(),
             ),
           ),
         ),

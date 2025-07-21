@@ -1,160 +1,108 @@
-// lib/auth/pages/forgot_password_page.dart
-
-// ignore_for_file: use_build_context_synchronously, deprecated_member_use
-
 import 'package:flutter/material.dart';
-import 'package:tolab/core/services/auth_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tolab/core/config/firebase_check.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
 
   @override
-  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
+  State<ForgotPasswordPage> createState() => _ForgotPasswordPage();
 }
 
-class _ForgotPasswordPageState extends State<ForgotPasswordPage>
-    with SingleTickerProviderStateMixin {
-  final emailController = TextEditingController();
+class _ForgotPasswordPage extends State<ForgotPasswordPage> {
+  final TextEditingController emailController = TextEditingController();
+  bool isEmailValidFormat = false;
+  bool? isEmailExists; // null: لم يتم التحقق، true: موجود، false: غير موجود
   String? message;
-  bool isLoading = false;
-  late AnimationController _controller;
-  late Animation<double> _animation;
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    emailController.dispose();
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Future<bool> _checkEmailExists(String email) async {
-    try {
-      final methods = await FirebaseAuth.instance.fetchSignInMethodsForEmail(
-        email,
-      );
-      return methods.isNotEmpty;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  void _handleSendReset() async {
-    final email = emailController.text.trim();
-
-    if (email.isEmpty) {
-      setState(() {
-        message = 'الرجاء إدخال بريد إلكتروني.';
-      });
-      return;
-    }
-
+  void checkEmail(String email) async {
     setState(() {
-      isLoading = true;
+      isEmailValidFormat = RegExp(
+        r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$",
+      ).hasMatch(email);
+      isEmailExists = null;
       message = null;
     });
 
-    final exists = await _checkEmailExists(email);
-
-    if (!exists) {
+    if (isEmailValidFormat) {
+      final exists = await FirebaseCheck.checkEmailExists(email);
       setState(() {
-        message = '❌ هذا البريد الإلكتروني غير مسجل.';
-        isLoading = false;
+        isEmailExists = exists;
+        message = exists ? null : '⚠️ البريد غير مسجل لدينا.';
       });
+    }
+  }
+
+  Future<void> submit() async {
+    final email = emailController.text.trim();
+
+    if (!isEmailValidFormat) {
+      setState(() => message = '❌ صيغة البريد غير صحيحة.');
+      return;
+    }
+
+    if (isEmailExists == false || isEmailExists == null) {
+      setState(() => message = '❌ هذا البريد غير مسجل.');
       return;
     }
 
     try {
-      await AuthService.sendResetPassword(email);
-      setState(() {
-        message = '✅ تم إرسال رابط الاستعادة إلى بريدك الإلكتروني.';
-      });
-
-      await Future.delayed(const Duration(seconds: 1));
-      Navigator.pushNamed(context, '/verify-code');
+      await FirebaseCheck.sendResetPassword(email);
+      setState(
+        () => message = '✅ تم إرسال رابط استعادة كلمة المرور إلى بريدك.',
+      );
     } catch (e) {
-      setState(() {
-        message = '❌ حدث خطأ أثناء الإرسال: ${e.toString()}';
-      });
+      setState(() => message = '❌ حدث خطأ أثناء الإرسال، حاول لاحقًا.');
     }
-
-    setState(() {
-      isLoading = false;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('استعادة كلمة المرور')),
-      body: FadeTransition(
-        opacity: _animation,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 20),
-              TextField(
-                controller: emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: 'أدخل بريدك الإلكتروني',
-                  border: OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.email_outlined),
-                  fillColor: isDark ? Colors.grey[850] : Colors.grey[200],
-                  filled: true,
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: isLoading ? null : _handleSendReset,
-                icon: isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : const Icon(Icons.send),
-                label: const Text('إرسال الرابط'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  textStyle: const TextStyle(fontSize: 16),
-                ),
-              ),
-              const SizedBox(height: 20),
-              if (message != null)
-                AnimatedOpacity(
-                  opacity: 1,
-                  duration: const Duration(milliseconds: 300),
-                  child: Text(
-                    message!,
-                    style: TextStyle(
-                      color: message!.contains('❌') ? Colors.red : Colors.green,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
+      appBar: AppBar(title: const Text('إعادة تعيين كلمة المرور')),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            TextField(
+              controller: emailController,
+              onChanged: checkEmail,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                labelText: 'البريد الإلكتروني',
+                suffixIcon: isEmailExists == null
+                    ? null
+                    : isEmailExists == true
+                    ? const Icon(Icons.check_circle, color: Colors.green)
+                    : const Icon(Icons.error, color: Colors.red),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: isEmailExists == null
+                        ? Colors.grey
+                        : isEmailExists == true
+                        ? Colors.green
+                        : Colors.red,
                   ),
                 ),
-            ],
-          ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: submit,
+              icon: const Icon(Icons.send),
+              label: const Text('إرسال رابط الاستعادة'),
+            ),
+            const SizedBox(height: 20),
+            if (message != null)
+              Text(
+                message!,
+                style: TextStyle(
+                  color: message!.startsWith('✅') ? Colors.green : Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+          ],
         ),
       ),
     );
