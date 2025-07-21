@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tolab/Features/auth/pages/forgot_password_page.dart';
+import 'package:tolab/Features/auth/pages/verify_email_page.dart';
 import 'package:tolab/Features/home/home_page.dart';
 import 'package:tolab/Features/auth/pages/login_page.dart';
 import 'package:tolab/Features/auth/pages/register_page.dart';
@@ -19,8 +20,9 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const RegisterPage());
       case '/forgot-password':
         return MaterialPageRoute(builder: (_) => const ForgotPasswordPage());
+      case '/verify-code':
+        return MaterialPageRoute(builder: (_) => const VerifyCodePage());
       case '/set-new-password':
-        final email = settings.arguments as String;
         return MaterialPageRoute(builder: (_) => SetNewPasswordPage());
       default:
         return MaterialPageRoute(

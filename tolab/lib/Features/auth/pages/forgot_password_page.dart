@@ -3,7 +3,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:tolab/Features/auth/pages/set_new_password_page.dart';
 import 'package:tolab/core/services/auth_service.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
@@ -33,6 +32,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           children: [
             TextField(
               controller: emailController,
+              keyboardType: TextInputType.emailAddress,
               decoration: const InputDecoration(
                 labelText: 'أدخل بريدك الإلكتروني',
                 border: OutlineInputBorder(),
@@ -41,42 +41,49 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
+                final email = emailController.text.trim();
+
+                if (email.isEmpty) {
+                  setState(() {
+                    message = 'الرجاء إدخال بريد إلكتروني.';
+                  });
+                  return;
+                }
+
                 try {
-                  await AuthService.sendResetPassword(
-                    emailController.text.trim(),
-                  );
+                  await AuthService.sendResetPassword(email);
 
                   setState(() {
-                    message = 'تم إرسال رابط الاستعادة إلى بريدك.';
+                    message =
+                        '✅ تم إرسال رابط استعادة كلمة المرور إلى بريدك الإلكتروني.';
                   });
 
+                  // الانتقال إلى صفحة التحقق
                   Future.delayed(const Duration(seconds: 1), () {
-                    Navigator.pushReplacement(
+                    Navigator.pushNamed(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => SetNewPasswordPage(),
-                      ),
-                    );
+                      '/verify-code',
+                    ); // أو استخدم push:
+                    // Navigator.push(context, MaterialPageRoute(builder: (_) => VerifyPage()));
                   });
                 } catch (e) {
                   setState(() {
-                    message = 'حدث خطأ: ${e.toString()}';
+                    message = '❌ حدث خطأ أثناء الإرسال: ${e.toString()}';
                   });
                 }
               },
               child: const Text('إرسال الرابط'),
             ),
-            if (message != null) ...[
-              const SizedBox(height: 10),
+
+            const SizedBox(height: 10),
+            if (message != null)
               Text(
                 message!,
                 style: TextStyle(
-                  color: message!.startsWith('حدث خطأ')
-                      ? Colors.red
-                      : Colors.green,
+                  color: message!.contains('خطأ') ? Colors.red : Colors.green,
                 ),
+                textAlign: TextAlign.center,
               ),
-            ],
           ],
         ),
       ),

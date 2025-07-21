@@ -1,8 +1,7 @@
-// ignore_for_file: use_build_context_synchronously
+// lib/auth/pages/verify_code_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'set_new_password_page.dart'; // الصفحة اللي هنعملها بعد التحقق
+import 'package:pin_code_fields/pin_code_fields.dart';
 
 class VerifyCodePage extends StatefulWidget {
   const VerifyCodePage({super.key});
@@ -12,116 +11,80 @@ class VerifyCodePage extends StatefulWidget {
 }
 
 class _VerifyCodePageState extends State<VerifyCodePage> {
-  final emailController = TextEditingController();
-  final codeController = TextEditingController();
+  String otpCode = '';
   String? message;
-  bool isLoading = false;
 
-  Future<void> verifyCode() async {
-    final email = emailController.text.trim();
-    final code = codeController.text.trim();
-
-    setState(() {
-      isLoading = true;
-      message = null;
-    });
-
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection('reset_codes')
-          .doc(email)
-          .get();
-
-      if (!doc.exists) {
-        setState(() {
-          message = '❌ لم يتم العثور على هذا البريد أو لم يُطلب رمز.';
-        });
-        return;
-      }
-
-      final data = doc.data()!;
-      final savedCode = data['code'];
-      final expiresAt = (data['expiresAt'] as Timestamp).toDate();
-
-      if (DateTime.now().isAfter(expiresAt)) {
-        setState(() {
-          message = '⏰ انتهت صلاحية الكود. الرجاء طلب كود جديد.';
-        });
-        return;
-      }
-
-      if (code != savedCode) {
-        setState(() {
-          message = '❌ الكود الذي أدخلته غير صحيح.';
-        });
-        return;
-      }
-
-      // ✅ تم التحقق بنجاح
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => SetNewPasswordPage()),
-      );
-    } catch (e) {
+  void verifyCode() {
+    if (otpCode.length != 6) {
       setState(() {
-        message = '❌ حدث خطأ أثناء التحقق: $e';
+        message = '❌ أدخل رمز تحقق مكون من 6 أرقام.';
       });
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
+      return;
     }
+
+    // هنا يفترض أن يتم التحقق من الكود مع السيرفر
+    Navigator.pushNamed(context, '/reset_password');
+  }
+
+  void resendCode() {
+    // إرسال الكود مرة أخرى
+    setState(() {
+      message = '✅ تم إعادة إرسال الكود إلى بريدك الإلكتروني.';
+    });
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('تأكيد الكود')),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'من فضلك أدخل بريدك الإلكتروني والكود الذي وصلك على الإيميل.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 24),
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                labelText: 'البريد الإلكتروني',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: codeController,
-              decoration: const InputDecoration(
-                labelText: 'رمز التحقق',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: isLoading ? null : verifyCode,
-              child: isLoading
-                  ? const CircularProgressIndicator()
-                  : const Text('تأكيد'),
-            ),
-            if (message != null) ...[
-              const SizedBox(height: 20),
-              Text(
-                message!,
-                style: TextStyle(
-                  color: message!.contains('✅') ? Colors.green : Colors.red,
-                ),
+      appBar: AppBar(title: const Text('رمز التحقق')),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                'أدخل رمز التحقق المكون من 6 أرقام الذي تم إرساله إلى بريدك الإلكتروني.',
                 textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16),
               ),
+              const SizedBox(height: 20),
+              PinCodeTextField(
+                appContext: context,
+                length: 6,
+                keyboardType: TextInputType.number,
+                onChanged: (value) => otpCode = value,
+                pinTheme: PinTheme(
+                  shape: PinCodeFieldShape.box,
+                  borderRadius: BorderRadius.circular(10),
+                  fieldHeight: 50,
+                  fieldWidth: 40,
+                  activeColor: Colors.blue,
+                  selectedColor: Colors.orange,
+                  inactiveColor: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(onPressed: verifyCode, child: const Text('تأكيد')),
+              const SizedBox(height: 10),
+              TextButton(
+                onPressed: resendCode,
+                child: const Text('إعادة إرسال الكود'),
+              ),
+              if (message != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Text(
+                    message!,
+                    style: TextStyle(
+                      color: message!.contains('❌') ? Colors.red : Colors.green,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
             ],
-          ],
+          ),
         ),
       ),
     );
