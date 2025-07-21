@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 
 class MoreSideItems extends StatelessWidget {
@@ -17,25 +19,29 @@ class MoreSideItems extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ✅ صورة المستخدم
-        const Center(
-          child: CircleAvatar(
-            radius: 35,
-            backgroundColor: Color(0xFF98ACC9),
-            child: Icon(Icons.person, size: 40, color: Colors.white),
-          ),
-        ),
-        const SizedBox(height: 10),
-
-        // ✅ اسم المستخدم
-        Center(
-          child: Text(
-            'إبراهيم الششتاوي',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: textColor,
-            ),
+        // ✅ صورة واسم المستخدم مع رابط للبروفايل
+        GestureDetector(
+          onTap: () {
+            // TODO: أضف صفحة الملف الشخصي هنا
+            Navigator.pushNamed(context, '/profile');
+          },
+          child: Column(
+            children: [
+              const CircleAvatar(
+                radius: 35,
+                backgroundColor: Color(0xFF98ACC9),
+                child: Icon(Icons.person, size: 40, color: Colors.white),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'إبراهيم الششتاوي',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
+                ),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 25),
@@ -57,14 +63,7 @@ class MoreSideItems extends StatelessWidget {
           color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
         ),
 
-        // ✅ الأزرار مرتبة حسب الطلب
-        _buildButton(
-          context,
-          Icons.today,
-          'مواعيد اليوم',
-          textColor,
-          buttonBackground,
-        ),
+        // ✅ الأزرار المطلوبة
         _buildButton(
           context,
           Icons.folder_open,
@@ -83,6 +82,13 @@ class MoreSideItems extends StatelessWidget {
           context,
           Icons.menu_book,
           'القرآن الكريم',
+          textColor,
+          buttonBackground,
+        ),
+        _buildButton(
+          context,
+          Icons.videogame_asset,
+          'الألعاب',
           textColor,
           buttonBackground,
         ),

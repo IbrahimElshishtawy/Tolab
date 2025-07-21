@@ -1,0 +1,98 @@
+// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api
+
+import 'package:flutter/material.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class ProfilePage extends StatefulWidget {
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  User? user = FirebaseAuth.instance.currentUser;
+  Map<String, dynamic>? userData;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+  Future<void> fetchUserData() async {
+    if (user != null) {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user!.uid)
+          .get();
+      if (snapshot.exists) {
+        setState(() {
+          userData = snapshot.data() as Map<String, dynamic>?;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('الملف الشخصي'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () async {
+              // await Navigator.push(
+              //   context,
+              //   // MaterialPageRoute(builder: (context) => EditProfilePage(userData: userData)),
+              // );
+              fetchUserData();
+            },
+          ),
+        ],
+      ),
+      body: userData == null
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundImage: userData!["imageUrl"] != null
+                            ? NetworkImage(userData!["imageUrl"])
+                            : const AssetImage("assets/user.png")
+                                  as ImageProvider,
+                      ),
+                      const SizedBox(width: 20),
+                      Text(
+                        userData!["name"] ?? "الاسم غير متوفر",
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    "البريد الإلكتروني: ${user!.email}",
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(height: 10),
+                  if (userData!["phone"] != null)
+                    Text(
+                      "رقم الهاتف: ${userData!["phone"]}",
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                ],
+              ),
+            ),
+    );
+  }
+}
