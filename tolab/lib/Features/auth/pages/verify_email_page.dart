@@ -22,8 +22,7 @@ class _VerifyCodePageState extends State<VerifyCodePage> {
       return;
     }
 
-    // هنا يفترض أن يتم التحقق من الكود مع السيرفر
-    Navigator.pushNamed(context, '/reset_password');
+    Navigator.pushNamed(context, '/set-new-password');
   }
 
   void resendCode() {
