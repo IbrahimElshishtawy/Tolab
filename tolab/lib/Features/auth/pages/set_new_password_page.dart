@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, sort_child_properties_last
+
 import 'package:flutter/material.dart';
 
 class SetNewPasswordPage extends StatefulWidget {

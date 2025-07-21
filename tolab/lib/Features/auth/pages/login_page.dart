@@ -62,12 +62,8 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 60),
+                  const SizedBox(height: 45),
 
-                  const Text(
-                    'Login to your account',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
-                  ),
                   const LoginForm(),
 
                   const SizedBox(height: 24),

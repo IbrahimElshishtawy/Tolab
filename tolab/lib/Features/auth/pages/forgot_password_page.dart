@@ -1,5 +1,7 @@
 // lib/auth/pages/forgot_password_page.dart
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:tolab/Features/auth/pages/set_new_password_page.dart';
 import 'package:tolab/core/services/auth_service.dart';

@@ -4,86 +4,67 @@ class SplashController {
   final BuildContext context;
   final TickerProvider vsync;
 
-  late final AnimationController bgCircleController;
-  late final AnimationController logoController;
-  late final AnimationController logoHideController;
+  // متغيرات الأنيميشن
+  late final AnimationController _revealController;
+  late final Animation<double> revealAnimation;
 
-  late final Animation<double> circleScale;
+  late final AnimationController _logoController;
   late final Animation<double> logoOpacity;
   late final Animation<double> logoScale;
-  late final Animation<double> logoHideScale;
 
-  ValueNotifier<bool> showLogoScreen = ValueNotifier(false);
-  ValueNotifier<bool> hideLogoWithCircle = ValueNotifier(false);
+  // ValueNotifiers للتحكم في الشاشة
+  final ValueNotifier<bool> showInitialScreen = ValueNotifier(true);
+  final ValueNotifier<bool> showLogoScreen = ValueNotifier(false);
 
-  bool isInitialized = false;
-  bool isDisposed = false; // ✅ مضافة لتجنب تشغيل الأنيميشن بعد التدمير
-  final Color splashColor = const Color.fromRGBO(152, 172, 201, 1);
-
-  SplashController({required this.vsync, required this.context});
-
-  void startAnimation() {
-    final size = MediaQuery.of(context).size;
-    final maxSize = size.longestSide * 2;
-    final scaleBegin = maxSize / size.width;
-
-    bgCircleController = AnimationController(
+  SplashController({required this.context, required this.vsync}) {
+    // أنيميشن الكشف الدائري
+    _revealController = AnimationController(
       vsync: vsync,
-      duration: const Duration(milliseconds: 1500),
-    );
-    circleScale = Tween<double>(begin: scaleBegin, end: 0).animate(
-      CurvedAnimation(parent: bgCircleController, curve: Curves.easeInOut),
+      duration: const Duration(seconds: 1),
     );
 
-    logoController = AnimationController(
+    revealAnimation =
+        Tween<double>(
+          begin: 0.0,
+          end: MediaQuery.of(context).size.longestSide * 1.2,
+        ).animate(
+          CurvedAnimation(parent: _revealController, curve: Curves.easeOut),
+        );
+
+    // أنيميشن الشعار
+    _logoController = AnimationController(
       vsync: vsync,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 1700),
     );
+
     logoOpacity = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(CurvedAnimation(parent: logoController, curve: Curves.easeIn));
-    logoScale = Tween<double>(begin: 1.2, end: 1).animate(
-      CurvedAnimation(parent: logoController, curve: Curves.easeOutBack),
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _logoController, curve: Curves.easeIn));
+
+    logoScale = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
     );
+  }
 
-    logoHideController = AnimationController(
-      vsync: vsync,
-      duration: const Duration(milliseconds: 1000),
-    );
-    logoHideScale = Tween<double>(begin: 0.0, end: scaleBegin).animate(
-      CurvedAnimation(parent: logoHideController, curve: Curves.easeInOut),
-    );
+  void startAnimation({required VoidCallback onComplete}) async {
+    // أول حاجة نبدأ بالكشف الدائري
+    await _revealController.forward();
+    showInitialScreen.value = false;
 
-    isInitialized = true;
+    // نعرض شاشة الشعار
+    showLogoScreen.value = true;
+    await _logoController.forward();
 
-    bgCircleController.forward();
-
-    bgCircleController.addStatusListener((status) {
-      if (status == AnimationStatus.completed && !isDisposed) {
-        showLogoScreen.value = true;
-        logoController.forward();
-
-        Future.delayed(const Duration(seconds: 2), () {
-          if (isDisposed) return;
-          hideLogoWithCircle.value = true;
-          logoHideController.forward();
-
-          logoHideController.addStatusListener((status) {
-            if (status == AnimationStatus.completed && context.mounted) {
-              Navigator.pushReplacementNamed(context, '/login');
-            }
-          });
-        });
-      }
-    });
+    // بعد الانتظار ننتقل للصفحة التالية
+    await Future.delayed(const Duration(seconds: 2));
+    onComplete();
   }
 
   void dispose() {
-    if (!isInitialized || isDisposed) return;
-    bgCircleController.dispose();
-    logoController.dispose();
-    logoHideController.dispose();
-    isDisposed = true; // ✅ تم التدمير
+    _revealController.dispose();
+    _logoController.dispose();
+    showInitialScreen.dispose();
+    showLogoScreen.dispose();
   }
 }
