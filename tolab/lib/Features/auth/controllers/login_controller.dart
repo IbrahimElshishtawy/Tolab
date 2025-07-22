@@ -14,6 +14,23 @@ class LoginController extends ChangeNotifier {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  LoginController() {
+    _loadSavedCredentials();
+  }
+
+  /// تحميل البريد وكلمة المرور المحفوظين
+  Future<void> _loadSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedEmail = prefs.getString('saved_email') ?? '';
+    final savedPassword = prefs.getString('saved_password') ?? '';
+    final savedRememberMe = prefs.getBool('remember_me') ?? false;
+
+    emailController.text = savedEmail;
+    passwordController.text = savedPassword;
+    rememberMe = savedRememberMe;
+    notifyListeners();
+  }
+
   /// تسجيل الدخول باستخدام Firebase Auth
   Future<bool> login(
     BuildContext context, {
@@ -24,19 +41,22 @@ class LoginController extends ChangeNotifier {
     errorMessage = null;
     notifyListeners();
 
-    final email = emailController.text.trim();
-    final password = passwordController.text;
-
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
 
-      // حفظ حالة الدخول إذا كان rememberMe مفعّل
+      // حفظ حالة الدخول وبيانات الحساب إذا كان rememberMe مفعّل
+      final prefs = await SharedPreferences.getInstance();
       if (rememberMe) {
-        final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('saved_email', email);
+        await prefs.setString('saved_password', password);
+        await prefs.setBool('remember_me', true);
+      } else {
+        await prefs.remove('saved_email');
+        await prefs.remove('saved_password');
+        await prefs.setBool('remember_me', false);
       }
 
-      // ✅ التنقل إلى الصفحة الرئيسية
       Navigator.pushReplacementNamed(context, '/home');
 
       isLoading = false;
@@ -47,6 +67,8 @@ class LoginController extends ChangeNotifier {
         errorMessage = 'هذا البريد غير مسجل.';
       } else if (e.code == 'wrong-password') {
         errorMessage = 'كلمة المرور غير صحيحة.';
+      } else if (e.code == 'invalid-credential') {
+        errorMessage = 'البيانات غير صحيحة أو انتهت صلاحيتها.';
       } else {
         errorMessage = 'حدث خطأ أثناء تسجيل الدخول.';
       }
@@ -56,17 +78,11 @@ class LoginController extends ChangeNotifier {
     }
   }
 
-  Future<void> saveLoginState() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', true);
-  }
-
   /// التحقق من حالة تسجيل الدخول
   Future<bool> checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final saved = prefs.getBool('isLoggedIn') ?? false;
     final userLogged = _auth.currentUser != null;
-
     return saved && userLogged;
   }
 
@@ -75,7 +91,6 @@ class LoginController extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('isLoggedIn');
     await FirebaseAuth.instance.signOut();
-
     Navigator.pushReplacementNamed(context, '/login');
   }
 
@@ -85,7 +100,7 @@ class LoginController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// تنظيف البيانات
+  /// تنظيف الكونترولرز
   void disposeControllers() {
     emailController.dispose();
     passwordController.dispose();
