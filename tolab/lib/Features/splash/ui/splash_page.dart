@@ -1,6 +1,7 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tolab/Features/splash/controllers/splash_controller.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -25,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen>
       controller.startAnimation(
         onComplete: () {
           if (mounted) {
-            Navigator.pushReplacementNamed(context, '/login');
+            checkLoginState();
           }
         },
       );
@@ -50,11 +51,11 @@ class _SplashScreenState extends State<SplashScreen>
           // شاشة البداية الثابتة
           ValueListenableBuilder<bool>(
             valueListenable: controller.showInitialScreen,
-            builder: (_, showInitial, __) {
+            builder: (_, showInitial, _) {
               return showInitial
                   ? AnimatedBuilder(
                       animation: controller.revealAnimation,
-                      builder: (_, __) {
+                      builder: (_, _) {
                         return ClipPath(
                           clipper: RevealClipper(
                             controller.revealAnimation.value,
@@ -77,7 +78,7 @@ class _SplashScreenState extends State<SplashScreen>
           // شاشة الشعار بالأنيميشن
           ValueListenableBuilder<bool>(
             valueListenable: controller.showLogoScreen,
-            builder: (_, showLogo, __) {
+            builder: (_, showLogo, _) {
               return showLogo
                   ? Center(
                       child: FadeTransition(
@@ -91,7 +92,7 @@ class _SplashScreenState extends State<SplashScreen>
                                 'assets/image_splash/Tolab_splash_page.png',
                                 width: 200,
                                 height: 200,
-                                errorBuilder: (_, e, __) =>
+                                errorBuilder: (_, e, _) =>
                                     const Text("❌ لم يتم تحميل الصورة"),
                               ),
                               const SizedBox(height: 20),
@@ -115,9 +116,20 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
   }
+
+  Future<void> checkLoginState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    if (isLoggedIn) {
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      Navigator.pushReplacementNamed(context, '/login');
+    }
+  }
 }
 
-// ✅ ClipPath مخصص لتأثير الـ Circular Reveal
+// Custom clipper for the reveal animation
 class RevealClipper extends CustomClipper<Path> {
   final double radius;
 

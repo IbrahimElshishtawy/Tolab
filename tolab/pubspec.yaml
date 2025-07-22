@@ -39,8 +39,11 @@ flutter:
     - assets/image_App/Tolab.png
 
 flutter_native_splash:
-  color: "#000000"
+  color: "#FFFFFFFF"
   image: assets/image_App/Tolab.png
   android: true
   ios: true
   fullscreen: true
+  android_gravity: center
+  ios_content_mode: scaleAspectFill
+  

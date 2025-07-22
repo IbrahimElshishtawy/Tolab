@@ -1,5 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginController extends ChangeNotifier {
   final emailController = TextEditingController();
@@ -12,7 +15,11 @@ class LoginController extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   /// تسجيل الدخول باستخدام Firebase Auth
-  Future<bool> login() async {
+  Future<bool> login(
+    BuildContext context, {
+    required String email,
+    required String password,
+  }) async {
     isLoading = true;
     errorMessage = null;
     notifyListeners();
@@ -22,6 +29,16 @@ class LoginController extends ChangeNotifier {
 
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
+
+      // حفظ حالة الدخول إذا كان rememberMe مفعّل
+      if (rememberMe) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+      }
+
+      // ✅ التنقل إلى الصفحة الرئيسية
+      Navigator.pushReplacementNamed(context, '/home');
+
       isLoading = false;
       notifyListeners();
       return true;
@@ -39,15 +56,27 @@ class LoginController extends ChangeNotifier {
     }
   }
 
-  /// التحقق من حالة تسجيل الدخول (المستخدم الحالي)
-  bool checkLoginStatus() {
-    return _auth.currentUser != null;
+  Future<void> saveLoginState() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', true);
+  }
+
+  /// التحقق من حالة تسجيل الدخول
+  Future<bool> checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getBool('isLoggedIn') ?? false;
+    final userLogged = _auth.currentUser != null;
+
+    return saved && userLogged;
   }
 
   /// تسجيل الخروج
-  Future<void> logout() async {
-    await _auth.signOut();
-    notifyListeners();
+  Future<void> logout(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('isLoggedIn');
+    await FirebaseAuth.instance.signOut();
+
+    Navigator.pushReplacementNamed(context, '/login');
   }
 
   /// تغيير حالة "تذكرني"
