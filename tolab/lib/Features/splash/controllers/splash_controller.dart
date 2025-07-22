@@ -22,7 +22,7 @@ class SplashController {
     // أنيميشن الكشف الدائري
     _revealController = AnimationController(
       vsync: vsync,
-      duration: const Duration(seconds: 1),
+      duration: const Duration(seconds: 2),
     );
 
     revealAnimation =
@@ -36,7 +36,7 @@ class SplashController {
     // أنيميشن الشعار
     _logoController = AnimationController(
       vsync: vsync,
-      duration: const Duration(milliseconds: 1700),
+      duration: const Duration(milliseconds: 1500),
     );
 
     logoOpacity = Tween<double>(
