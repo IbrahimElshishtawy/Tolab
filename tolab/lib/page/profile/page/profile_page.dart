@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'edit_profile_page.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -46,6 +47,16 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  String getInitials(String fullName) {
+    final parts = fullName.trim().split(" ");
+    if (parts.length >= 2) {
+      return parts[0][0].toUpperCase() + parts[1][0].toUpperCase();
+    } else if (parts.isNotEmpty) {
+      return parts[0][0].toUpperCase();
+    }
+    return "U";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,58 +67,58 @@ class _ProfilePageState extends State<ProfilePage> {
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () async {
-              // await Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => EditProfilePage(userData: userData)),
-              // );
-              fetchUserData();
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditProfilePage(userData: userData),
+                ),
+              );
+              fetchUserData(); // Refresh after editing
             },
           ),
         ],
       ),
       body: userData == null
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
+          : SingleChildScrollView(
               padding: const EdgeInsets.all(20.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundColor: Colors.blueGrey,
-                        child: Text(
-                          userData!["name"] != null
-                              ? userData!["name"][0].toUpperCase()
-                              : "U",
-                          style: const TextStyle(
-                            fontSize: 24,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Text(
-                        userData!["name"] ?? "الاسم غير متوفر",
+                  Center(
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.blueGrey,
+                      child: Text(
+                        getInitials(userData!["name"] ?? ""),
                         style: const TextStyle(
-                          fontSize: 24,
+                          fontSize: 30,
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ],
+                    ),
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    "البريد الإلكتروني: ${user!.email}",
-                    style: const TextStyle(fontSize: 18),
+                    userData!["name"] ?? "الاسم غير متوفر",
+                    style: const TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 10),
+                  Text(
+                    user!.email ?? "",
+                    style: const TextStyle(fontSize: 18, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 20),
                   if (userData!["phone"] != null)
-                    Text(
-                      "رقم الهاتف: ${userData!["phone"]}",
-                      style: const TextStyle(fontSize: 18),
+                    ListTile(
+                      leading: const Icon(Icons.phone),
+                      title: Text(
+                        userData!["phone"],
+                        style: const TextStyle(fontSize: 18),
+                      ),
                     ),
                 ],
               ),
