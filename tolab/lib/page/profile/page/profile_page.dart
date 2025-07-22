@@ -1,7 +1,6 @@
 // ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -22,14 +21,27 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> fetchUserData() async {
     if (user != null) {
-      DocumentSnapshot snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user!.uid)
-          .get();
-      if (snapshot.exists) {
-        setState(() {
-          userData = snapshot.data() as Map<String, dynamic>?;
-        });
+      try {
+        DocumentSnapshot snapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user!.uid)
+            .get();
+
+        if (snapshot.exists) {
+          setState(() {
+            userData = snapshot.data() as Map<String, dynamic>?;
+          });
+        }
+      } catch (e) {
+        print("حدث خطأ أثناء جلب البيانات: $e");
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("فشل في الاتصال، تأكد من الاتصال بالإنترنت"),
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
       }
     }
   }
@@ -46,7 +58,7 @@ class _ProfilePageState extends State<ProfilePage> {
             onPressed: () async {
               // await Navigator.push(
               //   context,
-              //   // MaterialPageRoute(builder: (context) => EditProfilePage(userData: userData)),
+              //   MaterialPageRoute(builder: (context) => EditProfilePage(userData: userData)),
               // );
               fetchUserData();
             },

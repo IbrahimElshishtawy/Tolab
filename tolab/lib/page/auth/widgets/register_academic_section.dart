@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tolab/Features/auth/controllers/register_controller.dart';
+import 'package:tolab/page/auth/controllers/register_controller.dart';
 
 class RegisterAcademicSection extends StatelessWidget {
   const RegisterAcademicSection({super.key});

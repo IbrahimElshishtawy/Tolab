@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tolab/Features/auth/widgets/register_form.dart';
+import 'package:tolab/page/auth/widgets/register_form.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});

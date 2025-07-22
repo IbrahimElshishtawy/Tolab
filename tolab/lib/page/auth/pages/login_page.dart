@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tolab/Features/posts/controllers/post_controllers.dart';
-import 'package:tolab/Features/auth/widgets/login_form.dart';
+import 'package:tolab/page/posts/controllers/post_controllers.dart';
+import 'package:tolab/page/auth/widgets/login_form.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

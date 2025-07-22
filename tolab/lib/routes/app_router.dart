@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:tolab/Features/auth/pages/forgot_password_page.dart';
-import 'package:tolab/Features/auth/pages/verify_email_page.dart';
-import 'package:tolab/Features/home/home_page.dart';
-import 'package:tolab/Features/auth/pages/login_page.dart';
-import 'package:tolab/Features/auth/pages/register_page.dart';
-import 'package:tolab/Features/profile/profile_page.dart';
-import 'package:tolab/Features/splash/ui/splash_page.dart';
-import 'package:tolab/Features/auth/pages/set_new_password_page.dart';
+import 'package:tolab/page/auth/pages/forgot_password_page.dart';
+import 'package:tolab/page/auth/pages/verify_email_page.dart';
+import 'package:tolab/page/home/home_page.dart';
+import 'package:tolab/page/auth/pages/login_page.dart';
+import 'package:tolab/page/auth/pages/register_page.dart';
+import 'package:tolab/page/profile/page/profile_page.dart';
+import 'package:tolab/page/splash/page/splash_page.dart';
+import 'package:tolab/page/auth/pages/set_new_password_page.dart';
 
 class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {

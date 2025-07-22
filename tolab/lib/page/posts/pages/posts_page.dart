@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:tolab/Features/posts/Notification/Notifications_Page.dart';
-import 'package:tolab/Features/posts/add/Add_Post_Page.dart';
-import 'package:tolab/Features/posts/controllers/post_controllers.dart';
+import 'package:tolab/page/posts/Notification/Notifications_Page.dart';
+import 'package:tolab/page/posts/add/Add_Post_Page.dart';
+import 'package:tolab/page/posts/controllers/post_controllers.dart';
 import 'package:tolab/Features/posts/widgets/post_card.dart';
 
 class PostsPage extends StatelessWidget {

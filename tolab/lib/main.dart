@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-import 'package:tolab/Features/auth/controllers/login_controller.dart';
-import 'package:tolab/Features/posts/controllers/post_controllers.dart';
-import 'package:tolab/Features/settings/app_theme.dart';
+import 'package:tolab/page/auth/controllers/login_controller.dart';
+import 'package:tolab/page/posts/controllers/post_controllers.dart';
+import 'package:tolab/page/settings/app_theme.dart';
 import 'package:tolab/routes/app_router.dart';
 
 Future<void> main() async {

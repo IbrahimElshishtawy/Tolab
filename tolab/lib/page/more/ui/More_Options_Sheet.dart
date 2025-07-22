@@ -1,7 +1,7 @@
 // ignore_for_file: deprecated_member_use, file_names
 
 import 'package:flutter/material.dart';
-import 'package:tolab/Features/more/items_option/more_side_items.dart';
+import 'package:tolab/page/more/items_option/more_side_items.dart';
 
 class MoreSidePanel extends StatelessWidget {
   const MoreSidePanel({super.key});

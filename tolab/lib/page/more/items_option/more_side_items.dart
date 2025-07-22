@@ -1,6 +1,8 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tolab/page/auth/controllers/login_controller.dart';
 
 class MoreSideItems extends StatelessWidget {
   const MoreSideItems({super.key});
@@ -19,7 +21,7 @@ class MoreSideItems extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ✅ صورة واسم المستخدم مع رابط للبروفايل
+        // ✅ صورة واسم المستخدم
         GestureDetector(
           onTap: () {
             Navigator.pushNamed(context, '/profile');
@@ -33,7 +35,7 @@ class MoreSideItems extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                'إبراهيم الششتاوي',
+                'إبراهيم الششتاوي', // 👈 لو حابب تجيب الاسم من Firebase ممكن تمرره من فوق
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -62,48 +64,76 @@ class MoreSideItems extends StatelessWidget {
           color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
         ),
 
-        // ✅ الأزرار المطلوبة
+        // ✅ الأزرار
         _buildButton(
           context,
-          Icons.folder_open,
-          'الملفات الجديدة',
-          textColor,
-          buttonBackground,
+          icon: Icons.folder_open,
+          title: 'الملفات الجديدة',
+          iconColor: textColor,
+          backgroundColor: buttonBackground,
+          onTap: () {
+            Navigator.pop(context);
+            // Navigator.pushNamed(context, '/files');
+          },
         ),
         _buildButton(
           context,
-          Icons.school,
-          'مواعيد الكويزات والامتحانات',
-          textColor,
-          buttonBackground,
+          icon: Icons.school,
+          title: 'مواعيد الكويزات والامتحانات',
+          iconColor: textColor,
+          backgroundColor: buttonBackground,
+          onTap: () {
+            Navigator.pop(context);
+            // Navigator.pushNamed(context, '/exams');
+          },
         ),
         _buildButton(
           context,
-          Icons.menu_book,
-          'القرآن الكريم',
-          textColor,
-          buttonBackground,
+          icon: Icons.menu_book,
+          title: 'القرآن الكريم',
+          iconColor: textColor,
+          backgroundColor: buttonBackground,
+          onTap: () {
+            Navigator.pop(context);
+            // Navigator.pushNamed(context, '/quran');
+          },
         ),
         _buildButton(
           context,
-          Icons.videogame_asset,
-          'الألعاب',
-          textColor,
-          buttonBackground,
+          icon: Icons.videogame_asset,
+          title: 'الألعاب',
+          iconColor: textColor,
+          backgroundColor: buttonBackground,
+          onTap: () {
+            Navigator.pop(context);
+            // Navigator.pushNamed(context, '/games');
+          },
         ),
         _buildButton(
           context,
-          Icons.info_outline,
-          'عن التطبيق',
-          textColor,
-          buttonBackground,
+          icon: Icons.info_outline,
+          title: 'عن التطبيق',
+          iconColor: textColor,
+          backgroundColor: buttonBackground,
+          onTap: () {
+            Navigator.pop(context);
+            // Navigator.pushNamed(context, '/about');
+          },
         ),
         _buildButton(
           context,
-          Icons.logout,
-          'تسجيل الخروج',
-          Colors.red,
-          buttonBackground,
+          icon: Icons.logout,
+          title: 'تسجيل الخروج',
+          iconColor: Colors.red,
+          backgroundColor: buttonBackground,
+          onTap: () async {
+            Navigator.pop(context);
+            final controller = Provider.of<LoginController>(
+              context,
+              listen: false,
+            );
+            await controller.logout(context);
+          },
         ),
 
         const Spacer(),
@@ -150,17 +180,19 @@ class MoreSideItems extends StatelessWidget {
 
   /// 🔘 عنصر زر القائمة
   Widget _buildButton(
-    BuildContext context,
-    IconData icon,
-    String title,
-    Color iconColor,
-    Color backgroundColor,
-  ) {
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required Color iconColor,
+    required Color backgroundColor,
+    required VoidCallback onTap,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
+          onPressed: onTap,
           style: ElevatedButton.styleFrom(
             backgroundColor: backgroundColor,
             shadowColor: Colors.transparent,
@@ -171,9 +203,6 @@ class MoreSideItems extends StatelessWidget {
             ),
             elevation: 0.8,
           ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
           child: Row(
             children: [
               Icon(icon, size: 20, color: iconColor),
