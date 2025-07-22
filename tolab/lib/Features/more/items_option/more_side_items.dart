@@ -22,7 +22,6 @@ class MoreSideItems extends StatelessWidget {
         // ✅ صورة واسم المستخدم مع رابط للبروفايل
         GestureDetector(
           onTap: () {
-            // TODO: أضف صفحة الملف الشخصي هنا
             Navigator.pushNamed(context, '/profile');
           },
           child: Column(

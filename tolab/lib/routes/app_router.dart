@@ -4,6 +4,7 @@ import 'package:tolab/Features/auth/pages/verify_email_page.dart';
 import 'package:tolab/Features/home/home_page.dart';
 import 'package:tolab/Features/auth/pages/login_page.dart';
 import 'package:tolab/Features/auth/pages/register_page.dart';
+import 'package:tolab/Features/profile/profile_page.dart';
 import 'package:tolab/Features/splash/ui/splash_page.dart';
 import 'package:tolab/Features/auth/pages/set_new_password_page.dart';
 
@@ -24,6 +25,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const VerifyCodePage());
       case '/set-new-password':
         return MaterialPageRoute(builder: (_) => SetNewPasswordPage());
+      case '/profile':
+        return MaterialPageRoute(builder: (_) => ProfilePage());
       default:
         return MaterialPageRoute(
           builder: (_) =>
