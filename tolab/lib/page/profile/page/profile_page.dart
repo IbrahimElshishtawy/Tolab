@@ -1,4 +1,4 @@
-// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api
+// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -76,10 +76,17 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       CircleAvatar(
                         radius: 40,
-                        backgroundImage: userData!["imageUrl"] != null
-                            ? NetworkImage(userData!["imageUrl"])
-                            : const AssetImage("assets/user.png")
-                                  as ImageProvider,
+                        backgroundColor: Colors.blueGrey,
+                        child: Text(
+                          userData!["name"] != null
+                              ? userData!["name"][0].toUpperCase()
+                              : "U",
+                          style: const TextStyle(
+                            fontSize: 24,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 20),
                       Text(
