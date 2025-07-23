@@ -1,128 +1,121 @@
-// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, avoid_print
-
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'edit_profile_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
-class ProfilePage extends StatefulWidget {
-  @override
-  _ProfilePageState createState() => _ProfilePageState();
-}
+class ProfilePage extends StatelessWidget {
+  const ProfilePage({super.key});
 
-class _ProfilePageState extends State<ProfilePage> {
-  User? user = FirebaseAuth.instance.currentUser;
-  Map<String, dynamic>? userData;
-
-  @override
-  void initState() {
-    super.initState();
-    fetchUserData();
-  }
-
-  Future<void> fetchUserData() async {
-    if (user != null) {
-      try {
-        DocumentSnapshot snapshot = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user!.uid)
-            .get();
-
-        if (snapshot.exists) {
-          setState(() {
-            userData = snapshot.data() as Map<String, dynamic>?;
-          });
-        }
-      } catch (e) {
-        print("حدث خطأ أثناء جلب البيانات: $e");
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("فشل في الاتصال، تأكد من الاتصال بالإنترنت"),
-              duration: Duration(seconds: 3),
-            ),
-          );
-        }
-      }
+  Future<DocumentSnapshot<Map<String, dynamic>>> getUserData() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) {
+      throw Exception('User not logged in');
     }
-  }
-
-  String getInitials(String fullName) {
-    final parts = fullName.trim().split(" ");
-    if (parts.length >= 2) {
-      return parts[0][0].toUpperCase() + parts[1][0].toUpperCase();
-    } else if (parts.isNotEmpty) {
-      return parts[0][0].toUpperCase();
-    }
-    return "U";
+    return FirebaseFirestore.instance.collection('users').doc(userId).get();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('الملف الشخصي'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EditProfilePage(userData: userData),
-                ),
-              );
-              fetchUserData(); // Refresh after editing
-            },
-          ),
-        ],
+    final isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: const Text('الملف الشخصي'),
+        backgroundColor: isDark
+            ? CupertinoColors.black
+            : CupertinoColors.systemGrey6,
       ),
-      body: userData == null
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  Center(
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.blueGrey,
-                      child: Text(
-                        getInitials(userData!["name"] ?? ""),
-                        style: const TextStyle(
-                          fontSize: 30,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+      child: SafeArea(
+        child: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+          future: getUserData(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CupertinoActivityIndicator());
+            }
+
+            if (snapshot.hasError) {
+              return Center(child: Text('حدث خطأ: ${snapshot.error}'));
+            }
+
+            if (!snapshot.hasData || !snapshot.data!.exists) {
+              return const Center(child: Text('لا توجد بيانات للمستخدم.'));
+            }
+
+            final data = snapshot.data!.data()!;
+            final name = data['name'] ?? 'غير معروف';
+            final email = data['email'] ?? 'لا يوجد بريد';
+            final phone = data['phone'] ?? 'لا يوجد رقم';
+            final imageUrl = data['imageUrl'];
+            final win1 = data['win1'] ?? 0;
+            final win2 = data['win2'] ?? 0;
+            final win3 = data['win3'] ?? 0;
+            final win4 = data['win4'] ?? 0;
+            final fail = data['fail'] ?? 0;
+
+            final totalGames = win1 + win2 + win3 + win4 + fail;
+            final winRate = totalGames == 0
+                ? 0
+                : (((win1 + win2 + win3 + win4) / totalGames) * 100)
+                      .toStringAsFixed(1);
+
+            return ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                if (imageUrl != null)
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: NetworkImage(imageUrl),
+                  )
+                else
+                  const CircleAvatar(
+                    radius: 50,
+                    child: Icon(CupertinoIcons.person),
                   ),
-                  const SizedBox(height: 20),
-                  Text(
-                    userData!["name"] ?? "الاسم غير متوفر",
+                const SizedBox(height: 16),
+                Center(
+                  child: Text(
+                    name,
                     style: const TextStyle(
-                      fontSize: 26,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    user!.email ?? "",
-                    style: const TextStyle(fontSize: 18, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 20),
-                  if (userData!["phone"] != null)
-                    ListTile(
-                      leading: const Icon(Icons.phone),
-                      title: Text(
-                        userData!["phone"],
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                    ),
-                ],
-              ),
-            ),
+                ),
+                const SizedBox(height: 8),
+                Center(child: Text(email)),
+                const SizedBox(height: 8),
+                Center(child: Text(phone)),
+
+                const Divider(height: 32),
+
+                const Text(
+                  'إحصائيات لعبة Wordle',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                _buildStatTile('الفوز من أول محاولة', win1),
+                _buildStatTile('الفوز من ثاني محاولة', win2),
+                _buildStatTile('الفوز من ثالث محاولة', win3),
+                _buildStatTile('الفوز من رابع محاولة', win4),
+                _buildStatTile('عدد مرات الفشل', fail),
+                const SizedBox(height: 12),
+                Text('عدد الألعاب: $totalGames'),
+                Text('معدل الفوز: $winRate%'),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatTile(String label, int value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [Text(label), Text('$value')],
+      ),
     );
   }
 }

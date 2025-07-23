@@ -64,6 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '168050637950',
     projectId: 'tolab-e1b84',
     storageBucket: 'tolab-e1b84.firebasestorage.app',
+    iosClientId: '168050637950-5sgcp4lq6d36kv45vk5dapf1hlfcaav1.apps.googleusercontent.com',
     iosBundleId: 'com.example.tolab',
   );
 
@@ -73,6 +74,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '168050637950',
     projectId: 'tolab-e1b84',
     storageBucket: 'tolab-e1b84.firebasestorage.app',
+    iosClientId: '168050637950-5sgcp4lq6d36kv45vk5dapf1hlfcaav1.apps.googleusercontent.com',
     iosBundleId: 'com.example.tolab',
   );
 

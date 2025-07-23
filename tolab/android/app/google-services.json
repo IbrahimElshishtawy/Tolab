@@ -12,7 +12,12 @@
           "package_name": "com.example.tolab"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "168050637950-la7d6jh8f4ahh90f6pulndhkbi1bmi95.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyC3Gt-paXdiUl7FR42asDauoHj5DmWr4gc"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "168050637950-la7d6jh8f4ahh90f6pulndhkbi1bmi95.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "168050637950-5sgcp4lq6d36kv45vk5dapf1hlfcaav1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.tolab"
+              }
+            }
+          ]
         }
       }
     }
