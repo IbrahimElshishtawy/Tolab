@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tolab/page/auth/controllers/google_sign_in_service.dart';
 import 'package:tolab/page/auth/controllers/login_controller.dart';
 
 class LoginForm extends StatefulWidget {
@@ -89,6 +90,21 @@ class _LoginFormState extends State<LoginForm> {
           ],
         ),
         const SizedBox(height: 10),
+
+        ElevatedButton(
+          onPressed: () async {
+            try {
+              final googleSignInService = GoogleSignInService();
+              final userCredential = await googleSignInService
+                  .signInWithGoogle();
+              final user = userCredential?.user;
+              print('مرحبًا ${user?.displayName}');
+            } catch (e) {
+              print('فشل تسجيل الدخول: $e');
+            }
+          },
+          child: Text("تسجيل الدخول باستخدام Google"),
+        ),
         SizedBox(
           height: 50,
           child: controller.isLoading
