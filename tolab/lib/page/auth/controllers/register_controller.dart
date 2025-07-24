@@ -1,4 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterController with ChangeNotifier {
   // Text controllers
@@ -63,36 +67,60 @@ class RegisterController with ChangeNotifier {
       int genderValue = int.tryParse(genderDigit) ?? 1;
       genderController.text = genderValue % 2 == 0 ? 'أنثى' : 'ذكر';
 
-      // مثال ثابت للعنوان (يمكنك التوصيل بقاعدة بيانات أو API لاحقًا)
       addressController.text = 'محافظة القاهرة';
-
       notifyListeners();
     } catch (e) {
-      // تجاهل الخطأ في حال رقم قومي غير صحيح
+      // تجاهل الأخطاء
     }
   }
 
-  // تنفيذ التسجيل
+  // تنفيذ التسجيل في Firebase
   Future<void> register(BuildContext context) async {
-    // هنا تقدر تربط مع Supabase أو أي خدمة أخرى
-    debugPrint('تسجيل المستخدم...');
-    debugPrint('الاسم: ${fullNameController.text}');
-    debugPrint('البريد: ${emailController.text}');
-    debugPrint('الدور: $selectedRole');
-    debugPrint('النوع: $selectedUserType');
-    debugPrint('القسم: $selectedDepartment');
-    debugPrint('السنة: $selectedStudyYear');
-    debugPrint('الرقم القومي: ${nationalIdController.text}');
-    debugPrint('تاريخ الميلاد: ${birthDateController.text}');
-    debugPrint('النوع: ${genderController.text}');
-    debugPrint('العنوان: ${addressController.text}');
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('تم تسجيل المستخدم بنجاح')));
+    if (!passwordsMatch) {
+      showMessage(context, 'كلمة المرور غير متطابقة');
+      return;
+    }
+
+    try {
+      // إنشاء حساب في Firebase Auth
+      final UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      final uid = userCredential.user!.uid;
+
+      // حفظ البيانات في Firestore
+      await FirebaseFirestore.instance.collection('users').doc(uid).set({
+        'fullName': fullNameController.text,
+        'email': email,
+        'nationalId': nationalIdController.text,
+        'birthDate': birthDateController.text,
+        'gender': genderController.text,
+        'address': addressController.text,
+        'userType': selectedUserType,
+        'role': selectedRole,
+        'department': selectedDepartment,
+        'studyYear': selectedStudyYear,
+        'uid': uid,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      showMessage(context, 'تم إنشاء الحساب بنجاح ✅');
+    } on FirebaseAuthException catch (e) {
+      showMessage(context, 'خطأ: ${e.message}');
+    } catch (e) {
+      showMessage(context, 'حدث خطأ غير متوقع');
+    }
   }
 
-  // Dispose لكل الكنترولات
+  void showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   void disposeControllers() {
     fullNameController.dispose();
     emailController.dispose();

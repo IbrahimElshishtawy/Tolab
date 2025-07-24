@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use, sort_child_properties_last
+// ignore_for_file: deprecated_member_use, sort_child_properties_last, unnecessary_underscores
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';

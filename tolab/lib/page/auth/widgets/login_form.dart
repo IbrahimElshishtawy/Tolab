@@ -1,11 +1,13 @@
 // lib/Features/auth/widgets/login_form.dart
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tolab/page/auth/controllers/google_sign_in_service.dart';
 import 'package:tolab/page/auth/controllers/login_controller.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -16,6 +18,7 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   bool isPasswordVisible = false;
+  User? _user;
 
   @override
   void initState() {
@@ -37,6 +40,25 @@ class _LoginFormState extends State<LoginForm> {
     }
   }
 
+  Future<void> _handleGoogleSignIn() async {
+    try {
+      final userCredential = await GoogleSignInService.signInWithGoogle();
+      setState(() {
+        _user = userCredential.user;
+      });
+      if (kDebugMode) {
+        print('مرحبًا ${_user?.displayName}');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('فشل تسجيل الدخول: $e');
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('فشل تسجيل الدخول بواسطة Google')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<LoginController>(context);
@@ -45,6 +67,26 @@ class _LoginFormState extends State<LoginForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // عرض معلومات المستخدم بعد تسجيل الدخول
+        if (_user != null) ...[
+          CircleAvatar(
+            radius: 40,
+            backgroundImage: _user!.photoURL != null
+                ? NetworkImage(_user!.photoURL!)
+                : null,
+            child: _user!.photoURL == null
+                ? const Icon(Icons.person, size: 40)
+                : null,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _user!.displayName ?? _user!.email ?? '',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const Divider(),
+        ],
+
         TextFormField(
           controller: controller.emailController,
           keyboardType: TextInputType.emailAddress,
@@ -91,20 +133,21 @@ class _LoginFormState extends State<LoginForm> {
         ),
         const SizedBox(height: 10),
 
-        ElevatedButton(
-          onPressed: () async {
-            try {
-              final googleSignInService = GoogleSignInService();
-              final userCredential = await googleSignInService
-                  .signInWithGoogle();
-              final user = userCredential?.user;
-              print('مرحبًا ${user?.displayName}');
-            } catch (e) {
-              print('فشل تسجيل الدخول: $e');
-            }
-          },
-          child: Text("تسجيل الدخول باستخدام Google"),
+        ElevatedButton.icon(
+          icon: Image.asset('assets/image_App/google_logo.png', height: 24),
+          label: const Text("Sign in with Google"),
+          onPressed: _handleGoogleSignIn,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black87,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
         ),
+
+        const SizedBox(height: 20),
+
         SizedBox(
           height: 50,
           child: controller.isLoading
@@ -120,7 +163,6 @@ class _LoginFormState extends State<LoginForm> {
                     if (!context.mounted) return;
 
                     if (success) {
-                      // حفظ البيانات إذا تم تفعيل "Remember me"
                       final prefs = await SharedPreferences.getInstance();
                       if (controller.rememberMe) {
                         await prefs.setString(
@@ -155,7 +197,7 @@ class _LoginFormState extends State<LoginForm> {
                     ),
                     backgroundColor: isDark
                         ? const Color(0xFF1E88E5)
-                        : const Color.fromARGB(255, 14, 28, 226),
+                        : const Color(0xFF0E1CE2),
                   ),
                   child: const Text('Login', style: TextStyle(fontSize: 20)),
                 ),
