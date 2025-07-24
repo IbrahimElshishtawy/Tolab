@@ -44,7 +44,7 @@ class _LoginFormState extends State<LoginForm> {
     try {
       final userCredential = await GoogleSignInService.signInWithGoogle();
       setState(() {
-        _user = userCredential.user;
+        _user = userCredential?.user;
       });
       if (kDebugMode) {
         print('مرحبًا ${_user?.displayName}');

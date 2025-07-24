@@ -2,25 +2,33 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class GoogleSignInService {
-  static final FirebaseAuth _auth = FirebaseAuth.instance;
-  static final GoogleSignIn _google = GoogleSignIn.instance;
+  static final _google = GoogleSignIn.instance;
+  static final _auth = FirebaseAuth.instance;
+  static bool _inited = false;
 
-  static Future<UserCredential> signInWithGoogle() async {
-    await _google.initialize(); // required
-
-    GoogleSignInAccount account;
-    try {
-      account = await _google.authenticate(scopeHint: ['email']);
-    } on GoogleSignInException catch (e) {
-      throw FirebaseAuthException(code: 'CANCELLED', message: e.description);
+  static Future<void> init() async {
+    if (!_inited) {
+      await _google.initialize(
+        serverClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com',
+      );
+      _inited = true;
     }
+  }
 
-    final GoogleSignInAuthentication auth = account.authentication;
-    final cred = GoogleAuthProvider.credential(
-      idToken: auth.idToken,
-      // accessToken: auth.accessToken,
-    );
-    return await _auth.signInWithCredential(cred);
+  static Future<UserCredential?> signInWithGoogle() async {
+    await init();
+    try {
+      final acct = await _google.authenticate(scopeHint: ['email']);
+      final tokens = acct.authentication;
+      final cred = GoogleAuthProvider.credential(
+        idToken: tokens.idToken,
+        // اعتمادك هنا، فتأكيد الأمان
+      );
+      return await _auth.signInWithCredential(cred);
+    } on GoogleSignInException catch (e) {
+      if (e.code.name == 'canceled') return null;
+      rethrow;
+    }
   }
 
   static Future<void> signOut() async {
