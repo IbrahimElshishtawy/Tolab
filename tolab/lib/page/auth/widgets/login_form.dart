@@ -67,7 +67,6 @@ class _LoginFormState extends State<LoginForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // عرض معلومات المستخدم بعد تسجيل الدخول
         if (_user != null) ...[
           CircleAvatar(
             radius: 40,
@@ -133,21 +132,7 @@ class _LoginFormState extends State<LoginForm> {
         ),
         const SizedBox(height: 10),
 
-        ElevatedButton.icon(
-          icon: Image.asset('assets/image_App/google_logo.png', height: 24),
-          label: const Text("Sign in with Google"),
-          onPressed: _handleGoogleSignIn,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black87,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 20),
-
+        // زر تسجيل الدخول
         SizedBox(
           height: 50,
           child: controller.isLoading
@@ -201,6 +186,22 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                   child: const Text('Login', style: TextStyle(fontSize: 20)),
                 ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // زر تسجيل الدخول بجوجل
+        ElevatedButton.icon(
+          icon: Image.asset('assets/image_App/google_logo.png', height: 22),
+          label: const Text("Sign in with Google"),
+          onPressed: _handleGoogleSignIn,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black87,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(7),
+            ),
+          ),
         ),
       ],
     );
