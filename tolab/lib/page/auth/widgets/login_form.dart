@@ -43,19 +43,30 @@ class _LoginFormState extends State<LoginForm> {
   Future<void> _handleGoogleSignIn() async {
     try {
       final userCredential = await GoogleSignInService.signInWithGoogle();
-      setState(() {
-        _user = userCredential?.user;
-      });
-      if (kDebugMode) {
-        print('مرحبًا ${_user?.displayName}');
+      if (userCredential == null) return;
+
+      final user = userCredential.user;
+      if (user != null) {
+        setState(() {
+          _user = user;
+        });
+        if (kDebugMode) print('مرحبًا ${user.displayName}');
+
+        final prefs = await SharedPreferences.getInstance();
+        // نستخدم ?? لتجنب خطأ null
+        await prefs.setString('saved_email', user.email ?? '');
+        await prefs.setBool('remember_me', true);
+
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, '/home');
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('فشل تسجيل الدخول: $e');
+      if (kDebugMode) print('فشل تسجيل الدخول: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('فشل تسجيل الدخول بواسطة Google')),
+        );
       }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('فشل تسجيل الدخول بواسطة Google')));
     }
   }
 
@@ -67,6 +78,7 @@ class _LoginFormState extends State<LoginForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // عرض بيانات المستخدم بعد تسجيل جوجل
         if (_user != null) ...[
           CircleAvatar(
             radius: 40,
@@ -86,6 +98,7 @@ class _LoginFormState extends State<LoginForm> {
           const Divider(),
         ],
 
+        // حقل البريد الإلكتروني
         TextFormField(
           controller: controller.emailController,
           keyboardType: TextInputType.emailAddress,
@@ -96,6 +109,8 @@ class _LoginFormState extends State<LoginForm> {
           ),
         ),
         const SizedBox(height: 20),
+
+        // حقل كلمة المرور
         TextFormField(
           controller: controller.passwordController,
           obscureText: !isPasswordVisible,
@@ -113,11 +128,14 @@ class _LoginFormState extends State<LoginForm> {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(9)),
           ),
         ),
+        const SizedBox(height: 10),
+
+        // تذكرني و رابط نسيان كلمة المرور
         Row(
           children: [
             Checkbox(
               value: controller.rememberMe,
-              onChanged: (value) => controller.toggleRememberMe(value ?? false),
+              onChanged: (v) => controller.toggleRememberMe(v ?? false),
             ),
             const Text("Remember me"),
             const Spacer(),
@@ -130,9 +148,9 @@ class _LoginFormState extends State<LoginForm> {
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 20),
 
-        // زر تسجيل الدخول
+        // زر تسجيل بالبريد وكلمة المرور
         SizedBox(
           height: 50,
           child: controller.isLoading
@@ -144,9 +162,7 @@ class _LoginFormState extends State<LoginForm> {
                       email: controller.emailController.text.trim(),
                       password: controller.passwordController.text.trim(),
                     );
-
                     if (!context.mounted) return;
-
                     if (success) {
                       final prefs = await SharedPreferences.getInstance();
                       if (controller.rememberMe) {
@@ -164,7 +180,6 @@ class _LoginFormState extends State<LoginForm> {
                         await prefs.remove('saved_password');
                         await prefs.setBool('remember_me', false);
                       }
-
                       Navigator.pushReplacementNamed(context, '/home');
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -187,7 +202,6 @@ class _LoginFormState extends State<LoginForm> {
                   child: const Text('Login', style: TextStyle(fontSize: 20)),
                 ),
         ),
-
         const SizedBox(height: 16),
 
         // زر تسجيل الدخول بجوجل

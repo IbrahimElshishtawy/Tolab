@@ -1,11 +1,10 @@
-// ignore_for_file: unnecessary_null_comparison, unused_element
+// ignore_for_file: unnecessary_null_comparison, unused_element, await_only_futures
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-// 📌 تأكد من وضع الـ Web client ID الصحيح هنا
 const String _webClientId =
     '168050637950-la7d6jh8f4ahh90f6pulndhkbi1bmi95.apps.googleusercontent.com';
 
@@ -27,7 +26,7 @@ class GoogleSignInService {
   static Future<UserCredential?> signInWithGoogle() async {
     await init();
     try {
-      final acct = await _google.authenticate(); // طريقة موثوقة للدخول
+      final acct = await _google.authenticate();
       if (acct == null) return null;
 
       final auth = await acct.authentication;
@@ -50,9 +49,8 @@ class GoogleSignInService {
   Future<void> _handleGoogleSignIn() async {
     try {
       final userCredential = await GoogleSignInService.signInWithGoogle();
-      if (userCredential == null) return; // إذا ألغى المستخدم النافذة
+      if (userCredential == null) return;
 
-      // تم تسجيل الدخول بنجاح
       if (context.mounted) {
         Navigator.pushReplacementNamed(context, '/home');
       }
