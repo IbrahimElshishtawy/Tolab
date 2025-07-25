@@ -61,7 +61,7 @@ class ChooseRolePage extends StatelessWidget {
                     child: RoleCard(
                       title: role["title"] as String,
                       icon: role["icon"] as IconData,
-                      color: Colors.teal,
+                      color: const Color.fromARGB(255, 64, 150, 255),
                       onTap: () {
                         Navigator.push(
                           context,
