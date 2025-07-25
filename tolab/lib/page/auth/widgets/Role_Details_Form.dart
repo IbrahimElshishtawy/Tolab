@@ -51,9 +51,9 @@ class _RoleDetailsFormState extends State<RoleDetailsForm> {
         'uid': user.uid,
         'email': user.email,
         'role': widget.role,
+        'nationalId': nationalIdController.text.trim(),
       };
 
-      // اسم اختياري
       if (nameController.text.trim().isNotEmpty) {
         userData['name'] = nameController.text.trim();
       }
@@ -61,10 +61,6 @@ class _RoleDetailsFormState extends State<RoleDetailsForm> {
       if (widget.role == "Student") {
         userData['year'] = selectedYear;
         userData['department'] = selectedDepartment;
-      }
-
-      if (widget.role == "Doctor" || widget.role == "Assistant") {
-        userData['nationalId'] = nationalIdController.text.trim();
       }
 
       await FirebaseFirestore.instance
@@ -96,9 +92,10 @@ class _RoleDetailsFormState extends State<RoleDetailsForm> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black;
+    final bgColor = isDark ? Colors.black : Colors.white;
 
     return Scaffold(
-      backgroundColor: isDark ? Colors.black : Colors.white,
+      backgroundColor: bgColor,
       appBar: AppBar(
         title: const Text("تفاصيل الحساب"),
         centerTitle: true,
@@ -112,7 +109,7 @@ class _RoleDetailsFormState extends State<RoleDetailsForm> {
           key: _formKey,
           child: ListView(
             children: [
-              // الاسم (اختياري للجميع)
+              // الاسم (اختياري)
               Text("الاسم (اختياري)", style: TextStyle(color: textColor)),
               const SizedBox(height: 8),
               TextFormField(
@@ -128,7 +125,33 @@ class _RoleDetailsFormState extends State<RoleDetailsForm> {
               ),
               const SizedBox(height: 20),
 
-              // لو طالب → السنة + القسم
+              // الرقم القومي (إجباري لكل الأدوار)
+              Text("الرقم القومي", style: TextStyle(color: textColor)),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: nationalIdController,
+                keyboardType: TextInputType.number,
+                maxLength: 14,
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return "الرقم القومي مطلوب";
+                  } else if (val.length != 14) {
+                    return "الرقم القومي يجب أن يكون 14 رقم";
+                  }
+                  return null;
+                },
+                decoration: InputDecoration(
+                  hintText: "أدخل الرقم القومي",
+                  filled: true,
+                  fillColor: isDark ? Colors.grey[900] : Colors.grey[200],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // لو طالب → السنة والقسم
               if (widget.role == "Student") ...[
                 Text("السنة الدراسية", style: TextStyle(color: textColor)),
                 const SizedBox(height: 8),
@@ -164,34 +187,6 @@ class _RoleDetailsFormState extends State<RoleDetailsForm> {
                   validator: (val) => val == null ? "اختر القسم" : null,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
-
-              // لو دكتور أو معيد → الرقم القومي فقط
-              if (widget.role == "Doctor" || widget.role == "Assistant") ...[
-                Text("الرقم القومي", style: TextStyle(color: textColor)),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: nationalIdController,
-                  keyboardType: TextInputType.number,
-                  maxLength: 14,
-                  validator: (val) {
-                    if (val == null || val.trim().isEmpty) {
-                      return "الرقم القومي مطلوب";
-                    } else if (val.length != 14) {
-                      return "الرقم القومي يجب أن يكون 14 رقم";
-                    }
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    hintText: "أدخل الرقم القومي",
-                    filled: true,
-                    fillColor: isDark ? Colors.grey[900] : Colors.grey[200],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
