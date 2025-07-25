@@ -13,8 +13,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final PageController _pageController = PageController();
-  int _currentIndex = 0;
+  int _currentIndex = 2;
+  late final PageController _pageController = PageController(
+    initialPage: _currentIndex,
+  );
 
   final List<Widget> _pages = [
     const Center(child: Text('📚 المواد')),
