@@ -25,10 +25,19 @@ class ProfilePage extends StatelessWidget {
     final photoUrl = user?.photoURL;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('الملف الشخصي')),
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: const Text(
+          'ملفي التعليمي',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CircleAvatar(
               radius: 50,
@@ -36,64 +45,109 @@ class ProfilePage extends StatelessWidget {
                   ? NetworkImage(photoUrl)
                   : const AssetImage('assets/images/default_avatar.png')
                         as ImageProvider,
-              backgroundColor: Colors.transparent,
+              backgroundColor: Colors.grey[800],
             ),
             const SizedBox(height: 16),
 
-            if (name != null && name!.isNotEmpty)
-              Text("الاسم: $name", style: const TextStyle(fontSize: 18)),
-
-            if (email != null && email!.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Text(
-                "البريد الإلكتروني: $email",
-                style: const TextStyle(fontSize: 18),
+            Text(
+              name ?? "اسم المستخدم",
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
               ),
-            ],
-
-            if (nationalId != null && nationalId!.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Text(
-                "الرقم القومي: $nationalId",
-                style: const TextStyle(fontSize: 18),
-              ),
-            ],
-
-            if (role == "طالب") ...[
-              const SizedBox(height: 8),
-              if (department != null)
-                Text(
-                  "القسم: $department",
-                  style: const TextStyle(fontSize: 18),
-                ),
-              if (academicYear != null)
-                Text(
-                  "السنة الدراسية: $academicYear",
-                  style: const TextStyle(fontSize: 18),
-                ),
-            ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              email ?? "البريد الإلكتروني",
+              style: TextStyle(color: Colors.grey[400], fontSize: 16),
+            ),
 
             const SizedBox(height: 24),
-            const Divider(),
+            const Divider(color: Colors.white),
+
+            if (role == "طالب") ...[
+              _infoRow("الرقم القومي", nationalId),
+              _infoRow("القسم", department),
+              _infoRow("السنة الدراسية", academicYear),
+            ],
+
+            const SizedBox(height: 32),
+
+            _sectionTitle("📖 قراءة القرآن"),
+            _progressBar(title: "التقدم", value: 0.65), // 65%
+
+            const SizedBox(height: 24),
+
+            _sectionTitle("🎮 التقدم في اللعب التعليمية"),
+            _progressBar(title: "مستواك الحالي", value: 0.4), // 40%
+
+            const SizedBox(height: 32),
 
             _buildProfileButton(context, "تعديل البيانات", Icons.edit, () {
-              // TODO: اكتب هنا التنقل لصفحة التعديل
+              // TODO: تنقل لصفحة التعديل
             }),
-
-            _buildProfileButton(context, "عرض النتيجة", Icons.bar_chart, () {
-              // TODO: اكتب هنا التنقل لصفحة النتيجة
-            }),
-
-            _buildProfileButton(context, "سجل التنزيلات", Icons.download, () {
-              // TODO: اكتب هنا التنقل لسجل التنزيلات
-            }),
-
-            _buildProfileButton(context, "بوستاتي", Icons.post_add, () {
-              // TODO: اكتب هنا التنقل لبوستاتي القريبة القادمة
+            _buildProfileButton(context, "عرض النتيجة", Icons.school, () {
+              // TODO: عرض النتائج
             }),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _infoRow(String label, String? value) {
+    if (value == null || value.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Text(
+            "$label:",
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+          ),
+          const SizedBox(width: 10),
+          Text(value, style: TextStyle(color: Colors.grey[300], fontSize: 16)),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String title) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Text(
+        title,
+        style: const TextStyle(
+          color: Colors.amber,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _progressBar({required String title, required double value}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(color: Colors.white, fontSize: 16)),
+        const SizedBox(height: 6),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: LinearProgressIndicator(
+            value: value,
+            minHeight: 12,
+            backgroundColor: Colors.grey[800],
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.greenAccent),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "${(value * 100).toInt()}%",
+          style: const TextStyle(color: Colors.white),
+        ),
+      ],
     );
   }
 
@@ -107,13 +161,16 @@ class ProfilePage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: ElevatedButton.icon(
         onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size.fromHeight(50),
-          backgroundColor: Colors.blueGrey.shade700,
-          foregroundColor: Colors.white,
-        ),
         icon: Icon(icon),
-        label: Text(title, style: const TextStyle(fontSize: 16)),
+        label: Text(title),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blueGrey.shade900,
+          foregroundColor: Colors.white,
+          minimumSize: const Size.fromHeight(50),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
       ),
     );
   }
