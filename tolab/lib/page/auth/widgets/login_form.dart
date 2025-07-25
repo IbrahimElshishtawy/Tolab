@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tolab/page/auth/controllers/google_sign_in_service.dart';
+import 'package:tolab/page/auth/controllers/src/google_sign_in_service.dart';
 import 'package:tolab/page/auth/controllers/login_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -58,7 +58,7 @@ class _LoginFormState extends State<LoginForm> {
         await prefs.setBool('remember_me', true);
 
         if (!mounted) return;
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushReplacementNamed(context, '/choose-role');
       }
     } catch (e) {
       if (kDebugMode) print('فشل تسجيل الدخول: $e');

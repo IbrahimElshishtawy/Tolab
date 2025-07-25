@@ -7,6 +7,7 @@ import 'package:tolab/page/auth/pages/register_page.dart';
 import 'package:tolab/page/profile/page/profile_page.dart';
 import 'package:tolab/page/splash/page/splash_page.dart';
 import 'package:tolab/page/auth/pages/set_new_password_page.dart';
+import 'package:tolab/page/auth/pages/choose_role_page.dart';
 
 class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -15,6 +16,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const SplashScreen());
       case '/login':
         return MaterialPageRoute(builder: (_) => const LoginPage());
+      case '/choose-role':
+        return MaterialPageRoute(builder: (_) => const ChooseRolePage());
       case '/home':
         return MaterialPageRoute(builder: (_) => const HomePage());
       case '/register':

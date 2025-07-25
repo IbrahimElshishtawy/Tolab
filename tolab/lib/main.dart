@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:tolab/core/config/User_Provider.dart';
 
 import 'package:tolab/page/auth/controllers/login_controller.dart';
 import 'package:tolab/page/posts/controllers/post_controllers.dart';
@@ -22,6 +23,7 @@ class TolabApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => LoginController()),
         ChangeNotifierProvider(create: (_) => PostsController()..fetchPosts()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

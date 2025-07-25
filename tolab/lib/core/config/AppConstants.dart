@@ -22,7 +22,6 @@ class AppConstants {
   static const logoPath = 'assets/image_App/Tolab.png';
 
   // App name
-  static const appName = 'ToLab';
 
   // Font sizes
   static const double headingFontSize = 18;

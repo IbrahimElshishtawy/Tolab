@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tolab/core/config/User_Provider.dart';
 
 class LoginController extends ChangeNotifier {
   final emailController = TextEditingController();
@@ -43,6 +45,10 @@ class LoginController extends ChangeNotifier {
 
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
+
+      // ✅ حفظ بيانات المستخدم في UserProvider
+      final user = _auth.currentUser;
+      Provider.of<UserProvider>(context, listen: false).setUser(user);
 
       // حفظ حالة الدخول وبيانات الحساب إذا كان rememberMe مفعّل
       final prefs = await SharedPreferences.getInstance();

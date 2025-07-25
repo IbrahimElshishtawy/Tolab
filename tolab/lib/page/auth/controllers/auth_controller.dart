@@ -1,6 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tolab/core/config/User_Provider.dart';
 
 class AuthController with ChangeNotifier {
   final emailController = TextEditingController();
@@ -37,7 +41,7 @@ class AuthController with ChangeNotifier {
   }
 
   /// ✅ تسجيل الدخول
-  Future<bool> login() async {
+  Future<bool> login(BuildContext context) async {
     setLoading(true);
     try {
       final credential = await _auth.signInWithEmailAndPassword(
@@ -51,6 +55,12 @@ class AuthController with ChangeNotifier {
         return false;
       }
 
+      // ✅ تخزين بيانات المستخدم في UserProvider
+      Provider.of<UserProvider>(
+        context,
+        listen: false,
+      ).setUser(credential.user);
+
       return true;
     } on FirebaseAuthException catch (e) {
       errorMessage = _handleFirebaseAuthError(e);
@@ -61,7 +71,7 @@ class AuthController with ChangeNotifier {
   }
 
   /// ✅ إنشاء حساب جديد
-  Future<bool> register() async {
+  Future<bool> register(BuildContext context) async {
     setLoading(true);
     try {
       if (passwordController.text != confirmPasswordController.text) {
@@ -86,6 +96,12 @@ class AuthController with ChangeNotifier {
         'national_id': nationalIdController.text.trim(),
         'created_at': FieldValue.serverTimestamp(),
       });
+
+      // ✅ تخزين بيانات المستخدم في UserProvider
+      Provider.of<UserProvider>(
+        context,
+        listen: false,
+      ).setUser(credential.user);
 
       return true;
     } on FirebaseAuthException catch (e) {

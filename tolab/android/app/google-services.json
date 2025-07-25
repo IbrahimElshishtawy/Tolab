@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "168050637950-vt629lofge2cscbd4m3mtql3nic64fft.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tolab",
+            "certificate_hash": "99863775d900be6fec8bfba6e059b646b3477548"
+          }
+        },
+        {
           "client_id": "168050637950-la7d6jh8f4ahh90f6pulndhkbi1bmi95.apps.googleusercontent.com",
           "client_type": 3
         }
