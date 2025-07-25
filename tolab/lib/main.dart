@@ -1,21 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:tolab/core/config/User_Provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:tolab/core/config/User_Provider.dart';
 import 'package:tolab/page/auth/controllers/login_controller.dart';
 import 'package:tolab/page/posts/controllers/post_controllers.dart';
 import 'package:tolab/page/settings/app_theme.dart';
 import 'package:tolab/routes/app_router.dart';
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const TolabApp());
+
+  // ✅ تحقق آمن من تسجيل الدخول وتحقق الإيميل
+  final User? user = FirebaseAuth.instance.currentUser;
+  final bool isLoggedIn = user != null && (user.emailVerified ?? false);
+
+  runApp(TolabApp(isLoggedIn: isLoggedIn));
 }
 
 class TolabApp extends StatelessWidget {
-  const TolabApp({super.key});
+  final bool isLoggedIn;
+
+  const TolabApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +38,7 @@ class TolabApp extends StatelessWidget {
         theme: AppThemes.lightTheme,
         darkTheme: AppThemes.darkTheme,
         themeMode: ThemeMode.dark,
-        initialRoute: '/splash',
+        initialRoute: isLoggedIn ? '/home' : '/splash',
         onGenerateRoute: AppRouter.generateRoute,
       ),
     );
