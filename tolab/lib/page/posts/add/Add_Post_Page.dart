@@ -1,7 +1,8 @@
 // ignore_for_file: file_names, use_build_context_synchronously
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AddPostPage extends StatefulWidget {
   const AddPostPage({super.key});
@@ -12,14 +13,16 @@ class AddPostPage extends StatefulWidget {
 
 class _AddPostPageState extends State<AddPostPage> {
   final TextEditingController _controller = TextEditingController();
-  final supabase = Supabase.instance.client;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   bool isLoading = false;
 
   Future<void> _submitPost() async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
 
-    final user = supabase.auth.currentUser;
+    final user = _auth.currentUser;
     if (user == null) {
       ScaffoldMessenger.of(
         context,
@@ -30,9 +33,13 @@ class _AddPostPageState extends State<AddPostPage> {
     setState(() => isLoading = true);
 
     try {
-      await supabase.from('posts').insert({'text': text, 'user_id': user.id});
+      await _firestore.collection('posts').add({
+        'text': text,
+        'userId': user.uid,
+        'createdAt': Timestamp.now(),
+      });
 
-      Navigator.pop(context); // رجوع للصفحة السابقة بعد الإضافة
+      Navigator.pop(context); // الرجوع بعد الإضافة
     } catch (e) {
       ScaffoldMessenger.of(
         context,
