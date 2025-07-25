@@ -15,7 +15,7 @@ void main() async {
 
   // ✅ تحقق آمن من تسجيل الدخول وتحقق الإيميل
   final User? user = FirebaseAuth.instance.currentUser;
-  final bool isLoggedIn = user != null && (user.emailVerified ?? false);
+  final bool isLoggedIn = user != null && (user.emailVerified);
 
   runApp(TolabApp(isLoggedIn: isLoggedIn));
 }

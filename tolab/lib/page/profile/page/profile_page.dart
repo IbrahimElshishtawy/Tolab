@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfilePage extends StatelessWidget {
   final String? name;
   final String? email;
   final String? nationalId;
-  final String? role; // مثال: "طالب" أو "مشرف"
+  final String? role;
   final String? department;
   final String? academicYear;
 
@@ -20,22 +21,28 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    final photoUrl = user?.photoURL;
+
     return Scaffold(
       appBar: AppBar(title: const Text('الملف الشخصي')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 50,
-              backgroundImage: NetworkImage(
-                'https://images.unsplash.com/photo-1607746882042-944635dfe10e?crop=faces&fit=crop&w=200&h=200',
-              ),
+              backgroundImage: photoUrl != null && photoUrl.isNotEmpty
+                  ? NetworkImage(photoUrl)
+                  : const AssetImage('assets/images/default_avatar.png')
+                        as ImageProvider,
               backgroundColor: Colors.transparent,
             ),
             const SizedBox(height: 16),
+
             if (name != null && name!.isNotEmpty)
               Text("الاسم: $name", style: const TextStyle(fontSize: 18)),
+
             if (email != null && email!.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
@@ -43,6 +50,7 @@ class ProfilePage extends StatelessWidget {
                 style: const TextStyle(fontSize: 18),
               ),
             ],
+
             if (nationalId != null && nationalId!.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
@@ -50,6 +58,7 @@ class ProfilePage extends StatelessWidget {
                 style: const TextStyle(fontSize: 18),
               ),
             ],
+
             if (role == "طالب") ...[
               const SizedBox(height: 8),
               if (department != null)
@@ -63,19 +72,22 @@ class ProfilePage extends StatelessWidget {
                   style: const TextStyle(fontSize: 18),
                 ),
             ],
+
             const SizedBox(height: 24),
             const Divider(),
 
-            // Buttons
             _buildProfileButton(context, "تعديل البيانات", Icons.edit, () {
               // TODO: اكتب هنا التنقل لصفحة التعديل
             }),
+
             _buildProfileButton(context, "عرض النتيجة", Icons.bar_chart, () {
               // TODO: اكتب هنا التنقل لصفحة النتيجة
             }),
+
             _buildProfileButton(context, "سجل التنزيلات", Icons.download, () {
               // TODO: اكتب هنا التنقل لسجل التنزيلات
             }),
+
             _buildProfileButton(context, "بوستاتي", Icons.post_add, () {
               // TODO: اكتب هنا التنقل لبوستاتي القريبة القادمة
             }),
