@@ -70,7 +70,11 @@ class _RoleDetailsFormState extends State<RoleDetailsForm> {
 
       _showMessage("تم الحفظ بنجاح ✅");
       Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
+        if (mounted) {
+          Navigator.of(
+            context,
+          ).pushNamedAndRemoveUntil('/home', (route) => false);
+        }
       });
     } catch (e) {
       _showMessage("حدث خطأ أثناء الحفظ ❌", isError: true);
