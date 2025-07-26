@@ -3,11 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
-class PostCard extends StatelessWidget {
+class PostCard extends StatefulWidget {
   final String title;
   final String content;
   final String author;
   final String date;
+  final int views;
 
   const PostCard({
     super.key,
@@ -15,7 +16,19 @@ class PostCard extends StatelessWidget {
     required this.content,
     required this.author,
     required this.date,
+    required this.views,
   });
+
+  @override
+  State<PostCard> createState() => _PostCardState();
+}
+
+class _PostCardState extends State<PostCard> {
+  bool isLiked = false;
+
+  void navigateToStatsPage(BuildContext context) {
+    Navigator.pushNamed(context, '/stats');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +39,7 @@ class PostCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// 🟠 الصف العلوي: صورة + اسم + تاريخ + ثلاث نقاط
+          /// 🟠 الصف العلوي: صورة + تفاصيل
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -37,24 +50,17 @@ class PostCard extends StatelessWidget {
               ),
               const SizedBox(width: 12),
 
+              /// 🟡 الاسم والتاريخ والنقاط
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// 🔵 الاسم + التاريخ + النقاط
+                    /// 🔘 السطر الأول: التاريخ + القائمة
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(
-                          child: Text(
-                            author,
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
                         Text(
-                          date,
+                          widget.date,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: Colors.grey,
                             fontSize: 12,
@@ -89,10 +95,20 @@ class PostCard extends StatelessWidget {
                       ],
                     ),
 
+                    const SizedBox(height: 6),
+
+                    /// 🔵 اسم الكاتب
+                    Text(
+                      widget.author,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
                     const SizedBox(height: 8),
 
                     /// 📝 محتوى البوست
-                    Text(content, style: theme.textTheme.bodyMedium),
+                    Text(widget.content, style: theme.textTheme.bodyMedium),
                   ],
                 ),
               ),
@@ -105,20 +121,51 @@ class PostCard extends StatelessWidget {
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.favorite_border),
-                onPressed: () {},
+                icon: Icon(
+                  isLiked ? Icons.favorite : Icons.favorite_border,
+                  color: isLiked ? Colors.red : null,
+                ),
+                onPressed: () {
+                  setState(() {
+                    isLiked = !isLiked;
+                  });
+                  navigateToStatsPage(context);
+                },
               ),
               const SizedBox(width: 8),
               IconButton(
                 icon: const Icon(Icons.share),
                 onPressed: () {
-                  Share.share('$content\n\n- $author');
+                  Share.share('${widget.content}\n\n- ${widget.author}');
+                  navigateToStatsPage(context);
                 },
               ),
             ],
           ),
 
-          /// 🔻 خط سفلي + ظل
+          /// 🔻 عدد المشاهدات + خط سفلي
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: () => navigateToStatsPage(context),
+                child: Row(
+                  children: [
+                    const Icon(Icons.visibility, size: 18, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${widget.views} مشاهدة',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 6),
           Container(height: 1, color: Colors.grey.withOpacity(0.2)),
           Container(
             height: 4,

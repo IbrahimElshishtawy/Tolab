@@ -1,31 +1,45 @@
-// services/post_service.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tolab/models/post_model.dart';
 
 class PostService {
-  /// Simulated fetch from Supabase or backend API
-  Future<List<PostModel>> fetchPostsFromBackend() async {
-    await Future.delayed(const Duration(seconds: 1)); // simulate network delay
+  final _firestore = FirebaseFirestore.instance;
+  final _auth = FirebaseAuth.instance;
 
-    return List.generate(12, (index) {
-      return PostModel(
-        id: '${index + 1}',
-        content: 'Post #${index + 1}: Updates from backend.',
-        authorId: index.isEven ? 'admin_001' : 'ta_002',
-        createdAt: DateTime.now().subtract(Duration(hours: index + 1)),
-      );
+  /// جلب كل البوستات
+  Future<List<PostModel>> fetchPostsFromBackend() async {
+    final snapshot = await _firestore
+        .collection('posts')
+        .orderBy('createdAt', descending: true)
+        .get();
+
+    return snapshot.docs.map((doc) {
+      return PostModel.fromJson(doc.data()..['id'] = doc.id);
+    }).toList();
+  }
+
+  /// إضافة بوست جديد
+  Future<void> addPostToBackend(PostModel post) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('User not authenticated');
+
+    await _firestore.collection('posts').add({
+      'content': post.content,
+      'authorId': user.uid,
+      'createdAt': FieldValue.serverTimestamp(),
     });
   }
 
-  /// Simulated add post (replace with Supabase insert logic)
-  Future<void> addPostToBackend(PostModel post) async {
-    //
-    // await Supabase.instance.client.from('posts').insert(post.toJson());
-    await Future.delayed(const Duration(milliseconds: 300));
-  }
-
-  /// Simulated delete post (replace with Supabase delete logic)
+  /// حذف بوست معين (لو المستخدم هو اللي كتبه)
   Future<void> deletePostFromBackend(String id) async {
-    // await Supabase.instance.client.from('posts').delete().eq('id', id);
-    await Future.delayed(const Duration(milliseconds: 300));
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('User not authenticated');
+
+    final doc = await _firestore.collection('posts').doc(id).get();
+    if (doc.exists && doc['authorId'] == user.uid) {
+      await _firestore.collection('posts').doc(id).delete();
+    } else {
+      throw Exception('Permission denied: you can only delete your own posts.');
+    }
   }
 }
