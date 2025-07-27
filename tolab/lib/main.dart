@@ -8,14 +8,14 @@ import 'package:tolab/page/auth/controllers/login_controller.dart';
 import 'package:tolab/page/posts/controllers/post_controllers.dart';
 import 'package:tolab/page/settings/app_theme.dart';
 import 'package:tolab/routes/app_router.dart';
+import 'package:tolab/page/splash/page/splash_page.dart'; // ✅ تأكد من الاستيراد
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  // ✅ تحقق آمن من تسجيل الدخول وتحقق الإيميل
   final User? user = FirebaseAuth.instance.currentUser;
-  final bool isLoggedIn = user != null && (user.emailVerified);
+  final bool isLoggedIn = user != null && user.emailVerified;
 
   runApp(TolabApp(isLoggedIn: isLoggedIn));
 }
@@ -40,6 +40,8 @@ class TolabApp extends StatelessWidget {
         themeMode: ThemeMode.dark,
         initialRoute: isLoggedIn ? '/home' : '/splash',
         onGenerateRoute: AppRouter.generateRoute,
+        onUnknownRoute: (settings) =>
+            MaterialPageRoute(builder: (_) => const SplashScreen()),
       ),
     );
   }

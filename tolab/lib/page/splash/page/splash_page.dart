@@ -46,33 +46,73 @@ class _SplashScreenState extends State<SplashScreen>
     final theme = Theme.of(context);
 
     return Scaffold(
-      body: Center(
-        child: FadeTransition(
-          opacity: controller.logoOpacity,
-          child: ScaleTransition(
-            scale: controller.logoScale,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/image_splash/Tolab_splash_page.png',
-                  width: 200,
-                  height: 200,
-                  errorBuilder: (_, e, _) =>
-                      const Text("❌ لم يتم تحميل الصورة"),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'Welcome to Tolab',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: theme.textTheme.bodyLarge?.color?.withOpacity(0.7),
-                  ),
-                ),
-              ],
-            ),
+      body: Stack(
+        children: [
+          // شاشة البداية الثابتة
+          ValueListenableBuilder<bool>(
+            valueListenable: controller.showInitialScreen,
+            builder: (_, showInitial, _) {
+              return showInitial
+                  ? AnimatedBuilder(
+                      animation: controller.revealAnimation,
+                      builder: (_, _) {
+                        return ClipPath(
+                          clipper: RevealClipper(
+                            controller.revealAnimation.value,
+                          ),
+                          child: Container(
+                            color: theme.primaryColor,
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                color: Color.fromARGB(255, 2, 33, 235),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  : const SizedBox();
+            },
           ),
-        ),
+
+          // شاشة الشعار بالأنيميشن
+          ValueListenableBuilder<bool>(
+            valueListenable: controller.showLogoScreen,
+            builder: (_, showLogo, _) {
+              return showLogo
+                  ? Center(
+                      child: FadeTransition(
+                        opacity: controller.logoOpacity,
+                        child: ScaleTransition(
+                          scale: controller.logoScale,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/image_splash/Tolab_splash_page.png',
+                                width: 200,
+                                height: 200,
+                                errorBuilder: (_, e, _) =>
+                                    const Text("❌ لم يتم تحميل الصورة"),
+                              ),
+                              const SizedBox(height: 20),
+                              Text(
+                                'Welcome to Tolab',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: theme.textTheme.bodyLarge?.color
+                                      ?.withOpacity(0.7),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  : const SizedBox();
+            },
+          ),
+        ],
       ),
     );
   }
@@ -87,4 +127,23 @@ class _SplashScreenState extends State<SplashScreen>
       Navigator.pushReplacementNamed(context, '/login');
     }
   }
+}
+
+// Custom clipper for the reveal animation
+class RevealClipper extends CustomClipper<Path> {
+  final double radius;
+
+  RevealClipper(this.radius);
+
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    final center = Offset(size.width / 2, size.height / 2);
+    path.addOval(Rect.fromCircle(center: center, radius: radius));
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant RevealClipper oldClipper) =>
+      oldClipper.radius != radius;
 }
