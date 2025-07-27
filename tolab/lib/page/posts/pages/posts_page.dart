@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:tolab/page/posts/Notification/Notifications_Page.dart';
-import 'package:tolab/page/posts/add/Add_Post_Page.dart';
+import 'package:tolab/page/posts/pages/Notifications_Page.dart';
+import 'package:tolab/page/posts/pages/Add_Post_Page.dart';
 import 'package:tolab/page/posts/controllers/post_controllers.dart';
 import 'package:tolab/page/posts/widgets/Post_Card.dart';
 
@@ -35,7 +35,7 @@ class PostsPage extends StatelessWidget {
                 style: TextStyle(
                   color: theme.primaryColor,
                   fontWeight: FontWeight.bold,
-                  fontSize: 23,
+                  fontSize: 21,
                 ),
               ),
               const SizedBox(width: 4),
@@ -51,7 +51,7 @@ class PostsPage extends StatelessWidget {
                 style: TextStyle(
                   color: theme.primaryColor,
                   fontWeight: FontWeight.bold,
-                  fontSize: 23,
+                  fontSize: 21,
                 ),
               ),
             ],
@@ -112,11 +112,12 @@ class PostsPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 final post = posts[index];
                 return PostCard(
-                  title: 'بوست',
                   author: post.authorId,
                   content: post.content,
                   date: _formatTime(post.createdAt),
                   views: post.views,
+                  likes: 0,
+                  title: '', // Assuming likes is not part of PostModel
                 );
               },
             ),

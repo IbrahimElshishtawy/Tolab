@@ -7,7 +7,7 @@ class PostService {
   final _auth = FirebaseAuth.instance;
 
   /// جلب كل البوستات
-  Future<List<PostModel>> fetchPostsFromBackend() async {
+  Future<List> fetchPostsFromBackend() async {
     final snapshot = await _firestore
         .collection('posts')
         .orderBy('createdAt', descending: true)

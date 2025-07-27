@@ -30,6 +30,14 @@ class PostsController extends ChangeNotifier {
         views: 8,
         shares: 1,
         viewsUsers: ['user_003'],
+        authorRole: '',
+        year: '',
+        term: '',
+        date: '',
+        viewsCount: null,
+        shareCount: null,
+        isApproved: null,
+        pending: null,
       ),
     ]);
     notifyListeners();
