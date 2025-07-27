@@ -6,6 +6,9 @@ class PostModel {
   final String authorName;
   final String? authorImage;
   final DateTime createdAt;
+  final int viewsCount;
+  final int sharesCount;
+  final List<String> viewers; // List of userIds who viewed
 
   PostModel({
     required this.id,
@@ -15,9 +18,12 @@ class PostModel {
     required this.authorName,
     this.authorImage,
     required this.createdAt,
+    this.viewsCount = 0,
+    this.sharesCount = 0,
+    this.viewers = const [],
   });
 
-  // لإنشاء كائن PostModel من بيانات Firestore
+  // إنشاء كائن PostModel من Firestore
   factory PostModel.fromMap(Map<String, dynamic> map, String documentId) {
     return PostModel(
       id: documentId,
@@ -27,6 +33,9 @@ class PostModel {
       authorName: map['authorName'] ?? '',
       authorImage: map['authorImage'],
       createdAt: DateTime.tryParse(map['createdAt'] ?? '') ?? DateTime.now(),
+      viewsCount: map['viewsCount'] ?? 0,
+      sharesCount: map['sharesCount'] ?? 0,
+      viewers: List<String>.from(map['viewers'] ?? []),
     );
   }
 
@@ -39,6 +48,9 @@ class PostModel {
       'authorName': authorName,
       'authorImage': authorImage,
       'createdAt': createdAt.toIso8601String(),
+      'viewsCount': viewsCount,
+      'sharesCount': sharesCount,
+      'viewers': viewers,
     };
   }
 }

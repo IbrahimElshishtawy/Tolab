@@ -116,6 +116,7 @@ class PostsPage extends StatelessWidget {
                   author: post.authorId,
                   content: post.content,
                   date: _formatTime(post.createdAt),
+                  views: post.views,
                 );
               },
             ),
