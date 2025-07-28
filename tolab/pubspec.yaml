@@ -25,6 +25,7 @@ dependencies:
   pin_code_fields: ^8.0.1
   google_sign_in: ^7.1.1
   google_sign_in_platform_interface: ^3.0.0
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:
