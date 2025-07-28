@@ -1,172 +1,126 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:tolab/page/chat/groups/pages/group_chat_page.dart';
 
-class HomeChatPage extends StatelessWidget {
+class HomeChatPage extends StatefulWidget {
   const HomeChatPage({super.key});
 
   @override
+  State<HomeChatPage> createState() => _HomeChatPageState();
+}
+
+class _HomeChatPageState extends State<HomeChatPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    _tabController = TabController(length: 2, vsync: this);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
-    final currentUser = FirebaseAuth.instance.currentUser;
-
-    return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('المحادثات الجماعية'),
-      ),
-      child: SafeArea(
-        child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('groups').snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CupertinoActivityIndicator());
-            }
-
-            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              return const Center(child: Text('لا توجد مجموعات حالياً'));
-            }
-
-            final groups = snapshot.data!.docs;
-
-            return ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: groups.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final group = groups[index];
-                final groupId = group.id;
-                final groupName = group['name'];
-                final groupDesc = group['description'];
-
-                return FutureBuilder<int>(
-                  future: _getUnreadMessagesCount(groupId, currentUser!.uid),
-                  builder: (context, snapshot) {
-                    final unreadCount = snapshot.data ?? 0;
-
-                    return GestureDetector(
-                      onTap: () {
-                        // عند الضغط يتم فتح صفحة المحادثة وتحديث وقت الدخول
-                        FirebaseFirestore.instance
-                            .collection('groups')
-                            .doc(groupId)
-                            .collection('members')
-                            .doc(currentUser.uid)
-                            .set({
-                              'lastSeen': Timestamp.now(),
-                            }, SetOptions(merge: true));
-
-                        Navigator.push(
-                          context,
-                          CupertinoPageRoute(
-                            builder: (_) => GroupChatPage(
-                              groupId: groupId,
-                              groupName: groupName,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? CupertinoColors.systemGrey6
-                              : CupertinoColors.systemGrey5,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          children: [
-                            const CircleAvatar(
-                              radius: 25,
-                              child: Icon(CupertinoIcons.group_solid),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    groupName,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  if (groupDesc != null &&
-                                      groupDesc.toString().isNotEmpty)
-                                    Text(
-                                      groupDesc,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: isDark
-                                            ? CupertinoColors.systemGrey
-                                            : Colors.grey,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            if (unreadCount > 0)
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: CupertinoColors.systemRed,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  '$unreadCount',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                            const SizedBox(width: 4),
-                            const Icon(CupertinoIcons.chevron_forward),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            );
-          },
+    return Scaffold(
+      backgroundColor: const Color(0xfff5f5f5),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 1,
+        title: const Text(
+          'خليك محترم في كلامك إحنا هنا نساعد بعض',
+          style: TextStyle(fontSize: 14, color: Colors.black),
         ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(100),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Find your friends or doctors',
+                    prefixIcon: const Icon(Icons.search),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+              ),
+              TabBar(
+                controller: _tabController,
+                tabs: const [
+                  Tab(text: 'جهات دراسية'),
+                  Tab(text: 'محادثات فردية'),
+                ],
+                labelColor: Colors.blue,
+                unselectedLabelColor: Colors.black,
+                indicatorColor: Colors.blue,
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // Chats for study groups
+          _buildChatList(isGroup: true),
+          // Chats with individuals
+          _buildChatList(isGroup: false),
+        ],
       ),
     );
   }
 
-  Future<int> _getUnreadMessagesCount(String groupId, String userId) async {
-    final memberDoc = await FirebaseFirestore.instance
-        .collection('groups')
-        .doc(groupId)
-        .collection('members')
-        .doc(userId)
-        .get();
-
-    Timestamp? lastSeen;
-    if (memberDoc.exists && memberDoc.data()!.containsKey('lastSeen')) {
-      lastSeen = memberDoc['lastSeen'];
-    }
-
-    final query = FirebaseFirestore.instance
-        .collection('groups')
-        .doc(groupId)
-        .collection('messages');
-
-    QuerySnapshot snapshot;
-
-    if (lastSeen != null) {
-      snapshot = await query.where('timestamp', isGreaterThan: lastSeen).get();
-    } else {
-      snapshot = await query.get();
-    }
-
-    return snapshot.docs.length;
+  Widget _buildChatList({required bool isGroup}) {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      itemCount: 10, // replace with real data count
+      itemBuilder: (context, index) {
+        return ListTile(
+          leading: const CircleAvatar(
+            backgroundImage: AssetImage(
+              'assets/avatar.png',
+            ), // change to NetworkImage
+            radius: 25,
+          ),
+          title: Text(
+            isGroup ? 'مجموعة ماتريكس' : 'Nada022',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          subtitle: const Text(
+            'آخر رسالة أو وصف سريع ...',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          trailing: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('1:05 AM', style: TextStyle(fontSize: 12)),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                child: const Text(
+                  '2',
+                  style: TextStyle(color: Colors.white, fontSize: 12),
+                ),
+              ),
+            ],
+          ),
+          onTap: () {
+            // Navigate to chat
+          },
+        );
+      },
+    );
   }
 }
