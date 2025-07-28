@@ -80,7 +80,17 @@ class _PostCardState extends State<PostCard> {
               ),
               PopupMenuButton<String>(
                 onSelected: (value) {
-                  // تنفيذ أوامر القائمة
+                  if (value == 'edit') {
+                    Navigator.pushNamed(
+                      context,
+                      '/edit-post',
+                      arguments: widget,
+                    );
+                  } else if (value == 'delete') {
+                    // هنا ممكن تضيف منطق الحذف
+                  } else if (value == 'report') {
+                    // هنا ممكن تضيف منطق الإبلاغ
+                  }
                 },
                 itemBuilder: (context) => [
                   const PopupMenuItem(value: 'edit', child: Text('✏️ تعديل')),

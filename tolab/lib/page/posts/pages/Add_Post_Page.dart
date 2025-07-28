@@ -1,8 +1,9 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:uuid/uuid.dart';
 
 class AddPostPage extends StatefulWidget {
   const AddPostPage({super.key});
@@ -13,8 +14,7 @@ class AddPostPage extends StatefulWidget {
 
 class _AddPostPageState extends State<AddPostPage> {
   final _formKey = GlobalKey<FormState>();
-  final titleController = TextEditingController();
-  final contentController = TextEditingController();
+  final _contentController = TextEditingController();
 
   bool isLoading = false;
 
@@ -24,34 +24,29 @@ class _AddPostPageState extends State<AddPostPage> {
     setState(() => isLoading = true);
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return;
+      final user = FirebaseAuth.instance.currentUser!;
+      final postId = const Uuid().v4();
 
-      final post = {
-        'title': titleController.text.trim(),
-        'content': contentController.text.trim(),
+      await FirebaseFirestore.instance.collection('posts').doc(postId).set({
+        'postId': postId,
+        'content': _contentController.text.trim(),
         'authorId': user.uid,
         'authorName': user.displayName ?? 'Unknown',
-        'date': DateTime.now(),
-        'views': [],
-        'viewsCount': 0,
+        'authorRole': 'Student', // أو احصل عليه من Provider
+        'approved': true,
         'shareCount': 0,
-        'isApproved': false,
-        'pending': true,
-      };
+        'term': 'Term1',
+        'timestamp': Timestamp.now(),
+        'views': '',
+        'viewsCount': 0,
+        'year': 'forthyears',
+      });
 
-      await FirebaseFirestore.instance.collection('posts').add(post);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم إرسال البوست للمراجعة.')),
-      );
-
-      titleController.clear();
-      contentController.clear();
+      Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('حدث خطأ: $e')));
+      ).showSnackBar(SnackBar(content: Text('فشل في إضافة البوست: $e')));
     } finally {
       setState(() => isLoading = false);
     }
@@ -60,32 +55,30 @@ class _AddPostPageState extends State<AddPostPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('إضافة بوست جديد')),
+      appBar: AppBar(title: const Text('إضافة بوست')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
               TextFormField(
-                controller: titleController,
-                decoration: const InputDecoration(labelText: 'عنوان البوست'),
-                validator: (value) => value!.isEmpty ? 'أدخل العنوان' : null,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: contentController,
+                controller: _contentController,
                 maxLines: 6,
-                decoration: const InputDecoration(labelText: 'محتوى البوست'),
-                validator: (value) => value!.isEmpty ? 'أدخل المحتوى' : null,
+                decoration: const InputDecoration(
+                  labelText: 'محتوى البوست',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'اكتب محتوى البوست' : null,
               ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: isLoading ? null : _submitPost,
-                child: isLoading
-                    ? const CircularProgressIndicator()
-                    : const Text('إرسال للمراجعة'),
-              ),
+              const SizedBox(height: 20),
+              isLoading
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: _submitPost,
+                      child: const Text('نشر'),
+                    ),
             ],
           ),
         ),

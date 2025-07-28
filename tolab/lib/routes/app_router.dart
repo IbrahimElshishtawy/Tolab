@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+// ignore: unused_import
+import 'package:tolab/models/post_model.dart';
 import 'package:tolab/page/auth/pages/forgot_password_page.dart';
 import 'package:tolab/page/auth/pages/verify_email_page.dart';
 import 'package:tolab/page/home/home_page.dart';
 import 'package:tolab/page/auth/pages/login_page.dart';
 import 'package:tolab/page/auth/pages/register_page.dart';
+import 'package:tolab/page/posts/pages/Add_Post_Page.dart';
+import 'package:tolab/page/posts/pages/Edit_Post_Page.dart';
+import 'package:tolab/page/posts/pages/Notifications_Page.dart';
 import 'package:tolab/page/profile/page/profile_page.dart';
 import 'package:tolab/page/splash/page/splash_page.dart';
 import 'package:tolab/page/auth/pages/set_new_password_page.dart';
@@ -30,6 +35,12 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => SetNewPasswordPage());
       case '/profile':
         return MaterialPageRoute(builder: (_) => ProfilePage());
+      case '/add-post':
+        return MaterialPageRoute(builder: (_) => const AddPostPage());
+      case '/notifications':
+        return MaterialPageRoute(builder: (_) => const NotificationsPage());
+      case '/edit-post':
+        return MaterialPageRoute(builder: (_) => const EditPostPage());
       default:
         return MaterialPageRoute(
           builder: (_) =>
