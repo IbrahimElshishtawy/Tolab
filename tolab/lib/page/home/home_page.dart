@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:tolab/page/chat/home/home_chat_page.dart';
 import 'package:tolab/page/more/ui/More_Options_Sheet.dart';
 import 'package:tolab/page/posts/pages/posts_page.dart';
 
@@ -20,7 +21,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     const Center(child: Text('📚 المواد')),
-    const Center(child: Text('💬 الشاتات')),
+    const HomeChatPage(),
     const PostsPage(),
     const Center(child: Text('📅 الجدول الدراسي')),
     const SizedBox(),

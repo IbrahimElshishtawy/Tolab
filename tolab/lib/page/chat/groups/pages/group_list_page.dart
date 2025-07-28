@@ -8,6 +8,8 @@ class GroupListPage extends StatelessWidget {
     {'name': 'دفعة 2025', 'members': 25},
   ];
 
+  GroupListPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     final isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
