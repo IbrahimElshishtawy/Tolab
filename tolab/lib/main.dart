@@ -8,7 +8,7 @@ import 'package:tolab/page/auth/controllers/login_controller.dart';
 import 'package:tolab/page/posts/controllers/post_controllers.dart';
 import 'package:tolab/page/settings/app_theme.dart';
 import 'package:tolab/routes/app_router.dart';
-import 'package:tolab/page/splash/page/splash_page.dart'; // ✅ تأكد من الاستيراد
+import 'package:tolab/page/splash/page/splash_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

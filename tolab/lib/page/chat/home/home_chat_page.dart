@@ -19,14 +19,25 @@ class _HomeChatPageState extends State<HomeChatPage>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xfff5f5f5),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+
+        backgroundColor:
+            theme.appBarTheme.backgroundColor ??
+            (isDark ? Colors.black : Colors.white),
         elevation: 1,
-        title: const Text(
+        title: Text(
           'خليك محترم في كلامك إحنا هنا نساعد بعض',
-          style: TextStyle(fontSize: 14, color: Colors.black),
+          style: TextStyle(
+            fontSize: 14,
+            color: theme.textTheme.bodyLarge?.color,
+          ),
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(100),
@@ -40,26 +51,31 @@ class _HomeChatPageState extends State<HomeChatPage>
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: 'Find your friends or doctors',
-                    prefixIcon: const Icon(Icons.search),
+                    hintStyle: TextStyle(color: theme.hintColor),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: theme.iconTheme.color,
+                    ),
                     filled: true,
-                    fillColor: Colors.grey[200],
+                    fillColor: isDark ? Colors.grey[800] : Colors.grey[200],
                     contentPadding: const EdgeInsets.symmetric(vertical: 0),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
                       borderSide: BorderSide.none,
                     ),
                   ),
+                  style: TextStyle(color: theme.textTheme.bodyLarge?.color),
                 ),
               ),
               TabBar(
                 controller: _tabController,
                 tabs: const [
-                  Tab(text: 'جهات دراسية'),
+                  Tab(text: 'مجوعات دراسية'),
                   Tab(text: 'محادثات فردية'),
                 ],
-                labelColor: Colors.blue,
-                unselectedLabelColor: Colors.black,
-                indicatorColor: Colors.blue,
+                labelColor: theme.primaryColor,
+                unselectedLabelColor: theme.unselectedWidgetColor,
+                indicatorColor: theme.primaryColor,
               ),
             ],
           ),
@@ -68,9 +84,7 @@ class _HomeChatPageState extends State<HomeChatPage>
       body: TabBarView(
         controller: _tabController,
         children: [
-          // Chats for study groups
           _buildChatList(isGroup: true),
-          // Chats with individuals
           _buildChatList(isGroup: false),
         ],
       ),
@@ -78,30 +92,40 @@ class _HomeChatPageState extends State<HomeChatPage>
   }
 
   Widget _buildChatList({required bool isGroup}) {
+    final theme = Theme.of(context);
+
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: 10, // replace with real data count
+      itemCount: 10,
       itemBuilder: (context, index) {
         return ListTile(
           leading: const CircleAvatar(
-            backgroundImage: AssetImage(
-              'assets/avatar.png',
-            ), // change to NetworkImage
+            backgroundImage: AssetImage('assets/image_App/Tolab.png'),
             radius: 25,
           ),
           title: Text(
             isGroup ? 'مجموعة ماتريكس' : 'Nada022',
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: theme.textTheme.bodyLarge?.color,
+            ),
           ),
-          subtitle: const Text(
+          subtitle: Text(
             'آخر رسالة أو وصف سريع ...',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
+            style: TextStyle(color: theme.textTheme.bodySmall?.color),
           ),
           trailing: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text('1:05 AM', style: TextStyle(fontSize: 12)),
+              Text(
+                '1:05 AM',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: theme.textTheme.bodySmall?.color,
+                ),
+              ),
               const SizedBox(height: 4),
               Container(
                 padding: const EdgeInsets.all(6),
