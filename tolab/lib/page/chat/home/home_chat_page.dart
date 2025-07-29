@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tolab/page/profile/widget/avatar_generator.dart';
 
 class HomeChatPage extends StatefulWidget {
   const HomeChatPage({super.key});
@@ -26,17 +27,14 @@ class _HomeChatPageState extends State<HomeChatPage>
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        centerTitle: true,
-
+        elevation: 0.5,
         backgroundColor:
             theme.appBarTheme.backgroundColor ??
             (isDark ? Colors.black : Colors.white),
-        elevation: 1,
-        title: Text(
-          'خليك محترم في كلامك إحنا هنا نساعد بعض',
-          style: TextStyle(
-            fontSize: 14,
-            color: theme.textTheme.bodyLarge?.color,
+        title: Center(
+          child: const Text(
+            'الدردشات',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
         ),
         bottom: PreferredSize(
@@ -50,7 +48,7 @@ class _HomeChatPageState extends State<HomeChatPage>
                 ),
                 child: TextField(
                   decoration: InputDecoration(
-                    hintText: 'Find your friends or doctors',
+                    hintText: 'بحث عن شخص أو جروب...',
                     hintStyle: TextStyle(color: theme.hintColor),
                     prefixIcon: Icon(
                       Icons.search,
@@ -70,12 +68,14 @@ class _HomeChatPageState extends State<HomeChatPage>
               TabBar(
                 controller: _tabController,
                 tabs: const [
-                  Tab(text: 'مجوعات دراسية'),
-                  Tab(text: 'محادثات فردية'),
+                  Tab(text: 'المجموعات'),
+                  Tab(text: 'الأصدقاء'),
                 ],
                 labelColor: theme.primaryColor,
                 unselectedLabelColor: theme.unselectedWidgetColor,
                 indicatorColor: theme.primaryColor,
+                indicatorSize: TabBarIndicatorSize.label,
+                labelStyle: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -98,20 +98,22 @@ class _HomeChatPageState extends State<HomeChatPage>
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: 10,
       itemBuilder: (context, index) {
+        final name = isGroup ? 'مشروع التخرج' : 'Ahmed Elsayed';
         return ListTile(
-          leading: const CircleAvatar(
-            backgroundImage: AssetImage('assets/image_App/Tolab.png'),
-            radius: 25,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 6,
           ),
+          leading: AvatarGenerator(name: name, radius: 26, fontSize: 16),
           title: Text(
-            isGroup ? 'مجموعة ماتريكس' : 'Nada022',
+            name,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: theme.textTheme.bodyLarge?.color,
             ),
           ),
           subtitle: Text(
-            'آخر رسالة أو وصف سريع ...',
+            'آخر رسالة من الجروب أو الشخص ...',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(color: theme.textTheme.bodySmall?.color),
@@ -120,7 +122,7 @@ class _HomeChatPageState extends State<HomeChatPage>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                '1:05 AM',
+                '1:05 ص',
                 style: TextStyle(
                   fontSize: 12,
                   color: theme.textTheme.bodySmall?.color,
@@ -130,18 +132,18 @@ class _HomeChatPageState extends State<HomeChatPage>
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: const BoxDecoration(
-                  color: Colors.red,
+                  color: Colors.redAccent,
                   shape: BoxShape.circle,
                 ),
                 child: const Text(
-                  '2',
+                  '3',
                   style: TextStyle(color: Colors.white, fontSize: 12),
                 ),
               ),
             ],
           ),
           onTap: () {
-            // Navigate to chat
+            // TODO: التنقل لصفحة الشات
           },
         );
       },

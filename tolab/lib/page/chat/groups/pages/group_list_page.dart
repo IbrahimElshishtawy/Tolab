@@ -2,6 +2,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:tolab/page/chat/groups/widget/group_tile.dart';
 
 class GroupListPage extends StatefulWidget {
   const GroupListPage({super.key});
@@ -44,13 +45,14 @@ class _GroupListPageState extends State<GroupListPage> {
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('الجروبات'),
+        middle: const Text('الجروبات'),
         trailing: GestureDetector(
           onTap: () {
             Navigator.pushNamed(context, '/create-group');
           },
-          child: Icon(CupertinoIcons.add),
+          child: const Icon(CupertinoIcons.add),
         ),
+        backgroundColor: isDark ? CupertinoColors.black : CupertinoColors.white,
       ),
       child: SafeArea(
         child: Column(
@@ -66,64 +68,19 @@ class _GroupListPageState extends State<GroupListPage> {
               child: ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: filteredGroups.length,
-                separatorBuilder: (_, __) => SizedBox(height: 10),
+                separatorBuilder: (_, __) => const SizedBox(height: 10),
                 itemBuilder: (context, index) {
                   final group = filteredGroups[index];
-                  return CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
+                  return GroupTile(
+                    groupName: group['name'],
+                    membersCount: group['members'],
+                    onTap: () {
                       Navigator.pushNamed(
                         context,
-                        '/group-chat',
-                        arguments: group['name'],
+                        '/group-settings',
+                        arguments: group,
                       );
                     },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? CupertinoColors.darkBackgroundGray
-                            : CupertinoColors.systemGrey6,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 20,
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            CupertinoIcons.group_solid,
-                            color: CupertinoColors.activeBlue,
-                          ),
-                          SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  group['name'],
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  '${group['members']} أعضاء',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: CupertinoColors.systemGrey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Icon(
-                            CupertinoIcons.chevron_forward,
-                            color: CupertinoColors.systemGrey,
-                          ),
-                        ],
-                      ),
-                    ),
                   );
                 },
               ),

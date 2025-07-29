@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tolab/page/chat/groups/widget/message_bubble.dart';
 
 class GroupChatPage extends StatefulWidget {
   final String groupId;
@@ -19,10 +22,11 @@ class GroupChatPage extends StatefulWidget {
 class _GroupChatPageState extends State<GroupChatPage> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final user = FirebaseAuth.instance.currentUser;
 
   void _sendMessage() async {
     final text = _messageController.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty || user == null) return;
 
     await FirebaseFirestore.instance
         .collection('groups')
@@ -31,8 +35,8 @@ class _GroupChatPageState extends State<GroupChatPage> {
         .add({
           'text': text,
           'timestamp': FieldValue.serverTimestamp(),
-          'sender':
-              'أنا', // استبدل هذا بالبريد أو الاسم الفعلي من Firebase Auth
+          'sender': user!.displayName ?? user!.email ?? 'مستخدم',
+          'uid': user!.uid,
         });
 
     _messageController.clear();
@@ -40,12 +44,14 @@ class _GroupChatPageState extends State<GroupChatPage> {
   }
 
   void _scrollToBottom() {
-    Future.delayed(const Duration(milliseconds: 300), () {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent + 80,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
     });
   }
 
@@ -88,46 +94,19 @@ class _GroupChatPageState extends State<GroupChatPage> {
                       final msg = messages[index];
                       final text = msg['text'] ?? '';
                       final sender = msg['sender'] ?? 'مجهول';
-                      final isMe =
-                          sender == 'أنا'; // عدل هذا حسب الـ Firebase Auth
+                      final uid = msg['uid'] ?? '';
+                      final timestamp = msg['timestamp'] as Timestamp?;
+                      final time = timestamp != null
+                          ? DateFormat.Hm().format(timestamp.toDate())
+                          : '';
 
-                      return Align(
-                        alignment: isMe
-                            ? Alignment.centerRight
-                            : Alignment.centerLeft,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 10,
-                          ),
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          decoration: BoxDecoration(
-                            color: isMe
-                                ? CupertinoColors.activeBlue
-                                : CupertinoColors.systemGrey4,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                sender,
-                                style: TextStyle(
-                                  color: CupertinoColors.systemGrey,
-                                  fontSize: 11,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                text,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      final isMe = uid == user?.uid;
+
+                      return MessageBubble(
+                        message: text,
+                        sender: sender,
+                        time: time,
+                        isMe: isMe,
                       );
                     },
                   );
@@ -148,11 +127,21 @@ class _GroupChatPageState extends State<GroupChatPage> {
                       controller: _messageController,
                       placeholder: 'اكتب رسالة...',
                       onSubmitted: (_) => _sendMessage(),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? CupertinoColors.systemGrey6
+                            : CupertinoColors.systemGrey5,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   CupertinoButton(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     onPressed: _sendMessage,
                     child: const Icon(CupertinoIcons.paperplane_fill),
                   ),

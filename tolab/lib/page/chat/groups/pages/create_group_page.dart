@@ -30,7 +30,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
       _showCupertinoDialog('يرجى كتابة اسم الجروب');
       return;
     }
-    // هنا هيكون كود إنشاء الجروب باستخدام Firebase أو حسب ما عندك
     _showCupertinoDialog('تم إنشاء الجروب "$name" بنجاح ✅');
   }
 
@@ -59,36 +58,73 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
         middle: Text('إنشاء جروب جديد'),
       ),
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
           child: Column(
             children: [
               GestureDetector(
                 onTap: _pickImage,
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundColor: CupertinoColors.systemGrey.withOpacity(0.3),
-                  backgroundImage: _groupImage != null
-                      ? FileImage(_groupImage!)
-                      : null,
-                  child: _groupImage == null
-                      ? const Icon(CupertinoIcons.camera, size: 36)
-                      : null,
-                ),
-              ),
-              const SizedBox(height: 20),
-              CupertinoTextField(
-                controller: _groupNameController,
-                placeholder: 'اسم الجروب',
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 14,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: isDark
+                            ? Colors.black.withOpacity(0.3)
+                            : Colors.grey.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: CircleAvatar(
+                    radius: 55,
+                    backgroundColor: CupertinoColors.systemGrey5,
+                    backgroundImage: _groupImage != null
+                        ? FileImage(_groupImage!)
+                        : null,
+                    child: _groupImage == null
+                        ? Icon(
+                            CupertinoIcons.camera,
+                            size: 36,
+                            color: isDark
+                                ? CupertinoColors.white
+                                : CupertinoColors.systemGrey,
+                          )
+                        : null,
+                  ),
                 ),
               ),
               const SizedBox(height: 30),
-              CupertinoButton.filled(
-                onPressed: _createGroup,
-                child: const Text('إنشاء الجروب'),
+              Container(
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? CupertinoColors.darkBackgroundGray
+                      : CupertinoColors.systemGrey6,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: CupertinoTextField(
+                  controller: _groupNameController,
+                  placeholder: 'اسم الجروب',
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  decoration: null,
+                ),
+              ),
+              const SizedBox(height: 40),
+              SizedBox(
+                width: double.infinity,
+                child: CupertinoButton.filled(
+                  borderRadius: BorderRadius.circular(12),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  onPressed: _createGroup,
+                  child: const Text(
+                    'إنشاء الجروب',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
               ),
             ],
           ),
