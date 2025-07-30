@@ -1,6 +1,7 @@
 // lib/Features/auth/widgets/login_form.dart
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -50,10 +51,13 @@ class _LoginFormState extends State<LoginForm> {
         setState(() {
           _user = user;
         });
+
+        // ✅ إنشاء شات مع نفسه إذا ماكانش موجود
+        await createSelfChatIfNotExists(user.uid);
+
         if (kDebugMode) print('مرحبًا ${user.displayName}');
 
         final prefs = await SharedPreferences.getInstance();
-        // نستخدم ?? لتجنب خطأ null
         await prefs.setString('saved_email', user.email ?? '');
         await prefs.setBool('remember_me', true);
 
@@ -67,6 +71,22 @@ class _LoginFormState extends State<LoginForm> {
           const SnackBar(content: Text('فشل تسجيل الدخول بواسطة Google')),
         );
       }
+    }
+  }
+
+  Future<void> createSelfChatIfNotExists(String userId) async {
+    final chatRef = FirebaseFirestore.instance
+        .collection('chats')
+        .where('members', isEqualTo: [userId]);
+
+    final snapshot = await chatRef.get();
+
+    if (snapshot.docs.isEmpty) {
+      await FirebaseFirestore.instance.collection('chats').add({
+        'members': [userId],
+        'createdAt': FieldValue.serverTimestamp(),
+        'isSelfChat': true,
+      });
     }
   }
 
@@ -133,11 +153,6 @@ class _LoginFormState extends State<LoginForm> {
         // تذكرني و رابط نسيان كلمة المرور
         Row(
           children: [
-            Checkbox(
-              value: controller.rememberMe,
-              onChanged: (v) => controller.toggleRememberMe(v ?? false),
-            ),
-            const Text("Remember me"),
             const Spacer(),
             TextButton(
               onPressed: () => Navigator.pushNamed(context, '/forgot-password'),

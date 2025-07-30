@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_null_comparison, unused_element, await_only_futures
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +42,23 @@ class GoogleSignInService {
     }
   }
 
+  Future<void> createSelfChatIfNotExists(String userId) async {
+    final chatRef = FirebaseFirestore.instance
+        .collection('chats')
+        .where('members', isEqualTo: [userId])
+        .where('type', isEqualTo: 'self');
+
+    final snapshot = await chatRef.get();
+
+    if (snapshot.docs.isEmpty) {
+      await FirebaseFirestore.instance.collection('chats').add({
+        'members': [userId],
+        'type': 'self',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    }
+  }
+
   static Future<void> signOut() async {
     await _google.signOut();
     await _auth.signOut();
@@ -51,8 +69,25 @@ class GoogleSignInService {
       final userCredential = await GoogleSignInService.signInWithGoogle();
       if (userCredential == null) return;
 
-      if (context.mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
+      final user = userCredential.user;
+
+      if (user != null) {
+        final chatRef = FirebaseFirestore.instance
+            .collection('chats')
+            .doc('self_${user.uid}');
+
+        final doc = await chatRef.get();
+        if (!doc.exists) {
+          await chatRef.set({
+            'members': [user.uid],
+            'type': 'self',
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        }
+
+        if (context.mounted) {
+          Navigator.pushReplacementNamed(context, '/home');
+        }
       }
     } catch (e) {
       if (kDebugMode) print('فشل تسجيل الدخول: $e');

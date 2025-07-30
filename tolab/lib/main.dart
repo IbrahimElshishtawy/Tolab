@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tolab/core/config/User_Provider.dart';
 import 'package:tolab/page/auth/controllers/login_controller.dart';
 import 'package:tolab/page/posts/controllers/post_controllers.dart';
@@ -17,7 +17,29 @@ void main() async {
   final User? user = FirebaseAuth.instance.currentUser;
   final bool isLoggedIn = user != null && user.emailVerified;
 
+  // ✅ إنشاء محادثة ذاتية إن لم تكن موجودة
+  if (isLoggedIn) {
+    await createSelfChatIfNotExists(user.uid);
+  }
+
   runApp(TolabApp(isLoggedIn: isLoggedIn));
+}
+
+/// ✅ دالة لإنشاء محادثة ذاتية للمستخدم إن لم تكن موجودة
+Future<void> createSelfChatIfNotExists(String userId) async {
+  final chatRef = FirebaseFirestore.instance
+      .collection('chats')
+      .where('members', isEqualTo: [userId]);
+
+  final snapshot = await chatRef.get();
+
+  if (snapshot.docs.isEmpty) {
+    await FirebaseFirestore.instance.collection('chats').add({
+      'members': [userId],
+      'createdAt': FieldValue.serverTimestamp(),
+      'isSelfChat': true,
+    });
+  }
 }
 
 class TolabApp extends StatelessWidget {
