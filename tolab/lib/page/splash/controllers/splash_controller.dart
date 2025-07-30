@@ -6,34 +6,14 @@ class SplashController {
   final BuildContext context;
   final TickerProvider vsync;
 
-  // متغيرات الأنيميشن
-  late final AnimationController _revealController;
-  late final Animation<double> revealAnimation;
-
   late final AnimationController _logoController;
   late final Animation<double> logoOpacity;
   late final Animation<double> logoScale;
 
-  // ValueNotifiers للتحكم في الشاشة
   final ValueNotifier<bool> showInitialScreen = ValueNotifier(true);
   final ValueNotifier<bool> showLogoScreen = ValueNotifier(false);
 
   SplashController({required this.context, required this.vsync}) {
-    // أنيميشن الكشف الدائري
-    _revealController = AnimationController(
-      vsync: vsync,
-      duration: const Duration(seconds: 2),
-    );
-
-    revealAnimation =
-        Tween<double>(
-          begin: 0.0,
-          end: MediaQuery.of(context).size.longestSide * 1.2,
-        ).animate(
-          CurvedAnimation(parent: _revealController, curve: Curves.easeOut),
-        );
-
-    // أنيميشن الشعار
     _logoController = AnimationController(
       vsync: vsync,
       duration: const Duration(milliseconds: 1500),
@@ -50,21 +30,13 @@ class SplashController {
   }
 
   void startAnimation({required VoidCallback onComplete}) async {
-    // أول حاجة نبدأ بالكشف الدائري
-    await _revealController.forward();
-    showInitialScreen.value = false;
-
-    // نعرض شاشة الشعار
     showLogoScreen.value = true;
     await _logoController.forward();
-
-    // بعد الانتظار ننتقل للصفحة التالية
     await Future.delayed(const Duration(seconds: 2));
     onComplete();
   }
 
   void dispose() {
-    _revealController.dispose();
     _logoController.dispose();
     showInitialScreen.dispose();
     showLogoScreen.dispose();

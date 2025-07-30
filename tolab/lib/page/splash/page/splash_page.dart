@@ -48,33 +48,6 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       body: Stack(
         children: [
-          // شاشة البداية الثابتة
-          ValueListenableBuilder<bool>(
-            valueListenable: controller.showInitialScreen,
-            builder: (_, showInitial, _) {
-              return showInitial
-                  ? AnimatedBuilder(
-                      animation: controller.revealAnimation,
-                      builder: (_, _) {
-                        return ClipPath(
-                          clipper: RevealClipper(
-                            controller.revealAnimation.value,
-                          ),
-                          child: Container(
-                            color: theme.primaryColor,
-                            child: const Center(
-                              child: CircularProgressIndicator(
-                                color: Color.fromARGB(255, 2, 33, 235),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    )
-                  : const SizedBox();
-            },
-          ),
-
           // شاشة الشعار بالأنيميشن
           ValueListenableBuilder<bool>(
             valueListenable: controller.showLogoScreen,

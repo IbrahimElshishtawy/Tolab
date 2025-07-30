@@ -86,7 +86,7 @@ class _ChatPageState extends State<ChatPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          message.text ?? '',
+                          message.text,
                           style: TextStyle(
                             color: isMe
                                 ? Colors.white
@@ -109,7 +109,7 @@ class _ChatPageState extends State<ChatPage> {
                 IconButton(
                   icon: const Icon(Icons.photo),
                   onPressed: () {
-                    // TODO: أضف اختيار صورة من المعرض
+                    // TODO: Implement image sending functionality
                   },
                 ),
                 Expanded(
