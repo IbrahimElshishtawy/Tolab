@@ -9,7 +9,6 @@ class ChatService {
 
   Stream<List<ChatMessageModel>> getMessages(String otherUserId) {
     final currentUserId = _auth.currentUser!.uid;
-
     return _firestore
         .collection('chats')
         .doc(_getChatId(currentUserId, otherUserId))
@@ -17,9 +16,9 @@ class ChatService {
         .orderBy('timestamp', descending: true)
         .snapshots()
         .map(
-          (snapshot) => snapshot.docs.map((doc) {
-            return ChatMessageModel.fromMap(doc.data(), doc.id);
-          }).toList(),
+          (snapshot) => snapshot.docs
+              .map((doc) => ChatMessageModel.fromMap(doc.data(), doc.id))
+              .toList(),
         );
   }
 
@@ -47,7 +46,6 @@ class ChatService {
         .collection('messages')
         .add(message.toMap());
 
-    // آخر رسالة (للدردشة)
     await _firestore.collection('chats').doc(chatId).set({
       'lastMessage': text,
       'timestamp': Timestamp.now(),
@@ -55,8 +53,10 @@ class ChatService {
       'receiverId': receiverId,
     });
 
-    // إرسال إشعار
-    await NotificationService.sendNotificationToUser(receiverId, text);
+    await NotificationService.sendNotificationToUser(
+      receiverId: receiverId,
+      message: text,
+    );
   }
 
   Future<void> markMessagesAsRead(String otherUserId) async {

@@ -1,43 +1,34 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class NotificationService {
-  static const String serverKey = 'YOUR_SERVER_KEY'; // حط مفتاح FCM هنا
+  static const String serverUrl =
+      'http://YOUR_SERVER_IP:3000/send-notification';
+  // ❗ غيّر YOUR_SERVER_IP إلى IP الحقيقي لجهازك الذي يشغل السيرفر (مثلاً: 192.168.1.5)
 
-  static Future<void> sendNotificationToUser(
-    String receiverId,
-    String message,
-  ) async {
+  static Future<void> sendNotificationToUser({
+    required String receiverId,
+    required String message,
+  }) async {
     try {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(receiverId)
-          .get();
-
-      final token = doc['fcmToken'];
-      if (token == null) return;
-
-      final body = {
-        "to": token,
-        "notification": {
-          "title": "رسالة جديدة",
-          "body": message,
-          "sound": "default",
-        },
-        "data": {"click_action": "FLUTTER_NOTIFICATION_CLICK"},
-      };
-
-      await http.post(
-        Uri.parse('https://fcm.googleapis.com/fcm/send'),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "key=$serverKey",
-        },
-        body: jsonEncode(body),
+      final response = await http.post(
+        Uri.parse(serverUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"receiverId": receiverId, "message": message}),
       );
+
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('✅ Notification sent successfully');
+        }
+      } else {
+        if (kDebugMode) {
+          print('❌ Failed to send notification: ${response.body}');
+        }
+      }
     } catch (e) {
-      print('Failed to send notification: $e');
+      print('❌ Exception while sending notification: $e');
     }
   }
 }

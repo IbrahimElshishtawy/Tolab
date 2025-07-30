@@ -16,4 +16,6 @@ class UserProvider with ChangeNotifier {
   }
 
   String get userName => _user?.displayName ?? 'مستخدم';
+
+  get userData => null;
 }

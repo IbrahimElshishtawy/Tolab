@@ -4,7 +4,9 @@
 
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class FileService {
   static final SupabaseClient _client = Supabase.instance.client;
@@ -29,6 +31,22 @@ class FileService {
       }
     }
     return null;
+  }
+
+  /// جلب FCM Token
+  static Future<String?> getFcmToken() async {
+    try {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      if (kDebugMode) {
+        print('✅ FCM Token: $fcmToken');
+      }
+      return fcmToken;
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ خطأ في جلب FCM Token: $e');
+      }
+      return null;
+    }
   }
 
   /// حذف ملف من التخزين
