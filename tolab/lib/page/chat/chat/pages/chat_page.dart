@@ -14,6 +14,7 @@ class ChatPage extends StatefulWidget {
     super.key,
     required this.receiverId,
     required this.receiverName,
+    required bool isGroup,
   });
 
   @override

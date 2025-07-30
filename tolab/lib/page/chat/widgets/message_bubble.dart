@@ -16,13 +16,19 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        constraints: const BoxConstraints(maxWidth: 300),
+        margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
         decoration: BoxDecoration(
-          color: isMe ? Colors.blue[700] : Colors.grey[300],
+          color: isMe
+              ? (isDark ? Colors.blue[600] : Colors.blue[700])
+              : (isDark ? Colors.grey[800] : Colors.grey[300]),
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
@@ -38,7 +44,9 @@ class MessageBubble extends StatelessWidget {
             Text(
               message,
               style: TextStyle(
-                color: isMe ? Colors.white : Colors.black87,
+                color: isMe
+                    ? Colors.white
+                    : (isDark ? Colors.white70 : Colors.black87),
                 fontSize: 16,
               ),
             ),
@@ -49,7 +57,9 @@ class MessageBubble extends StatelessWidget {
                 Text(
                   time,
                   style: TextStyle(
-                    color: isMe ? Colors.white70 : Colors.black54,
+                    color: isMe
+                        ? Colors.white70
+                        : (isDark ? Colors.white38 : Colors.black54),
                     fontSize: 12,
                   ),
                 ),
@@ -58,7 +68,9 @@ class MessageBubble extends StatelessWidget {
                   Icon(
                     isRead ? Icons.done_all : Icons.done,
                     size: 18,
-                    color: isRead ? Colors.greenAccent : Colors.white70,
+                    color: isRead
+                        ? Colors.greenAccent
+                        : (isDark ? Colors.white38 : Colors.white70),
                   ),
                 ],
               ],

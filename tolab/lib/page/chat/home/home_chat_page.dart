@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tolab/page/chat/chat/pages/chat_page.dart';
-
 import 'package:tolab/page/profile/widget/avatar_generator.dart';
 
 class HomeChatPage extends StatefulWidget {
@@ -16,6 +15,9 @@ class _HomeChatPageState extends State<HomeChatPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final currentUser = FirebaseAuth.instance.currentUser;
+
+  String? groupError;
+  String? chatError;
 
   @override
   void initState() {
@@ -88,94 +90,170 @@ class _HomeChatPageState extends State<HomeChatPage>
     );
   }
 
-  // ✅ جلب الجروبات من Firestore
+  /// ✅ عرض الجروبات
   Widget _buildGroupList() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('groups').snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData)
-          return const Center(child: CircularProgressIndicator());
+    try {
+      return StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('groups')
+            .where('members', arrayContains: currentUser!.uid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            groupError = 'تعذر تحميل الجروبات';
+            debugPrint('❌ Firebase group error: ${snapshot.error}');
+            return _buildErrorWidget(groupError!);
+          }
 
-        final groups = snapshot.data!.docs;
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        return ListView.builder(
-          itemCount: groups.length,
-          itemBuilder: (context, index) {
-            final group = groups[index];
-            final name = group['name'];
+          final groups = snapshot.data!.docs;
 
-            return ListTile(
-              leading: AvatarGenerator(name: name, radius: 26, fontSize: 16),
-              title: Text(name),
-              subtitle: const Text('رسائل المجموعة...'),
-              onTap: () {
-                // TODO: افتح صفحة شات المجموعة
-              },
-            );
-          },
-        );
-      },
-    );
+          if (groups.isEmpty) {
+            return const Center(child: Text('لا توجد مجموعات'));
+          }
+
+          return ListView.builder(
+            itemCount: groups.length,
+            itemBuilder: (context, index) {
+              final group = groups[index];
+              final name = group['name'];
+              final lastMessage = group['lastMessage'] ?? '';
+              final time = group['lastMessageTime'] ?? '';
+
+              return ListTile(
+                leading: AvatarGenerator(name: name, radius: 26, fontSize: 16),
+                title: Text(name),
+                subtitle: Text(lastMessage),
+                trailing: Text(time.toString().substring(0, 5)),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ChatPage(
+                        receiverId: group.id,
+                        receiverName: name,
+                        isGroup: true,
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      );
+    } catch (e) {
+      debugPrint('❌ Exception in group fetch: $e');
+      return _buildErrorWidget('حدث خطأ أثناء تحميل المجموعات');
+    }
   }
 
-  // ✅ جلب دردشات الأصدقاء من Firestore
+  /// ✅ عرض دردشات الأصدقاء
   Widget _buildFriendChats() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('chats')
-          .where('participants', arrayContains: currentUser!.uid)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData)
-          return const Center(child: CircularProgressIndicator());
+    try {
+      return StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('chats')
+            .where('participants', arrayContains: currentUser!.uid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            chatError = 'تعذر تحميل المحادثات';
+            debugPrint('❌ Firebase chat error: ${snapshot.error}');
+            return _buildErrorWidget(chatError!);
+          }
 
-        final chats = snapshot.data!.docs;
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        return ListView.builder(
-          itemCount: chats.length,
-          itemBuilder: (context, index) {
-            final chat = chats[index];
-            final otherUserId = (chat['participants'] as List).firstWhere(
-              (id) => id != currentUser!.uid,
-            );
+          final chats = snapshot.data!.docs;
 
-            return FutureBuilder<DocumentSnapshot>(
-              future: FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(otherUserId)
-                  .get(),
-              builder: (context, userSnap) {
-                if (!userSnap.hasData) return const SizedBox();
+          if (chats.isEmpty) {
+            return const Center(child: Text('لا توجد محادثات'));
+          }
 
-                final user = userSnap.data!;
-                final name = user['name'];
+          return ListView.builder(
+            itemCount: chats.length,
+            itemBuilder: (context, index) {
+              final chat = chats[index];
+              final otherUserId = (chat['participants'] as List).firstWhere(
+                (id) => id != currentUser!.uid,
+              );
 
-                return ListTile(
-                  leading: AvatarGenerator(
-                    name: name,
-                    radius: 26,
-                    fontSize: 16,
-                  ),
-                  title: Text(name),
-                  subtitle: Text(chat['lastMessage'] ?? ''),
-                  trailing: Text('🕓'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ChatPage(
-                          receiverId: otherUserId,
-                          receiverName: name,
+              return FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(otherUserId)
+                    .get(),
+                builder: (context, userSnap) {
+                  if (userSnap.hasError) {
+                    debugPrint('❌ Error fetching user: ${userSnap.error}');
+                    return const SizedBox();
+                  }
+
+                  if (!userSnap.hasData || !userSnap.data!.exists) {
+                    return const SizedBox();
+                  }
+
+                  final user = userSnap.data!;
+                  final name = user['name'];
+                  final lastMessage = chat['lastMessage'] ?? '';
+                  final time = chat['timestamp'] != null
+                      ? (chat['timestamp'] as Timestamp)
+                            .toDate()
+                            .toString()
+                            .substring(11, 16)
+                      : '';
+
+                  return ListTile(
+                    leading: AvatarGenerator(
+                      name: name,
+                      radius: 26,
+                      fontSize: 16,
+                    ),
+                    title: Text(name),
+                    subtitle: Text(lastMessage),
+                    trailing: Text(time),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChatPage(
+                            receiverId: otherUserId,
+                            receiverName: name,
+                            isGroup: false,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
-            );
-          },
-        );
-      },
+                      );
+                    },
+                  );
+                },
+              );
+            },
+          );
+        },
+      );
+    } catch (e) {
+      debugPrint('❌ Exception in chat fetch: $e');
+      return _buildErrorWidget('حدث خطأ أثناء تحميل المحادثات');
+    }
+  }
+
+  /// ✅ عرض رسالة خطأ في الواجهة
+  Widget _buildErrorWidget(String message) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.error_outline, color: Colors.red, size: 40),
+          const SizedBox(height: 12),
+          Text(message, style: const TextStyle(fontSize: 16)),
+        ],
+      ),
     );
   }
 }

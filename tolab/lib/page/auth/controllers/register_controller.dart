@@ -107,6 +107,12 @@ class RegisterController with ChangeNotifier {
         'createdAt': FieldValue.serverTimestamp(),
       });
 
+      await FirebaseFirestore.instance.collection('chats').add({
+        'members': [uid],
+        'type': 'self',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
       showMessage(context, 'تم إنشاء الحساب بنجاح ✅');
     } on FirebaseAuthException catch (e) {
       showMessage(context, 'خطأ: ${e.message}');
