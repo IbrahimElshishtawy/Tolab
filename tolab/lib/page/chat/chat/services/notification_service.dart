@@ -28,7 +28,9 @@ class NotificationService {
         }
       }
     } catch (e) {
-      print('❌ Exception while sending notification: $e');
+      if (kDebugMode) {
+        print('❌ Exception while sending notification: $e');
+      }
     }
   }
 }

@@ -150,7 +150,7 @@ class _LoginFormState extends State<LoginForm> {
         ),
         const SizedBox(height: 10),
 
-        // تذكرني و رابط نسيان كلمة المرور
+        //  و رابط نسيان كلمة المرور
         Row(
           children: [
             const Spacer(),
@@ -163,7 +163,7 @@ class _LoginFormState extends State<LoginForm> {
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 12),
 
         // زر تسجيل بالبريد وكلمة المرور
         SizedBox(
