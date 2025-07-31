@@ -30,6 +30,7 @@ class ChooseRolePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: isDark ? Colors.black : Colors.grey[100],
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text("اختر نوع حسابك"),
         centerTitle: true,
         backgroundColor: Colors.transparent,
