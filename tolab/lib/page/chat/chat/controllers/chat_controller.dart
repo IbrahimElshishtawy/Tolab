@@ -12,10 +12,12 @@ class ChatController extends ChangeNotifier {
   List<ChatMessageModel> get messages => _messages;
   bool get isLoading => _isLoading;
 
+  /// بث مباشر للرسائل
   Stream<List<ChatMessageModel>> getMessageStream(String otherUserId) {
     return _chatService.getMessages(otherUserId);
   }
 
+  /// تحميل الرسائل مرة واحدة عند الدخول
   Future<void> loadMessages(String otherUserId) async {
     _isLoading = true;
     notifyListeners();
@@ -35,6 +37,7 @@ class ChatController extends ChangeNotifier {
     }
   }
 
+  /// إرسال رسالة جديدة (نص أو صورة)
   Future<void> sendMessage({
     required String receiverId,
     required String text,
@@ -48,6 +51,7 @@ class ChatController extends ChangeNotifier {
         text: text,
         imageUrl: imageUrl,
       );
+      notifyListeners();
     } catch (e) {
       if (kDebugMode) {
         print('❌ Error sending message: $e');
@@ -55,6 +59,22 @@ class ChatController extends ChangeNotifier {
     }
   }
 
+  /// تعديل رسالة موجودة
+  Future<void> editMessage({
+    required String messageId,
+    required String newText,
+  }) async {
+    try {
+      await _chatService.editMessage(messageId: messageId, newText: newText);
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error editing message: $e');
+      }
+    }
+  }
+
+  /// تعليم الرسائل كمقروءة
   Future<void> markMessagesAsRead(String otherUserId) async {
     try {
       await _chatService.markMessagesAsRead(otherUserId);

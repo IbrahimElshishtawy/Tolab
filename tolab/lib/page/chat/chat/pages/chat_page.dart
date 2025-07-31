@@ -3,16 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tolab/page/chat/chat/controllers/chat_controller.dart';
 import 'package:tolab/page/chat/chat/models/chat_message_model.dart';
-import 'package:tolab/core/config/user_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ChatPage extends StatefulWidget {
-  final String receiverId;
-  final String receiverName;
+  final String otherUserId;
+  final String otherUserName;
 
   const ChatPage({
     super.key,
-    required this.receiverId,
-    required this.receiverName,
+    required this.otherUserId,
+    required this.otherUserName,
+    required String receiverId,
+    required receiverName,
     required bool isGroup,
   });
 
@@ -22,132 +24,109 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
-  late ChatController _chatController;
+  String? _editingMessageId;
 
   @override
   void initState() {
     super.initState();
-    _chatController = ChatController();
-    _chatController.loadMessages(widget.receiverId);
-    _chatController.markMessagesAsRead(widget.receiverId);
+    final chatController = Provider.of<ChatController>(context, listen: false);
+    chatController.loadMessages(widget.otherUserId);
+    chatController.markMessagesAsRead(widget.otherUserId);
+  }
+
+  void _sendMessage() {
+    final chatController = Provider.of<ChatController>(context, listen: false);
+    final text = _messageController.text.trim();
+
+    if (_editingMessageId != null) {
+      chatController.editMessage(messageId: _editingMessageId!, newText: text);
+      _editingMessageId = null;
+    } else {
+      chatController.sendMessage(receiverId: widget.otherUserId, text: text);
+    }
+
+    _messageController.clear();
+  }
+
+  void _startEditing(ChatMessageModel message) {
+    setState(() {
+      _messageController.text = message.text;
+      _editingMessageId = message.messageId;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
-    final currentUserId = userProvider.userData?.uid ?? '';
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
-    final isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.otherUserName)),
+      body: Column(
+        children: [
+          Expanded(
+            child: Consumer<ChatController>(
+              builder: (context, controller, child) {
+                final messages = controller.messages;
+                return ListView.builder(
+                  reverse: true,
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    final message = messages[messages.length - index - 1];
+                    final isMe = message.senderId == currentUserId;
 
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.receiverName),
-        backgroundColor: isDark
-            ? CupertinoColors.black
-            : CupertinoColors.systemGrey6,
-      ),
-      child: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: StreamBuilder<List<ChatMessageModel>>(
-                stream: _chatController.getMessageStream(widget.receiverId),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CupertinoActivityIndicator());
-                  }
-                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('لا توجد رسائل بعد'));
-                  }
-
-                  final messages = snapshot.data!;
-                  return ListView.builder(
-                    reverse: true,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 8,
-                    ),
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      final message = messages[messages.length - 1 - index];
-                      final isMe = message.senderId == currentUserId;
-
-                      return Align(
+                    return ListTile(
+                      title: Align(
                         alignment: isMe
                             ? Alignment.centerRight
                             : Alignment.centerLeft,
                         child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 5),
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: isMe
-                                ? CupertinoColors.activeBlue
-                                : (isDark
-                                      ? CupertinoColors.systemGrey5
-                                      : CupertinoColors.systemGrey4),
-                            borderRadius: BorderRadius.circular(12),
+                            color: isMe ? Colors.blue : Colors.grey[300],
+                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             message.text,
                             style: TextStyle(
-                              color: isMe
-                                  ? CupertinoColors.white
-                                  : (isDark
-                                        ? CupertinoColors.white
-                                        : CupertinoColors.black),
+                              color: isMe ? Colors.white : Colors.black,
                             ),
                           ),
                         ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-            const Divider(height: 1),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    child: const Icon(CupertinoIcons.photo),
-                    onPressed: () {
-                      // TODO: إرسال الصور لاحقًا
-                    },
-                  ),
-                  Expanded(
-                    child: CupertinoTextField(
-                      controller: _messageController,
-                      placeholder: 'اكتب رسالة...',
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 16,
                       ),
-                    ),
-                  ),
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    child: const Icon(
-                      CupertinoIcons.arrow_up_circle_fill,
-                      size: 28,
-                    ),
-                    onPressed: () {
-                      final text = _messageController.text.trim();
-                      if (text.isNotEmpty) {
-                        _chatController.sendMessage(
-                          receiverId: widget.receiverId,
-                          text: text,
-                        );
-                        _messageController.clear();
-                      }
-                    },
-                  ),
-                ],
-              ),
+                      onLongPress: isMe
+                          ? () {
+                              _startEditing(message);
+                            }
+                          : null,
+                    );
+                  },
+                );
+              },
             ),
-          ],
-        ),
+          ),
+          const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _messageController,
+                    decoration: InputDecoration(
+                      hintText: _editingMessageId != null
+                          ? 'تعديل الرسالة...'
+                          : 'اكتب رسالة...',
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.send),
+                  onPressed: _sendMessage,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

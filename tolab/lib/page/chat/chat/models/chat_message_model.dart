@@ -32,6 +32,8 @@ class ChatMessageModel {
     );
   }
 
+  String? get messageId => null;
+
   // تحويل من Object إلى Map
   Map<String, dynamic> toMap() {
     return {
