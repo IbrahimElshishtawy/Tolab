@@ -127,11 +127,8 @@ class _HomeChatPageState extends State<HomeChatPage>
                   context,
                   MaterialPageRoute(
                     builder: (_) => ChatPage(
-                      receiverId: group.id,
-                      receiverName: name,
-                      isGroup: true,
-                      otherUserId: group.id,
-                      otherUserName: name,
+                      otherUserId: currentUser!.uid, // دردشة مع
+                      otherUserName: name, // نفسك
                     ),
                   ),
                 );
@@ -180,9 +177,6 @@ class _HomeChatPageState extends State<HomeChatPage>
                     context,
                     MaterialPageRoute(
                       builder: (_) => ChatPage(
-                        receiverId: currentUser!.uid,
-                        receiverName: 'أنا',
-                        isGroup: false,
                         otherUserId: currentUser!.uid,
                         otherUserName: currentUser!.displayName ?? 'أنا',
                       ),
@@ -230,9 +224,6 @@ class _HomeChatPageState extends State<HomeChatPage>
                       context,
                       MaterialPageRoute(
                         builder: (_) => ChatPage(
-                          receiverId: otherUserId,
-                          receiverName: name,
-                          isGroup: false,
                           otherUserId: otherUserId,
                           otherUserName: name,
                         ),

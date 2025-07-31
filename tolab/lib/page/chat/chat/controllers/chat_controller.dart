@@ -1,5 +1,6 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:tolab/page/chat/chat/models/chat_message_model.dart';
 import 'package:tolab/page/chat/chat/services/chat_service.dart';
 
@@ -17,27 +18,25 @@ class ChatController extends ChangeNotifier {
     return _chatService.getMessages(otherUserId);
   }
 
-  /// تحميل الرسائل مرة واحدة عند الدخول
+  /// تحميل الرسائل مرة واحدة
   Future<void> loadMessages(String otherUserId) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      _chatService.getMessages(otherUserId).listen((messageList) {
-        _messages = messageList;
-        _isLoading = false;
-        notifyListeners();
-      });
+      final messageList = await _chatService.getMessages(otherUserId).first;
+      _messages = messageList;
     } catch (e) {
-      _isLoading = false;
       if (kDebugMode) {
         print('❌ Error loading messages: $e');
       }
-      notifyListeners();
     }
+
+    _isLoading = false;
+    notifyListeners();
   }
 
-  /// إرسال رسالة جديدة (نص أو صورة)
+  /// إرسال رسالة جديدة
   Future<void> sendMessage({
     required String receiverId,
     required String text,
@@ -51,7 +50,6 @@ class ChatController extends ChangeNotifier {
         text: text,
         imageUrl: imageUrl,
       );
-      notifyListeners();
     } catch (e) {
       if (kDebugMode) {
         print('❌ Error sending message: $e');
@@ -59,17 +57,27 @@ class ChatController extends ChangeNotifier {
     }
   }
 
-  /// تعديل رسالة موجودة
+  /// تعديل رسالة
   Future<void> editMessage({
     required String messageId,
     required String newText,
   }) async {
     try {
       await _chatService.editMessage(messageId: messageId, newText: newText);
-      notifyListeners();
     } catch (e) {
       if (kDebugMode) {
         print('❌ Error editing message: $e');
+      }
+    }
+  }
+
+  /// حذف رسالة
+  Future<void> deleteMessage(String messageId) async {
+    try {
+      await _chatService.deleteMessage(messageId);
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error deleting message: $e');
       }
     }
   }

@@ -84,4 +84,6 @@ class ChatService {
     required String messageId,
     required String newText,
   }) async {}
+
+  Future<void> deleteMessage(String messageId) async {}
 }

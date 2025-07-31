@@ -3,8 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class NotificationService {
-  static const String serverUrl =
-      'http://YOUR_SERVER_IP:3000/send-notification';
+  static const String serverUrl = 'http://10.0.2.2:3000/send-notification';
+
   // ❗ غيّر YOUR_SERVER_IP إلى IP الحقيقي لجهازك الذي يشغل السيرفر (مثلاً: 192.168.1.5)
 
   static Future<void> sendNotificationToUser({
