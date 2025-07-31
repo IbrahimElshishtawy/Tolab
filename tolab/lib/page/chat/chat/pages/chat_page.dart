@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:tolab/page/chat/chat/controllers/chat_controller.dart';
 import 'package:tolab/page/chat/chat/models/chat_message_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tolab/page/chat/chat/pages/Messages_chat_Page.dart';
 
 class ChatPage extends StatefulWidget {
   final String otherUserId;
@@ -60,7 +61,26 @@ class _ChatPageState extends State<ChatPage> {
     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.otherUserName)),
+      appBar: AppBar(
+        title: Text(widget.otherUserName),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.message),
+            onPressed: () {
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  builder: (context) => MessagesPage(
+                    chatId: 'your_chat_id_here',
+                    participants: ['user1', 'user2'], // أو من قاعدة البيانات
+                    receiverId: 'receiver_user_id_here',
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(

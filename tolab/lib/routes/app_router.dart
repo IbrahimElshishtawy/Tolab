@@ -7,7 +7,7 @@ import 'package:tolab/page/auth/pages/login_page.dart';
 import 'package:tolab/page/auth/pages/register_page.dart';
 import 'package:tolab/page/auth/pages/set_new_password_page.dart';
 import 'package:tolab/page/auth/pages/choose_role_page.dart';
-import 'package:tolab/page/chat/home/home_chat_page.dart';
+import 'package:tolab/page/chat/chat/pages/Messages_chat_Page.dart';
 
 // صفحات عامة
 import 'package:tolab/page/splash/page/splash_page.dart';
@@ -22,6 +22,9 @@ import 'package:tolab/page/posts/pages/Notifications_Page.dart';
 // صفحات المحادثات الجماعية
 import 'package:tolab/page/chat/groups/pages/create_group_page.dart';
 import 'package:tolab/page/chat/groups/pages/group_chat_page.dart';
+
+// صفحات الشات
+import 'package:tolab/page/chat/home/home_chat_page.dart';
 
 class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -62,9 +65,8 @@ class AppRouter {
       case '/notifications':
         return MaterialPageRoute(builder: (_) => const NotificationsPage());
 
-      // ✅ صفحات الشات الجماعي
+      // ✅ صفحة الشات الجماعي
       case '/group-chat':
-        // تأكد من إرسال groupId و groupName في settings.arguments
         final args = settings.arguments as Map<String, dynamic>;
         return MaterialPageRoute(
           builder: (_) => GroupChatPage(
@@ -78,6 +80,17 @@ class AppRouter {
 
       case '/home-chat':
         return MaterialPageRoute(builder: (_) => const HomeChatPage());
+
+      // ✅ صفحة الشات الخاص (private message chat)
+      case '/message-chat':
+        final args = settings.arguments as Map<String, dynamic>;
+        return MaterialPageRoute(
+          builder: (_) => MessagesPage(
+            chatId: args['chatId'],
+            receiverId: args['receiverId'],
+            participants: [args['receiverId']],
+          ),
+        );
 
       default:
         return MaterialPageRoute(
