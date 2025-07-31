@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tolab/page/chat/chat/controllers/chat_controller.dart';
 import 'package:tolab/page/chat/chat/models/chat_message_model.dart';
+import 'package:tolab/page/chat/chat/models/chat_user_model.dart';
 
 class ChatPage extends StatefulWidget {
   final String otherUserId;
   final String otherUserName;
+  final String? groupId;
+  final String? groupName;
 
   const ChatPage({
-    Key? key,
+    super.key,
     required this.otherUserId,
     required this.otherUserName,
-  }) : super(key: key);
+    this.groupId,
+    this.groupName,
+  });
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -24,11 +30,30 @@ class _ChatPageState extends State<ChatPage> {
 
   String get currentUserId => FirebaseAuth.instance.currentUser!.uid;
 
+  ChatUserModel? currentUserInfo;
+
   @override
   void initState() {
     super.initState();
     final chatController = Provider.of<ChatController>(context, listen: false);
     chatController.markMessagesAsRead(widget.otherUserId);
+
+    if (widget.otherUserId == currentUserId) {
+      _loadCurrentUserInfo();
+    }
+  }
+
+  Future<void> _loadCurrentUserInfo() async {
+    final doc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUserId)
+        .get();
+
+    if (doc.exists) {
+      setState(() {
+        currentUserInfo = ChatUserModel.fromMap(doc.data()!);
+      });
+    }
   }
 
   void _sendMessage() async {
@@ -76,9 +101,28 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     final chatController = Provider.of<ChatController>(context, listen: false);
 
+    final isSelfChat = widget.otherUserId == currentUserId;
+    final displayName = isSelfChat
+        ? (currentUserInfo?.name ?? 'أنا')
+        : widget.otherUserName;
+    final displayImage = isSelfChat ? currentUserInfo?.imageUrl : null;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.otherUserName),
+        title: Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: displayImage != null && displayImage.isNotEmpty
+                  ? NetworkImage(displayImage)
+                  : null,
+              child: displayImage == null || displayImage.isEmpty
+                  ? const Icon(Icons.person)
+                  : null,
+            ),
+            const SizedBox(width: 10),
+            Text(displayName),
+          ],
+        ),
         actions: [
           if (editingMessageId != null)
             IconButton(
