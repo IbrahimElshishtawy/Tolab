@@ -24,16 +24,28 @@ class _GroupTabState extends State<GroupTab> {
   }
 
   Future<void> checkUserRole() async {
-    final doc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUser!.uid)
-        .get();
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser!.uid)
+          .get();
 
-    final role = doc.data()?['role'];
-    setState(() {
-      isTeacher = role == 'doctor' || role == 'assistant';
-      loading = false;
-    });
+      final role = doc.data()?['role'];
+
+      if (!mounted) return;
+
+      setState(() {
+        isTeacher = role == 'doctor' || role == 'assistant';
+        loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isTeacher = false;
+        loading = false;
+      });
+    }
   }
 
   @override

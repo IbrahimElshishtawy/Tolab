@@ -29,8 +29,9 @@ class _IndividualChatsPageState extends State<IndividualChatsPage> {
             .orderBy('timestamp', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData)
+          if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
+          }
 
           final chatDocs = snapshot.data!.docs;
 

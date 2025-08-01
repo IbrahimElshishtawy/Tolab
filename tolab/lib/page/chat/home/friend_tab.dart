@@ -24,17 +24,20 @@ class PrivateChatsPage extends StatelessWidget {
 
           final chats = snapshot.data!.docs;
 
-          if (chats.isEmpty)
+          if (chats.isEmpty) {
             return const Center(child: Text("لا توجد محادثات"));
+          }
 
           return ListView.builder(
             itemCount: chats.length,
             itemBuilder: (context, index) {
               final chat = chats[index];
               final participants = List<String>.from(chat['participants']);
-              final otherUserId = participants.firstWhere(
-                (id) => id != currentUserId,
-              );
+
+              // دعم المحادثة مع النفس
+              final otherUserId = participants.length == 1
+                  ? currentUserId
+                  : participants.firstWhere((id) => id != currentUserId);
 
               return FutureBuilder<DocumentSnapshot>(
                 future: FirebaseFirestore.instance
@@ -46,9 +49,18 @@ class PrivateChatsPage extends StatelessWidget {
 
                   final user = userSnapshot.data!;
                   final name = user['name'] ?? 'مستخدم';
+                  final imageUrl = user['imageUrl'];
 
                   return ListTile(
-                    leading: const CircleAvatar(child: Icon(Icons.person)),
+                    leading: imageUrl != null && imageUrl.toString().isNotEmpty
+                        ? CircleAvatar(backgroundImage: NetworkImage(imageUrl))
+                        : CircleAvatar(
+                            backgroundColor: Colors.grey[400],
+                            child: Text(
+                              name.isNotEmpty ? name[0] : '?',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
                     title: Text(name),
                     subtitle: Text(chat['lastMessage'] ?? ''),
                     trailing: const Icon(Icons.chevron_right),
@@ -59,8 +71,8 @@ class PrivateChatsPage extends StatelessWidget {
                           builder: (_) => ChatPage(
                             otherUserId: otherUserId,
                             otherUserName: name,
-                            groupId: '', // ليس مستخدم في حالة فردية
-                            groupName: '', // ليس مستخدم في حالة فردية
+                            groupId: '',
+                            groupName: '',
                           ),
                         ),
                       );
