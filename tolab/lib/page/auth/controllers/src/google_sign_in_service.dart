@@ -33,7 +33,8 @@ class GoogleSignInService {
       final auth = await acct.authentication;
       final credential = GoogleAuthProvider.credential(
         idToken: auth.idToken,
-        // accessToken اختياري
+        accessToken: auth.idToken,
+        // accessToken اختياري,
       );
       return await _auth.signInWithCredential(credential);
     } on GoogleSignInException catch (e) {

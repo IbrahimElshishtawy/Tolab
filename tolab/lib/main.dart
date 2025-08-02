@@ -7,7 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tolab/core/config/User_Provider.dart';
 import 'package:tolab/page/auth/controllers/login_controller.dart';
 import 'package:tolab/page/posts/controllers/post_controllers.dart';
-import 'package:tolab/page/chat/chat/controllers/chat_controller.dart'; // ✅ تأكد من الاستيراد
+import 'package:tolab/page/chat/chat/controllers/chat_controller.dart';
 import 'package:tolab/page/settings/app_theme.dart';
 import 'package:tolab/routes/app_router.dart';
 import 'package:tolab/page/splash/page/splash_page.dart';

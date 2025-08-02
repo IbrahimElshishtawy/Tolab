@@ -10,7 +10,8 @@ class PrivateChatsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    print('Current User ID: $currentUserId');
 
     return Scaffold(
       body: StreamBuilder<QuerySnapshot>(
@@ -19,33 +20,38 @@ class PrivateChatsPage extends StatelessWidget {
             .where('participants', arrayContains: currentUserId)
             .orderBy('lastMessageTime', descending: true)
             .snapshots(),
-        builder: (context, snapshot) {
+        builder: (context, AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
           if (snapshot.hasError) {
-            return const Center(child: Text("حدث خطأ أثناء تحميل المحادثات"));
+            print("Error loading chats: ${snapshot.error}");
+            return const Center(child: Text("Error loading chats"));
           }
 
           if (!snapshot.hasData) {
+            print("Loading chats...");
             return const Center(child: CircularProgressIndicator());
           }
 
-          final chats = snapshot.data!.docs;
+          final List<QueryDocumentSnapshot> chats = snapshot.data!.docs;
+          print("Found ${chats.length} chat(s)");
 
           if (chats.isEmpty) {
-            return const Center(child: Text("لا توجد محادثات"));
+            print("No chats found");
+            return const Center(child: Text("No chats found"));
           }
 
           return ListView.builder(
-            itemCount: chats.length,
             itemBuilder: (context, index) {
               final chat = chats[index];
-              final participants = List<String>.from(chat['participants']);
-
-              // تحديد الـ otherUserId
-              final otherUserId =
+              final List<String> participants = List<String>.from(
+                chat['participants'],
+              );
+              final String otherUserId =
                   (participants.length == 1 ||
                       participants.every((id) => id == currentUserId))
                   ? currentUserId
                   : participants.firstWhere((id) => id != currentUserId);
+
+              print("Chat [$index] with user ID: $otherUserId");
 
               return FutureBuilder<DocumentSnapshot>(
                 future: FirebaseFirestore.instance
@@ -54,37 +60,45 @@ class PrivateChatsPage extends StatelessWidget {
                     .get(),
                 builder: (context, userSnapshot) {
                   if (userSnapshot.hasError) {
+                    print(
+                      "Error loading user [$otherUserId]: ${userSnapshot.error}",
+                    );
                     return const ListTile(
                       leading: CircleAvatar(child: Icon(Icons.error)),
-                      title: Text("حدث خطأ في تحميل المستخدم"),
+                      title: Text("Error loading user"),
                     );
                   }
 
                   if (!userSnapshot.hasData || !userSnapshot.data!.exists) {
+                    print("User [$otherUserId] not found in database");
                     return const ListTile(
                       leading: CircleAvatar(child: Icon(Icons.person)),
-                      title: Text("مستخدم غير معروف"),
+                      title: Text("Unknown user"),
                     );
                   }
 
                   try {
                     final user = userSnapshot.data!;
-                    final name = user['name'] ?? 'مستخدم';
-                    final imageUrl = user['imageUrl'];
-                    final lastMessage = chat['lastMessage'] ?? '';
+                    final String name = user['name'] ?? 'User';
+                    final String? imageUrl = user['imageUrl'];
+                    final String lastMessage = chat['lastMessage'] ?? '';
+
+                    print("User [$otherUserId] name: $name");
+                    print("Last message: $lastMessage");
 
                     return ChatUserTile(
                       userId: otherUserId,
                       name: otherUserId == currentUserId
-                          ? 'أنا (محادثة مع نفسي)'
+                          ? 'Me (Self Chat)'
                           : name,
                       imageUrl: imageUrl,
                       lastMessage: lastMessage,
                     );
                   } catch (e) {
+                    print("Exception displaying chat [$otherUserId]: $e");
                     return const ListTile(
                       leading: CircleAvatar(child: Icon(Icons.error_outline)),
-                      title: Text("خطأ أثناء عرض المحادثة"),
+                      title: Text("Error displaying chat"),
                     );
                   }
                 },
