@@ -46,6 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '168050637950',
     projectId: 'tolab-e1b84',
     authDomain: 'tolab-e1b84.firebaseapp.com',
+    databaseURL: 'https://tolab-e1b84-default-rtdb.firebaseio.com',
     storageBucket: 'tolab-e1b84.firebasestorage.app',
     measurementId: 'G-5PRNCVYCR0',
   );
@@ -55,6 +56,7 @@ class DefaultFirebaseOptions {
     appId: '1:168050637950:android:60e953b012d3bc310aec2f',
     messagingSenderId: '168050637950',
     projectId: 'tolab-e1b84',
+    databaseURL: 'https://tolab-e1b84-default-rtdb.firebaseio.com',
     storageBucket: 'tolab-e1b84.firebasestorage.app',
   );
 
@@ -63,6 +65,7 @@ class DefaultFirebaseOptions {
     appId: '1:168050637950:ios:2762f8206b7152280aec2f',
     messagingSenderId: '168050637950',
     projectId: 'tolab-e1b84',
+    databaseURL: 'https://tolab-e1b84-default-rtdb.firebaseio.com',
     storageBucket: 'tolab-e1b84.firebasestorage.app',
     androidClientId: '168050637950-vt629lofge2cscbd4m3mtql3nic64fft.apps.googleusercontent.com',
     iosClientId: '168050637950-5sgcp4lq6d36kv45vk5dapf1hlfcaav1.apps.googleusercontent.com',
@@ -74,6 +77,7 @@ class DefaultFirebaseOptions {
     appId: '1:168050637950:ios:2762f8206b7152280aec2f',
     messagingSenderId: '168050637950',
     projectId: 'tolab-e1b84',
+    databaseURL: 'https://tolab-e1b84-default-rtdb.firebaseio.com',
     storageBucket: 'tolab-e1b84.firebasestorage.app',
     androidClientId: '168050637950-vt629lofge2cscbd4m3mtql3nic64fft.apps.googleusercontent.com',
     iosClientId: '168050637950-5sgcp4lq6d36kv45vk5dapf1hlfcaav1.apps.googleusercontent.com',
@@ -86,6 +90,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '168050637950',
     projectId: 'tolab-e1b84',
     authDomain: 'tolab-e1b84.firebaseapp.com',
+    databaseURL: 'https://tolab-e1b84-default-rtdb.firebaseio.com',
     storageBucket: 'tolab-e1b84.firebasestorage.app',
     measurementId: 'G-7R397HKHWF',
   );

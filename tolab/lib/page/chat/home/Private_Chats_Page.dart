@@ -15,7 +15,7 @@ class PrivateChatsPage extends StatelessWidget {
     return Scaffold(
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection('private_chats')
+            .collection('chats')
             .where('participants', arrayContains: currentUserId)
             .orderBy('lastMessageTime', descending: true)
             .snapshots(),
@@ -40,7 +40,10 @@ class PrivateChatsPage extends StatelessWidget {
               final chat = chats[index];
               final participants = List<String>.from(chat['participants']);
 
-              final otherUserId = participants.length == 1
+              // تحديد الـ otherUserId
+              final otherUserId =
+                  (participants.length == 1 ||
+                      participants.every((id) => id == currentUserId))
                   ? currentUserId
                   : participants.firstWhere((id) => id != currentUserId);
 
@@ -72,7 +75,9 @@ class PrivateChatsPage extends StatelessWidget {
 
                     return ChatUserTile(
                       userId: otherUserId,
-                      name: name,
+                      name: otherUserId == currentUserId
+                          ? 'أنا (محادثة مع نفسي)'
+                          : name,
                       imageUrl: imageUrl,
                       lastMessage: lastMessage,
                     );
