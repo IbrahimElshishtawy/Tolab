@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -29,14 +31,17 @@ class _ChatPageState extends State<ChatPage> {
   String? editingMessageId;
 
   String get currentUserId => FirebaseAuth.instance.currentUser!.uid;
-
   ChatUserModel? currentUserInfo;
 
   @override
   void initState() {
     super.initState();
+    print('📥 ChatPage started. Current user: $currentUserId');
+
     final chatController = Provider.of<ChatController>(context, listen: false);
+
     chatController.markMessagesAsRead(widget.otherUserId);
+    print('✅ Marked messages as read for ${widget.otherUserId}');
 
     if (widget.otherUserId == currentUserId) {
       _loadCurrentUserInfo();
@@ -44,15 +49,18 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _loadCurrentUserInfo() async {
+    print('📡 Loading current user info...');
     final doc = await FirebaseFirestore.instance
         .collection('users')
         .doc(currentUserId)
         .get();
 
     if (doc.exists) {
-      setState(() {
-        currentUserInfo = ChatUserModel.fromMap(doc.data()!);
-      });
+      currentUserInfo = ChatUserModel.fromMap(doc.data()!);
+      print('✅ Current user loaded: ${currentUserInfo!.name}');
+      setState(() {});
+    } else {
+      print('⚠️ User not found!');
     }
   }
 
@@ -60,6 +68,7 @@ class _ChatPageState extends State<ChatPage> {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
 
+    print('📨 Sending message: $text');
     final chatController = Provider.of<ChatController>(context, listen: false);
 
     if (editingMessageId != null) {
@@ -67,18 +76,21 @@ class _ChatPageState extends State<ChatPage> {
         messageId: editingMessageId!,
         newText: text,
       );
+      print('✏️ Message edited: $editingMessageId');
       editingMessageId = null;
     } else {
       await chatController.sendMessage(
         receiverId: widget.otherUserId,
         text: text,
       );
+      print('✅ Message sent to ${widget.otherUserId}');
     }
 
     _messageController.clear();
   }
 
   void _startEditing(ChatMessageModel message) {
+    print('✏️ Start editing message: ${message.id}');
     setState(() {
       editingMessageId = message.id;
       _messageController.text = message.text;
@@ -86,6 +98,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _cancelEditing() {
+    print('❌ Cancel editing');
     setState(() {
       editingMessageId = null;
       _messageController.clear();
@@ -93,14 +106,15 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _deleteMessage(String messageId) async {
+    print('🗑️ Deleting message: $messageId');
     final chatController = Provider.of<ChatController>(context, listen: false);
     await chatController.deleteMessage(messageId);
+    print('✅ Message deleted');
   }
 
   @override
   Widget build(BuildContext context) {
     final chatController = Provider.of<ChatController>(context, listen: false);
-
     final isSelfChat = widget.otherUserId == currentUserId;
     final displayName = isSelfChat
         ? (currentUserInfo?.name ?? 'أنا')
@@ -142,12 +156,14 @@ class _ChatPageState extends State<ChatPage> {
                 }
 
                 if (snapshot.hasError) {
+                  print('❌ Error loading messages: ${snapshot.error}');
                   return const Center(
                     child: Text('حدث خطأ أثناء تحميل الرسائل'),
                   );
                 }
 
                 final messages = snapshot.data ?? [];
+                print('💬 Loaded ${messages.length} messages');
 
                 return ListView.builder(
                   reverse: true,
@@ -177,6 +193,7 @@ class _ChatPageState extends State<ChatPage> {
                       ),
                       onLongPress: isMe
                           ? () {
+                              print('📥 Options for message: ${message.id}');
                               showModalBottomSheet(
                                 context: context,
                                 builder: (_) => Column(

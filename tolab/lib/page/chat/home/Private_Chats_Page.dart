@@ -1,7 +1,9 @@
+// lib/page/chat/chat/pages/private_chats_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:tolab/page/chat/chat/pages/chat_page.dart';
+import 'package:tolab/page/chat/chat/models/Chat_User_Tile.dart';
 
 class PrivateChatsPage extends StatelessWidget {
   const PrivateChatsPage({super.key});
@@ -18,6 +20,10 @@ class PrivateChatsPage extends StatelessWidget {
             .orderBy('lastMessageTime', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return const Center(child: Text("حدث خطأ أثناء تحميل المحادثات"));
+          }
+
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -34,7 +40,6 @@ class PrivateChatsPage extends StatelessWidget {
               final chat = chats[index];
               final participants = List<String>.from(chat['participants']);
 
-              // دعم المحادثة مع النفس
               final otherUserId = participants.length == 1
                   ? currentUserId
                   : participants.firstWhere((id) => id != currentUserId);
@@ -45,39 +50,38 @@ class PrivateChatsPage extends StatelessWidget {
                     .doc(otherUserId)
                     .get(),
                 builder: (context, userSnapshot) {
-                  if (!userSnapshot.hasData) return const SizedBox();
+                  if (userSnapshot.hasError) {
+                    return const ListTile(
+                      leading: CircleAvatar(child: Icon(Icons.error)),
+                      title: Text("حدث خطأ في تحميل المستخدم"),
+                    );
+                  }
 
-                  final user = userSnapshot.data!;
-                  final name = user['name'] ?? 'مستخدم';
-                  final imageUrl = user['imageUrl'];
+                  if (!userSnapshot.hasData || !userSnapshot.data!.exists) {
+                    return const ListTile(
+                      leading: CircleAvatar(child: Icon(Icons.person)),
+                      title: Text("مستخدم غير معروف"),
+                    );
+                  }
 
-                  return ListTile(
-                    leading: imageUrl != null && imageUrl.toString().isNotEmpty
-                        ? CircleAvatar(backgroundImage: NetworkImage(imageUrl))
-                        : CircleAvatar(
-                            backgroundColor: Colors.grey[400],
-                            child: Text(
-                              name.isNotEmpty ? name[0] : '?',
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          ),
-                    title: Text(name),
-                    subtitle: Text(chat['lastMessage'] ?? ''),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ChatPage(
-                            otherUserId: otherUserId,
-                            otherUserName: name,
-                            groupId: '',
-                            groupName: '',
-                          ),
-                        ),
-                      );
-                    },
-                  );
+                  try {
+                    final user = userSnapshot.data!;
+                    final name = user['name'] ?? 'مستخدم';
+                    final imageUrl = user['imageUrl'];
+                    final lastMessage = chat['lastMessage'] ?? '';
+
+                    return ChatUserTile(
+                      userId: otherUserId,
+                      name: name,
+                      imageUrl: imageUrl,
+                      lastMessage: lastMessage,
+                    );
+                  } catch (e) {
+                    return const ListTile(
+                      leading: CircleAvatar(child: Icon(Icons.error_outline)),
+                      title: Text("خطأ أثناء عرض المحادثة"),
+                    );
+                  }
                 },
               );
             },

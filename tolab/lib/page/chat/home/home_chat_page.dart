@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'group_tab.dart';
-import 'friend_tab.dart';
+import 'Private_Chats_Page.dart';
 
 class HomeChatPage extends StatefulWidget {
   const HomeChatPage({super.key});

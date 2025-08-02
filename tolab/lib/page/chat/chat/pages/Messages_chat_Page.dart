@@ -1,3 +1,5 @@
+// ignore_for_file: curly_braces_in_flow_control_structures
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +46,7 @@ class _MessagesPageState extends State<MessagesPage> {
         .doc(widget.chatId)
         .update({
           'lastMessage': messageText,
-          'createdAt': FieldValue.serverTimestamp(),
+          'lastMessageTime': FieldValue.serverTimestamp(),
         });
 
     _controller.clear();
@@ -68,7 +70,6 @@ class _MessagesPageState extends State<MessagesPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("المحادثة"), centerTitle: true),
       body: Column(
         children: [
           Expanded(

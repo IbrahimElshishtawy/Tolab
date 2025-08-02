@@ -22,6 +22,7 @@ class _IndividualChatsPageState extends State<IndividualChatsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text("الدردشات")),
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore
             .collection('chats')
@@ -42,9 +43,17 @@ class _IndividualChatsPageState extends State<IndividualChatsPage> {
               doc.data() as Map<String, dynamic>,
               doc.id,
             );
-            final otherUserId = msg.senderId == currentUserId
-                ? msg.receiverId
-                : msg.senderId;
+
+            String otherUserId;
+
+            // ✅ معالجة Self Chat
+            if (msg.senderId == msg.receiverId) {
+              otherUserId = currentUserId;
+            } else {
+              otherUserId = msg.senderId == currentUserId
+                  ? msg.receiverId
+                  : msg.senderId;
+            }
 
             if (!lastMessages.containsKey(otherUserId)) {
               lastMessages[otherUserId] = msg;
@@ -84,7 +93,11 @@ class _IndividualChatsPageState extends State<IndividualChatsPage> {
                               style: const TextStyle(color: Colors.white),
                             ),
                           ),
-                    title: Text(otherUser.name),
+                    title: Text(
+                      otherUserId == currentUserId
+                          ? "${otherUser.name} (أنت)"
+                          : otherUser.name,
+                    ),
                     subtitle: Text(lastMsg.text),
                     onTap: () {
                       Navigator.push(

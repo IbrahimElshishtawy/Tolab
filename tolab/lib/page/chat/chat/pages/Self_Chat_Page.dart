@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:tolab/page/chat/chat/pages/chat_tile.dart';
-import '../models/chat_message_model.dart';
-import '../models/chat_user_model.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tolab/page/chat/chat/models/chat_message_model.dart';
+import 'package:tolab/page/chat/chat/models/chat_user_model.dart';
+import 'package:tolab/page/chat/chat/models/chat_tile.dart';
 
 class SelfChatPage extends StatefulWidget {
   const SelfChatPage({super.key});
@@ -61,7 +60,7 @@ class _SelfChatPageState extends State<SelfChatPage> {
   @override
   Widget build(BuildContext context) {
     if (currentUser == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -83,15 +82,16 @@ class _SelfChatPageState extends State<SelfChatPage> {
                   .orderBy('timestamp', descending: true)
                   .snapshots(),
               builder: (context, snapshot) {
-                if (!snapshot.hasData) return const CircularProgressIndicator();
-                final messages = snapshot.data!.docs
-                    .map(
-                      (doc) => ChatMessageModel.fromMap(
-                        doc.data() as Map<String, dynamic>,
-                        doc.id,
-                      ),
-                    )
-                    .toList();
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final messages = snapshot.data!.docs.map((doc) {
+                  return ChatMessageModel.fromMap(
+                    doc.data() as Map<String, dynamic>,
+                    doc.id,
+                  );
+                }).toList();
 
                 return ListView.builder(
                   reverse: true,
@@ -121,21 +121,35 @@ class _SelfChatPageState extends State<SelfChatPage> {
               },
             ),
           ),
+          const Divider(height: 1),
           Padding(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _messageController,
-                    decoration: const InputDecoration(
-                      hintText: "اكتب رسالة...",
+                    decoration: InputDecoration(
+                      hintText: 'اكتب رسالة...',
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                      ),
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: sendMessage,
+                const SizedBox(width: 8),
+                CircleAvatar(
+                  backgroundColor: Colors.blueAccent,
+                  child: IconButton(
+                    icon: const Icon(Icons.send, color: Colors.white),
+                    onPressed: sendMessage,
+                  ),
                 ),
               ],
             ),
