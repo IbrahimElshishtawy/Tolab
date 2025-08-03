@@ -7,7 +7,6 @@ import 'package:tolab/page/auth/pages/login_page.dart';
 import 'package:tolab/page/auth/pages/register_page.dart';
 import 'package:tolab/page/auth/pages/set_new_password_page.dart';
 import 'package:tolab/page/auth/pages/choose_role_page.dart';
-import 'package:tolab/page/chat/chat/pages/Messages_chat_Page.dart';
 
 // صفحات عامة
 import 'package:tolab/page/splash/page/splash_page.dart';
@@ -80,18 +79,6 @@ class AppRouter {
 
       case '/home-chat':
         return MaterialPageRoute(builder: (_) => const HomeChatPage());
-
-      // ✅ صفحة الشات الخاص (private message chat)
-      case '/message-chat':
-        final args = settings.arguments as Map<String, dynamic>;
-        return MaterialPageRoute(
-          builder: (_) => MessagesPage(
-            chatId: args['chatId'],
-            receiverId: args['receiverId'],
-            participants: [args['receiverId']],
-          ),
-        );
-
       default:
         return MaterialPageRoute(
           builder: (_) =>

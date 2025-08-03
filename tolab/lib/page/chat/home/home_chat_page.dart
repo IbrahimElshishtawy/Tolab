@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'group_tab.dart';
-import 'Private_Chats_Page.dart';
 
 class HomeChatPage extends StatefulWidget {
   const HomeChatPage({super.key});
@@ -82,7 +81,7 @@ class _HomeChatPageState extends State<HomeChatPage>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: const [GroupTab(), PrivateChatsPage()],
+        children: const [GroupTab()],
       ),
     );
   }

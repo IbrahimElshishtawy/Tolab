@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:tolab/page/chat/chat/pages/chat_page.dart';
+
 import 'package:tolab/page/chat/home/create_group_dialog.dart';
 import 'package:tolab/page/profile/widget/avatar_generator.dart';
 
@@ -91,19 +91,7 @@ class _GroupTabState extends State<GroupTab> {
                   title: Text(name),
                   subtitle: Text(lastMessage),
                   trailing: Text(time.toString().substring(0, 5)),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ChatPage(
-                          otherUserId: currentUser!.uid,
-                          otherUserName: name,
-                          groupId: group.id,
-                          groupName: name,
-                        ),
-                      ),
-                    );
-                  },
+                  onTap: () {},
                 );
               },
             );
