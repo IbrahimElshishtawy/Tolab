@@ -1,5 +1,6 @@
 // lib/page/chat/chat/pages/private_chats_page.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,7 +23,9 @@ class PrivateChatsPage extends StatelessWidget {
             .snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
           if (snapshot.hasError) {
-            print("Error loading chats: ${snapshot.error}");
+            if (kDebugMode) {
+              print("Error loading chats: ${snapshot.error}");
+            }
             return const Center(child: Text("Error loading chats"));
           }
 
