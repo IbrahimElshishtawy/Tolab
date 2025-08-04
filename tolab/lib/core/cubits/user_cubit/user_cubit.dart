@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tolab/core/cubits/user_cubit/user_repository.dart';
 import 'package:tolab/core/cubits/user_cubit/user_state.dart';
-import 'package:tolab/models/user_model.dart';
 
 class UserCubit extends Cubit<UserState> {
   final UserRepository userRepository;
