@@ -1,48 +1,106 @@
+// lib/Features/auth/widgets/login_form.dart
+
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tolab/page/auth/controllers/login_cubit.dart';
 import 'package:tolab/page/auth/controllers/login_state.dart';
+import 'package:tolab/page/auth/controllers/src/google_sign_in_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class LoginForm extends StatelessWidget {
+class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
 
   @override
+  State<LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  bool isPasswordVisible = false;
+  User? _user;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<LoginCubit>().loadSavedCredentials();
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    try {
+      final userCredential = await GoogleSignInService.signInWithGoogle();
+      if (userCredential == null) return;
+
+      final user = userCredential.user;
+      if (user != null) {
+        setState(() {
+          _user = user;
+        });
+
+        await createSelfChatIfNotExists(user.uid);
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('saved_email', user.email ?? '');
+        await prefs.setBool('remember_me', true);
+
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, '/choose-role');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('فشل تسجيل الدخول بواسطة Google')),
+      );
+    }
+  }
+
+  Future<void> createSelfChatIfNotExists(String userId) async {
+    final chatRef = FirebaseFirestore.instance
+        .collection('chats')
+        .where('members', isEqualTo: [userId]);
+
+    final snapshot = await chatRef.get();
+
+    if (snapshot.docs.isEmpty) {
+      await FirebaseFirestore.instance.collection('chats').add({
+        'members': [userId],
+        'createdAt': FieldValue.serverTimestamp(),
+        'isSelfChat': true,
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final cubit = context.watch<LoginCubit>();
+    final cubit = context.read<LoginCubit>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return BlocConsumer<LoginCubit, LoginState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is LoginSuccess) {
           Navigator.pushReplacementNamed(context, '/home');
         } else if (state is LoginFailure) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(state.message)));
-        } else if (state is LoginGoogleSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('تم تسجيل الدخول بواسطة Google')),
-          );
         }
       },
       builder: (context, state) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (cubit.user != null) ...[
+            if (_user != null) ...[
               CircleAvatar(
                 radius: 40,
-                backgroundImage: cubit.user!.photoURL != null
-                    ? NetworkImage(cubit.user!.photoURL!)
+                backgroundImage: _user!.photoURL != null
+                    ? NetworkImage(_user!.photoURL!)
                     : null,
-                child: cubit.user!.photoURL == null
+                child: _user!.photoURL == null
                     ? const Icon(Icons.person, size: 40)
                     : null,
               ),
               const SizedBox(height: 8),
               Text(
-                cubit.user!.displayName ?? cubit.user!.email ?? '',
+                _user!.displayName ?? _user!.email ?? '',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 18,
@@ -67,17 +125,17 @@ class LoginForm extends StatelessWidget {
 
             TextFormField(
               controller: cubit.passwordController,
-              obscureText: !cubit.isPasswordVisible,
+              obscureText: !isPasswordVisible,
               decoration: InputDecoration(
                 labelText: 'Password',
                 prefixIcon: const Icon(Icons.lock),
                 suffixIcon: IconButton(
                   icon: Icon(
-                    cubit.isPasswordVisible
-                        ? Icons.visibility
-                        : Icons.visibility_off,
+                    isPasswordVisible ? Icons.visibility : Icons.visibility_off,
                   ),
-                  onPressed: () => cubit.togglePasswordVisibility(),
+                  onPressed: () {
+                    setState(() => isPasswordVisible = !isPasswordVisible);
+                  },
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(9),
@@ -133,7 +191,7 @@ class LoginForm extends StatelessWidget {
             ElevatedButton.icon(
               icon: Image.asset('assets/image_App/google_logo.png', height: 22),
               label: const Text("Sign in with Google"),
-              onPressed: () => cubit.handleGoogleSignIn(context),
+              onPressed: _handleGoogleSignIn,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: Colors.black87,
