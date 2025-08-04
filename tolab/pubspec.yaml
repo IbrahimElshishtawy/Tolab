@@ -31,6 +31,7 @@ dependencies:
   firebase_messaging: ^15.2.10
   flutter_bloc: ^9.1.1
   bloc: ^9.0.0
+  meta: ^1.16.0
 
 dev_dependencies:
   flutter_test:
