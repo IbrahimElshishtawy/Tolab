@@ -24,6 +24,7 @@ class EditPostPage extends StatefulWidget {
 
 class _EditPostPageState extends State<EditPostPage> {
   late TextEditingController _contentController;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -34,17 +35,36 @@ class _EditPostPageState extends State<EditPostPage> {
   }
 
   Future<void> _updatePost() async {
-    if (_contentController.text.trim().isEmpty) return;
-
-    final docId = widget.post?.id ?? widget.postId;
-
-    if (docId != null) {
-      await FirebaseFirestore.instance.collection('posts').doc(docId).update({
-        'content': _contentController.text.trim(),
-      });
+    final newText = _contentController.text.trim();
+    if (newText.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('لا يمكن أن يكون المحتوى فارغًا')),
+      );
+      return;
     }
 
-    Navigator.pop(context);
+    final docId = widget.post?.id ?? widget.postId;
+    if (docId == null) return;
+
+    try {
+      setState(() => _isLoading = true);
+
+      await FirebaseFirestore.instance.collection('posts').doc(docId).update({
+        'content': newText,
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('تم تحديث البوست بنجاح')));
+
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('حدث خطأ أثناء التحديث: $e')));
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -53,14 +73,17 @@ class _EditPostPageState extends State<EditPostPage> {
 
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Color.fromARGB(255, 28, 30, 51), // لون أزرق غامق
-        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: const Color.fromARGB(255, 28, 30, 51),
+        iconTheme: const IconThemeData(color: Colors.white),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Center(child: const Text('edit post')),
+        title: const Text(
+          'تعديل البوست',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
         elevation: 1,
       ),
       body: SingleChildScrollView(
@@ -96,11 +119,20 @@ class _EditPostPageState extends State<EditPostPage> {
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton.icon(
-                    onPressed: _updatePost,
-                    icon: const Icon(Icons.save),
-                    label: const Text(
-                      'حفظ التعديلات',
-                      style: TextStyle(fontSize: 16),
+                    onPressed: _isLoading ? null : _updatePost,
+                    icon: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.save),
+                    label: Text(
+                      _isLoading ? 'جاري الحفظ...' : 'حفظ التعديلات',
+                      style: const TextStyle(fontSize: 16),
                     ),
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(

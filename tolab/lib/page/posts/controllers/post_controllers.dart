@@ -4,7 +4,17 @@ import 'package:tolab/models/post_model.dart';
 class PostsController extends ChangeNotifier {
   final List<PostModel> _posts = [];
 
+  // المستخدم الحالي
+  String _currentUserId = '';
+  String _currentUserRole = ''; // dr, ta, student
+
   List<PostModel> get posts => _posts;
+
+  // تعيين المستخدم بعد تسجيل الدخول
+  void setCurrentUser({required String userId, required String role}) {
+    _currentUserId = userId;
+    _currentUserRole = role;
+  }
 
   void fetchPosts() {
     _posts.clear();
@@ -19,6 +29,7 @@ class PostsController extends ChangeNotifier {
         views: 12,
         shares: 3,
         viewsUsers: ['user_001', 'user_002'],
+        authorRole: 'dr',
       ),
       PostModel(
         id: '2',
@@ -30,47 +41,41 @@ class PostsController extends ChangeNotifier {
         views: 8,
         shares: 1,
         viewsUsers: ['user_003'],
-        authorRole: '',
-        year: '',
-        term: '',
-        date: '',
-        viewsCount: null,
-        shareCount: null,
-        isApproved: null,
-        pending: null,
+        authorRole: 'ta',
       ),
     ]);
     notifyListeners();
   }
 
   void addPost(PostModel post) {
+    if (_currentUserRole != 'dr' && _currentUserRole != 'ta') {
+      throw Exception('ليس لديك صلاحية لإضافة منشور.');
+    }
+
     _posts.insert(0, post);
     notifyListeners();
   }
 
-  void deletePost(String postId, String currentUserId) {
+  void deletePost(String postId) {
     final post = _posts.firstWhere(
       (p) => p.id == postId,
       orElse: () => throw Exception('Post not found'),
     );
-    if (post.authorId == currentUserId) {
+
+    if (post.authorId == _currentUserId) {
       _posts.remove(post);
       notifyListeners();
     } else {
-      throw Exception('You do not have permission to delete this post.');
+      throw Exception('ليس لديك صلاحية لحذف هذا المنشور.');
     }
   }
 
-  void updatePost(
-    String postId,
-    String currentUserId, {
-    String? newTitle,
-    String? newContent,
-  }) {
+  void updatePost(String postId, {String? newTitle, String? newContent}) {
     final index = _posts.indexWhere((p) => p.id == postId);
     if (index == -1) throw Exception('Post not found');
-    if (_posts[index].authorId != currentUserId) {
-      throw Exception('You do not have permission to update this post.');
+
+    if (_posts[index].authorId != _currentUserId) {
+      throw Exception('ليس لديك صلاحية لتعديل هذا المنشور.');
     }
 
     final updatedPost = _posts[index].copyWith(

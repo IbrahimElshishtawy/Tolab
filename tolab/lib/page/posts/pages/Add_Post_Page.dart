@@ -27,12 +27,20 @@ class _AddPostPageState extends State<AddPostPage> {
       final user = FirebaseAuth.instance.currentUser!;
       final postId = const Uuid().v4();
 
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      final userData = userDoc.data();
+      final authorRole = userData?['role'] ?? 'student'; // dr, ta, student
+
       await FirebaseFirestore.instance.collection('posts').doc(postId).set({
         'postId': postId,
         'content': _contentController.text.trim(),
         'authorId': user.uid,
         'authorName': user.displayName ?? 'Unknown',
-        'authorRole': 'Student', // أو احصل عليه من Provider
+        'authorImage': user.photoURL ?? '',
+        'authorRole': authorRole,
         'approved': true,
         'shareCount': 0,
         'term': 'Term1',
@@ -40,6 +48,7 @@ class _AddPostPageState extends State<AddPostPage> {
         'views': '',
         'viewsCount': 0,
         'year': 'forthyears',
+        'viewers': [],
       });
 
       Navigator.pop(context);

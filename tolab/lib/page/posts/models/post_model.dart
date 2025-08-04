@@ -5,10 +5,11 @@ class PostModel {
   final String? imageUrl;
   final String authorName;
   final String? authorImage;
+  final String authorRole; // ⬅️ جديد
   final DateTime createdAt;
   final int viewsCount;
   final int sharesCount;
-  final List<String> viewers; // List of userIds who viewed
+  final List<String> viewers;
 
   PostModel({
     required this.id,
@@ -17,13 +18,13 @@ class PostModel {
     this.imageUrl,
     required this.authorName,
     this.authorImage,
+    required this.authorRole, // ⬅️ جديد
     required this.createdAt,
     this.viewsCount = 0,
     this.sharesCount = 0,
     this.viewers = const [],
   });
 
-  // إنشاء كائن PostModel من Firestore
   factory PostModel.fromMap(Map<String, dynamic> map, String documentId) {
     return PostModel(
       id: documentId,
@@ -32,6 +33,7 @@ class PostModel {
       imageUrl: map['imageUrl'],
       authorName: map['authorName'] ?? '',
       authorImage: map['authorImage'],
+      authorRole: map['authorRole'] ?? 'student', // ⬅️ جديد
       createdAt: DateTime.tryParse(map['createdAt'] ?? '') ?? DateTime.now(),
       viewsCount: map['viewsCount'] ?? 0,
       sharesCount: map['sharesCount'] ?? 0,
@@ -39,7 +41,6 @@ class PostModel {
     );
   }
 
-  // لتحويل الكائن إلى خريطة لحفظه في Firestore
   Map<String, dynamic> toMap() {
     return {
       'title': title,
@@ -47,6 +48,7 @@ class PostModel {
       'imageUrl': imageUrl,
       'authorName': authorName,
       'authorImage': authorImage,
+      'authorRole': authorRole, // ⬅️ جديد
       'createdAt': createdAt.toIso8601String(),
       'viewsCount': viewsCount,
       'sharesCount': sharesCount,

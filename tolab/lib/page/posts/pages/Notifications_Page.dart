@@ -1,6 +1,6 @@
 // lib/Features/notifications/pages/notifications_page.dart
 
-// ignore_for_file: unnecessary_underscores
+// ignore_for_file: deprecated_member_use, unnecessary_underscores
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -29,9 +29,10 @@ class NotificationsPage extends StatelessWidget {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Center(child: Text("حدث خطأ"));
+            return const Center(child: Text("حدث خطأ أثناء تحميل الإشعارات"));
           }
-          if (!snapshot.hasData) {
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -47,21 +48,39 @@ class NotificationsPage extends StatelessWidget {
           }
 
           return ListView.separated(
-            itemCount: notifications.length,
             padding: const EdgeInsets.all(16),
-            separatorBuilder: (_, __) =>
-                Divider(color: isDark ? Colors.grey[700] : Colors.grey[300]),
+            itemCount: notifications.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final notif = notifications[index];
+
+              IconData icon;
+              Color iconColor;
+
+              switch (notif.type) {
+                case 'post':
+                  icon = FontAwesomeIcons.solidNewspaper;
+                  iconColor = Colors.blueAccent;
+                  break;
+                case 'file':
+                  icon = FontAwesomeIcons.fileAlt;
+                  iconColor = Colors.green;
+                  break;
+                case 'update':
+                  icon = FontAwesomeIcons.solidBell;
+                  iconColor = Colors.orange;
+                  break;
+                default:
+                  icon = FontAwesomeIcons.infoCircle;
+                  iconColor = Colors.grey;
+              }
+
               return ListTile(
                 tileColor: isDark ? Colors.grey[900] : Colors.grey[100],
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                leading: FaIcon(
-                  FontAwesomeIcons.solidBell,
-                  color: isDark ? Colors.amberAccent : const Color(0xFF0D14D9),
-                ),
+                leading: FaIcon(icon, color: iconColor),
                 title: Text(
                   notif.title,
                   style: TextStyle(
@@ -76,7 +95,6 @@ class NotificationsPage extends StatelessWidget {
                   ),
                 ),
                 onTap: () {
-                  // التنقل حسب نوع الإشعار
                   if (notif.type == 'post') {
                     Navigator.pushNamed(
                       context,

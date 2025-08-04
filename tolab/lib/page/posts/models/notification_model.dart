@@ -1,5 +1,3 @@
-// lib/Features/notifications/models/notification_model.dart
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AppNotification {
@@ -7,7 +5,7 @@ class AppNotification {
   final String title;
   final String content;
   final String type; // post, file, update
-  final String referenceId; // ID للبوست أو الملف
+  final String referenceId;
   final DateTime timestamp;
 
   AppNotification({
@@ -26,7 +24,9 @@ class AppNotification {
       content: data['content'] ?? '',
       type: data['type'] ?? '',
       referenceId: data['referenceId'] ?? '',
-      timestamp: (data['timestamp'] as Timestamp).toDate(),
+      timestamp: data['timestamp'] is Timestamp
+          ? (data['timestamp'] as Timestamp).toDate()
+          : data['timestamp'] as DateTime,
     );
   }
 
@@ -39,4 +39,24 @@ class AppNotification {
       'timestamp': timestamp,
     };
   }
+
+  // Optional for HTTP/JSON APIs
+  factory AppNotification.fromJson(Map<String, dynamic> json) =>
+      AppNotification(
+        id: json['id'] ?? '',
+        title: json['title'] ?? '',
+        content: json['content'] ?? '',
+        type: json['type'] ?? '',
+        referenceId: json['referenceId'] ?? '',
+        timestamp: DateTime.parse(json['timestamp']),
+      );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'title': title,
+    'content': content,
+    'type': type,
+    'referenceId': referenceId,
+    'timestamp': timestamp.toIso8601String(),
+  };
 }

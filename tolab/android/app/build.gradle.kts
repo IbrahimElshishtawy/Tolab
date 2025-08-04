@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.tolab"
-        minSdk = 23
+        minSdk = 21
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

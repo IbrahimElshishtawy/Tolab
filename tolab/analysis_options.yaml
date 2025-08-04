@@ -13,6 +13,7 @@ analyzer:
     strict_top_level_inference: ignore
     file_names: ignore
     unnecessary_import: ignore
+    avoid_function_literals_in_foreach_calls: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:
