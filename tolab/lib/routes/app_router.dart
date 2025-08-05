@@ -19,8 +19,8 @@ import 'package:tolab/page/posts/pages/Edit_Post_Page.dart';
 import 'package:tolab/page/posts/pages/Notifications_Page.dart';
 
 // صفحات المحادثات الجماعية
-import 'package:tolab/page/chat/groups/pages/create_group_page.dart';
-import 'package:tolab/page/chat/groups/pages/group_chat_page.dart';
+import 'package:tolab/page/chat/chat/pages/create_group_page.dart';
+import 'package:tolab/page/chat/chat/pages/group_chat_page.dart';
 
 // صفحات الشات
 import 'package:tolab/page/chat/home/home_chat_page.dart';

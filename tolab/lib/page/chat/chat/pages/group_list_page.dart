@@ -2,7 +2,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:tolab/page/chat/groups/widget/group_tile.dart';
+import 'package:tolab/page/chat/chat/widget/group_tile.dart';
 
 class GroupListPage extends StatefulWidget {
   const GroupListPage({super.key});

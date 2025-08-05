@@ -18,7 +18,7 @@ dependencies:
   file_picker: ^10.2.0
   fluttertoast: ^8.2.12
   app_links: ^6.4.0
-  firebase_core: ^3.1.0
+  firebase_core: ^4.0.0
   firebase_auth: ^6.0.0
   cloud_firestore: ^6.0.0
   mailer: ^6.4.1

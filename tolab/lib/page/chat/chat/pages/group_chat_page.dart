@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:tolab/page/chat/groups/widget/message_bubble.dart';
+import 'package:tolab/page/chat/chat/widget/message_bubble.dart';
 
 class GroupChatPage extends StatefulWidget {
   final String groupId;
