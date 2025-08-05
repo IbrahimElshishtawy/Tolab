@@ -2,10 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:flutter/cupertino.dart';
-import 'package:tolab/page/auth/widgets/Role_Details_Cubit.dart';
-import 'package:tolab/page/auth/widgets/role_details_state.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:tolab/core/config/User_Provider.dart';
+
+import 'package:tolab/page/auth/widgets/role/Role_Details_Cubit.dart';
+import 'package:tolab/page/auth/widgets/role/role_details_state.dart';
 
 class RoleDetailsForm extends StatefulWidget {
   final String role;
@@ -55,18 +58,25 @@ class _RoleDetailsFormState extends State<RoleDetailsForm> {
     return BlocProvider(
       create: (_) => RoleDetailsCubit(),
       child: BlocConsumer<RoleDetailsCubit, RoleDetailsState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is RoleDetailsError) {
             _showMessage(state.message, isError: true);
           } else if (state is RoleDetailsSuccess) {
             _showMessage("تم الحفظ بنجاح ✅");
-            Future.delayed(const Duration(seconds: 1), () {
-              if (mounted) {
-                Navigator.of(
-                  context,
-                ).pushNamedAndRemoveUntil('/home', (_) => false);
-              }
-            });
+
+            // تحديث بيانات المستخدم والدور في UserProvider
+            final user = FirebaseAuth.instance.currentUser;
+            if (user != null) {
+              context.read<UserProvider>().setUser(user);
+              context.read<UserProvider>().setRole(widget.role); // حفظ الدور
+            }
+
+            await Future.delayed(const Duration(seconds: 1));
+            if (mounted) {
+              Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil('/home', (_) => false);
+            }
           }
         },
         builder: (context, state) {
@@ -101,7 +111,6 @@ class _RoleDetailsFormState extends State<RoleDetailsForm> {
                       ),
                     ),
                     const SizedBox(height: 20),
-
                     Text("الرقم القومي", style: TextStyle(color: textColor)),
                     const SizedBox(height: 8),
                     TextFormField(
@@ -126,7 +135,6 @@ class _RoleDetailsFormState extends State<RoleDetailsForm> {
                       ),
                     ),
                     const SizedBox(height: 20),
-
                     if (widget.role == "Student") ...[
                       Text(
                         "السنة الدراسية",
@@ -153,7 +161,6 @@ class _RoleDetailsFormState extends State<RoleDetailsForm> {
                         ),
                       ),
                       const SizedBox(height: 20),
-
                       Text("القسم", style: TextStyle(color: textColor)),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
@@ -175,7 +182,6 @@ class _RoleDetailsFormState extends State<RoleDetailsForm> {
                       ),
                       const SizedBox(height: 20),
                     ],
-
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(

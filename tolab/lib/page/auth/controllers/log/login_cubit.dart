@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:tolab/core/config/User_Provider.dart';
-import 'package:tolab/page/auth/controllers/login_state.dart';
+import 'package:tolab/page/auth/controllers/log/login_state.dart';
 import 'package:tolab/page/auth/controllers/src/google_sign_in_service.dart';
 
 class LoginCubit extends Cubit<LoginState> {

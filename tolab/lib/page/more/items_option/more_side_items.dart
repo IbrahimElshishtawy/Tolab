@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tolab/page/auth/controllers/login_controller.dart';
+import 'package:tolab/page/auth/controllers/log/login_controller.dart';
 
 class MoreSideItems extends StatelessWidget {
   const MoreSideItems({super.key});

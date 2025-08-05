@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:tolab/page/auth/controllers/register_cubit.dart';
-import 'package:tolab/page/auth/controllers/register_state.dart';
+import 'package:tolab/page/auth/controllers/register/register_cubit.dart';
+import 'package:tolab/page/auth/controllers/register/register_state.dart';
 
 class RegisterFields extends StatelessWidget {
   const RegisterFields({super.key});

@@ -32,4 +32,9 @@ class UserProvider with ChangeNotifier {
     }
     notifyListeners();
   }
+
+  void setRole(String newRole) {
+    _role = newRole;
+    notifyListeners();
+  }
 }

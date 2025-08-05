@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tolab/page/auth/controllers/login_cubit.dart';
-import 'package:tolab/page/auth/widgets/login_form.dart';
+import 'package:tolab/page/auth/controllers/log/login_cubit.dart';
+import 'package:tolab/page/auth/widgets/log/login_form.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});

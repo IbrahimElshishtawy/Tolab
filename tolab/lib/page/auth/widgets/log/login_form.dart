@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tolab/page/auth/controllers/login_cubit.dart';
-import 'package:tolab/page/auth/controllers/login_state.dart';
+import 'package:tolab/page/auth/controllers/log/login_cubit.dart';
+import 'package:tolab/page/auth/controllers/log/login_state.dart';
 import 'package:tolab/page/auth/controllers/src/google_sign_in_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 

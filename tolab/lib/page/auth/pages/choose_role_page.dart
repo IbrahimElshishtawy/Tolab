@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:tolab/page/auth/widgets/Role_Details_Form.dart';
+import 'package:tolab/page/auth/widgets/role/Role_Details_Form.dart';
 
 class ChooseRolePage extends StatelessWidget {
   const ChooseRolePage({super.key});

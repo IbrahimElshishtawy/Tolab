@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:tolab/core/config/User_Provider.dart';
-import 'package:tolab/page/auth/controllers/login_controller.dart';
+import 'package:tolab/page/auth/controllers/log/login_controller.dart';
 import 'package:tolab/page/posts/controllers/post_controllers.dart';
 
 import 'package:tolab/page/settings/app_theme.dart';
