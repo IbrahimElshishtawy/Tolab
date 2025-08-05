@@ -11,7 +11,7 @@ class ForgotPasswordPage extends StatefulWidget {
 class _ForgotPasswordPage extends State<ForgotPasswordPage> {
   final TextEditingController emailController = TextEditingController();
   bool isEmailValidFormat = false;
-  bool? isEmailExists; // null: لم يتم التحقق، true: موجود، false: غير موجود
+  bool? isEmailExists;
   String? message;
 
   void checkEmail(String email) async {
@@ -27,7 +27,7 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
       final exists = await FirebaseCheck.checkEmailExists(email);
       setState(() {
         isEmailExists = exists;
-        message = exists ? null : '⚠️ البريد غير مسجل لدينا.';
+        message = exists ? "✅ البريد الإلكتروني موجود" : "❌ البريد غير موجود";
       });
     }
   }
@@ -40,25 +40,19 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
       return;
     }
 
-    if (isEmailExists == false || isEmailExists == null) {
+    if (isEmailExists != true) {
       setState(() => message = '❌ هذا البريد غير مسجل.');
       return;
     }
 
-    try {
-      await FirebaseCheck.sendResetPassword(email);
-      setState(
-        () => message = '✅ تم إرسال رابط استعادة كلمة المرور إلى بريدك.',
-      );
-    } catch (e) {
-      setState(() => message = '❌ حدث خطأ أثناء الإرسال، حاول لاحقًا.');
-    }
+    final result = await FirebaseCheck.sendResetPassword(email);
+    setState(() {
+      message = result ?? '✅ تم إرسال رابط الاستعادة إلى بريدك.';
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
       appBar: AppBar(title: const Text('إعادة تعيين كلمة المرور')),
       body: Padding(
