@@ -6,6 +6,8 @@ class HomeViewModel extends ChangeNotifier {
 
   final PageController pageController = PageController(initialPage: 2);
 
+  get selectedSubjectId => null;
+
   void onPageChanged(int index, VoidCallback openMorePanel) {
     if (index == 4) {
       pageController.animateToPage(
