@@ -7,6 +7,7 @@ import 'package:tolab/core/config/User_Provider.dart';
 import 'package:tolab/page/auth/controllers/log/login_controller.dart';
 import 'package:tolab/page/posts/controllers/post_controllers.dart';
 import 'package:tolab/page/settings/app_theme.dart';
+import 'package:tolab/page/subject/ui/subject/Subject_View_Model.dart';
 import 'package:tolab/routes/app_router.dart';
 import 'package:tolab/page/splash/page/splash_page.dart';
 
@@ -52,6 +53,9 @@ class TolabApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => LoginController()),
         ChangeNotifierProvider(create: (_) => PostsController()..fetchPosts()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(
+          create: (_) => SubjectViewModel(subjectId: '...'),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
