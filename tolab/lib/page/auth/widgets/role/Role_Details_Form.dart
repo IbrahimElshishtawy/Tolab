@@ -1,5 +1,7 @@
 // lib/ui/role_details_form.dart
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -56,10 +58,11 @@ class _RoleDetailsFormState extends State<RoleDetailsForm> {
               await context.read<UserProvider>().setUser(user);
             }
             await Future.delayed(const Duration(seconds: 1));
-            if (mounted)
+            if (mounted) {
               Navigator.of(
                 context,
               ).pushNamedAndRemoveUntil('/home', (_) => false);
+            }
           }
         },
         builder: (context, state) {
