@@ -6,8 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tolab/page/chat/home/home_chat_page.dart';
 import 'package:tolab/page/more/ui/More_Options_Sheet.dart';
 import 'package:tolab/page/posts/pages/posts_page.dart';
-import 'package:tolab/page/subject/ui/subject/Subject_View_Model.dart';
-import 'package:tolab/page/subject/ui/subject/subject_page.dart';
+
 import 'home_view_model.dart';
 
 class HomePage extends StatelessWidget {
