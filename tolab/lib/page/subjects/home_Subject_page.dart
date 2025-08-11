@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tolab/page/subjects/presentation/domain/models/subject_view_model.dart';
 import 'package:tolab/page/subjects/subject_page.dart';
 
 class HomeSubjectPage extends StatefulWidget {
