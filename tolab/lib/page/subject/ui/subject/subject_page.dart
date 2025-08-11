@@ -63,14 +63,6 @@ class _SubjectPageState extends State<SubjectPage>
           LinksTab(subjectId: widget.subjectId),
         ],
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   backgroundColor: accent,
-      //   onPressed: () {
-      //     final index = _tabController.index;
-      //     viewModel.onFabPressed(index);
-      //   },
-      //   child: const Icon(Icons.add),
-      // ),
     );
   }
 }
