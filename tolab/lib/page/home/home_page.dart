@@ -6,8 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tolab/page/chat/home/home_chat_page.dart';
 import 'package:tolab/page/more/ui/More_Options_Sheet.dart';
 import 'package:tolab/page/posts/pages/posts_page.dart';
-import 'package:tolab/page/subjects/presentation/domain/models/subject_view_model.dart';
-import 'package:tolab/page/subjects/subject_page.dart';
+import 'package:tolab/page/subjects/home_Subject_page.dart';
 
 import 'home_view_model.dart';
 
@@ -54,13 +53,7 @@ class HomePage extends StatelessWidget {
               (MediaQuery.of(context).size.width - 40) / icons.length;
 
           final pages = [
-            ChangeNotifierProvider(
-              create: (_) =>
-                  SubjectViewModel(viewModel.selectedSubjectId ?? 'defaultId'),
-              child: SubjectPage(
-                subjectId: viewModel.selectedSubjectId ?? 'defaultId',
-              ),
-            ),
+            const HomeSubjectPage(),
 
             const HomeChatPage(),
             const PostsPage(),

@@ -4,17 +4,24 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tolab/core/config/User_Provider.dart';
+import 'package:tolab/core/utils/network_service.dart';
 import 'package:tolab/page/auth/controllers/log/login_controller.dart';
 import 'package:tolab/page/posts/controllers/post_controllers.dart';
 import 'package:tolab/page/settings/app_theme.dart';
 import 'package:tolab/page/subjects/presentation/domain/models/subject_view_model.dart';
-
 import 'package:tolab/routes/app_router.dart';
 import 'package:tolab/page/splash/page/splash_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  final bool hasInternet = await NetworkService.checkInternetConnection();
+
+  if (!hasInternet) {
+    runApp(const NoInternetScreen());
+    return;
+  }
 
   final User? user = FirebaseAuth.instance.currentUser;
   final bool isLoggedIn = user != null && user.emailVerified;
@@ -65,6 +72,25 @@ class TolabApp extends StatelessWidget {
         onGenerateRoute: AppRouter.generateRoute,
         onUnknownRoute: (settings) =>
             MaterialPageRoute(builder: (_) => const SplashScreen()),
+      ),
+    );
+  }
+}
+
+/// شاشة في حالة عدم وجود إنترنت
+class NoInternetScreen extends StatelessWidget {
+  const NoInternetScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Text(
+            "❌ لا يوجد اتصال بالإنترنت",
+            style: TextStyle(fontSize: 20),
+          ),
+        ),
       ),
     );
   }

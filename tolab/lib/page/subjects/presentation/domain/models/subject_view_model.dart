@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:tolab/page/subjects/presentation/domain/models/detail_section.dart';
 import 'package:tolab/page/subjects/presentation/domain/models/exam.dart';
 import 'package:tolab/page/subjects/presentation/domain/models/lecture.dart';
@@ -8,9 +7,12 @@ import 'package:tolab/page/subjects/presentation/domain/models/subject.dart';
 import 'package:tolab/page/subjects/presentation/domain/models/link_model.dart';
 
 class SubjectViewModel extends ChangeNotifier {
-  final String subjectId;
-  SubjectViewModel(this.subjectId);
+  String? _subjectId;
 
+  // 📌 قائمة كل المواد
+  List<Subject> subjects = [];
+
+  // 📌 تفاصيل مادة واحدة
   Subject? subject;
   List<Lecture> lectures = [];
   List<Exam> exams = [];
@@ -19,27 +21,66 @@ class SubjectViewModel extends ChangeNotifier {
 
   bool isLoading = false;
 
-  Future<void> fetchSubjects() async {
+  SubjectViewModel([String? subjectId]) {
+    if (subjectId != null) {
+      setSubjectId(subjectId);
+    }
+  }
+
+  void setSubjectId(String subjectId) {
+    _subjectId = subjectId;
+    fetchSubjectDetails();
+  }
+
+  /// 1️⃣ جلب كل المواد
+  Future<void> fetchAllSubjects() async {
+    try {
+      isLoading = true;
+      notifyListeners();
+
+      final snapshot = await FirebaseFirestore.instance
+          .collection('subjects')
+          .get();
+
+      subjects = snapshot.docs
+          .map((doc) => Subject.fromMap(doc.data(), doc.id))
+          .toList();
+
+      isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      isLoading = false;
+      notifyListeners();
+      if (kDebugMode) {
+        print("❌ Error loading subjects list: $e");
+      }
+    }
+  }
+
+  /// 2️⃣ جلب تفاصيل مادة واحدة
+  Future<void> fetchSubjectDetails() async {
+    if (_subjectId == null) return;
+
     try {
       isLoading = true;
       notifyListeners();
 
       final firestore = FirebaseFirestore.instance;
 
-      // 1️⃣ جلب بيانات المادة نفسها
+      // جلب بيانات المادة
       final subjectDoc = await firestore
           .collection('subjects')
-          .doc(subjectId)
+          .doc(_subjectId)
           .get();
 
       if (subjectDoc.exists) {
         subject = Subject.fromMap(subjectDoc.data()!, subjectDoc.id);
       }
 
-      // 2️⃣ جلب المحاضرات الخاصة بالمادة
+      // جلب المحاضرات
       final lecturesSnapshot = await firestore
           .collection('subjects')
-          .doc(subjectId)
+          .doc(_subjectId)
           .collection('lectures')
           .orderBy('date', descending: true)
           .get();
@@ -48,10 +89,10 @@ class SubjectViewModel extends ChangeNotifier {
           .map((doc) => Lecture.fromMap(doc.data(), doc.id))
           .toList();
 
-      // 3️⃣ جلب الامتحانات
+      // جلب الامتحانات
       final examsSnapshot = await firestore
           .collection('subjects')
-          .doc(subjectId)
+          .doc(_subjectId)
           .collection('exams')
           .orderBy('date', descending: true)
           .get();
@@ -60,10 +101,10 @@ class SubjectViewModel extends ChangeNotifier {
           .map((doc) => Exam.fromMap(doc.data(), doc.id))
           .toList();
 
-      // 4️⃣ جلب الروابط
+      // جلب الروابط
       final linksSnapshot = await firestore
           .collection('subjects')
-          .doc(subjectId)
+          .doc(_subjectId)
           .collection('links')
           .get();
 
@@ -71,10 +112,10 @@ class SubjectViewModel extends ChangeNotifier {
           .map((doc) => LinkModel.fromMap(doc.data(), doc.id))
           .toList();
 
-      // 5️⃣ جلب التفاصيل
+      // جلب التفاصيل
       final detailsSnapshot = await firestore
           .collection('subjects')
-          .doc(subjectId)
+          .doc(_subjectId)
           .collection('details')
           .get();
 
@@ -85,11 +126,13 @@ class SubjectViewModel extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     } catch (e) {
-      if (kDebugMode) {
-        print("❌ Error loading subject data: $e");
-      }
       isLoading = false;
       notifyListeners();
+      if (kDebugMode) {
+        print("❌ Error loading subject details: $e");
+      }
     }
   }
+
+  void fetchSubjects() {}
 }

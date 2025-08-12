@@ -35,6 +35,8 @@ class _SubjectPageState extends State<SubjectPage>
         title: const Text("صفحة المادة"),
         bottom: TabBar(
           controller: _tabController,
+          labelColor: Colors.white,
+          indicatorColor: Colors.white,
           tabs: const [
             Tab(text: "المحاضرات"),
             Tab(text: "التفاصيل"),
@@ -45,11 +47,12 @@ class _SubjectPageState extends State<SubjectPage>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [LecturesTab(), DetailsTab(), ExamsTab(), LinksTab()],
+        children: const [LecturesTab(), DetailsTab(), ExamsTab(), LinksTab()],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // إضافة ملف جديد
+          // TODO: إضافة ملف جديد
+          debugPrint("إضافة عنصر جديد");
         },
         child: const Icon(Icons.add),
       ),

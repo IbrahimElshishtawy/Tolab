@@ -84,12 +84,8 @@ class ProfilePage extends StatelessWidget {
 
             const SizedBox(height: 32),
 
-            _buildProfileButton(context, "تعديل البيانات", Icons.edit, () {
-              // TODO: تنقل لصفحة التعديل
-            }),
-            _buildProfileButton(context, "عرض النتيجة", Icons.school, () {
-              // TODO: عرض النتائج
-            }),
+            _buildProfileButton(context, "تعديل البيانات", Icons.edit, () {}),
+            _buildProfileButton(context, "عرض النتيجة", Icons.school, () {}),
           ],
         ),
       ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tolab/page/subjects/presentation/domain/models/subject.dart';
+
 import 'package:tolab/page/subjects/presentation/domain/models/subject_view_model.dart';
 import 'package:tolab/page/subjects/subject_page.dart';
 
@@ -34,9 +34,9 @@ class _HomeSubjectPageState extends State<HomeSubjectPage> {
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 10,
               ),
-              itemCount: viewModel.subject?.length,
+              itemCount: viewModel.subjects.length,
               itemBuilder: (context, index) {
-                final subject = viewModel.subject?[index];
+                final subject = viewModel.subjects[index];
                 return GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -97,8 +97,4 @@ class _HomeSubjectPageState extends State<HomeSubjectPage> {
             ),
     );
   }
-}
-
-extension on Subject? {
-  operator [](int other) {}
 }
