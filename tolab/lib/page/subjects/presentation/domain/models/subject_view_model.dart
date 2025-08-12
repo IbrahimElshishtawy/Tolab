@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../models/subject.dart';
-import '../models/lecture.dart';
-import '../models/exam.dart';
-import '../models/link_model.dart';
-import '../models/detail_section.dart';
+import 'package:tolab/page/subjects/presentation/domain/models/detail_section.dart';
+import 'package:tolab/page/subjects/presentation/domain/models/exam.dart';
+import 'package:tolab/page/subjects/presentation/domain/models/lecture.dart';
+import 'package:tolab/page/subjects/presentation/domain/models/subject.dart';
+import 'package:tolab/page/subjects/presentation/domain/models/link_model.dart';
 
 class SubjectViewModel extends ChangeNotifier {
   final String subjectId;
@@ -17,41 +19,77 @@ class SubjectViewModel extends ChangeNotifier {
 
   bool isLoading = false;
 
-  Future<void> loadSubjectData() async {
-    isLoading = true;
-    notifyListeners();
+  Future<void> fetchSubjects() async {
+    try {
+      isLoading = true;
+      notifyListeners();
 
-    await Future.delayed(const Duration(seconds: 1)); // محاكاة تحميل البيانات
+      final firestore = FirebaseFirestore.instance;
 
-    subject = Subject(
-      id: subjectId,
-      title: "برمجة متقدمة",
-      teacherName: "د. أحمد",
-      fileCount: 5,
-    );
+      // 1️⃣ جلب بيانات المادة نفسها
+      final subjectDoc = await firestore
+          .collection('subjects')
+          .doc(subjectId)
+          .get();
 
-    lectures = [
-      Lecture(id: 'l1', title: "المحاضرة الأولى", fileUrl: "link1.pdf"),
-      Lecture(id: 'l2', title: "المحاضرة الثانية", fileUrl: "link2.pdf"),
-    ];
+      if (subjectDoc.exists) {
+        subject = Subject.fromMap(subjectDoc.data()!, subjectDoc.id);
+      }
 
-    exams = [
-      Exam(id: 'e1', title: "امتحان منتصف الترم", fileUrl: "midterm.pdf"),
-    ];
+      // 2️⃣ جلب المحاضرات الخاصة بالمادة
+      final lecturesSnapshot = await firestore
+          .collection('subjects')
+          .doc(subjectId)
+          .collection('lectures')
+          .orderBy('date', descending: true)
+          .get();
 
-    links = [
-      LinkModel(
-        id: 'link1',
-        title: "الموقع الرسمي",
-        url: "https://example.com",
-      ),
-    ];
+      lectures = lecturesSnapshot.docs
+          .map((doc) => Lecture.fromMap(doc.data(), doc.id))
+          .toList();
 
-    details = [
-      DetailSection(title: "الوصف", content: "هذه مادة متقدمة في البرمجة..."),
-    ];
+      // 3️⃣ جلب الامتحانات
+      final examsSnapshot = await firestore
+          .collection('subjects')
+          .doc(subjectId)
+          .collection('exams')
+          .orderBy('date', descending: true)
+          .get();
 
-    isLoading = false;
-    notifyListeners();
+      exams = examsSnapshot.docs
+          .map((doc) => Exam.fromMap(doc.data(), doc.id))
+          .toList();
+
+      // 4️⃣ جلب الروابط
+      final linksSnapshot = await firestore
+          .collection('subjects')
+          .doc(subjectId)
+          .collection('links')
+          .get();
+
+      links = linksSnapshot.docs
+          .map((doc) => LinkModel.fromMap(doc.data(), doc.id))
+          .toList();
+
+      // 5️⃣ جلب التفاصيل
+      final detailsSnapshot = await firestore
+          .collection('subjects')
+          .doc(subjectId)
+          .collection('details')
+          .get();
+
+      details = detailsSnapshot.docs
+          .map((doc) => DetailSection.fromMap(doc.data(), doc.id))
+          .toList();
+
+      isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        print("❌ Error loading subject data: $e");
+      }
+      isLoading = false;
+      notifyListeners();
+    }
   }
 }

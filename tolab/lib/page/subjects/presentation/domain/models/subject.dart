@@ -20,6 +20,8 @@ class Subject {
     );
   }
 
+  get length => null;
+
   Map<String, dynamic> toMap() {
     return {'name': name, 'teacher': teacher, 'imageUrl': imageUrl};
   }
