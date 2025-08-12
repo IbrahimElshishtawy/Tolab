@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:tolab/page/subjects/presentation/domain/models/subject_view_model.dart';
 import 'package:tolab/page/subjects/subject_page.dart';
+import 'package:tolab/core/config/User_Provider.dart'; // لجلب بيانات المستخدم
 
 class HomeSubjectPage extends StatefulWidget {
   const HomeSubjectPage({super.key});
@@ -21,9 +22,26 @@ class _HomeSubjectPageState extends State<HomeSubjectPage> {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<SubjectViewModel>(context);
+    final userProvider = Provider.of<UserProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('المواد'), centerTitle: true),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text('المواد'),
+        centerTitle: true,
+        actions: [
+          if (userProvider.role == "doctor" || userProvider.role == "assistant")
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AddSubjectPage()),
+                );
+              },
+            ),
+        ],
+      ),
       body: viewModel.isLoading
           ? const Center(child: CircularProgressIndicator())
           : GridView.builder(
