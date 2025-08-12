@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:tolab/models/subject_model.dart';
 
 class GetSubjectDetails {
@@ -14,7 +15,9 @@ class GetSubjectDetails {
       }
       return null;
     } catch (e) {
-      print('Error fetching subject details: $e');
+      if (kDebugMode) {
+        print('Error fetching subject details: $e');
+      }
       return null;
     }
   }

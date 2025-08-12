@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:tolab/models/subject_model.dart';
 
 class GetSubjects {
@@ -13,7 +14,9 @@ class GetSubjects {
         return SubjectModel.fromJson({'id': doc.id, ...doc.data()});
       }).toList();
     } catch (e) {
-      print('Error fetching subjects: $e');
+      if (kDebugMode) {
+        print('Error fetching subjects: $e');
+      }
       return [];
     }
   }

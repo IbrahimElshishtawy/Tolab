@@ -1,119 +1,111 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:tolab/page/subjects/controller/home_subject_controller.dart';
-
-import 'package:tolab/page/subjects/presentation/domain/models/Add_Subject_Page.dart';
-import 'package:tolab/page/subjects/subject_page.dart';
 import 'package:tolab/page/subjects/presentation/domain/models/subject_view_model.dart';
 
 class HomeSubjectPage extends StatelessWidget {
-  const HomeSubjectPage({super.key});
+  final SubjectViewModel? subjectViewModel;
+
+  const HomeSubjectPage({super.key, this.subjectViewModel});
+
+  // قائمة ألوان متدرجة
+  final List<List<Color>> gradientColors = const [
+    [Colors.blue, Colors.lightBlueAccent],
+    [Colors.green, Colors.lightGreenAccent],
+    [Colors.orange, Colors.deepOrangeAccent],
+    [Colors.purple, Colors.deepPurpleAccent],
+    [Colors.teal, Colors.tealAccent],
+    [Colors.red, Colors.redAccent],
+    [Colors.indigo, Colors.indigoAccent],
+    [Color(0xFF795548), Color(0xFFA1887F)], // بني متدرج
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => HomeSubjectController(
-        Provider.of<SubjectViewModel>(context, listen: false),
-      )..init(),
-      child: Consumer2<HomeSubjectController, SubjectViewModel>(
-        builder: (context, controller, viewModel, child) {
-          if (controller.loading) {
-            return const Center(child: CircularProgressIndicator());
+    return Scaffold(
+      appBar: AppBar(title: const Text('المواد'), centerTitle: true),
+      body: FutureBuilder(
+        future: subjectViewModel?.fetchAllSubjects(),
+        builder: (context, AsyncSnapshot<void> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.blue),
+            );
           }
 
-          return Scaffold(
-            appBar: AppBar(
-              automaticallyImplyLeading: false,
-              title: const Text('المواد'),
-              centerTitle: true,
+          if (subjectViewModel == null || subjectViewModel!.subjects.isEmpty) {
+            return const Center(child: Text('لا توجد مواد حالياً'));
+          }
+
+          return GridView.builder(
+            padding: const EdgeInsets.all(12),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 0.9,
             ),
-            body: viewModel.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : GridView.builder(
-                    padding: const EdgeInsets.all(12),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 3 / 4,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                        ),
-                    itemCount: viewModel.subjects.length,
-                    itemBuilder: (context, index) {
-                      final subject = viewModel.subjects[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  SubjectPage(subjectId: subject.id),
-                            ),
-                          );
-                        },
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 4,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Expanded(
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(12),
-                                  ),
-                                  child: Image.network(
-                                    subject.imageUrl,
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            const Icon(Icons.book, size: 50),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      subject.name,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      subject.teacher,
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
+            itemCount: subjectViewModel!.subjects.length,
+            itemBuilder: (context, index) {
+              final subject = subjectViewModel!.subjects[index]; // حماية إضافية
+
+              final colors = gradientColors[index % gradientColors.length];
+
+              return Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: colors,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-            floatingActionButton: controller.isTeacher
-                ? FloatingActionButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const AddSubjectPage(),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // اسم المادة بخط كبير
+                    Text(
+                      subject.name,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // اسم الدكتور
+                    Text(
+                      // ignore: unnecessary_null_comparison
+                      subject.teacher != null
+                          ? 'د. ${subject.teacher}'
+                          : 'دكتور غير معروف',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.white70,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // شريط التقدم
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: LinearProgressIndicator(
+                        value: (subject.progress).clamp(0.0, 1.0),
+                        minHeight: 8,
+                        backgroundColor: Colors.white24,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          Colors.white,
                         ),
-                      );
-                    },
-                    child: const Icon(Icons.add),
-                  )
-                : null,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${((subject.progress) * 100).toStringAsFixed(0)}%',
+                      style: const TextStyle(fontSize: 14, color: Colors.white),
+                    ),
+                  ],
+                ),
+              );
+            },
           );
         },
       ),
