@@ -12,7 +12,7 @@ class HomeSubjectController extends ChangeNotifier {
 
   Future<void> init() async {
     await _checkUserRole();
-    subjectViewModel.fetchSubjects();
+    subjectViewModel.fetchAllSubjects();
   }
 
   Future<void> _checkUserRole() async {

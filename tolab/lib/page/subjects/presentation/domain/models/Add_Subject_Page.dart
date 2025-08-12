@@ -1,8 +1,7 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 import 'package:tolab/models/subject_model.dart';
+import 'package:tolab/page/subjects/presentation/domain/models/subject_view_model.dart';
 
 class AddSubjectPage extends StatefulWidget {
   const AddSubjectPage({super.key});
@@ -23,11 +22,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
       setState(() => _isLoading = true);
 
       try {
-        // إنشاء ID تلقائي للمادة
-        final String id = FirebaseFirestore.instance
-            .collection('subjects')
-            .doc()
-            .id;
+        final id = DateTime.now().millisecondsSinceEpoch.toString();
 
         SubjectModel newSubject = SubjectModel(
           id: id,
@@ -36,10 +31,10 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
           progress: _progress,
         );
 
-        await FirebaseFirestore.instance
-            .collection('subjects')
-            .doc(id)
-            .set(newSubject.toJson());
+        await Provider.of<SubjectViewModel>(
+          context,
+          listen: false,
+        ).addSubject(newSubject);
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("تم إضافة المادة بنجاح ✅")),

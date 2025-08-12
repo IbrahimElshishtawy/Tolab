@@ -3,12 +3,16 @@ class Subject {
   final String name;
   final String teacher;
   final String imageUrl;
+  final String description;
+  final double progress;
 
   Subject({
     required this.id,
     required this.name,
     required this.teacher,
     required this.imageUrl,
+    this.description = '',
+    this.progress = 0.0,
   });
 
   factory Subject.fromMap(Map<String, dynamic> data, String documentId) {
@@ -17,12 +21,18 @@ class Subject {
       name: data['name'] ?? '',
       teacher: data['teacher'] ?? '',
       imageUrl: data['imageUrl'] ?? '',
+      description: data['description'] ?? '',
+      progress: (data['progress'] ?? 0.0).toDouble(),
     );
   }
 
-  get length => null;
-
   Map<String, dynamic> toMap() {
-    return {'name': name, 'teacher': teacher, 'imageUrl': imageUrl};
+    return {
+      'name': name,
+      'teacher': teacher,
+      'imageUrl': imageUrl,
+      'description': description,
+      'progress': progress,
+    };
   }
 }
