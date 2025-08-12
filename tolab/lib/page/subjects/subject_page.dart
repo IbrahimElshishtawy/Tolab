@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:tolab/page/subjects/presentation/tabs/details_tab.dart';
+import 'package:tolab/page/subjects/presentation/tabs/exams_tab.dart';
+import 'package:tolab/page/subjects/presentation/tabs/lectures_tab.dart';
+import 'package:tolab/page/subjects/presentation/tabs/links_tab.dart';
 
 class SubjectPage extends StatefulWidget {
   final String subjectId;
@@ -41,12 +45,7 @@ class _SubjectPageState extends State<SubjectPage>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          LecturesTab(subjectId: widget.subjectId),
-          DetailsTab(subjectId: widget.subjectId),
-          ExamsTab(subjectId: widget.subjectId),
-          LinksTab(subjectId: widget.subjectId),
-        ],
+        children: [LecturesTab(), DetailsTab(), ExamsTab(), LinksTab()],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

@@ -54,9 +54,7 @@ class TolabApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => LoginController()),
         ChangeNotifierProvider(create: (_) => PostsController()..fetchPosts()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
-        ChangeNotifierProvider(
-          create: (_) => SubjectViewModel(subjectId: '...'),
-        ),
+        ChangeNotifierProvider(create: (_) => SubjectViewModel("defaultId")),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

@@ -1,12 +1,12 @@
-class SubjectLink {
+class LinkModel {
   final String id;
   final String title;
   final String url;
 
-  SubjectLink({required this.id, required this.title, required this.url});
+  LinkModel({required this.id, required this.title, required this.url});
 
-  factory SubjectLink.fromMap(Map<String, dynamic> data, String documentId) {
-    return SubjectLink(
+  factory LinkModel.fromMap(Map<String, dynamic> data, String documentId) {
+    return LinkModel(
       id: documentId,
       title: data['title'] ?? '',
       url: data['url'] ?? '',

@@ -55,7 +55,8 @@ class HomePage extends StatelessWidget {
 
           final pages = [
             ChangeNotifierProvider(
-              create: (_) => SubjectViewModel(),
+              create: (_) =>
+                  SubjectViewModel(viewModel.selectedSubjectId ?? 'defaultId'),
               child: SubjectPage(
                 subjectId: viewModel.selectedSubjectId ?? 'defaultId',
               ),
