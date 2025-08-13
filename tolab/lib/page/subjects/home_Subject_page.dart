@@ -1,131 +1,136 @@
-import 'dart:ui';
+// ignore_for_file: use_super_parameters, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tolab/models/subject_model.dart';
 import 'package:tolab/page/subjects/presentation/viewmodel/subject_view_model.dart';
+import 'package:tolab/page/subjects/subject_page.dart';
 
 class HomeSubjectPage extends StatelessWidget {
-  final SubjectViewModel? subjectViewModel;
-  const HomeSubjectPage({Key? key, this.subjectViewModel}) : super(key: key);
-
-  final List<List<Color>> gradientColors = const [
-    [Colors.blue, Colors.lightBlueAccent],
-    [Colors.green, Colors.lightGreenAccent],
-    [Colors.orange, Colors.deepOrangeAccent],
-    [Colors.purple, Colors.deepPurpleAccent],
-    [Colors.teal, Colors.tealAccent],
-    [Colors.red, Colors.redAccent],
-    [Colors.indigo, Colors.indigoAccent],
-    [Color(0xFF795548), Color(0xFFA1887F)],
-  ];
+  const HomeSubjectPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('المواد'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              _showAddSubjectDialog(context);
-            },
-          ),
-        ],
-      ),
-      body: FutureBuilder(
-        future: subjectViewModel?.fetchSubjects(),
-        builder: (context, AsyncSnapshot<void> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(color: Colors.blue),
-            );
+    return ChangeNotifierProvider(
+      create: (_) => SubjectViewModel()..fetchSubjects(),
+      child: Consumer<SubjectViewModel>(
+        builder: (context, vm, _) {
+          if (vm.isLoading) {
+            return const Center(child: CircularProgressIndicator());
           }
 
-          if (subjectViewModel == null || subjectViewModel!.subjects.isEmpty) {
-            return const Center(child: Text('لا توجد مواد حالياً'));
-          }
-
-          return GridView.builder(
-            padding: const EdgeInsets.all(12),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 0.9,
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('المواد'),
+              centerTitle: true,
+              automaticallyImplyLeading: false,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () => _showAddSubjectDialog(context, vm),
+                ),
+              ],
             ),
-            itemCount: subjectViewModel!.subjects.length,
-            itemBuilder: (context, index) {
-              final subject = subjectViewModel!.subjects[index];
-              final colors = gradientColors[index % gradientColors.length];
-
-              return Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: colors,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.person, size: 40, color: Colors.white),
-                    const SizedBox(height: 8),
-                    Text(
-                      subject.name,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      subject.teacher != null
-                          ? 'د. ${subject.teacher}'
-                          : 'دكتور غير معروف',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.white70,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: LinearProgressIndicator(
-                        value: (subject.progress).clamp(0.0, 1.0),
-                        minHeight: 8,
-                        backgroundColor: Colors.white24,
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                          Colors.white,
+            body: vm.subjects.isEmpty
+                ? const Center(child: Text('لا توجد مواد حالياً'))
+                : GridView.builder(
+                    padding: const EdgeInsets.all(12),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 0.9,
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      '${((subject.progress) * 100).toStringAsFixed(0)}%',
-                      style: const TextStyle(fontSize: 14, color: Colors.white),
-                    ),
-                  ],
-                ),
-              );
-            },
+                    itemCount: vm.subjects.length,
+                    itemBuilder: (context, index) {
+                      final subject = vm.subjects[index];
+
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SubjectPage(
+                                subjectId: subject.id,
+                              ), // تمرير الـ id
+                            ),
+                          );
+                        },
+
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.blue.withOpacity(0.6),
+                                Colors.transparent,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                subject.name,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                (subject.teacher != null &&
+                                        subject.teacher!.isNotEmpty)
+                                    ? 'د. ${subject.teacher}'
+                                    : 'دكتور غير معروف',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: LinearProgressIndicator(
+                                  value: subject.progress.clamp(0.0, 1.0),
+                                  minHeight: 8,
+                                  backgroundColor: Colors.white24,
+                                  valueColor:
+                                      const AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                '${((subject.progress) * 100).toStringAsFixed(0)}%',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
           );
         },
       ),
     );
   }
 
-  // Dialog لإضافة مادة جديدة
-  void _showAddSubjectDialog(BuildContext context) {
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController descriptionController = TextEditingController();
-    final TextEditingController teacherController = TextEditingController();
+  void _showAddSubjectDialog(BuildContext context, SubjectViewModel vm) {
+    final nameController = TextEditingController();
+    final teacherController = TextEditingController();
+    final descriptionController = TextEditingController();
     double progress = 0.0;
 
     showDialog(
@@ -143,6 +148,17 @@ class HomeSubjectPage extends StatelessWidget {
               controller: teacherController,
               decoration: const InputDecoration(labelText: 'اسم الدكتور'),
             ),
+            TextField(
+              controller: descriptionController,
+              decoration: const InputDecoration(labelText: 'وصف المادة'),
+            ),
+            Slider(
+              value: progress,
+              onChanged: (value) => progress = value,
+              min: 0,
+              max: 1,
+            ),
+            Text("نسبة التقدم: ${(progress * 100).toStringAsFixed(0)}%"),
           ],
         ),
         actions: [
@@ -151,23 +167,20 @@ class HomeSubjectPage extends StatelessWidget {
             child: const Text('إلغاء'),
           ),
           ElevatedButton(
-            onPressed: () {
-              if (subjectViewModel != null &&
-                  nameController.text.isNotEmpty &&
+            onPressed: () async {
+              if (nameController.text.isNotEmpty &&
                   teacherController.text.isNotEmpty) {
                 final newSubject = SubjectModel(
                   id: DateTime.now().millisecondsSinceEpoch.toString(),
                   name: nameController.text.trim(),
                   description: descriptionController.text.trim(),
-                  progress: progress, // متغير double موجود لديك
-                  teacher: teacherController.text.trim(),
+                  progress: progress,
+                  teacher: teacherController.text.trim().isNotEmpty
+                      ? teacherController.text.trim()
+                      : 'غير معروف',
                 );
-
-                subjectViewModel!.addSubject(
-                  newSubject,
-                ); // ✅ تمرير SubjectModel
+                await vm.addSubject(newSubject);
               }
-
               Navigator.pop(context);
             },
             child: const Text('إضافة'),

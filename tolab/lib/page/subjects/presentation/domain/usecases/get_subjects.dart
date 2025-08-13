@@ -7,11 +7,20 @@ class GetSubjects {
 
   GetSubjects({required this.firestore});
 
+  /// 🔹 جلب كل المواد
   Future<List<SubjectModel>> call() async {
     try {
       final snapshot = await firestore.collection('subjects').get();
+
       return snapshot.docs.map((doc) {
-        return SubjectModel.fromJson({'id': doc.id, ...doc.data()});
+        final data = doc.data();
+        return SubjectModel.fromJson({
+          'id': doc.id,
+          'name': data['name'] ?? '',
+          'teacher': data['teacher'] ?? '',
+          'description': data['description'] ?? '',
+          'progress': (data['progress'] ?? 0.0).toDouble(),
+        }, doc.id);
       }).toList();
     } catch (e) {
       if (kDebugMode) {

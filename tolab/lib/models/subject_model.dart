@@ -12,13 +12,14 @@ class SubjectModel {
     required String teacher,
   });
 
-  factory SubjectModel.fromJson(Map<String, dynamic> json) => SubjectModel(
-    id: json['id'],
-    name: json['name'],
-    description: json['description'],
-    progress: (json['progress'] as num).toDouble(),
-    teacher: '',
-  );
+  factory SubjectModel.fromJson(Map<String, dynamic> json, String id) =>
+      SubjectModel(
+        id: json['id'],
+        name: json['name'],
+        description: json['description'],
+        progress: (json['progress'] as num).toDouble(),
+        teacher: '',
+      );
 
   get teacher => null;
 
