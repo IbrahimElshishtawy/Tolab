@@ -77,7 +77,6 @@ class TolabApp extends StatelessWidget {
   }
 }
 
-/// شاشة في حالة عدم وجود إنترنت
 class NoInternetScreen extends StatelessWidget {
   const NoInternetScreen({super.key});
 

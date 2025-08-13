@@ -9,6 +9,7 @@ class SubjectModel {
     required this.name,
     required this.description,
     required this.progress,
+    required String teacher,
   });
 
   factory SubjectModel.fromJson(Map<String, dynamic> json) => SubjectModel(

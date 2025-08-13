@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tolab/models/subject_model.dart';
 import 'package:tolab/page/subjects/presentation/domain/models/subject_view_model.dart';
+import 'package:tolab/page/subjects/presentation/viewmodel/subject_view_model.dart';
 
 class AddSubjectPage extends StatefulWidget {
   const AddSubjectPage({super.key});
@@ -16,6 +17,8 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _teacherController =
+      TextEditingController(); // ← إضافة
   double _progress = 0.0;
   bool _isLoading = false;
 
@@ -31,6 +34,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
           name: _nameController.text.trim(),
           description: _descriptionController.text.trim(),
           progress: _progress,
+          teacher: _teacherController.text.trim(), // ← إضافة الدكتور
         );
 
         await Provider.of<SubjectViewModel>(
@@ -38,12 +42,16 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
           listen: false,
         ).addSubject(newSubject);
 
+        // تحقق أن الصفحة لا تزال موجودة قبل التعامل مع context
+        if (!mounted) return;
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("تم إضافة المادة بنجاح ✅")),
         );
 
         Navigator.pop(context);
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("خطأ أثناء الإضافة: $e")));
@@ -66,6 +74,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
           key: _formKey,
           child: ListView(
             children: [
+              // حقل اسم المادة
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
@@ -76,6 +85,8 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                     value == null || value.isEmpty ? "أدخل اسم المادة" : null,
               ),
               const SizedBox(height: 16),
+
+              // حقل وصف المادة
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 3,
@@ -87,6 +98,20 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                     value == null || value.isEmpty ? "أدخل وصف المادة" : null,
               ),
               const SizedBox(height: 16),
+
+              // حقل اسم الدكتور/المعيد
+              TextFormField(
+                controller: _teacherController,
+                decoration: const InputDecoration(
+                  labelText: "اسم الدكتور/المعيد",
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) =>
+                    value == null || value.isEmpty ? "أدخل اسم الدكتور" : null,
+              ),
+              const SizedBox(height: 16),
+
+              // شريط نسبة التقدم
               Text("نسبة التقدم: ${(_progress * 100).toStringAsFixed(0)}%"),
               Slider(
                 value: _progress,
@@ -97,6 +122,8 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                 },
               ),
               const SizedBox(height: 16),
+
+              // زر الإضافة أو مؤشر التحميل
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton.icon(

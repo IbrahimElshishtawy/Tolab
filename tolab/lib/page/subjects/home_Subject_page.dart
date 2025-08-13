@@ -1,12 +1,13 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:tolab/page/subjects/presentation/domain/models/subject_view_model.dart';
+import 'package:tolab/page/subjects/presentation/viewmodel/subject_view_model.dart';
 
 class HomeSubjectPage extends StatelessWidget {
   final SubjectViewModel? subjectViewModel;
 
   const HomeSubjectPage({super.key, this.subjectViewModel});
 
-  // قائمة ألوان متدرجة
   final List<List<Color>> gradientColors = const [
     [Colors.blue, Colors.lightBlueAccent],
     [Colors.green, Colors.lightGreenAccent],
@@ -15,13 +16,24 @@ class HomeSubjectPage extends StatelessWidget {
     [Colors.teal, Colors.tealAccent],
     [Colors.red, Colors.redAccent],
     [Colors.indigo, Colors.indigoAccent],
-    [Color(0xFF795548), Color(0xFFA1887F)], // بني متدرج
+    [Color(0xFF795548), Color(0xFFA1887F)],
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('المواد'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('المواد'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              _showAddSubjectDialog(context);
+            },
+          ),
+        ],
+      ),
       body: FutureBuilder(
         future: subjectViewModel?.fetchAllSubjects(),
         builder: (context, AsyncSnapshot<void> snapshot) {
@@ -45,8 +57,7 @@ class HomeSubjectPage extends StatelessWidget {
             ),
             itemCount: subjectViewModel!.subjects.length,
             itemBuilder: (context, index) {
-              final subject = subjectViewModel!.subjects[index]; // حماية إضافية
-
+              final subject = subjectViewModel!.subjects[index];
               final colors = gradientColors[index % gradientColors.length];
 
               return Container(
@@ -62,7 +73,8 @@ class HomeSubjectPage extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // اسم المادة بخط كبير
+                    const Icon(Icons.person, size: 40, color: Colors.white),
+                    const SizedBox(height: 8),
                     Text(
                       subject.name,
                       textAlign: TextAlign.center,
@@ -73,9 +85,7 @@ class HomeSubjectPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    // اسم الدكتور
                     Text(
-                      // ignore: unnecessary_null_comparison
                       subject.teacher != null
                           ? 'د. ${subject.teacher}'
                           : 'دكتور غير معروف',
@@ -85,7 +95,6 @@ class HomeSubjectPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // شريط التقدم
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: LinearProgressIndicator(
@@ -108,6 +117,49 @@ class HomeSubjectPage extends StatelessWidget {
             },
           );
         },
+      ),
+    );
+  }
+
+  // Dialog لإضافة مادة جديدة
+  void _showAddSubjectDialog(BuildContext context) {
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController teacherController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('إضافة مادة جديدة'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'اسم المادة'),
+            ),
+            TextField(
+              controller: teacherController,
+              decoration: const InputDecoration(labelText: 'اسم الدكتور'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (subjectViewModel != null &&
+                  nameController.text.isNotEmpty &&
+                  teacherController.text.isNotEmpty) {
+                subjectViewModel!.addSubject();
+              }
+              Navigator.pop(context);
+            },
+            child: const Text('إضافة'),
+          ),
+        ],
       ),
     );
   }

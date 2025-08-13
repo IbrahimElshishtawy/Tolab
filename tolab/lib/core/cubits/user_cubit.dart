@@ -14,10 +14,10 @@ class UserCubit extends Cubit<UserState> {
       if (user != null) {
         emit(UserLoaded(user));
       } else {
-        emit(UserError("لم يتم العثور على المستخدم"));
+        emit(UserError("not user found"));
       }
     } catch (e) {
-      emit(UserError("حدث خطأ أثناء تحميل المستخدم"));
+      emit(UserError("error upload data user"));
     }
   }
 
