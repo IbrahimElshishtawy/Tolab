@@ -1,7 +1,10 @@
+// ignore_for_file: unused_import
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tolab/page/subjects/presentation/domain/models/subject_view_model.dart';
+import 'package:tolab/page/subjects/presentation/viewmodel/subject_view_model.dart';
 
 class HomeSubjectController extends ChangeNotifier {
   final SubjectViewModel subjectViewModel;

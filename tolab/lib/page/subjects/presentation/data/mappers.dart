@@ -10,6 +10,7 @@ class SubjectMapper {
       name: data['name'] ?? '',
       description: data['description'] ?? '',
       progress: (data['progress'] ?? 0).toDouble(),
+      teacher: '',
     );
   }
 

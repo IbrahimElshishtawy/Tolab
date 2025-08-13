@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tolab/models/subject_model.dart';
-import 'package:tolab/page/subjects/presentation/domain/models/subject_view_model.dart';
 import 'package:tolab/page/subjects/presentation/viewmodel/subject_view_model.dart';
 
 class AddSubjectPage extends StatefulWidget {

@@ -1,12 +1,12 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:tolab/models/subject_model.dart';
 import 'package:tolab/page/subjects/presentation/viewmodel/subject_view_model.dart';
 
 class HomeSubjectPage extends StatelessWidget {
   final SubjectViewModel? subjectViewModel;
-
-  const HomeSubjectPage({super.key, this.subjectViewModel});
+  const HomeSubjectPage({Key? key, this.subjectViewModel}) : super(key: key);
 
   final List<List<Color>> gradientColors = const [
     [Colors.blue, Colors.lightBlueAccent],
@@ -35,7 +35,7 @@ class HomeSubjectPage extends StatelessWidget {
         ],
       ),
       body: FutureBuilder(
-        future: subjectViewModel?.fetchAllSubjects(),
+        future: subjectViewModel?.fetchSubjects(),
         builder: (context, AsyncSnapshot<void> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -124,7 +124,9 @@ class HomeSubjectPage extends StatelessWidget {
   // Dialog لإضافة مادة جديدة
   void _showAddSubjectDialog(BuildContext context) {
     final TextEditingController nameController = TextEditingController();
+    final TextEditingController descriptionController = TextEditingController();
     final TextEditingController teacherController = TextEditingController();
+    double progress = 0.0;
 
     showDialog(
       context: context,
@@ -153,8 +155,19 @@ class HomeSubjectPage extends StatelessWidget {
               if (subjectViewModel != null &&
                   nameController.text.isNotEmpty &&
                   teacherController.text.isNotEmpty) {
-                subjectViewModel!.addSubject();
+                final newSubject = SubjectModel(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  name: nameController.text.trim(),
+                  description: descriptionController.text.trim(),
+                  progress: progress, // متغير double موجود لديك
+                  teacher: teacherController.text.trim(),
+                );
+
+                subjectViewModel!.addSubject(
+                  newSubject,
+                ); // ✅ تمرير SubjectModel
               }
+
               Navigator.pop(context);
             },
             child: const Text('إضافة'),

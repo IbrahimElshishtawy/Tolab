@@ -17,6 +17,7 @@ class SubjectModel {
     name: json['name'],
     description: json['description'],
     progress: (json['progress'] as num).toDouble(),
+    teacher: '',
   );
 
   get teacher => null;

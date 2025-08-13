@@ -68,4 +68,6 @@ class SubjectViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void fetchAllSubjects() {}
 }
