@@ -1,4 +1,4 @@
-// features/auth/presentation/cubit/auth_state.dart
+// features/auth/presentation/bloc/auth_state.dart
 
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/user.dart';
