@@ -1,89 +1,128 @@
-// ignore_for_file: dead_code
+// features/auth/presentation/pages/login_page.dart
 
-import 'package:eduhub/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 
-class LoginPage extends StatefulWidget {
+import '../bloc/auth_bloc.dart';
+import '../bloc/auth_state.dart';
+import '../bloc/auth_event.dart';
+import '../widgets/login_form.dart';
+
+class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-  final _emailController = TextEditingController(text: 'admin@center.com');
-  final _passwordController = TextEditingController(text: '123456');
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is Authenticated) {
-            final role = state.user.role;
-            if (role == 'admin') {
-              context.goNamed(RouteNames.adminDashboard);
-            } else if (role == 'teacher') {
-              context.goNamed(RouteNames.teacherHome);
-            } else if (role == 'student') {
-              context.goNamed(RouteNames.studentHome);
-            } else if (role == 'parent') {
-              context.goNamed(RouteNames.parentDashboard);
-            }
-          } else if (state is AuthError) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
-          }
-        },
-        builder: (context, state) {
-          final isLoading = state is AuthLoading;
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: BlocConsumer<AuthBloc, AuthState>(
+            listener: (context, state) {
+              if (state is AuthError) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(state.message)));
+              }
 
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                TextField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Password'),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: isLoading
-                      ? null
-                      : () {
-                          context.read<AuthBloc>().add(
-                            LoginRequested(
-                              _emailController.text.trim(),
-                              _passwordController.text.trim(),
+              // if (state is Authenticated) {
+              //   final role = state.user.role;
+              //   if (role == 'admin') {
+              //    Navigator.pushReplacementNamed(context, '/adminDashboard');
+              //    }
+              //   else if (role == 'teacher') {
+              //     Navigator.pushReplacementNamed(context, '/teacherDashboard');
+              //    }
+              //   else if (role == 'student') {
+              //     Navigator.pushReplacementNamed(context, '/studentDashboard');
+              //    }
+              //   else if (role == 'parent') {
+              //     Navigator.pushReplacementNamed(context, '/parentDashboard');
+              //    }
+              // }
+            },
+            builder: (context, state) {
+              final bool isLoading = state is AuthLoading;
+
+              final size = MediaQuery.of(context).size;
+              final bottomPadding = MediaQuery.of(context).padding.bottom;
+
+              return Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: SizedBox(
+                      height: size.height * 0.45,
+                      width: double.infinity,
+                      child: Lottie.asset(
+                        'assets/lottie/login_sky.json',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(32),
+                          topRight: Radius.circular(32),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 12,
+                            offset: const Offset(0, -4),
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.fromLTRB(
+                        24,
+                        32,
+                        24,
+                        24 + bottomPadding,
+                      ),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const Center(
+                              child: Text(
+                                'تسجيل الدخول',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
-                          );
-                        },
-                  child: isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text('Login'),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'جرب:\n'
-                  'admin@center.com / 123456 (مدير)\n'
-                  'teacher@center.com / 123456 (مدرس)\n'
-                  'student@center.com / 123456 (طالب)\n'
-                  'parent@center.com / 123456 (ولي أمر)',
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          );
-        },
+                            const SizedBox(height: 24),
+
+                            // الفورم
+                            LoginForm(
+                              isLoading: isLoading,
+                              onSubmit: (email, password, rememberMe) {
+                                context.read<AuthBloc>().add(
+                                  LoginRequested(email, password),
+                                );
+                                // TODO: لو عايز تستخدم rememberMe في الـ LocalStorage بعدين
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
       ),
     );
   }
