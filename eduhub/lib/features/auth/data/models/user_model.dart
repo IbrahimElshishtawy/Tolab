@@ -1,3 +1,5 @@
+import 'package:eduhub/features/auth/domain/entities/user.dart';
+
 class UserModel {
   final String id;
   final String fullname;
@@ -12,3 +14,10 @@ class UserModel {
 }
 
 // mdel user using dart
+
+extension UserModelMapper on UserModel {
+  UserEntity toEntity() {
+    return UserEntity(id: id, fullName: fullname, email: email, role: role);
+  }
+}
+//3.1. Mapper لـ Entity
