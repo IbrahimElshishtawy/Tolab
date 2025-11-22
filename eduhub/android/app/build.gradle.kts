@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.example.eduhub"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "21.3.6528147"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
