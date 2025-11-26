@@ -15,21 +15,21 @@ class _SplashDesktopState extends State<SplashDesktop>
     with TickerProviderStateMixin {
   bool _navigated = false;
 
-  // Animation للـ Fade + Scale (الدخول)
   late final AnimationController _introController;
   late final Animation<double> _fadeAnimation;
   late final Animation<double> _scaleAnimation;
 
-  // Animation للـ Pulse Glow
   late final AnimationController _pulseController;
-  late final Animation<double> _pulseScale; // يكبر/يصغر بسيط
+  late final Animation<double> _pulseScale;
 
   @override
   void initState() {
     super.initState();
+
+    // Intro animation
     _introController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1100),
     );
 
     _fadeAnimation = CurvedAnimation(
@@ -41,16 +41,21 @@ class _SplashDesktopState extends State<SplashDesktop>
       parent: _introController,
       curve: Curves.easeOutBack,
     );
+
     _introController.forward();
+
+    // Pulse scale only (بدون شادو)
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
       lowerBound: 0.0,
       upperBound: 1.0,
     )..repeat(reverse: true);
-    _pulseScale = Tween<double>(begin: 0.96, end: 1.06).animate(
+
+    _pulseScale = Tween<double>(begin: 0.95, end: 1.05).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+
     // Backup timeout
     Future.delayed(const Duration(seconds: 6), _navigateIfNeeded);
   }
@@ -74,7 +79,7 @@ class _SplashDesktopState extends State<SplashDesktop>
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // ========= FULL SCREEN LOTTIE BACKGROUND =========
+          // ========= FULLSCREEN LOTTIE BACKGROUND =========
           Positioned.fill(
             child: Lottie.asset(
               'assets/lottiefiles/Universo-header-latech.json',
@@ -86,7 +91,7 @@ class _SplashDesktopState extends State<SplashDesktop>
             ),
           ),
 
-          // ========= CENTER CONTENT WITH ANIMATION =========
+          // ========= MAIN CONTENT =========
           Center(
             child: FadeTransition(
               opacity: _fadeAnimation,
@@ -95,40 +100,28 @@ class _SplashDesktopState extends State<SplashDesktop>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // ====== LOGO WITH PULSE GLOW ======
+                    // ====== MAIN LOADING LOTTIE (بدون شادو) ======
                     AnimatedBuilder(
                       animation: _pulseController,
                       builder: (context, child) {
-                        final pulseValue = _pulseController.value;
                         return Transform.scale(
                           scale: _pulseScale.value,
-                          child: Container(
-                            width: 150,
-                            height: 150,
-                            decoration: BoxDecoration(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(40),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.blueAccent.withOpacity(
-                                    0.25 + 0.25 * pulseValue,
-                                  ),
-                                  blurRadius: 30 + 20 * pulseValue,
-                                  spreadRadius: 3 + 2 * pulseValue,
-                                ),
-                              ],
-                            ),
-                            clipBehavior: Clip.antiAlias,
+                          child: SizedBox(
+                            width: 200,
+                            height: 200,
                             child: child,
                           ),
                         );
                       },
-                      child: Image.asset(
-                        'assets/icons/logo.jpg',
+                      child: Lottie.asset(
+                        'assets/lottiefiles/Loading.json',
                         fit: BoxFit.contain,
+                        repeat: true,
                       ),
                     ),
-                    const SizedBox(height: 24),
+
+                    const SizedBox(height: 14),
+
                     const Text(
                       'EduHuB',
                       style: TextStyle(
@@ -144,17 +137,6 @@ class _SplashDesktopState extends State<SplashDesktop>
                     const Text(
                       'Smart College Platform',
                       style: TextStyle(color: Colors.white70, fontSize: 16),
-                    ),
-
-                    const SizedBox(height: 30),
-
-                    SizedBox(
-                      width: 240,
-                      child: LinearProgressIndicator(
-                        minHeight: 4,
-                        color: const Color(0xFF22C55E),
-                        backgroundColor: Colors.white24,
-                      ),
                     ),
                   ],
                 ),
