@@ -1,44 +1,30 @@
-import 'dart:ui';
-
+// lib/main.dart
 import 'package:eduhub/router/app_routes..dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(EduHubApp());
+  runApp(const TolabApp());
 }
 
-class EduHubApp extends StatelessWidget {
-  const EduHubApp({super.key});
+class TolabApp extends StatelessWidget {
+  const TolabApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'EduHub',
+    return MaterialApp(
+      title: 'Tolab',
       debugShowCheckedModeBanner: false,
-      routerConfig: AppRoutes.router,
-      builder: (context, child) {
-        return ScrollConfiguration(
-          behavior: const _AppScrollBehavior(),
-          child: child!,
-        );
-      },
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(255, 34, 50, 197),
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFF020617),
+        fontFamily: 'Roboto',
+      ),
+      initialRoute: AppRoutes.splash,
+      onGenerateRoute: AppRouter.onGenerateRoute,
     );
   }
-}
-
-class _AppScrollBehavior extends ScrollBehavior {
-  const _AppScrollBehavior();
-
-  @override
-  ScrollPhysics getScrollPhysics(BuildContext context) {
-    return const ClampingScrollPhysics();
-  }
-
-  @override
-  Set<PointerDeviceKind> get dragDevices => {
-    PointerDeviceKind.touch,
-    PointerDeviceKind.mouse,
-    PointerDeviceKind.trackpad,
-    PointerDeviceKind.stylus,
-  };
 }
