@@ -1,15 +1,26 @@
-import 'package:eduhub/spa/Splach_screen.dart';
-
-import 'package:go_router/go_router.dart';
+// lib/router/app_routes.dart
+import 'package:flutter/material.dart';
+import '../spa/Splach_screen.dart';
+import 'package:eduhub/apps/tolab_student_desktop/lib/src/dashboard/layouts/student_desktop_home_page.dart';
 
 class AppRoutes {
-  static final GoRouter router = GoRouter(
-    initialLocation: "/splash",
-    routes: [
-      GoRoute(
-        path: "/splash",
-        builder: (context, state) => const Splashscreen(),
-      ),
-    ],
-  );
+  static const String splash = '/';
+  static const String studentDesktopHome = '/student/desktop/home';
+}
+
+class AppRouter {
+  static Route<dynamic> onGenerateRoute(RouteSettings settings) {
+    switch (settings.name) {
+      case AppRoutes.splash:
+        return MaterialPageRoute(builder: (_) => const Splashscreen());
+
+      case AppRoutes.studentDesktopHome:
+        return MaterialPageRoute(
+          builder: (_) => const StudentDesktopHomePage(),
+        );
+
+      default:
+        return MaterialPageRoute(builder: (_) => const Splashscreen());
+    }
+  }
 }
