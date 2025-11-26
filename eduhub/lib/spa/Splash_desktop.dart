@@ -15,65 +15,95 @@ class _SplashDesktopState extends State<SplashDesktop> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 4), _navigateIfNeeded);
+    // Backup timeout
+    Future.delayed(const Duration(seconds: 6), _navigateIfNeeded);
   }
 
   void _navigateIfNeeded() {
     if (_navigated || !mounted) return;
 
     _navigated = true;
-    Navigator.of(context).pushReplacementNamed(AppRoutes.studentDesktopHome);
+    Navigator.pushReplacementNamed(context, AppRoutes.studentDesktopHome);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF020617),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // ========== LOTTIE ANIMATION ==========
-            SizedBox(
-              width: 260,
-              height: 260,
-              child: Lottie.asset(
-                'assets/lottie/tolab_desktop_splash.json',
-                onLoaded: (composition) {
-                  Future.delayed(composition.duration * 0.9, _navigateIfNeeded);
-                },
-              ),
+      backgroundColor: Colors.black, // لو اللوتي شفاف
+      body: Stack(
+        children: [
+          // ===== FULL SCREEN LOTTIE ANIMATION =====
+          Positioned.fill(
+            child: Lottie.asset(
+              'assets/lottiefiles/Universo-header-latech.json',
+              fit: BoxFit.cover,
+              onLoaded: (composition) {
+                // ننتقل عندما تقترب الأنيميشن من الانتهاء
+                Future.delayed(composition.duration * 0.95, _navigateIfNeeded);
+              },
             ),
+          ),
 
-            const SizedBox(height: 24),
+          // ===== OVERLAY CONTENT (center logo + texts) =====
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Logo Image
+                Container(
+                  width: 130,
+                  height: 130,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black87,
+                        blurRadius: 20,
+                        spreadRadius: 4,
+                      ),
+                    ],
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Image.asset(
+                    'assets/icons/iconapp.jpg',
+                    fit: BoxFit.cover,
+                  ),
+                ),
 
-            const Text(
-              'TOLAB DESKTOP',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 26,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.4,
-              ),
+                const SizedBox(height: 20),
+
+                const Text(
+                  'TOLAB DESKTOP',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.4,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                const Text(
+                  'Smart College Platform',
+                  style: TextStyle(color: Colors.white70, fontSize: 16),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Progress bar
+                SizedBox(
+                  width: 200,
+                  child: LinearProgressIndicator(
+                    minHeight: 3,
+                    color: Color(0xFF22C55E),
+                    backgroundColor: Colors.white24,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            const Text(
-              'Smart College Platform',
-              style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 14),
-            ),
-
-            const SizedBox(height: 24),
-
-            SizedBox(
-              width: 200,
-              child: LinearProgressIndicator(
-                minHeight: 3,
-                color: const Color(0xFF22C55E),
-                backgroundColor: Colors.white10,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
