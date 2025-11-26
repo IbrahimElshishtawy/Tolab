@@ -1,6 +1,9 @@
-import 'package:eduhub/spa/Splash_desktop.dart';
-import 'package:flutter/material.dart';
+// ignore_for_file: file_names
+
 import 'dart:io';
+import 'package:flutter/material.dart';
+
+import 'splash_desktop.dart';
 import 'splash_mobile.dart';
 
 class Splashscreen extends StatelessWidget {
@@ -9,15 +12,15 @@ class Splashscreen extends StatelessWidget {
   bool get _isDesktop {
     try {
       return Platform.isWindows || Platform.isLinux || Platform.isMacOS;
-    } catch (e) {
-      return false; // في حالة Web
+    } catch (_) {
+      return false;
     }
   }
 
   bool get _isMobile {
     try {
       return Platform.isAndroid || Platform.isIOS;
-    } catch (e) {
+    } catch (_) {
       return false;
     }
   }
