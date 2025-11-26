@@ -68,6 +68,7 @@ flutter:
     - assets/lottiefiles/Universo-header-latech.json
     - assets/icons/logo.jpg
     - assets/icons/logo-horizontal.png
+    - assets/lottiefiles/Loading.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
