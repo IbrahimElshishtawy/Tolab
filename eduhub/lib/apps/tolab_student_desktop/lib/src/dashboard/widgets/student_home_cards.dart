@@ -1,5 +1,8 @@
+// lib/apps/tolab_student_desktop/lib/src/dashboard/widgets/student_home_cards.dart
+
 import 'package:flutter/material.dart';
 
+/// نموذج بسيط لعنصر (محاضرة / كويز)
 class ScheduleItem {
   final String title;
   final String subtitle;
@@ -13,7 +16,7 @@ class ScheduleItem {
 }
 
 // عينات بيانات – لاحقاً تجي من backend
-List<ScheduleItem> sampleLectures() {
+List<ScheduleItem> _sampleLectures() {
   final now = DateTime.now();
   return [
     ScheduleItem(
@@ -29,7 +32,7 @@ List<ScheduleItem> sampleLectures() {
   ];
 }
 
-List<ScheduleItem> sampleQuizzes() {
+List<ScheduleItem> _sampleQuizzes() {
   final now = DateTime.now();
   return [
     ScheduleItem(
@@ -45,35 +48,49 @@ List<ScheduleItem> sampleQuizzes() {
   ];
 }
 
-// ============ Widgets ============
+// ================= Account Details Card =================
 
 class AccountDetailsCard extends StatelessWidget {
   final String studentName;
   final String department;
   final String academicYear;
+  final String studentCode;
+  final String email;
+  final String gpa;
+  final String status;
 
   const AccountDetailsCard({
     super.key,
     required this.studentName,
     required this.department,
     required this.academicYear,
+    required this.studentCode,
+    required this.email,
+    required this.gpa,
+    required this.status,
   });
 
   @override
   Widget build(BuildContext context) {
-    return _CardShell(
+    return CardShell(
       title: 'Account details',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _DetailRow(label: 'Student name', value: studentName),
-          _DetailRow(label: 'Department', value: department),
-          _DetailRow(label: 'Academic year', value: academicYear),
+          DetailRow(label: 'Student name', value: studentName),
+          DetailRow(label: 'Student ID', value: studentCode),
+          DetailRow(label: 'Department', value: department),
+          DetailRow(label: 'Academic year', value: academicYear),
+          DetailRow(label: 'Email', value: email),
+          DetailRow(label: 'Current GPA', value: gpa),
+          DetailRow(label: 'Status', value: status),
         ],
       ),
     );
   }
 }
+
+// ================= Upcoming Lectures =================
 
 class UpcomingLecturesCard extends StatelessWidget {
   final DateTime selectedDay;
@@ -82,7 +99,7 @@ class UpcomingLecturesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lectures = sampleLectures()
+    final lectures = _sampleLectures()
         .where(
           (l) =>
               l.dateTime.year == selectedDay.year &&
@@ -91,7 +108,7 @@ class UpcomingLecturesCard extends StatelessWidget {
         )
         .toList();
 
-    return _CardShell(
+    return CardShell(
       title: 'Upcoming online lectures',
       child: lectures.isEmpty
           ? const Text(
@@ -101,7 +118,7 @@ class UpcomingLecturesCard extends StatelessWidget {
           : Column(
               children: [
                 for (final l in lectures) ...[
-                  _ListItemRow(
+                  ListItemRow(
                     title: l.title,
                     subtitle: l.subtitle,
                     trailing:
@@ -115,6 +132,8 @@ class UpcomingLecturesCard extends StatelessWidget {
   }
 }
 
+// ================= Upcoming Quizzes =================
+
 class UpcomingQuizzesCard extends StatelessWidget {
   final DateTime selectedDay;
 
@@ -122,7 +141,7 @@ class UpcomingQuizzesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final quizzes = sampleQuizzes()
+    final quizzes = _sampleQuizzes()
         .where(
           (q) =>
               q.dateTime.year == selectedDay.year &&
@@ -131,7 +150,7 @@ class UpcomingQuizzesCard extends StatelessWidget {
         )
         .toList();
 
-    return _CardShell(
+    return CardShell(
       title: 'Upcoming online quizzes',
       child: quizzes.isEmpty
           ? const Text(
@@ -141,7 +160,7 @@ class UpcomingQuizzesCard extends StatelessWidget {
           : Column(
               children: [
                 for (final q in quizzes) ...[
-                  _ListItemRow(
+                  ListItemRow(
                     title: q.title,
                     subtitle: q.subtitle,
                     trailing:
@@ -154,6 +173,8 @@ class UpcomingQuizzesCard extends StatelessWidget {
     );
   }
 }
+
+// ================= Day Calendar =================
 
 class DayCalendarCard extends StatelessWidget {
   final DateTime selectedDay;
@@ -174,13 +195,13 @@ class DayCalendarCard extends StatelessWidget {
 
     const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-    return _CardShell(
+    return CardShell(
       title: 'Day calendar',
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           for (var i = 0; i < days.length; i++)
-            _CalendarDayItem(
+            CalendarDayItem(
               label: dayNames[i],
               date: days[i],
               isSelected: _isSameDate(days[i], selectedDay),
@@ -196,13 +217,67 @@ class DayCalendarCard extends StatelessWidget {
   }
 }
 
-// ============ عناصر داخلية ============
+class CalendarDayItem extends StatelessWidget {
+  final String label;
+  final DateTime date;
+  final bool isSelected;
+  final VoidCallback onTap;
 
-class _CardShell extends StatelessWidget {
+  const CalendarDayItem({
+    super.key,
+    required this.label,
+    required this.date,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final dayNumber = date.day.toString();
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+          ),
+          const SizedBox(height: 6),
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? const Color(0xFF22C55E)
+                  : const Color(0xFF0F172A),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              dayNumber,
+              style: TextStyle(
+                color: isSelected ? Colors.black : Colors.white,
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ================= Shared Card Shell / Rows =================
+
+class CardShell extends StatelessWidget {
   final String title;
   final Widget child;
 
-  const _CardShell({required this.title, required this.child});
+  const CardShell({super.key, required this.title, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -239,11 +314,11 @@ class _CardShell extends StatelessWidget {
   }
 }
 
-class _DetailRow extends StatelessWidget {
+class DetailRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const _DetailRow({required this.label, required this.value});
+  const DetailRow({super.key, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -274,12 +349,13 @@ class _DetailRow extends StatelessWidget {
   }
 }
 
-class _ListItemRow extends StatelessWidget {
+class ListItemRow extends StatelessWidget {
   final String title;
   final String subtitle;
   final String trailing;
 
-  const _ListItemRow({
+  const ListItemRow({
+    super.key,
     required this.title,
     required this.subtitle,
     required this.trailing,
@@ -323,59 +399,6 @@ class _ListItemRow extends StatelessWidget {
           Text(
             trailing,
             style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 11),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CalendarDayItem extends StatelessWidget {
-  final String label;
-  final DateTime date;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _CalendarDayItem({
-    required this.label,
-    required this.date,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final dayNumber = date.day.toString();
-
-    return InkWell(
-      borderRadius: BorderRadius.circular(999),
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
-          ),
-          const SizedBox(height: 6),
-          Container(
-            width: 30,
-            height: 30,
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? const Color(0xFF22C55E)
-                  : const Color(0xFF0F172A),
-              borderRadius: BorderRadius.circular(999),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              dayNumber,
-              style: TextStyle(
-                color: isSelected ? Colors.black : Colors.white,
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-              ),
-            ),
           ),
         ],
       ),
