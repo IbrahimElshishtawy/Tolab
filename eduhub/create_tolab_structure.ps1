@@ -1,10 +1,13 @@
 # ===========================================
-#  TOLAB PROJECT REFACTOR SCRIPT (FINAL SAFE)
+#  TOLAB PROJECT CLEANUP SCRIPT (DASHBOARD + REGULAR)
+#  - Tries to move remaining content
+#  - Deletes dashboard/regular if they have NO files
+#  - Creates backup before changes
 # ===========================================
 
 $ErrorActionPreference = "SilentlyContinue"
 
-Write-Host "=== Starting TOLAB SAFE REFACTOR ===" -ForegroundColor Cyan
+Write-Host "=== Starting TOLAB CLEANUP ===" -ForegroundColor Cyan
 
 function New-SafeDir {
     param([string]$path)
@@ -12,33 +15,6 @@ function New-SafeDir {
         New-Item -ItemType Directory -Force -Path $path | Out-Null
     }
 }
-
-$scriptDir = Split-Path -Parent $PSCommandPath
-$libRoot   = Join-Path $scriptDir "lib"
-
-if (!(Test-Path $libRoot)) {
-    Write-Host "ERROR: Cannot find 'lib' next to script." -ForegroundColor Red
-    exit
-}
-
-$timestamp  = Get-Date -Format "yyyyMMdd_HHmmss"
-$backupRoot = Join-Path $scriptDir "_backup_$timestamp"
-
-Write-Host "Creating backup: $backupRoot" -ForegroundColor Yellow
-New-SafeDir $backupRoot
-
-Copy-Item (Join-Path $libRoot "apps")     (Join-Path $backupRoot "apps")     -Recurse -Force
-Copy-Item (Join-Path $libRoot "packages") (Join-Path $backupRoot "packages") -Recurse -Force
-
-Write-Host "Backup completed." -ForegroundColor Green
-
-$appNames = @(
-    "tolab_admin_panel",
-    "tolab_doctor_desktop",
-    "tolab_doctor_mobile",
-    "tolab_student_desktop",
-    "tolab_student_mobile"
-)
 
 function Move-Safe {
     param(
@@ -51,9 +27,43 @@ function Move-Safe {
     }
 }
 
+# -------------------------------------------------------------------------
+# Detect project root
+# -------------------------------------------------------------------------
+$scriptDir = Split-Path -Parent $PSCommandPath
+$libRoot   = Join-Path $scriptDir "lib"
+
+if (!(Test-Path $libRoot)) {
+    Write-Host "ERROR: Cannot find 'lib' next to script." -ForegroundColor Red
+    exit
+}
+
+# -------------------------------------------------------------------------
+# Backup (apps only هذه المرة)
+# -------------------------------------------------------------------------
+$timestamp  = Get-Date -Format "yyyyMMdd_HHmmss"
+$backupRoot = Join-Path $scriptDir "_cleanup_backup_$timestamp"
+
+Write-Host "Creating cleanup backup: $backupRoot" -ForegroundColor Yellow
+New-SafeDir $backupRoot
+
+Copy-Item (Join-Path $libRoot "apps") (Join-Path $backupRoot "apps") -Recurse -Force
+
+Write-Host "Backup for cleanup completed." -ForegroundColor Green
+
+# -------------------------------------------------------------------------
+# Apps to process (non-admin)
+# -------------------------------------------------------------------------
+$appNames = @(
+    "tolab_doctor_desktop",
+    "tolab_doctor_mobile",
+    "tolab_student_desktop",
+    "tolab_student_mobile"
+)
+
 foreach ($appName in $appNames) {
 
-    Write-Host "`nProcessing app: $appName" -ForegroundColor Cyan
+    Write-Host "`nProcessing app (cleanup): $appName" -ForegroundColor Cyan
 
     $appSrc = Join-Path $libRoot "apps\$appName\lib\src"
     if (!(Test-Path $appSrc)) {
@@ -61,82 +71,45 @@ foreach ($appName in $appNames) {
         continue
     }
 
-    $corePath          = Join-Path $appSrc "core"
-    $featuresPath      = Join-Path $appSrc "features"
-    $presentationPath  = Join-Path $appSrc "presentation"
-    $presentDesktop    = Join-Path $presentationPath "desktop"
-    $presentMobile     = Join-Path $presentationPath "mobile"
-    $presentShared     = Join-Path $presentationPath "shared"
+    $featuresPath     = Join-Path $appSrc "features"
+    $presentationPath = Join-Path $appSrc "presentation"
+    $presentDesktop   = Join-Path $presentationPath "desktop"
+    $presentMobile    = Join-Path $presentationPath "mobile"
+    $presentShared    = Join-Path $presentationPath "shared"
 
-    foreach ($folder in @($corePath,$featuresPath,$presentationPath,$presentDesktop,$presentMobile,$presentShared)) {
-        New-SafeDir $folder
-    }
+    New-SafeDir $featuresPath
+    New-SafeDir $presentDesktop
+    New-SafeDir $presentMobile
+    New-SafeDir $presentShared
 
-    foreach ($extra in @("theme","utils","api","responsive")) {
-        New-SafeDir (Join-Path $corePath $extra)
-    }
-
-    if ($appName -eq "tolab_admin_panel") {
-
-        Write-Host "Admin Panel: Consolidating core folders..." -ForegroundColor Yellow
-
-        foreach ($f in @("config","local_storage","notifications","services")) {
-            $oldPath = Join-Path $appSrc $f
-            if (Test-Path $oldPath) {
-                Move-Safe $oldPath (Join-Path $corePath $f)
-                Remove-Item $oldPath -Recurse -Force -ErrorAction SilentlyContinue
-            }
-        }
-
-        Write-Host "Admin panel restructuring complete." -ForegroundColor Green
-        continue
-    }
-
-    $platforms         = @("desktop","mobile")
-    $commonTechFolders = @("config","local_storage","notifications","offline","services")
-
-    foreach ($platform in $platforms) {
-
-        $platformRoot = Join-Path $appSrc $platform
-
-        if (!(Test-Path $platformRoot)) { continue }
-
-        Write-Host "Found platform: $platformRoot" -ForegroundColor Yellow
-
-        foreach ($f in $commonTechFolders) {
-            $srcPath = Join-Path $platformRoot $f
-            $dstPath = Join-Path (Join-Path $corePath $f) $platform
-            Move-Safe $srcPath $dstPath
-            Remove-Item $srcPath -Recurse -Force -ErrorAction SilentlyContinue
-        }
-
-        $remaining = @(Get-ChildItem $platformRoot -Recurse -Force)
-        if ($remaining.Count -eq 0) {
-            Remove-Item $platformRoot -Recurse -Force
-        }
-    }
-
+    # ======================== regular/ ===========================
     $regularRoot = Join-Path $appSrc "regular"
     if (Test-Path $regularRoot) {
 
-        Write-Host "Processing regular/ folder..." -ForegroundColor Yellow
+        Write-Host " - Cleaning regular/ ..." -ForegroundColor Yellow
 
         Move-Safe (Join-Path $regularRoot "features") (Join-Path $featuresPath "common")
         Move-Safe (Join-Path $regularRoot "layouts")  (Join-Path $presentShared "layouts")
         Move-Safe (Join-Path $regularRoot "ui")       (Join-Path $presentShared "ui")
         Move-Safe (Join-Path $regularRoot "widgets")  (Join-Path $presentShared "widgets")
 
-        $remaining = @(Get-ChildItem $regularRoot -Recurse -Force)
-        if ($remaining.Count -eq 0) {
+        # Check if regular has any FILES (not just empty dirs)
+        $files = @(Get-ChildItem $regularRoot -Recurse -File -Force)
+        if ($files.Count -eq 0) {
+            Write-Host "   > Removing empty regular/ folder" -ForegroundColor DarkGray
             Remove-Item $regularRoot -Recurse -Force
+        } else {
+            Write-Host "   > regular/ still has files, kept." -ForegroundColor Yellow
         }
     }
 
+    # ======================== dashboard/ ==========================
     $dashboardRoot = Join-Path $appSrc "dashboard"
     if (Test-Path $dashboardRoot) {
 
-        Write-Host "Processing dashboard/ folder..." -ForegroundColor Yellow
+        Write-Host " - Cleaning dashboard/ ..." -ForegroundColor Yellow
 
+        # إعادة المحاولة في تنظيمه
         Move-Safe (Join-Path $dashboardRoot "features") (Join-Path $featuresPath "dashboard")
 
         $isDesktop = $appName -like "*desktop"
@@ -146,28 +119,18 @@ foreach ($appName in $appNames) {
         Move-Safe (Join-Path $dashboardRoot "ui")       (Join-Path $uiTarget "dashboard/ui")
         Move-Safe (Join-Path $dashboardRoot "widgets")  (Join-Path $uiTarget "dashboard/widgets")
 
-        $remaining = @(Get-ChildItem $dashboardRoot -Recurse -Force)
-        if ($remaining.Count -eq 0) {
+        # Check if dashboard has any FILES (not فقط فولدرات)
+        $files = @(Get-ChildItem $dashboardRoot -Recurse -File -Force)
+        if ($files.Count -eq 0) {
+            Write-Host "   > Removing empty dashboard/ folder" -ForegroundColor DarkGray
             Remove-Item $dashboardRoot -Recurse -Force
+        } else {
+            Write-Host "   > dashboard/ still has files, kept." -ForegroundColor Yellow
         }
     }
 
-    Write-Host "Finished app: $appName" -ForegroundColor Green
+    Write-Host "Cleanup finished for app: $appName" -ForegroundColor Green
 }
 
-$packagesRoot   = Join-Path $libRoot "packages"
-$sharedPkgRoot  = Join-Path $packagesRoot "tolab_shared_features"
-$sharedPkgLib   = Join-Path $sharedPkgRoot "lib"
-
-Write-Host "`nCreating shared features package skeleton..." -ForegroundColor Cyan
-
-New-SafeDir $sharedPkgRoot
-New-SafeDir $sharedPkgLib
-
-foreach ($sub in @("features","utils","widgets","theme")) {
-    New-SafeDir (Join-Path $sharedPkgLib $sub)
-}
-
-Write-Host "Shared package ready." -ForegroundColor Green
-Write-Host "`n=== TOLAB SAFE REFACTOR COMPLETED ===" -ForegroundColor Cyan
-Write-Host "Backup saved at: $backupRoot" -ForegroundColor Yellow
+Write-Host "`n=== TOLAB CLEANUP COMPLETED ===" -ForegroundColor Cyan
+Write-Host "Cleanup backup saved at: $backupRoot" -ForegroundColor Yellow
