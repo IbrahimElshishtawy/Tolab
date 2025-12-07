@@ -1,15 +1,15 @@
 // lib/apps/tolab_student_desktop/lib/src/dashboard/layouts/student_desktop_home_page.dart
 
+import 'package:eduhub/apps/tolab_student_desktop/lib/src/presentation/desktop/dashboard/ui/student_nav_item_data.dart';
+import 'package:eduhub/apps/tolab_student_desktop/lib/src/presentation/desktop/dashboard/widgets/student_bottom_nav.dart';
+import 'package:eduhub/apps/tolab_student_desktop/lib/src/presentation/desktop/dashboard/widgets/student_home_cards.dart';
+import 'package:eduhub/apps/tolab_student_desktop/lib/src/presentation/desktop/dashboard/widgets/student_sidebar.dart';
 import 'package:flutter/material.dart';
-
-import 'package:eduhub/apps/tolab_student_desktop/lib/src/dashboard/ui/student_nav_item_data.dart';
-import 'package:eduhub/apps/tolab_student_desktop/lib/src/dashboard/widgets/student_bottom_nav.dart';
-import 'package:eduhub/apps/tolab_student_desktop/lib/src/dashboard/widgets/student_home_cards.dart';
-import 'package:eduhub/apps/tolab_student_desktop/lib/src/dashboard/widgets/student_sidebar.dart';
-import 'package:eduhub/apps/tolab_student_desktop/lib/src/dashboard/widgets/student_top_bar.dart';
 
 // الفيك داتا
 import 'package:eduhub/fake_data/data.dart' as fake;
+
+import '../widgets/student_top_bar.dart';
 
 class StudentDesktopHomePage extends StatefulWidget {
   const StudentDesktopHomePage({super.key});
