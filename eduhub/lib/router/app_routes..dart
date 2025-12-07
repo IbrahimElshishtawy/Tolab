@@ -1,7 +1,7 @@
 // lib/router/app_routes.dart
+import 'package:eduhub/apps/tolab_student_desktop/lib/src/presentation/desktop/dashboard/layouts/student_desktop_home_page.dart';
 import 'package:flutter/material.dart';
 import '../spa/Splach_screen.dart';
-import 'package:eduhub/apps/tolab_student_desktop/lib/src/dashboard/layouts/student_desktop_home_page.dart';
 
 class AppRoutes {
   static const String splash = '/';
