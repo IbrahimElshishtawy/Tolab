@@ -1,224 +1,173 @@
-# ======================================
-# Create TOLAB Structure Inside lib/
-# ======================================
+# ===========================================
+#  TOLAB PROJECT REFACTOR SCRIPT (FINAL SAFE)
+# ===========================================
 
-$root = "lib"
+$ErrorActionPreference = "SilentlyContinue"
 
-# Ensure root lib exists
-New-Item -ItemType Directory -Path $root -Force -ErrorAction SilentlyContinue | Out-Null
+Write-Host "=== Starting TOLAB SAFE REFACTOR ===" -ForegroundColor Cyan
 
-# Ensure apps/ and packages/ under lib
-$rootDirs = @(
-    "$root\apps",
-    "$root\packages"
-)
-
-foreach ($dir in $rootDirs) {
-    New-Item -ItemType Directory -Path $dir -Force -ErrorAction SilentlyContinue | Out-Null
+function New-SafeDir {
+    param([string]$path)
+    if (!(Test-Path $path)) {
+        New-Item -ItemType Directory -Force -Path $path | Out-Null
+    }
 }
 
-# =========================================
-# 1) Apps inside lib/apps (Mobile & Desktop + Regular & Dashboard)
-# =========================================
+$scriptDir = Split-Path -Parent $PSCommandPath
+$libRoot   = Join-Path $scriptDir "lib"
 
-$apps = @(
-    "tolab_student_mobile", "tolab_student_desktop",
-    "tolab_doctor_mobile", "tolab_doctor_desktop"
+if (!(Test-Path $libRoot)) {
+    Write-Host "ERROR: Cannot find 'lib' next to script." -ForegroundColor Red
+    exit
+}
+
+$timestamp  = Get-Date -Format "yyyyMMdd_HHmmss"
+$backupRoot = Join-Path $scriptDir "_backup_$timestamp"
+
+Write-Host "Creating backup: $backupRoot" -ForegroundColor Yellow
+New-SafeDir $backupRoot
+
+Copy-Item (Join-Path $libRoot "apps")     (Join-Path $backupRoot "apps")     -Recurse -Force
+Copy-Item (Join-Path $libRoot "packages") (Join-Path $backupRoot "packages") -Recurse -Force
+
+Write-Host "Backup completed." -ForegroundColor Green
+
+$appNames = @(
+    "tolab_admin_panel",
+    "tolab_doctor_desktop",
+    "tolab_doctor_mobile",
+    "tolab_student_desktop",
+    "tolab_student_mobile"
 )
 
-# Define app types: regular, dashboard
-$appTypes = @("regular", "dashboard")
+function Move-Safe {
+    param(
+        [string]$source,
+        [string]$target
+    )
+    if (Test-Path $source) {
+        New-SafeDir $target
+        Move-Item "$source\*" $target -Force -ErrorAction SilentlyContinue
+    }
+}
 
-foreach ($app in $apps) {
-    $baseDir = Join-Path $root "apps\$app"
-    $srcDir  = Join-Path $baseDir "lib\src"
-    
-    # Create platform-specific directories for mobile/desktop
-    $platforms = @("mobile", "desktop")
+foreach ($appName in $appNames) {
+
+    Write-Host "`nProcessing app: $appName" -ForegroundColor Cyan
+
+    $appSrc = Join-Path $libRoot "apps\$appName\lib\src"
+    if (!(Test-Path $appSrc)) {
+        Write-Host "Skipping (src not found): $appSrc" -ForegroundColor DarkGray
+        continue
+    }
+
+    $corePath          = Join-Path $appSrc "core"
+    $featuresPath      = Join-Path $appSrc "features"
+    $presentationPath  = Join-Path $appSrc "presentation"
+    $presentDesktop    = Join-Path $presentationPath "desktop"
+    $presentMobile     = Join-Path $presentationPath "mobile"
+    $presentShared     = Join-Path $presentationPath "shared"
+
+    foreach ($folder in @($corePath,$featuresPath,$presentationPath,$presentDesktop,$presentMobile,$presentShared)) {
+        New-SafeDir $folder
+    }
+
+    foreach ($extra in @("theme","utils","api","responsive")) {
+        New-SafeDir (Join-Path $corePath $extra)
+    }
+
+    if ($appName -eq "tolab_admin_panel") {
+
+        Write-Host "Admin Panel: Consolidating core folders..." -ForegroundColor Yellow
+
+        foreach ($f in @("config","local_storage","notifications","services")) {
+            $oldPath = Join-Path $appSrc $f
+            if (Test-Path $oldPath) {
+                Move-Safe $oldPath (Join-Path $corePath $f)
+                Remove-Item $oldPath -Recurse -Force -ErrorAction SilentlyContinue
+            }
+        }
+
+        Write-Host "Admin panel restructuring complete." -ForegroundColor Green
+        continue
+    }
+
+    $platforms         = @("desktop","mobile")
+    $commonTechFolders = @("config","local_storage","notifications","offline","services")
+
     foreach ($platform in $platforms) {
-        $platformDir = Join-Path $srcDir $platform
-        New-Item -ItemType Directory -Path $platformDir -Force -ErrorAction SilentlyContinue | Out-Null
 
-        # Create base structure within each platform
-        New-Item -ItemType Directory -Path (Join-Path $platformDir "config") -Force -ErrorAction SilentlyContinue | Out-Null
-        New-Item -ItemType Directory -Path (Join-Path $platformDir "services") -Force -ErrorAction SilentlyContinue | Out-Null
-        New-Item -ItemType Directory -Path (Join-Path $platformDir "notifications") -Force -ErrorAction SilentlyContinue | Out-Null
-        New-Item -ItemType Directory -Path (Join-Path $platformDir "offline") -Force -ErrorAction SilentlyContinue | Out-Null
-        New-Item -ItemType Directory -Path (Join-Path $platformDir "local_storage") -Force -ErrorAction SilentlyContinue | Out-Null
+        $platformRoot = Join-Path $appSrc $platform
+
+        if (!(Test-Path $platformRoot)) { continue }
+
+        Write-Host "Found platform: $platformRoot" -ForegroundColor Yellow
+
+        foreach ($f in $commonTechFolders) {
+            $srcPath = Join-Path $platformRoot $f
+            $dstPath = Join-Path (Join-Path $corePath $f) $platform
+            Move-Safe $srcPath $dstPath
+            Remove-Item $srcPath -Recurse -Force -ErrorAction SilentlyContinue
+        }
+
+        $remaining = @(Get-ChildItem $platformRoot -Recurse -Force)
+        if ($remaining.Count -eq 0) {
+            Remove-Item $platformRoot -Recurse -Force
+        }
     }
 
-    # Create app type-specific directories (regular, dashboard)
-    foreach ($type in $appTypes) {
-        $typeDir = Join-Path $srcDir $type
-        New-Item -ItemType Directory -Path $typeDir -Force -ErrorAction SilentlyContinue | Out-Null
+    $regularRoot = Join-Path $appSrc "regular"
+    if (Test-Path $regularRoot) {
 
-        # Inside each type, create platform-specific subdirectories for UI, layouts, widgets, etc.
-        New-Item -ItemType Directory -Path (Join-Path $typeDir "ui") -Force -ErrorAction SilentlyContinue | Out-Null
-        New-Item -ItemType Directory -Path (Join-Path $typeDir "widgets") -Force -ErrorAction SilentlyContinue | Out-Null
-        New-Item -ItemType Directory -Path (Join-Path $typeDir "layouts") -Force -ErrorAction SilentlyContinue | Out-Null
-        New-Item -ItemType Directory -Path (Join-Path $typeDir "features") -Force -ErrorAction SilentlyContinue | Out-Null
+        Write-Host "Processing regular/ folder..." -ForegroundColor Yellow
+
+        Move-Safe (Join-Path $regularRoot "features") (Join-Path $featuresPath "common")
+        Move-Safe (Join-Path $regularRoot "layouts")  (Join-Path $presentShared "layouts")
+        Move-Safe (Join-Path $regularRoot "ui")       (Join-Path $presentShared "ui")
+        Move-Safe (Join-Path $regularRoot "widgets")  (Join-Path $presentShared "widgets")
+
+        $remaining = @(Get-ChildItem $regularRoot -Recurse -Force)
+        if ($remaining.Count -eq 0) {
+            Remove-Item $regularRoot -Recurse -Force
+        }
     }
-}
 
-# ====================================
-# 2) Admin Panel App inside lib/apps
-# ====================================
+    $dashboardRoot = Join-Path $appSrc "dashboard"
+    if (Test-Path $dashboardRoot) {
 
-$adminApp = "tolab_admin_panel"
-$adminBase = Join-Path $root "apps\$adminApp"
-$adminSrcBase = Join-Path $adminBase "lib\src"
+        Write-Host "Processing dashboard/ folder..." -ForegroundColor Yellow
 
-# Admin panel directories
-$adminDirs = @(
-    $adminBase,
-    "$adminBase\lib",
-    $adminSrcBase,
-    "$adminSrcBase\config",
-    "$adminSrcBase\di",
-    "$adminSrcBase\services",
-    "$adminSrcBase\notifications",
-    "$adminSrcBase\local_storage",
-    "$adminSrcBase\presentation",
-    "$adminSrcBase\localization\arb",
-    "$adminBase\test"
-)
+        Move-Safe (Join-Path $dashboardRoot "features") (Join-Path $featuresPath "dashboard")
 
-foreach ($dir in $adminDirs) {
-    New-Item -ItemType Directory -Path $dir -Force -ErrorAction SilentlyContinue | Out-Null
-}
+        $isDesktop = $appName -like "*desktop"
+        $uiTarget  = if ($isDesktop) { $presentDesktop } else { $presentMobile }
 
-# Features inside the Admin Panel (Dashboard type)
-$adminFeaturesList = @(
-    "auth",
-    "dashboard",
-    "students_management",
-    "subjects_management",
-    "schedule_management",
-    "community_moderation",
-    "notifications_management",
-    "settings",
-    "common"
-)
+        Move-Safe (Join-Path $dashboardRoot "layouts")  (Join-Path $uiTarget "dashboard/layouts")
+        Move-Safe (Join-Path $dashboardRoot "ui")       (Join-Path $uiTarget "dashboard/ui")
+        Move-Safe (Join-Path $dashboardRoot "widgets")  (Join-Path $uiTarget "dashboard/widgets")
 
-# Create directories for each admin feature
-foreach ($feature in $adminFeaturesList) {
-    $featureBase = Join-Path $adminSrcBase "presentation\features\$feature"
-    $cubitDir    = Join-Path $featureBase "cubit"
-    $pagesDir    = Join-Path $featureBase "pages"
-    $widgetsDir  = Join-Path $featureBase "widgets"
-    
-    $dirs = @($featureBase, $cubitDir, $pagesDir, $widgetsDir)
-    foreach ($d in $dirs) {
-        New-Item -ItemType Directory -Path $d -Force -ErrorAction SilentlyContinue | Out-Null
+        $remaining = @(Get-ChildItem $dashboardRoot -Recurse -Force)
+        if ($remaining.Count -eq 0) {
+            Remove-Item $dashboardRoot -Recurse -Force
+        }
     }
+
+    Write-Host "Finished app: $appName" -ForegroundColor Green
 }
 
-# =======================================
-# 3) Package: tolab_core (lib/packages)
-# =======================================
+$packagesRoot   = Join-Path $libRoot "packages"
+$sharedPkgRoot  = Join-Path $packagesRoot "tolab_shared_features"
+$sharedPkgLib   = Join-Path $sharedPkgRoot "lib"
 
-$coreBase = Join-Path $root "packages\tolab_core"
-$coreLib = Join-Path $coreBase "lib"
-$coreTest = Join-Path $coreBase "test"
+Write-Host "`nCreating shared features package skeleton..." -ForegroundColor Cyan
 
-$coreDirs = @(
-    $coreBase,
-    $coreLib,
-    "$coreLib\errors",
-    "$coreLib\network",
-    "$coreLib\utils",
-    "$coreLib\constants",
-    "$coreLib\platform",
-    $coreTest,
-    "$coreTest\errors",
-    "$coreTest\network",
-    "$coreTest\utils"
-)
+New-SafeDir $sharedPkgRoot
+New-SafeDir $sharedPkgLib
 
-foreach ($dir in $coreDirs) {
-    New-Item -ItemType Directory -Path $dir -Force -ErrorAction SilentlyContinue | Out-Null
+foreach ($sub in @("features","utils","widgets","theme")) {
+    New-SafeDir (Join-Path $sharedPkgLib $sub)
 }
 
-# =======================================
-# 4) Package: tolab_domain (lib/packages)
-# =======================================
-
-$domainBase = Join-Path $root "packages\tolab_domain"
-$domainLib = Join-Path $domainBase "lib"
-$domainTest = Join-Path $domainBase "test"
-
-$domainDirs = @(
-    $domainBase,
-    $domainLib,
-    "$domainLib\entities",
-    "$domainLib\value_objects",
-    "$domainLib\repositories",
-    "$domainLib\usecases",
-    $domainTest,
-    "$domainTest\usecases",
-    "$domainTest\value_objects"
-)
-
-foreach ($dir in $domainDirs) {
-    New-Item -ItemType Directory -Path $dir -Force -ErrorAction SilentlyContinue | Out-Null
-}
-
-# =======================================
-# 5) Package: tolab_data (lib/packages)
-# =======================================
-
-$dataBase = Join-Path $root "packages\tolab_data"
-$dataLib = Join-Path $dataBase "lib"
-$dataTest = Join-Path $dataBase "test"
-$dataDS = "$dataLib\datasources"
-
-$dataDirs = @(
-    $dataBase,
-    $dataLib,
-    "$dataLib\models",
-    $dataDS,
-    "$dataDS\remote",
-    "$dataDS\local",
-    "$dataDS\mappers",
-    "$dataLib\repositories_impl",
-    "$dataLib\api_client",
-    "$dataLib\api_client\interceptors",
-    "$dataLib\offline",
-    $dataTest,
-    "$dataTest\repositories_impl",
-    "$dataTest\datasources",
-    "$dataTest\datasources\remote",
-    "$dataTest\datasources\local",
-    "$dataTest\offline"
-)
-
-foreach ($dir in $dataDirs) {
-    New-Item -ItemType Directory -Path $dir -Force -ErrorAction SilentlyContinue | Out-Null
-}
-
-# =======================================
-# 6) Package: tolab_ui_kit (lib/packages)
-# =======================================
-
-$uiBase = Join-Path $root "packages\tolab_ui_kit"
-$uiLib = Join-Path $uiBase "lib"
-$uiTest = Join-Path $uiBase "test"
-
-$uiDirs = @(
-    $uiBase,
-    $uiLib,
-    "$uiLib\buttons",
-    "$uiLib\inputs",
-    "$uiLib\cards",
-    "$uiLib\dialogs",
-    "$uiLib\typography",
-    "$uiLib\responsive",
-    $uiTest,
-    "$uiTest\widgets"
-)
-
-foreach ($dir in $uiDirs) {
-    New-Item -ItemType Directory -Path $dir -Force -ErrorAction SilentlyContinue | Out-Null
-}
-
-Write-Host "TOLAB folder structure created successfully under '$root'."
+Write-Host "Shared package ready." -ForegroundColor Green
+Write-Host "`n=== TOLAB SAFE REFACTOR COMPLETED ===" -ForegroundColor Cyan
+Write-Host "Backup saved at: $backupRoot" -ForegroundColor Yellow
