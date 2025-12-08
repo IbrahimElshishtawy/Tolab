@@ -1,31 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import '../../../../state/app_state.dart';
-import '../../../../state/auth/auth_actions.dart';
 import '../../../../state/auth/auth_state.dart';
+import '../widgets/animated_login_background.dart';
+import '../widgets/login_hero_card.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
-
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, AuthState>(
       converter: (store) => store.state.auth,
       distinct: true,
-      onWillChange: (prev, current) {
-        if (current.isloadingIn && !current.isloading) {
+      onWillChange: (previous, current) {
+        // نجاح الدخول → انتقل للداشبورد
+        if (current.isloadingIn && !(previous?.isloadingIn ?? false)) {
           Navigator.pushReplacementNamed(context, "/dashboard");
         }
 
-        if (current.errorMessage != null && current.errorMessage!.isNotEmpty) {
+        // عرض الخطأ إن وجد
+        if (current.errorMessage != null &&
+            current.errorMessage!.isNotEmpty &&
+            current.errorMessage != previous?.errorMessage) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(current.errorMessage!)));
@@ -33,55 +30,11 @@ class _LoginPageState extends State<LoginPage> {
       },
       builder: (context, authState) {
         return Scaffold(
-          body: Center(
-            child: SizedBox(
-              width: 350,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Admin Login",
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 25),
-
-                  TextField(
-                    controller: emailController,
-                    decoration: InputDecoration(
-                      labelText: "Email",
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  TextField(
-                    controller: passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: "Password",
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-
-                  const SizedBox(height: 25),
-
-                  authState.isloading
-                      ? CircularProgressIndicator()
-                      : ElevatedButton(
-                          onPressed: () {
-                            final email = emailController.text.trim();
-                            final pass = passwordController.text.trim();
-
-                            StoreProvider.of<AppState>(
-                              context,
-                            ).dispatch(LoginAction(email, pass));
-                          },
-                          child: Text("Login"),
-                        ),
-                ],
-              ),
-            ),
+          body: Stack(
+            children: [
+              const AnimatedLoginBackground(),
+              Center(child: LoginHeroCard(isLoading: authState.isloading)),
+            ],
           ),
         );
       },
