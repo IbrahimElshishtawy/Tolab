@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class LoginSubmitButton extends StatefulWidget {
   final bool isLoading;
@@ -25,12 +26,12 @@ class _LoginSubmitButtonState extends State<LoginSubmitButton>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 350),
     );
 
     _widthAnimation = Tween<double>(
       begin: 1.0,
-      end: 0.4,
+      end: 0.35, // shrink size when loading
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
@@ -53,33 +54,45 @@ class _LoginSubmitButtonState extends State<LoginSubmitButton>
 
   @override
   Widget build(BuildContext context) {
-    final maxWidth = 260.0;
+    const double maxWidth = 260;
 
     return AnimatedBuilder(
       animation: _widthAnimation,
       builder: (context, child) {
         final width = maxWidth * _widthAnimation.value;
 
-        return SizedBox(
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
           width: width,
-          height: 46,
+          height: 52,
+          curve: Curves.easeOut,
           child: ElevatedButton(
             onPressed: widget.isLoading ? null : widget.onPressed,
             style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueAccent.shade400,
+              elevation: 6,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(32),
               ),
             ),
             child: widget.isLoading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ? SizedBox(
+                    width: 55,
+                    height: 55,
+                    child: Lottie.asset(
+                      "assets/lottiefiles/loding_bottom.json",
+                      fit: BoxFit.contain,
                     ),
                   )
-                : const Text("تسجيل الدخول"),
+                : const Text(
+                    "تسجيل الدخول",
+                    style: TextStyle(
+                      fontSize: 17,
+                      letterSpacing: 0.8,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
           ),
         );
       },
