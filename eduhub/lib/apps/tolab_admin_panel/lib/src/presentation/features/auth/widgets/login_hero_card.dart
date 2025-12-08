@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'login_form.dart';
@@ -49,56 +50,71 @@ class _LoginHeroCardState extends State<LoginHeroCard>
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            // Card أساسي
-            Card(
-              elevation: 16,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 28,
-                  vertical: 32,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // عنوان
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.shield_outlined,
-                          color: Colors.blueAccent.shade100,
-                        ),
-                        const SizedBox(width: 8),
-                        const Text(
-                          "Tolab Admin",
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600,
+            // Frosted Glass Card
+            ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.08), // شفافية الكارد
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.25), // إطار خفيف
+                      width: 1.2,
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 28,
+                    vertical: 32,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // عنوان
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.shield_outlined,
+                            color: Colors.blueAccent.shade100,
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      "تسجيل دخول المسؤول",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
+                          const SizedBox(width: 8),
+                          const Text(
+                            "Tolab Admin",
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w600,
+                              color: Color.fromARGB(255, 255, 255, 255),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 8),
 
-                    // فورم
-                    LoginForm(isLoading: widget.isLoading),
-                  ],
+                      Text(
+                        "تسجيل دخول المسؤول",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: const Color.fromARGB(
+                            255,
+                            255,
+                            254,
+                            254,
+                          ).withOpacity(0.75),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Login Form
+                      LoginForm(isLoading: widget.isLoading),
+                    ],
+                  ),
                 ),
               ),
             ),
 
-            // Lottie success overlay (اختياري – مثلاً عند الإرسال)
+            // Lottie Loading Overlay
             if (widget.isLoading)
               Positioned.fill(
                 child: Container(
