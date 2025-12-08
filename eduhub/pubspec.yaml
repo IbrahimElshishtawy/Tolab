@@ -74,6 +74,7 @@ flutter:
     - assets/lottiefiles/login_bg.json
     - assets/lottiefiles/login_wifi.json
     - assets/lottiefiles/login_success.json
+    - assets/lottiefiles/loding_bottom.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
