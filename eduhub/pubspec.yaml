@@ -40,6 +40,7 @@ dependencies:
   lottie: ^3.3.2
   go_router: ^17.0.0
   alp_animated_splashscreen: ^0.0.6
+  redux: ^5.0.0
 
 dev_dependencies:
   flutter_test:
