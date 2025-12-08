@@ -1,15 +1,15 @@
-import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/auth_state.dart';
+import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/auth/auth_state.dart';
 
 class AppState {
-  final AuthState authState;
-  AppState({required this.authState});
+  final AuthState auth;
+
+  AppState({required this.auth});
 
   factory AppState.initial() {
-    return AppState(authState: AuthState.initial());
-    // Add other initial states here as needed
+    return AppState(auth: AuthState.initial());
   }
-  AppState copyWith({AuthState? authState}) {
-    return AppState(authState: authState ?? this.authState);
-    // Add other states here as needed
+
+  AppState copyWith({AuthState? auth}) {
+    return AppState(auth: auth ?? this.auth);
   }
 }
