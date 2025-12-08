@@ -106,7 +106,7 @@ class _LoginHeroCardState extends State<LoginHeroCard>
                   ),
                   child: Center(
                     child: Lottie.asset(
-                      'assets/animations/login_success.json',
+                      'assets/lottiefiles/login_success.json',
                       repeat: true,
                     ),
                   ),
