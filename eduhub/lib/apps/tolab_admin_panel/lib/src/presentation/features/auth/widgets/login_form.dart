@@ -34,6 +34,41 @@ class _LoginFormState extends State<LoginForm> {
     StoreProvider.of<AppState>(context).dispatch(LoginAction(email, pass));
   }
 
+  InputDecoration _whiteInputDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(
+        color: Colors.white.withOpacity(0.85),
+        fontSize: 14,
+      ),
+      prefixIcon: Icon(icon, color: Colors.white),
+
+      // white borders
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Colors.white.withOpacity(0.80),
+          width: 1.3,
+        ),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: const BorderSide(color: Colors.white, width: 1.8),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderSide: const BorderSide(color: Colors.red, width: 1.5),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderSide: const BorderSide(color: Colors.redAccent, width: 1.8),
+        borderRadius: BorderRadius.circular(14),
+      ),
+
+      // padding
+      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -44,10 +79,11 @@ class _LoginFormState extends State<LoginForm> {
             children: [
               TextFormField(
                 controller: _emailCtrl,
-                decoration: const InputDecoration(
-                  labelText: "البريد الإلكتروني",
-                  prefixIcon: Icon(Icons.email_outlined),
-                  border: OutlineInputBorder(),
+                cursorColor: Colors.white,
+                style: const TextStyle(color: Colors.white),
+                decoration: _whiteInputDecoration(
+                  "البريد الإلكتروني",
+                  Icons.email_outlined,
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -60,12 +96,14 @@ class _LoginFormState extends State<LoginForm> {
                 },
               ),
               const SizedBox(height: 16),
+
               TextFormField(
                 controller: _passCtrl,
-                decoration: const InputDecoration(
-                  labelText: "كلمة المرور",
-                  prefixIcon: Icon(Icons.lock_outline),
-                  border: OutlineInputBorder(),
+                cursorColor: Colors.white,
+                style: const TextStyle(color: Colors.white),
+                decoration: _whiteInputDecoration(
+                  "كلمة المرور",
+                  Icons.lock_outline,
                 ),
                 obscureText: true,
                 validator: (value) {
@@ -82,6 +120,7 @@ class _LoginFormState extends State<LoginForm> {
           ),
         ),
         const SizedBox(height: 24),
+
         LoginSubmitButton(isLoading: widget.isLoading, onPressed: _onSubmit),
       ],
     );
