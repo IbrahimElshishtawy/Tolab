@@ -25,7 +25,7 @@ class AnimatedLoginBackground extends StatelessWidget {
           child: Opacity(
             opacity: 0.4,
             child: Lottie.asset(
-              'assets/animations/login_bg.json',
+              'assets/lottiefiles/login_bg.json',
               fit: BoxFit.cover,
               repeat: true,
             ),
@@ -40,7 +40,7 @@ class AnimatedLoginBackground extends StatelessWidget {
             width: 80,
             height: 80,
             child: Lottie.asset(
-              'assets/animations/login_wifi.json',
+              'assets/lottiefiles/login_wifi.json',
               repeat: true,
             ),
           ),
