@@ -1,4 +1,6 @@
 // lib/router/app_routes.dart
+// ignore_for_file: file_names
+
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/presentation/features/dashboard/pages/Dashboard_Page.dart';
 import 'package:eduhub/apps/tolab_student_desktop/lib/src/presentation/desktop/dashboard/layouts/student_desktop_home_page.dart';
 import 'package:flutter/material.dart';
