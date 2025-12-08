@@ -11,7 +11,7 @@ class AnimatedLoginBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Gradient أساسي للخلفية
+        // Gradient
         Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
