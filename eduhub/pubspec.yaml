@@ -71,6 +71,9 @@ flutter:
     - assets/icons/logo-horizontal.png
     - assets/lottiefiles/Loading.json
     - assets/lottiefiles/Universo-header-latech.json
+    - assets/animations/login_bg.json
+    - assets/animations/login_wifi.json
+    - assets/animations/login_success.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
