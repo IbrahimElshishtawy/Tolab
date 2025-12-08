@@ -22,7 +22,7 @@ class AnimatedLoginBackground extends StatelessWidget {
           ),
         ),
 
-        // Lottie Background (shapes / abstract)
+        //background
         Positioned.fill(
           child: Opacity(
             opacity: 0.3,
@@ -33,8 +33,7 @@ class AnimatedLoginBackground extends StatelessWidget {
             ),
           ),
         ),
-
-        // WiFi / Connectivity أنميشن في الزاوية
+        // icon effection
         Positioned(
           top: 40,
           right: 40,
@@ -48,10 +47,10 @@ class AnimatedLoginBackground extends StatelessWidget {
           ),
         ),
 
-        // Blur overlay خفيف لإضفاء عمق
+        // Blur overlay
         Positioned.fill(
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+            filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
             child: Container(color: Colors.black.withOpacity(0.12)),
           ),
         ),
