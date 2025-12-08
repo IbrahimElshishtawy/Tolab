@@ -1,36 +1,63 @@
 class AuthState {
-  final bool isLoading;
-  final bool isLoggedIn;
+  final bool isloading;
+  final bool isloadingIn;
+  final String? errorMessage;
   final String? token;
-  final String? error;
-
+  // Add other fields as needed
+  //final User? user;
+  // final bool isAuthenticated;
+  // final bool isEmailVerified;
+  // final bool isFirstTimeUser;
+  // final List<String> roles;
   AuthState({
-    required this.isLoading,
-    required this.isLoggedIn,
+    required this.isloading,
+    required this.isloadingIn,
+    this.errorMessage,
     this.token,
-    this.error,
+    // Add other fields here as needed
+    // this.user,
+    // this.isAuthenticated = false,
+    // this.isEmailVerified = false,
+    // this.isFirstTimeUser = true,
+    // this.roles = const [],
   });
-
   factory AuthState.initial() {
     return AuthState(
-      isLoading: false,
-      isLoggedIn: false,
+      isloading: false,
+      isloadingIn: false,
+      errorMessage: null,
       token: null,
-      error: null,
+      // Initialize other fields as needed
+      // user: null,
+      // isAuthenticated: false,
+      // isEmailVerified: false,
+      // isFirstTimeUser: true,
+      // roles: [],
     );
   }
-
   AuthState copyWith({
-    bool? isLoading,
-    bool? isLoggedIn,
+    bool? isloading,
+    bool? isloadingIn,
+    String? errorMessage,
     String? token,
-    String? error,
+    // Add other fields here as needed
+    // User? user,
+    // bool? isAuthenticated,
+    // bool? isEmailVerified,
+    // bool? isFirstTimeUser,
+    // List<String>? roles,
   }) {
     return AuthState(
-      isLoading: isLoading ?? this.isLoading,
-      isLoggedIn: isLoggedIn ?? this.isLoggedIn,
+      isloading: isloading ?? this.isloading,
+      isloadingIn: isloadingIn ?? this.isloadingIn,
+      errorMessage: errorMessage ?? this.errorMessage,
       token: token ?? this.token,
-      error: error,
+      // Copy other fields as needed
+      // user: user ?? this.user,
+      // isAuthenticated: isAuthenticated ?? this.isAuthenticated,
+      // isEmailVerified: isEmailVerified ?? this.isEmailVerified,
+      // isFirstTimeUser: isFirstTimeUser ?? this.isFirstTimeUser,
+      // roles: roles ?? this.roles,
     );
   }
 }
