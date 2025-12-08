@@ -14,7 +14,6 @@ class LoginPage extends StatelessWidget {
       converter: (store) => store.state.auth,
       distinct: true,
       onWillChange: (previous, current) {
-        // نجاح الدخول → انتقل للداشبورد
         if (current.isloadingIn && !(previous?.isloadingIn ?? false)) {
           Navigator.pushReplacementNamed(context, "/dashboard");
         }
