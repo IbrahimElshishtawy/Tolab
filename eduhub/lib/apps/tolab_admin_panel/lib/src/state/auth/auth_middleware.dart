@@ -4,11 +4,11 @@ import 'auth_actions.dart';
 
 import '../app_state.dart';
 
-List<Middleware<AppState>> authMiddleware(ApiService api) {
+List<Middleware<AppState>> authMiddleware(ApiServiceAuth api) {
   return [TypedMiddleware<AppState, LoginAction>(_login(api)).call];
 }
 
-Middleware<AppState> _login(ApiService api) {
+Middleware<AppState> _login(ApiServiceAuth api) {
   return (Store<AppState> store, action, NextDispatcher next) async {
     next(action);
 
