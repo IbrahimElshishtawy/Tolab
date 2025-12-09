@@ -1,6 +1,7 @@
+import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/Api_Service_auth.dart';
 import 'package:redux/redux.dart';
 import '../app_state.dart';
-import '../../core/api/Api_Service.dart';
+
 import 'dashboard_actions.dart';
 
 List<Middleware<AppState>> dashboardMiddleware(ApiService api) {
@@ -16,7 +17,6 @@ Middleware<AppState> _loadDashboard(ApiService api) {
     next(action);
 
     try {
-      // Fake / Replace with real API calls
       final stats = await api.fetchDashboardStats();
 
       store.dispatch(
