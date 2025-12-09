@@ -1,6 +1,6 @@
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/dashboard/dashboard_state.dart';
 
-class ApiService {
+class ApiServiceDashhoard {
   Future<String> login(String email, String password) async {
     await Future.delayed(const Duration(seconds: 1));
 
@@ -10,15 +10,15 @@ class ApiService {
     throw Exception("Invalid credentials");
   }
 
-  Future<DashboardStats> fetchDashboardStats() async {
+  Future<DashboardState> fetchDashboardStats() async {
     await Future.delayed(const Duration(milliseconds: 500));
 
-    return DashboardStats(
+    return DashboardState(
+      isLoading: false,
       totalStudents: 1250,
       totalDoctors: 42,
       totalSubjects: 36,
       pendingRequests: 8,
-      isLoading: true,
       recentActivity: [
         "طالب جديد: Ahmed تم تسجيله في CS",
         "تعديل مادة: Algorithms 101",
