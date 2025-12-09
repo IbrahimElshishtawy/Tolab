@@ -1,10 +1,9 @@
-import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/Api_Service_auth.dart';
 import 'package:redux/redux.dart';
+import '../../core/api/Api_Service_dashhoard.dart';
 import '../app_state.dart';
-
 import 'dashboard_actions.dart';
 
-List<Middleware<AppState>> dashboardMiddleware(ApiService api) {
+List<Middleware<AppState>> dashboardMiddleware(ApiServiceDashhoard api) {
   return [
     TypedMiddleware<AppState, LoadDashboardDataAction>(
       _loadDashboard(api),
@@ -12,7 +11,7 @@ List<Middleware<AppState>> dashboardMiddleware(ApiService api) {
   ];
 }
 
-Middleware<AppState> _loadDashboard(ApiService api) {
+Middleware<AppState> _loadDashboard(ApiServiceDashhoard api) {
   return (Store<AppState> store, action, NextDispatcher next) async {
     next(action);
 
