@@ -1,7 +1,7 @@
 import 'dashboard_actions.dart';
 import 'dashboard_state.dart';
 
-DashboardStats dashboardReducer(DashboardStats state, dynamic action) {
+DashboardState dashboardReducer(DashboardState state, dynamic action) {
   if (action is LoadDashboardDataAction) {
     return state.copyWith(isLoading: true, error: null);
   }
