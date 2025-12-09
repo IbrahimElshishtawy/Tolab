@@ -3,14 +3,14 @@ import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/dashboard/dashboard_
 
 class AppState {
   final AuthState auth;
-  final DashboardState dashboard;
+  final DashboardStats dashboard;
 
   AppState({required this.auth, required this.dashboard});
 
   factory AppState.initial() {
     return AppState(
       auth: AuthState.initial(),
-      dashboard: DashboardState.initial(),
+      dashboard: DashboardStats.initial(),
     );
   }
 
