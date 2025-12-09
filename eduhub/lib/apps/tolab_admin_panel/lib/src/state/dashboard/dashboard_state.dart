@@ -1,14 +1,13 @@
-class DashboardState {
+class DashboardStats {
   final bool isLoading;
   final int totalStudents;
   final int totalDoctors;
   final int totalSubjects;
   final int pendingRequests;
-
   final List<String> recentActivity;
   final String? error;
 
-  DashboardState({
+  DashboardStats({
     required this.isLoading,
     required this.totalStudents,
     required this.totalDoctors,
@@ -18,8 +17,8 @@ class DashboardState {
     this.error,
   });
 
-  factory DashboardState.initial() {
-    return DashboardState(
+  factory DashboardStats.initial() {
+    return DashboardStats(
       isLoading: false,
       totalStudents: 0,
       totalDoctors: 0,
@@ -30,7 +29,7 @@ class DashboardState {
     );
   }
 
-  DashboardState copyWith({
+  DashboardStats copyWith({
     bool? isLoading,
     int? totalStudents,
     int? totalDoctors,
@@ -39,7 +38,7 @@ class DashboardState {
     List<String>? recentActivity,
     String? error,
   }) {
-    return DashboardState(
+    return DashboardStats(
       isLoading: isLoading ?? this.isLoading,
       totalStudents: totalStudents ?? this.totalStudents,
       totalDoctors: totalDoctors ?? this.totalDoctors,
