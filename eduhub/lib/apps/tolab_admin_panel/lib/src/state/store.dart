@@ -1,4 +1,5 @@
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/Api_Service.dart';
+import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/dashboard/dashboard_middleware.dart';
 import 'package:redux/redux.dart';
 import 'app_state.dart';
 import 'reducers/app_reducer.dart';
@@ -10,6 +11,6 @@ Store<AppState> createStore() {
   return Store<AppState>(
     appReducer,
     initialState: AppState.initial(),
-    middleware: [...authMiddleware(api)],
+    middleware: [...authMiddleware(api), ...dashboardMiddleware(api)],
   );
 }
