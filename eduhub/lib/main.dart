@@ -28,7 +28,9 @@
 //     );
 //   }
 // }
-import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/Api_Service.dart';
+
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/Api_Service_auth.dart';
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/Api_Service_dashhoard.dart';
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/app_state.dart';
@@ -66,15 +68,12 @@ class TolabAdminApp extends StatelessWidget {
 }
 
 void main() {
-  final api = ApiService();
-
+  final auth = ApiServiceAuth();
+  final Dashhoard = ApiServiceDashhoard();
   final store = Store<AppState>(
     appReducer,
     initialState: AppState.initial(),
-    middleware: [
-      ...authMiddleware(api as ApiServiceAuth),
-      ...dashboardMiddleware(api as ApiServiceDashhoard),
-    ],
+    middleware: [...authMiddleware(auth), ...dashboardMiddleware(Dashhoard)],
   );
 
   runApp(TolabAdminApp(store: store));
