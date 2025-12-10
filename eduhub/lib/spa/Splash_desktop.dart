@@ -63,7 +63,7 @@ class _SplashDesktopState extends State<SplashDesktop>
   void _navigateIfNeeded() {
     if (_navigated || !mounted) return;
     _navigated = true;
-    Navigator.pushReplacementNamed(context, AppRoutes.studentDesktopHome);
+    Navigator.pushReplacementNamed(context, AppRoutes.login_dashboard);
   }
 
   @override
