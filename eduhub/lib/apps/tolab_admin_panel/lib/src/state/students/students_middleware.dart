@@ -1,17 +1,15 @@
-import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/app_state.dart';
+import 'package:eduhub/fake_data/data.dart';
 import 'package:redux/redux.dart';
 
+import '../app_state.dart';
 import 'students_actions.dart';
-
-// استيراد الفيك داتا
-import 'package:eduhub/fake_data/data.dart';
 
 List<Middleware<AppState>> studentsMiddleware() {
   return [TypedMiddleware<AppState, LoadStudentsAction>(_loadStudents()).call];
 }
 
 Middleware<AppState> _loadStudents() {
-  return (Store<AppState> store, action, NextDispatcher next) async {
+  return (store, action, next) async {
     next(action);
 
     try {
