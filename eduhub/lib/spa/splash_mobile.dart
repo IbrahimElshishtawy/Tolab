@@ -48,8 +48,8 @@ class _SplashMobileState extends State<SplashMobile>
     if (_navigated || !mounted) return;
 
     _navigated = true;
-    // لحد ما تعمل Route خاصة بالموبايل، ممكن تخليها Desktop Home
-    Navigator.pushReplacementNamed(context, AppRoutes.studentDesktopHome);
+
+    //Navigator.pushReplacementNamed(context, AppRoutes.);
   }
 
   @override
