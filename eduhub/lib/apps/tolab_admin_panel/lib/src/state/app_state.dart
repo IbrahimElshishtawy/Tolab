@@ -14,7 +14,10 @@ class AppState {
     );
   }
 
-  AppState copyWith({AuthState? auth}) {
-    return AppState(auth: auth ?? this.auth, dashboard: dashboard);
+  AppState copyWith({AuthState? auth, DashboardState? dashboard}) {
+    return AppState(
+      auth: auth ?? this.auth,
+      dashboard: dashboard ?? this.dashboard,
+    );
   }
 }
