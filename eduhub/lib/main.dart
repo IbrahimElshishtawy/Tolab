@@ -28,34 +28,54 @@
 //     );
 //   }
 // }
-
-import 'package:eduhub/apps/tolab_admin_panel/lib/src/presentation/features/auth/pages/login_page.dart';
+import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/Api_Service.dart';
+import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/Api_Service_auth.dart';
+import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/Api_Service_dashhoard.dart';
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/app_state.dart';
-import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/store.dart';
+import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/auth/auth_middleware.dart';
+import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/dashboard/dashboard_middleware.dart';
+import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/reducers/app_reducer.dart';
+import 'package:eduhub/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 
-void main() {
-  final Store<AppState> store = createStore();
-
-  runApp(TolabAdminApp(store: store));
-}
-
 class TolabAdminApp extends StatelessWidget {
   final Store<AppState> store;
 
-  const TolabAdminApp({required this.store, super.key});
+  const TolabAdminApp({super.key, required this.store});
 
   @override
   Widget build(BuildContext context) {
-    return StoreProvider(
+    return StoreProvider<AppState>(
       store: store,
       child: MaterialApp(
-        title: "Tolab Admin Panel",
         debugShowCheckedModeBanner: false,
-        home: LoginPage(),
+        title: "Tolab Admin Panel",
+
+        // Important: use app routing system
+        initialRoute: AppRoutes.splash,
+        onGenerateRoute: AppRouter.onGenerateRoute,
+        theme: ThemeData(
+          fontFamily: "Cairo",
+          scaffoldBackgroundColor: const Color(0xFF0F172A),
+        ),
       ),
     );
   }
+}
+
+void main() {
+  final api = ApiService();
+
+  final store = Store<AppState>(
+    appReducer,
+    initialState: AppState.initial(),
+    middleware: [
+      ...authMiddleware(api as ApiServiceAuth),
+      ...dashboardMiddleware(api as ApiServiceDashhoard),
+    ],
+  );
+
+  runApp(TolabAdminApp(store: store));
 }
