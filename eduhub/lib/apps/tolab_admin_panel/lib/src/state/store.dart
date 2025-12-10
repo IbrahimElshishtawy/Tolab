@@ -9,7 +9,7 @@ import 'auth/auth_middleware.dart';
 
 Store<AppState> createStore() {
   final apiAuth = ApiServiceAuth();
-  final apiDashhoard = ApiServiceDashhoard();
+  final apiDashhoard = ApiServiceDashboard();
   return Store<AppState>(
     appReducer,
     initialState: AppState.initial(),
