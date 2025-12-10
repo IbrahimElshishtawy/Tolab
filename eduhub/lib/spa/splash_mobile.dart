@@ -1,6 +1,5 @@
 // ignore_for_file: file_names
 
-import 'package:eduhub/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
