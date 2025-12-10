@@ -2,8 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+
 import '../../../../state/app_state.dart';
 import '../../../../state/auth/auth_state.dart';
+
 import '../widgets/animated_login_background.dart';
 import '../widgets/login_hero_card.dart';
 
@@ -15,25 +17,38 @@ class LoginPage_Dashboard extends StatelessWidget {
     return StoreConnector<AppState, AuthState>(
       converter: (store) => store.state.auth,
       distinct: true,
+
       onWillChange: (previous, current) {
+        //
+        // ========= SUCCESS: Redirect to Dashboard =========
+        //
         if (current.isloadingIn && !(previous?.isloadingIn ?? false)) {
-          Navigator.pushReplacementNamed(context, "/dashboard");
+          Future.microtask(() {
+            Navigator.pushReplacementNamed(context, "/dashboard");
+          });
         }
 
-        // عرض الخطأ إن وجد
-        if (current.errorMessage != null &&
-            current.errorMessage!.isNotEmpty &&
-            current.errorMessage != previous?.errorMessage) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(current.errorMessage!)));
+        //
+        // ========= ERROR: Show snackbar =========
+        //
+        final error = current.errorMessage;
+        if (error != null &&
+            error.isNotEmpty &&
+            error != previous?.errorMessage) {
+          Future.microtask(() {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(error), backgroundColor: Colors.redAccent),
+            );
+          });
         }
       },
+
       builder: (context, authState) {
         return Scaffold(
           body: Stack(
             children: [
               const AnimatedLoginBackground(),
+
               Center(child: LoginHeroCard(isLoading: authState.isloading)),
             ],
           ),
