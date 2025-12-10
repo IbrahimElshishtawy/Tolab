@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../../state/app_state.dart';
 import '../../../../state/auth/auth_actions.dart';
 import 'login_submit_button.dart';
@@ -17,18 +19,68 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
+
   final _emailCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
+
+  final _emailFocus = FocusNode();
+  final _passFocus = FocusNode();
+
+  bool _showPassword = false;
+  bool _rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+  }
 
   @override
   void dispose() {
     _emailCtrl.dispose();
     _passCtrl.dispose();
+    _emailFocus.dispose();
+    _passFocus.dispose();
     super.dispose();
   }
 
+  // ---------------------------
+  // LOAD SAVED CREDENTIALS
+  // ---------------------------
+  Future<void> _loadSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    final email = prefs.getString("saved_email");
+    final pass = prefs.getString("saved_pass");
+
+    if (email != null) _emailCtrl.text = email;
+    if (pass != null) _passCtrl.text = pass;
+
+    setState(() {
+      _rememberMe = email != null;
+    });
+  }
+
+  // ---------------------------
+  // SAVE CREDENTIALS
+  // ---------------------------
+  Future<void> _saveCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_rememberMe) {
+      await prefs.setString("saved_email", _emailCtrl.text.trim());
+      await prefs.setString("saved_pass", _passCtrl.text.trim());
+    } else {
+      await prefs.remove("saved_email");
+      await prefs.remove("saved_pass");
+    }
+  }
+
+  // ---------------------------
+  // SUBMIT LOGIN
+  // ---------------------------
   void _onSubmit() {
     if (!_formKey.currentState!.validate()) return;
+
+    _saveCredentials();
 
     final email = _emailCtrl.text.trim();
     final pass = _passCtrl.text.trim();
@@ -36,7 +88,11 @@ class _LoginFormState extends State<LoginForm> {
     StoreProvider.of<AppState>(context).dispatch(LoginAction(email, pass));
   }
 
-  InputDecoration _whiteInputDecoration(String label, IconData icon) {
+  InputDecoration _buildInputDecoration(
+    String label,
+    IconData icon, {
+    bool isPassword = false,
+  }) {
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(
@@ -45,28 +101,27 @@ class _LoginFormState extends State<LoginForm> {
       ),
       prefixIcon: Icon(icon, color: Colors.white),
 
-      // white borders
+      // Toggle password visibility
+      suffixIcon: isPassword
+          ? IconButton(
+              icon: Icon(
+                _showPassword ? Icons.visibility : Icons.visibility_off,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                setState(() => _showPassword = !_showPassword);
+              },
+            )
+          : null,
+
       enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(
-          color: Colors.white.withOpacity(0.80),
-          width: 1.3,
-        ),
-        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: Colors.white.withOpacity(0.80)),
+        borderRadius: BorderRadius.circular(12),
       ),
       focusedBorder: OutlineInputBorder(
         borderSide: const BorderSide(color: Colors.white, width: 1.8),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
       ),
-      errorBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.red, width: 1.5),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.redAccent, width: 1.8),
-        borderRadius: BorderRadius.circular(14),
-      ),
-
-      // padding
       contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
     );
   }
@@ -79,14 +134,27 @@ class _LoginFormState extends State<LoginForm> {
           key: _formKey,
           child: Column(
             children: [
+              // ---------------------------------------
+              // EMAIL FIELD
+              // ---------------------------------------
               TextFormField(
                 controller: _emailCtrl,
+                focusNode: _emailFocus,
                 cursorColor: Colors.white,
                 style: const TextStyle(color: Colors.white),
-                decoration: _whiteInputDecoration(
+                decoration: _buildInputDecoration(
                   "البريد الإلكتروني",
                   Icons.email_outlined,
                 ),
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
+
+                onFieldSubmitted: (_) {
+                  if (_emailCtrl.text.contains("@")) {
+                    FocusScope.of(context).requestFocus(_passFocus);
+                  }
+                },
+
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return "ادخل البريد الإلكتروني";
@@ -97,17 +165,27 @@ class _LoginFormState extends State<LoginForm> {
                   return null;
                 },
               ),
+
               const SizedBox(height: 16),
 
+              // ---------------------------------------
+              // PASSWORD FIELD
+              // ---------------------------------------
               TextFormField(
                 controller: _passCtrl,
+                focusNode: _passFocus,
                 cursorColor: Colors.white,
                 style: const TextStyle(color: Colors.white),
-                decoration: _whiteInputDecoration(
+                decoration: _buildInputDecoration(
                   "كلمة المرور",
                   Icons.lock_outline,
+                  isPassword: true,
                 ),
-                obscureText: true,
+                obscureText: !_showPassword,
+                textInputAction: TextInputAction.done,
+
+                onFieldSubmitted: (_) => _onSubmit(),
+
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return "ادخل كلمة المرور";
@@ -118,12 +196,39 @@ class _LoginFormState extends State<LoginForm> {
                   return null;
                 },
               ),
+
+              const SizedBox(height: 14),
+
+              // ---------------------------------------
+              // REMEMBER ME
+              // ---------------------------------------
+              Row(
+                children: [
+                  Checkbox(
+                    value: _rememberMe,
+                    activeColor: Colors.white,
+                    checkColor: Colors.black,
+                    side: const BorderSide(color: Colors.white),
+                    onChanged: (val) =>
+                        setState(() => _rememberMe = val ?? false),
+                  ),
+                  const Text("تذكرني", style: TextStyle(color: Colors.white)),
+                ],
+              ),
             ],
           ),
         ),
+
         const SizedBox(height: 24),
 
-        LoginSubmitButton(isLoading: widget.isLoading, onPressed: _onSubmit),
+        // ---------------------------------------
+        // SUBMIT BUTTON
+        // ---------------------------------------
+        LoginSubmitButton(
+          isLoading: widget.isLoading,
+          onPressed: _onSubmit,
+          isSuccess: false,
+        ),
       ],
     );
   }
