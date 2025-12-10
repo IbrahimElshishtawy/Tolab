@@ -2,7 +2,7 @@
 
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
+
 import 'login_form.dart';
 
 class LoginHeroCard extends StatefulWidget {
@@ -115,21 +115,20 @@ class _LoginHeroCardState extends State<LoginHeroCard>
             ),
 
             // Lottie Loading Overlay
-            if (widget.isLoading)
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Center(
-                    child: Lottie.asset(
-                      'assets/lottiefiles/login_success.json',
-                      repeat: true,
-                    ),
-                  ),
-                ),
-              ),
+            // if (widget.isLoading)
+            //   Positioned.fill(
+            //     child: Container(
+            //       decoration: BoxDecoration(
+            //         color: Colors.black.withOpacity(0.3),
+            //         borderRadius: BorderRadius.circular(24),
+            //       ),
+            //       child: Center(
+            //         child: Lottie.asset(
+            //           'assets/lottiefiles/login_success.json',
+            //           repeat: true,
+            //         ),
+            //       ),
+            //     ),
           ],
         ),
       ),
