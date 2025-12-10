@@ -1,3 +1,5 @@
+// ignore_for_file: camel_case_types
+
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import '../../../../state/app_state.dart';
@@ -5,8 +7,8 @@ import '../../../../state/auth/auth_state.dart';
 import '../widgets/animated_login_background.dart';
 import '../widgets/login_hero_card.dart';
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+class LoginPage_Dashboard extends StatelessWidget {
+  const LoginPage_Dashboard({super.key});
 
   @override
   Widget build(BuildContext context) {
