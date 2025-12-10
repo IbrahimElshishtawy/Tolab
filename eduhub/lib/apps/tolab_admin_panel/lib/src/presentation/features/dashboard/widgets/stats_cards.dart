@@ -20,7 +20,7 @@ class StatsCards extends StatelessWidget {
         _buildCard(
           context: context,
           label: "Students",
-          value: state.totalStudents.toString(),
+          value: "${state.totalStudents}",
           icon: Icons.people_alt_outlined,
           color: Colors.blueAccent,
           onTap: () {
