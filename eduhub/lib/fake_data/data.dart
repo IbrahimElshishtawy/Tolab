@@ -729,3 +729,17 @@ List<Map<String, dynamic>> itSpecialists = [
     ],
   },
 ];
+List<Map<String, dynamic>> admins = [
+  {
+    "email": "admin@tolab.com",
+    "password": "123456",
+    "name": "Super Admin",
+    "role": "Administrator",
+  },
+  {
+    "email": "manager@tolab.com",
+    "password": "manager123",
+    "name": "IT Manager",
+    "role": "Manager",
+  },
+];
