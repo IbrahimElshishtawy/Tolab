@@ -1,6 +1,6 @@
 // ignore_for_file: deprecated_member_use, file_names
 
-import 'package:eduhub/router/app_routes..dart';
+import 'package:eduhub/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
