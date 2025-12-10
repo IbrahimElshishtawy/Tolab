@@ -1,5 +1,5 @@
+import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/Api_Service_dashhoard.dart';
 import 'package:redux/redux.dart';
-import '../../core/api/Api_Service_dashhoard.dart';
 import '../app_state.dart';
 import 'dashboard_actions.dart';
 
@@ -12,23 +12,19 @@ List<Middleware<AppState>> dashboardMiddleware(ApiServiceDashboard api) {
 }
 
 Middleware<AppState> _loadDashboard(ApiServiceDashboard api) {
-  return (Store<AppState> store, action, NextDispatcher next) async {
+  return (store, action, next) async {
     next(action);
 
-    try {
-      final stats = await api.fetchDashboardState();
+    final data = await api.fetchDashboardState();
 
-      store.dispatch(
-        DashboardDataLoadedAction(
-          students: stats.totalStudents,
-          doctors: stats.totalDoctors,
-          subjects: stats.totalSubjects,
-          pending: stats.pendingRequests,
-          activity: stats.recentActivity,
-        ),
-      );
-    } catch (e) {
-      store.dispatch(DashboardDataFailedAction(e.toString()));
-    }
+    store.dispatch(
+      DashboardDataLoadedAction(
+        students: data.totalStudents,
+        doctors: data.totalDoctors,
+        subjects: data.totalSubjects,
+        pending: data.pendingRequests,
+        activity: data.recentActivity,
+      ),
+    );
   };
 }
