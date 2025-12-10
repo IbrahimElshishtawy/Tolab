@@ -3,6 +3,7 @@ class AuthState {
   final bool isloadingIn;
   final String? errorMessage;
   final String? token;
+  final String? email;
   // Add other fields as needed
   //final User? user;
   // final bool isAuthenticated;
@@ -14,6 +15,7 @@ class AuthState {
     required this.isloadingIn,
     this.errorMessage,
     this.token,
+    this.email,
     // Add other fields here as needed
     // this.user,
     // this.isAuthenticated = false,
@@ -27,6 +29,7 @@ class AuthState {
       isloadingIn: false,
       errorMessage: null,
       token: null,
+      email: null,
       // Initialize other fields as needed
       // user: null,
       // isAuthenticated: false,
@@ -40,6 +43,7 @@ class AuthState {
     bool? isloadingIn,
     String? errorMessage,
     String? token,
+    String? email,
     // Add other fields here as needed
     // User? user,
     // bool? isAuthenticated,
@@ -52,6 +56,7 @@ class AuthState {
       isloadingIn: isloadingIn ?? this.isloadingIn,
       errorMessage: errorMessage ?? this.errorMessage,
       token: token ?? this.token,
+      email: email ?? this.email,
       // Copy other fields as needed
       // user: user ?? this.user,
       // isAuthenticated: isAuthenticated ?? this.isAuthenticated,
