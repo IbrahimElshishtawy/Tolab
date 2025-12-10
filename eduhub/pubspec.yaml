@@ -42,6 +42,7 @@ dependencies:
   alp_animated_splashscreen: ^0.0.6
   redux: ^5.0.0
   flutter_redux: ^0.10.0
+  shared_preferences: ^2.5.4
 
 dev_dependencies:
   flutter_test:
