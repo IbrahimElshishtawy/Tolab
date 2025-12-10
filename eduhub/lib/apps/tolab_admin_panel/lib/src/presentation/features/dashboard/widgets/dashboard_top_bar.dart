@@ -1,4 +1,3 @@
-// TODO Implement this library.
 import 'package:flutter/material.dart';
 
 class DashboardTopBar extends StatelessWidget {
@@ -7,17 +6,23 @@ class DashboardTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: const [
-        Text(
-          "Dashboard",
+      children: [
+        const Text(
+          "Tolab Admin Dashboard",
           style: TextStyle(
             color: Colors.white,
-            fontSize: 28,
+            fontSize: 26,
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(width: 8),
-        Icon(Icons.dashboard_customize, color: Colors.white70),
+
+        const Spacer(),
+
+        CircleAvatar(
+          radius: 22,
+          backgroundColor: Colors.white.withOpacity(0.2),
+          child: const Icon(Icons.settings, color: Colors.white),
+        ),
       ],
     );
   }
