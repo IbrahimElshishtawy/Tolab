@@ -26,7 +26,7 @@ class DashboardStatCards extends StatelessWidget {
           child: _statCard(
             label: "Doctors",
             value: "${state.totalDoctors}",
-            icon: Icons.medical_services_outlined,
+            icon: Icons.school_outlined,
             color: Colors.greenAccent,
           ),
         ),
