@@ -3,7 +3,7 @@ import '../../core/api/Api_Service_dashhoard.dart';
 import '../app_state.dart';
 import 'dashboard_actions.dart';
 
-List<Middleware<AppState>> dashboardMiddleware(ApiServiceDashhoard api) {
+List<Middleware<AppState>> dashboardMiddleware(ApiServiceDashboard api) {
   return [
     TypedMiddleware<AppState, LoadDashboardDataAction>(
       _loadDashboard(api),
@@ -11,12 +11,12 @@ List<Middleware<AppState>> dashboardMiddleware(ApiServiceDashhoard api) {
   ];
 }
 
-Middleware<AppState> _loadDashboard(ApiServiceDashhoard api) {
+Middleware<AppState> _loadDashboard(ApiServiceDashboard api) {
   return (Store<AppState> store, action, NextDispatcher next) async {
     next(action);
 
     try {
-      final stats = await api.fetchDashboardStats();
+      final stats = await api.fetchDashboardState();
 
       store.dispatch(
         DashboardDataLoadedAction(
