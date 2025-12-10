@@ -69,7 +69,7 @@ class TolabAdminApp extends StatelessWidget {
 
 void main() {
   final auth = ApiServiceAuth();
-  final Dashhoard = ApiServiceDashhoard();
+  final Dashhoard = ApiServiceDashboard();
   final store = Store<AppState>(
     appReducer,
     initialState: AppState.initial(),
