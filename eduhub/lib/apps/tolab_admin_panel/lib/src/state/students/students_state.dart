@@ -3,14 +3,10 @@ class StudentsState {
   final List<Map<String, dynamic>> students;
   final String? error;
 
-  const StudentsState({
-    required this.isLoading,
-    required this.students,
-    this.error,
-  });
+  StudentsState({required this.isLoading, required this.students, this.error});
 
   factory StudentsState.initial() {
-    return const StudentsState(isLoading: false, students: [], error: null);
+    return StudentsState(isLoading: false, students: [], error: null);
   }
 
   StudentsState copyWith({
