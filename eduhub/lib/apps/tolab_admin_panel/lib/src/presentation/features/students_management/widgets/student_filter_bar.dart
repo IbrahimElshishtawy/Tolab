@@ -1,4 +1,6 @@
 // TODO Implement this library.
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 
 class StudentFilterBar extends StatelessWidget {
@@ -25,7 +27,7 @@ class StudentFilterBar extends StatelessWidget {
       children: [
         Expanded(
           child: DropdownButtonFormField<String>(
-            value: selectedDepartment,
+            initialValue: selectedDepartment,
             items: departments.map((d) {
               return DropdownMenuItem(
                 value: d,
@@ -40,7 +42,7 @@ class StudentFilterBar extends StatelessWidget {
         const SizedBox(width: 16),
         Expanded(
           child: DropdownButtonFormField<int>(
-            value: selectedYear,
+            initialValue: selectedYear,
             items: years.map((y) {
               return DropdownMenuItem(
                 value: y,
