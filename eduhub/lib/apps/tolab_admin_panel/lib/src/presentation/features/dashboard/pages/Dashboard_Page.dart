@@ -1,10 +1,13 @@
 // ignore_for_file: file_names
 
+import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/dashboard/dashboard_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
 import '../../../../state/app_state.dart';
 import '../../../../state/dashboard/dashboard_state.dart';
+import '../../../../state/dashboard/dashboard_selectors.dart';
+
 import '../widgets/stats_cards.dart';
 import '../widgets/recent_activity_list.dart';
 import '../widgets/dashboard_top_bar.dart';
@@ -16,7 +19,10 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, DashboardState>(
-      converter: (store) => store.state.dashboard,
+      converter: (store) => selectDashboardState(store.state),
+      onInit: (store) {
+        store.dispatch(LoadDashboardDataAction());
+      },
       builder: (context, state) {
         return Scaffold(
           backgroundColor: const Color(0xFF0F172A),
