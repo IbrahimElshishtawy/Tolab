@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/dashboard/dashboard_state.dart';
 
 class ApiServiceDashhoard {
