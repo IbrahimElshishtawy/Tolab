@@ -1,32 +1,75 @@
 // ignore_for_file: file_names
 
-import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/dashboard/dashboard_state.dart';
+import 'dart:async';
 
-class ApiServiceDashhoard {
-  Future<String> login(String email, String password) async {
-    await Future.delayed(const Duration(seconds: 1));
+import 'package:eduhub/fake_data/data.dart';
 
-    if (email == "admin@tolab.com" && password == "123456") {
-      return "FAKE_TOKEN_123";
+import '../../state/dashboard/dashboard_state.dart';
+
+class ApiServiceDashboard {
+  // -------------------------------------------------------------------
+  // Dashboard: Return Stats From Fake Data
+  // -------------------------------------------------------------------
+  Future<DashboardState> fetchDashboardState() async {
+    await Future.delayed(const Duration(milliseconds: 600));
+
+    try {
+      // ----------------------------
+      // COUNT STUDENTS
+      // ----------------------------
+      final int totalStudents = students.length;
+
+      // ----------------------------
+      // COUNT PROFESSORS
+      // ----------------------------
+      final int totalDoctors = professors.length;
+
+      // ----------------------------
+      // COUNT UNIQUE SUBJECTS
+      // ----------------------------
+      final Set<String> subjectSet = {};
+
+      for (var student in students) {
+        final subjects = student["subjects_grades"] as Map<String, dynamic>;
+        subjectSet.addAll(subjects.keys);
+      }
+
+      final int totalSubjects = subjectSet.length;
+
+      // ----------------------------
+      // PENDING REQUESTS (Fake)
+      // ----------------------------
+      final int pendingRequests = 5;
+
+      // ----------------------------
+      // RECENT ACTIVITY (Fake)
+      // ----------------------------
+      final List<String> recentActivity = [
+        "تم تسجيل طالب جديد: ${students.first['name']}",
+        "تعديل مادة Machine Learning",
+        "دخول دكتور جديد للنظام",
+        "رفع واجب جديد في AI Fundamentals",
+      ];
+
+      return DashboardState(
+        isLoading: false,
+        totalStudents: totalStudents,
+        totalDoctors: totalDoctors,
+        totalSubjects: totalSubjects,
+        pendingRequests: pendingRequests,
+        recentActivity: recentActivity,
+        error: null,
+      );
+    } catch (e) {
+      return DashboardState(
+        isLoading: false,
+        totalStudents: 0,
+        totalDoctors: 0,
+        totalSubjects: 0,
+        pendingRequests: 0,
+        recentActivity: [],
+        error: e.toString(),
+      );
     }
-    throw Exception("Invalid credentials");
-  }
-
-  Future<DashboardState> fetchDashboardStats() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    return DashboardState(
-      isLoading: false,
-      totalStudents: 1250,
-      totalDoctors: 42,
-      totalSubjects: 36,
-      pendingRequests: 8,
-      recentActivity: [
-        "طالب جديد: Ahmed تم تسجيله في CS",
-        "تعديل مادة: Algorithms 101",
-        "طلب انضمام جديد من الطالبة: Sara",
-        "Doctor Ahmed logged in منذ 1 ساعة",
-      ],
-    );
   }
 }
