@@ -4,7 +4,9 @@ import '../app_state.dart';
 import 'students_actions.dart';
 
 List<Middleware<AppState>> createStudentsMiddleware(ApiServiceStudents api) {
-  return [TypedMiddleware<AppState, LoadStudentsAction>(_loadStudents(api))];
+  return [
+    TypedMiddleware<AppState, LoadStudentsAction>(_loadStudents(api)).call,
+  ];
 }
 
 Middleware<AppState> _loadStudents(ApiServiceStudents api) {
