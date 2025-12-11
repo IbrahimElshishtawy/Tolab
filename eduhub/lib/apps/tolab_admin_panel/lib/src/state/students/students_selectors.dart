@@ -1,5 +1,6 @@
 import '../app_state.dart';
 
-studentsSelector(AppState state) => state.students.students;
-studentsIsLoadingSelector(AppState state) => state.students.isLoading;
-studentsErrorSelector(AppState state) => state.students.error;
+List<Map<String, dynamic>> studentsSelector(AppState state) =>
+    state.students.students;
+bool studentsIsLoadingSelector(AppState state) => state.students.isLoading;
+String? studentsErrorSelector(AppState state) => state.students.error;
