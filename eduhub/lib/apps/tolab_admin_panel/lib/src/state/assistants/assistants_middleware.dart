@@ -7,7 +7,7 @@ List<Middleware<AppState>> createAssistantsMiddleware(
   ApiServiceAssistants api,
 ) {
   return [
-    TypedMiddleware<AppState, LoadAssistantsAction>(_loadAssistants(api)),
+    TypedMiddleware<AppState, LoadAssistantsAction>(_loadAssistants(api)).call,
   ];
 }
 
