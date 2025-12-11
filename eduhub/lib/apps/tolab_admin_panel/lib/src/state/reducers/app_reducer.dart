@@ -11,8 +11,7 @@ AppState appReducer(AppState state, dynamic action) {
     dashboard: dashboardReducer(state.dashboard, action),
     students: studentsReducer(state.students, action), 
     doctors: doctorsReducer(state.doctors , action) , 
-    assistants: assistantsReducer(state.assistants , action) , 
-    structure: ac , 
-    permissions: ,
+    assistants: assistantsReducer(state.assistants , action), academicStructure: , permissions:  ,  
+    
   );
 }
