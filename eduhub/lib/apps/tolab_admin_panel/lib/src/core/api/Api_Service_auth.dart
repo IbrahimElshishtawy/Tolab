@@ -4,7 +4,7 @@ import 'package:eduhub/fake_data/data.dart';
 
 class ApiServiceAuth {
   Future<String> login(String email, String password) async {
-    await Future.delayed(const Duration(milliseconds: 800)); // simulate server
+    await Future.delayed(const Duration(milliseconds: 1000)); // simulate server
     final admin = admins.firstWhere(
       (a) => a["email"] == email && a["password"] == password,
       orElse: () => {},
