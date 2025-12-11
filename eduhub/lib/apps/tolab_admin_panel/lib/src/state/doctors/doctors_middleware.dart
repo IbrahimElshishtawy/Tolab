@@ -5,7 +5,7 @@ import '../app_state.dart';
 import 'doctors_actions.dart';
 
 List<Middleware<AppState>> createDoctorsMiddleware(ApiServiceDoctors api) {
-  return [TypedMiddleware<AppState, LoadDoctorsAction>(_loadDoctors(api))];
+  return [TypedMiddleware<AppState, LoadDoctorsAction>(_loadDoctors(api)).call];
 }
 
 Middleware<AppState> _loadDoctors(ApiServiceDoctors api) {
