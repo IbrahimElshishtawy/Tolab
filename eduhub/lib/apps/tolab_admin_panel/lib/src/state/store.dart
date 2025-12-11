@@ -3,9 +3,11 @@ import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/Api_Service_dashh
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/api_service_assistants.dart';
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/api_service_doctors.dart';
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/api_service_students.dart';
+import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/academic_structure/academic_structure_middleware.dart';
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/assistants/assistants_middleware.dart';
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/dashboard/dashboard_middleware.dart';
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/doctors/doctors_middleware.dart';
+import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/permissions/permissions_middleware.dart';
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/students/students_middleware.dart';
 import 'package:redux/redux.dart';
 import 'app_state.dart';
@@ -27,6 +29,8 @@ Store<AppState> createStore() {
       ...createAssistantsMiddleware(apiAssistants),
       ...createDoctorsMiddleware(apiDoctors),
       ...createStudentsMiddleware(apiStudents),
+      ...academicStructureMiddleware(),
+      ...permissions(),
     ],
   );
 }
