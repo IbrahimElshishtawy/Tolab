@@ -1,4 +1,4 @@
-// ignore_for_file: camel_case_types
+// ignore_for_file: use_build_context_synchronously, camel_case_types
 
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
