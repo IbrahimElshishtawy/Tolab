@@ -1,8 +1,8 @@
 class LoadStudentsAction {}
 
 class StudentsLoadedAction {
-  final List<Map<String, dynamic>> students;
-  StudentsLoadedAction(this.students);
+  final List<Map<String, dynamic>> data;
+  StudentsLoadedAction(this.data);
 }
 
 class StudentsFailedAction {
