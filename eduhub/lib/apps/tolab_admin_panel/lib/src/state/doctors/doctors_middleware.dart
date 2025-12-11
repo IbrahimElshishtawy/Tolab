@@ -1,4 +1,3 @@
-// TODO Implement this library.
 import 'package:redux/redux.dart';
 import '../../core/api/api_service_doctors.dart';
 import '../app_state.dart';
