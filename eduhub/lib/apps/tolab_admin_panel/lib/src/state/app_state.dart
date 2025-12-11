@@ -13,14 +13,14 @@ class AppState {
   final DoctorsState doctors;
   final DashboardState dashboard;
   final AssistantsState assistants;
-  final AcademicStructureState structure;
+  final AcademicStructureState academicStructure;
   final PermissionsState permissions;
 
   AppState({
     required this.students,
     required this.doctors,
     required this.assistants,
-    required this.structure,
+    required this.academicStructure,
     required this.permissions,
     required this.dashboard,
     required this.auth,
@@ -30,9 +30,9 @@ class AppState {
     students: StudentsState.initial(),
     doctors: DoctorsState.initial(),
     assistants: AssistantsState.initial(),
-    structure: AcademicStructureState.initial(),
     permissions: PermissionsState.initial(),
     dashboard: DashboardState.initial(),
     auth: AuthState.initial(),
+    academicStructure: AcademicStructureState.initial(),
   );
 }
