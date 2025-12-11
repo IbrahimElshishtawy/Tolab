@@ -34,6 +34,15 @@ class _StudentsPageState extends State<StudentsPage> {
     }).toList();
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color.fromARGB(223, 91, 92, 103),
+        title: Center(
+          child: Text(
+            "admin",
+            style: TextStyle(color: Colors.white, fontSize: 24),
+          ),
+        ),
+      ),
       backgroundColor: const Color(0xFF0F172A),
       body: Padding(
         padding: const EdgeInsets.all(24),
