@@ -1,12 +1,19 @@
+import 'package:meta/meta.dart';
+
+@immutable
 class StudentsState {
   final bool isLoading;
   final List<Map<String, dynamic>> students;
   final String? error;
 
-  StudentsState({required this.isLoading, required this.students, this.error});
+  const StudentsState({
+    required this.isLoading,
+    required this.students,
+    this.error,
+  });
 
   factory StudentsState.initial() {
-    return StudentsState(isLoading: false, students: [], error: null);
+    return const StudentsState(isLoading: false, students: [], error: null);
   }
 
   StudentsState copyWith({
