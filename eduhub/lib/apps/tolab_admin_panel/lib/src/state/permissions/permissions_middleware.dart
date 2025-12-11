@@ -5,7 +5,7 @@ import '../app_state.dart';
 import 'permissions_actions.dart';
 
 class PermissionsMiddleware {
-  static List<Middleware<AppState>> create() {
+  static List<Middleware<AppState>> permissions() {
     return [
       TypedMiddleware<AppState, LoadPermissionsAction>(_loadPermissions).call,
       TypedMiddleware<AppState, UpdatePermissionsAction>(
