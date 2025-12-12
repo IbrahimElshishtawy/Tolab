@@ -19,27 +19,19 @@ class LoginPage_Dashboard extends StatelessWidget {
       distinct: true,
 
       onWillChange: (previous, current) {
-        //
-        // ========= SUCCESS: Redirect to Dashboard =========
-        //
-        if (current.isloadingIn && !(previous?.isloadingIn ?? false)) {
-          Future.microtask(() {
-            Navigator.pushReplacementNamed(context, "/dashboard");
-          });
+        final wasLoggedIn = previous?.isloadingIn ?? false;
+        final isLoggedInNow = current.isloadingIn;
+
+        if (!wasLoggedIn && isLoggedInNow) {
+          Navigator.pushReplacementNamed(context, "/dashboard");
         }
 
-        //
-        // ========= ERROR: Show snackbar =========
-        //
-        final error = current.errorMessage;
-        if (error != null &&
-            error.isNotEmpty &&
-            error != previous?.errorMessage) {
-          Future.microtask(() {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(error), backgroundColor: Colors.redAccent),
-            );
-          });
+        if (current.errorMessage != null &&
+            current.errorMessage!.isNotEmpty &&
+            current.errorMessage != previous?.errorMessage) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(current.errorMessage!)));
         }
       },
 
