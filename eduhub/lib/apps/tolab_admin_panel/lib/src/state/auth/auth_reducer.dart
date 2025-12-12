@@ -1,5 +1,5 @@
-import 'auth_actions.dart';
 import 'auth_state.dart';
+import 'auth_actions.dart';
 
 AuthState authReducer(AuthState state, dynamic action) {
   if (action is LoginAction) {
@@ -11,15 +11,16 @@ AuthState authReducer(AuthState state, dynamic action) {
       isloading: false,
       isloadingIn: true,
       token: action.token,
+      errorMessage: null,
     );
   }
 
   if (action is LoginFailedAction) {
-    return state.copyWith(isloading: false, errorMessage: action.message);
-  }
-
-  if (action is LogoutAction) {
-    return AuthState.initial();
+    return state.copyWith(
+      isloading: false,
+      isloadingIn: false,
+      errorMessage: action.error,
+    );
   }
 
   return state;
