@@ -1,20 +1,16 @@
 class LoginAction {
   final String email;
   final String password;
-
   LoginAction(this.email, this.password);
 }
 
 class LoginSuccessAction {
   final String token;
-
-  LoginSuccessAction(this.token);
+  final String email;
+  LoginSuccessAction({required this.token, required this.email});
 }
 
 class LoginFailedAction {
-  final String message;
-
-  LoginFailedAction(this.message);
+  final String error;
+  LoginFailedAction(this.error);
 }
-
-class LogoutAction {}
