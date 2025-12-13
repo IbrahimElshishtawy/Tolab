@@ -1,49 +1,31 @@
-import 'package:meta/meta.dart';
-
-@immutable
 class StudentsState {
-  final bool isLoading;
   final List<Map<String, dynamic>> students;
-  final String? error;
-  final String? department;
-  final int? year;
-  final String? programType;
+  final String selectedDepartment;
+  final int selectedYear;
 
-  const StudentsState({
-    required this.isLoading,
+  StudentsState({
     required this.students,
-    this.error,
-    this.department,
-    this.year,
-    this.programType,
+    required this.selectedDepartment,
+    required this.selectedYear,
   });
 
   factory StudentsState.initial() {
-    return const StudentsState(
-      isLoading: false,
-      students: [],
-      error: null,
-      programType: null,
-      department: null,
-      year: null,
+    return StudentsState(
+      students: [], // يمكن تعبئة هذه البيانات عند الحاجة
+      selectedDepartment: "Computer Science",
+      selectedYear: 1,
     );
   }
 
   StudentsState copyWith({
-    bool? isLoading,
     List<Map<String, dynamic>>? students,
-    String? error,
-    String? programType,
-    String? department,
-    int? year,
+    String? selectedDepartment,
+    int? selectedYear,
   }) {
     return StudentsState(
-      isLoading: isLoading ?? this.isLoading,
       students: students ?? this.students,
-      error: error,
-      programType: programType ?? this.programType,
-      department: department ?? this.department,
-      year: year ?? this.year,
+      selectedDepartment: selectedDepartment ?? this.selectedDepartment,
+      selectedYear: selectedYear ?? this.selectedYear,
     );
   }
 }
