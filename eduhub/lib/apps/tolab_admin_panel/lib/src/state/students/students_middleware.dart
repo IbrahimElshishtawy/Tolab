@@ -1,23 +1,30 @@
-import 'package:redux/redux.dart';
-import '../../core/api/api_service_students.dart';
-import '../app_state.dart';
-import 'students_actions.dart';
+// students_middleware.dart
 
-List<Middleware<AppState>> createStudentsMiddleware(ApiServiceStudents api) {
+import 'package:redux/redux.dart';
+import 'students_actions.dart';
+import '../app_state.dart';
+
+List<Middleware<AppState>> students() {
   return [
-    TypedMiddleware<AppState, LoadStudentsAction>(_loadStudents(api)).call,
+    TypedMiddleware<AppState, FilterStudentsByYearAction>(
+      _filterStudentsByYear,
+    ).call,
+    TypedMiddleware<AppState, FilterStudentsByDepartmentAction>(
+      _filterStudentsByDepartment,
+    ).call,
   ];
 }
 
-Middleware<AppState> _loadStudents(ApiServiceStudents api) {
-  return (Store<AppState> store, action, NextDispatcher next) async {
-    next(action);
+void _filterStudentsByYear(
+  Store<AppState> store,
+  FilterStudentsByYearAction action,
+  NextDispatcher next,
+) async => next(action);
 
-    try {
-      final data = await api.fetchStudents();
-      store.dispatch(StudentsLoadedAction(data));
-    } catch (e) {
-      store.dispatch(StudentsFailedAction(e.toString()));
-    }
-  };
+void _filterStudentsByDepartment(
+  Store<AppState> store,
+  FilterStudentsByDepartmentAction action,
+  NextDispatcher next,
+) async {
+  next(action);
 }
