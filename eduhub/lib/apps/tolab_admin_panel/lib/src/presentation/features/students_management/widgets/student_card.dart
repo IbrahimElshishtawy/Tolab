@@ -1,8 +1,8 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:eduhub/apps/tolab_admin_panel/lib/src/presentation/features/students_management/pages/student_details_page.dart';
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/app_state.dart';
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/students/students_actions.dart';
-import 'package:eduhub/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
@@ -24,7 +24,12 @@ class StudentCard extends StatelessWidget {
     return InkWell(
       onTap: () {
         StoreProvider.of<AppState>(context).dispatch(LoadStudentsAction());
-        Navigator.pushNamed(context, AppRoutes.Student_Details);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StudentDetailsPage(student: student!),
+          ),
+        );
       },
       child: Container(
         padding: const EdgeInsets.all(16),
