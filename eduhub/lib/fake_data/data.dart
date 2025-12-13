@@ -1,4 +1,4 @@
-List<Map<String, dynamic>> students = [
+List<Map<String, dynamic>> student = [
   {
     "name": "Ahmed Ali",
     "student_id": "S001",
