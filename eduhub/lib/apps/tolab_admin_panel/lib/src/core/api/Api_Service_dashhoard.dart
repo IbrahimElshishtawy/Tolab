@@ -17,7 +17,7 @@ class ApiServiceDashboard {
       // ----------------------------------------------------------
       // COUNT STUDENTS
       // ----------------------------------------------------------
-      int totalStudents = students.length;
+      int totalStudents = student.length;
       if (kDebugMode) {
         print("Total Students: $totalStudents");
       }
@@ -35,7 +35,7 @@ class ApiServiceDashboard {
       // ----------------------------------------------------------
       final Set<String> subjectsSet = {};
 
-      for (var student in students) {
+      for (var student in student) {
         final subjectsMap = student["subjects_grades"] as Map<String, dynamic>;
         subjectsSet.addAll(subjectsMap.keys);
       }
@@ -60,10 +60,10 @@ class ApiServiceDashboard {
       // Recent Activity
       // ----------------------------------------------------------
       List<String> recentActivity = [
-        "Student added: ${students.last["name"]}",
+        "Student added: ${student.last["name"]}",
         "Professor logged in: ${professors.first["name"]}",
         "AI Ethics subject updated",
-        "${students[2]["name"]} achieved GPA ${students[2]["gpa_current"]}",
+        "${student[2]["name"]} achieved GPA ${student[2]["gpa_current"]}",
       ];
 
       if (kDebugMode) {
