@@ -3,6 +3,7 @@
 
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/presentation/features/auth/pages/login_page.dart';
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/presentation/features/dashboard/pages/Dashboard_Page.dart';
+import 'package:eduhub/apps/tolab_admin_panel/lib/src/presentation/features/students_management/pages/student_details_page.dart';
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/presentation/features/students_management/pages/students_page.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +14,7 @@ class AppRoutes {
   static const String dashboard = '/dashboard';
   static const String login_dashboard = '/login_Dashboard';
   static const String students = '/students';
+  static const String Student_Details = '/StudentDetails';
 }
 
 class AppRouter {
@@ -29,6 +31,12 @@ class AppRouter {
 
       case AppRoutes.students:
         return MaterialPageRoute(builder: (_) => const StudentsPage());
+
+      case AppRoutes.Student_Details:
+        return MaterialPageRoute(
+          builder: (_) => const StudentDetailsPage(student: {}),
+        );
+
       default:
         return MaterialPageRoute(builder: (_) => const Splashscreen());
     }
