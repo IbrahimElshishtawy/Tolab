@@ -1,72 +1,77 @@
-import 'package:eduhub/apps/tolab_admin_panel/lib/src/presentation/features/students_management/models/StudentsVM.dart';
+// students_page.dart
+
+import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/app_state.dart';
+import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/students/students_state.dart';
+import 'package:eduhub/fake_data/data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-
-import '../../../../state/app_state.dart';
-
 import '../widgets/student_card.dart';
+import '../widgets/student_search_bar.dart';
 import '../widgets/student_filter_bar.dart';
 
-class StudentsPage extends StatelessWidget {
+class StudentsPage extends StatefulWidget {
   const StudentsPage({super.key});
 
   @override
+  State<StudentsPage> createState() => _StudentsPageState();
+}
+
+class _StudentsPageState extends State<StudentsPage> {
+  String searchQuery = "";
+  String? selectedDepartment;
+  int? selectedYear;
+
+  @override
   Widget build(BuildContext context) {
-    return StoreConnector<AppState, StudentsVM>(
-      converter: StudentsVM.fromStore,
-      builder: (context, vm) {
-        // 🔐 Permissions Guard
-        if (!vm.canViewStudents) {
-          return const Scaffold(
-            backgroundColor: Color(0xFF0F172A),
-            body: Center(
-              child: Text(
-                "Access Denied",
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
-            ),
-          );
-        }
+    return StoreConnector<AppState, StudentsState>(
+      converter: (store) => store.state.students,
+      builder: (context, studentsState) {
+        final filtered = student.where((student) {
+          final matchesSearch = student["name"]
+              .toString()
+              .toLowerCase()
+              .contains(searchQuery.toLowerCase());
+
+          final matchesDepartment =
+              selectedDepartment == null ||
+              student["department"] == selectedDepartment;
+
+          final matchesYear =
+              selectedYear == null || student["year"] == selectedYear;
+
+          return matchesSearch && matchesDepartment && matchesYear;
+        }).toList();
 
         return Scaffold(
-          backgroundColor: const Color(0xFF0F172A),
-
-          // 🧠 AppBar احترافي
           appBar: AppBar(
-            backgroundColor: const Color(0xFF1E293B),
-            leading: const BackButton(color: Colors.white),
-            title: const Text("Students Management"),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.download),
-                onPressed: () {}, // Export later
+            backgroundColor: Color.fromARGB(223, 91, 92, 103),
+            title: Center(
+              child: Text(
+                "admin",
+                style: TextStyle(color: Colors.white, fontSize: 24),
               ),
-              if (vm.canEditStudents)
-                IconButton(
-                  icon: const Icon(Icons.person_add),
-                  onPressed: () {},
-                ),
-            ],
+            ),
           ),
-
+          backgroundColor: const Color(0xFF0F172A),
           body: Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
-                // 🧩 Filters Panel
-                StudentFilterBar(
-                  selectedDepartment: vm.department,
-                  selectedYear: vm.year,
-                  onDepartmentChange: vm.onDepartmentChange,
-                  onYearChange: vm.onYearChange,
+                StudentSearchBar(
+                  onChanged: (v) => setState(() => searchQuery = v),
                 ),
-
-                const SizedBox(height: 24),
-
-                // 🧩 Students Grid
+                const SizedBox(height: 12),
+                StudentFilterBar(
+                  selectedDepartment: studentsState.selectedDepartment,
+                  selectedYear: studentsState.selectedYear,
+                  onDepartmentChange: (d) =>
+                      setState(() => selectedDepartment = d),
+                  onYearChange: (y) => setState(() => selectedYear = y),
+                ),
+                const SizedBox(height: 22),
                 Expanded(
                   child: GridView.builder(
-                    itemCount: vm.students.length,
+                    itemCount: filtered.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
@@ -75,7 +80,7 @@ class StudentsPage extends StatelessWidget {
                           childAspectRatio: 1.9,
                         ),
                     itemBuilder: (_, i) {
-                      return StudentCard(student: vm.students[i]);
+                      return StudentCard(student: filtered[i]);
                     },
                   ),
                 ),
