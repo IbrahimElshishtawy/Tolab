@@ -2,7 +2,6 @@ import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/Api_Service_auth.
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/Api_Service_dashhoard.dart';
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/api_service_assistants.dart';
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/api_service_doctors.dart';
-import 'package:eduhub/apps/tolab_admin_panel/lib/src/core/api/api_service_students.dart';
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/academic_structure/academic_structure_middleware.dart';
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/assistants/assistants_middleware.dart';
 import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/dashboard/dashboard_middleware.dart';
@@ -19,7 +18,6 @@ Store<AppState> createStore() {
   final apiDashhoard = ApiServiceDashboard();
   final apiAssistants = ApiServiceAssistants();
   final apiDoctors = ApiServiceDoctors();
-  final apiStudents = ApiServiceStudents();
   return Store<AppState>(
     appReducer,
     initialState: AppState.initial(),
@@ -28,7 +26,7 @@ Store<AppState> createStore() {
       ...dashboardMiddleware(apiDashhoard),
       ...createAssistantsMiddleware(apiAssistants),
       ...createDoctorsMiddleware(apiDoctors),
-      ...createStudentsMiddleware(apiStudents),
+      ...students(),
       ...academicStructureMiddleware(),
       ...permissions(),
     ],
