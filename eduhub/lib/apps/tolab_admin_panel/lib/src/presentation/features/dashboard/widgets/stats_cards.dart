@@ -1,10 +1,10 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:eduhub/apps/tolab_admin_panel/lib/src/state/students/students_actions.dart';
 import 'package:eduhub/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import '../../../../state/app_state.dart';
-import '../../../../state/students/students_actions.dart';
 
 import '../../../../state/dashboard/dashboard_state.dart';
 
