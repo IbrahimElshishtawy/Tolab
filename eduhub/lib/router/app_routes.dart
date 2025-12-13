@@ -33,8 +33,10 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const StudentsPage());
 
       case AppRoutes.Student_Details:
+        // التقاط البيانات الممررة عبر arguments
+        final student = settings.arguments as Map<String, dynamic>;
         return MaterialPageRoute(
-          builder: (_) => const StudentDetailsPage(student: {}),
+          builder: (_) => StudentDetailsPage(student: student),
         );
 
       default:
