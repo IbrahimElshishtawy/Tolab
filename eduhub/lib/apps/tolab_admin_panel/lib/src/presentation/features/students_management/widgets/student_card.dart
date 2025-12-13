@@ -1,7 +1,4 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
-import '../pages/student_details_page.dart';
 
 class StudentCard extends StatelessWidget {
   final Map<String, dynamic> student;
@@ -10,42 +7,48 @@ class StudentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => StudentDetailsPage(student: student)),
+    final gpa = student["gpa_current"];
+    final statusColor = gpa >= 3.5
+        ? Colors.green
+        : gpa >= 3
+        ? Colors.orange
+        : Colors.red;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(.06),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white10),
       ),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(.06),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white10),
-        ),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 26,
-              backgroundColor: Colors.blueAccent.withOpacity(.3),
-              child: const Icon(Icons.person, color: Colors.white, size: 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            student["name"],
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Text(
-                student["name"],
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            "${student["department"]} • Year ${student["year"]}",
+            style: const TextStyle(color: Colors.white70),
+          ),
+          const Spacer(),
+          Row(
+            children: [
+              Chip(
+                label: Text("GPA $gpa"),
+                backgroundColor: statusColor.withOpacity(.2),
               ),
-            ),
-            Text(
-              "Year ${student["year"]}",
-              style: const TextStyle(color: Colors.white70),
-            ),
-          ],
-        ),
+              const Spacer(),
+              Icon(Icons.arrow_forward_ios, size: 14, color: Colors.white38),
+            ],
+          ),
+        ],
       ),
     );
   }
