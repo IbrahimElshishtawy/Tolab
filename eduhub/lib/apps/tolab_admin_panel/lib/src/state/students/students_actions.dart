@@ -1,11 +1,16 @@
+// الطلاب - الإجراءات (Actions)
+// students_actions.dart
+
 class LoadStudentsAction {}
 
-class StudentsLoadedAction {
-  final List<Map<String, dynamic>> data;
-  StudentsLoadedAction(this.data);
+class FilterStudentsByYearAction {
+  final int year;
+
+  FilterStudentsByYearAction(this.year);
 }
 
-class StudentsFailedAction {
-  final String error;
-  StudentsFailedAction(this.error);
+class FilterStudentsByDepartmentAction {
+  final String department;
+
+  FilterStudentsByDepartmentAction(this.department);
 }
