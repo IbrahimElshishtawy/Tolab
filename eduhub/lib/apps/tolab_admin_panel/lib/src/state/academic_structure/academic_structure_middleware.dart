@@ -24,7 +24,7 @@ void _loadStructure(
     final depSet = <String>{};
     final programSet = <String>{};
 
-    for (var student in students) {
+    for (var student in student) {
       depSet.add(student["department"]);
       final subjectMap = student["subjects_grades"] as Map<String, dynamic>;
       programSet.addAll(subjectMap.keys);
