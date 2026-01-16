@@ -18,11 +18,10 @@ class IntroScreen extends StatelessWidget {
             children: [
               const Spacer(flex: 4),
 
-              // 🔝 اللوجو أعلى اليمين (Hero target)
               Align(
                 alignment: Alignment.topRight,
                 child: Hero(
-                  tag: 'tolab_logo', // ✅ نفس التاج في Splash
+                  tag: 'tolab_logo',
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -46,7 +45,6 @@ class IntroScreen extends StatelessWidget {
 
               const Spacer(flex: 10),
 
-              // 📝 النص الرئيسي
               Text(
                 'نظم.\nتواصل.\nتعلم.',
                 textAlign: TextAlign.right,
@@ -60,7 +58,6 @@ class IntroScreen extends StatelessWidget {
 
               const Spacer(flex: 10),
 
-              // ▶️ زر ابدأ من هنا
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
