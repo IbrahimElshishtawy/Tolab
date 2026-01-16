@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_underscores
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tolab_fci/features/splash/presentation/widgets/Tolab_Logo_Icon_write(T).dart';
