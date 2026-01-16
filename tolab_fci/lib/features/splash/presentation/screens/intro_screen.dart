@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tolab_fci/features/splash/presentation/widgets/Tolab_Logo_Icon_write(T).dart';
 import 'package:tolab_fci/features/splash/presentation/widgets/adaptive_splash_background.dart';
 
 class IntroScreen extends StatelessWidget {
@@ -6,6 +7,8 @@ class IntroScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return AdaptiveSplashBackground(
       child: SafeArea(
         child: Padding(
@@ -13,8 +16,37 @@ class IntroScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const Spacer(flex: 2),
+              const Spacer(flex: 4),
 
+              // 🔝 اللوجو أعلى اليمين (Hero target)
+              Align(
+                alignment: Alignment.topRight,
+                child: Hero(
+                  tag: 'tolab_logo', // ✅ نفس التاج في Splash
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TolabLogoBox(),
+                      const SizedBox(width: 7),
+                      Text(
+                        'OLAB',
+                        style: TextStyle(
+                          fontSize: 24,
+                          letterSpacing: 2,
+                          fontWeight: FontWeight.bold,
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF023EC5),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const Spacer(flex: 10),
+
+              // 📝 النص الرئيسي
               Text(
                 'نظم.\nتواصل.\nتعلم.',
                 textAlign: TextAlign.right,
@@ -22,29 +54,26 @@ class IntroScreen extends StatelessWidget {
                   fontSize: 36,
                   height: 1.4,
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : const Color(0xFF023EC5),
+                  color: isDark ? Colors.white : const Color(0xFF023EC5),
                 ),
               ),
 
-              const Spacer(),
+              const Spacer(flex: 10),
 
+              // ▶️ زر ابدأ من هنا
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'ابدأ من هنا',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 30,
                     fontWeight: FontWeight.w600,
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : const Color(0xFF023EC5),
+                    color: isDark ? Colors.white : const Color(0xFF023EC5),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const Spacer(flex: 4),
             ],
           ),
         ),
