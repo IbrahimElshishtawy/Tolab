@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'features/splash/presentation/screens/splash_screen.dart';
+import 'features/splash/splash_route.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,9 +28,13 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Cairo',
         useMaterial3: true,
       ),
+
+      // ✅ حسب نظام الجهاز
       themeMode: ThemeMode.system,
 
-      home: const SplashScreen(),
+      // ✅ Routing
+      initialRoute: SplashRoute.splash,
+      onGenerateRoute: SplashRoute.generateRoute,
     );
   }
 }
