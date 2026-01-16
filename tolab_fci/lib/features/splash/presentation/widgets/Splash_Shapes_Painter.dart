@@ -3,20 +3,23 @@
 import 'package:flutter/material.dart';
 
 class SplashShapesPainter extends CustomPainter {
+  final bool isDark;
+
+  SplashShapesPainter({required this.isDark});
+
   @override
   void paint(Canvas canvas, Size size) {
-    const double verticalShift = 60; // تحكم في الحركة العمودية
+    const double verticalShift = 60;
 
-    // 🔼 المجموعة العلوية (نزلناها شوية لتحت)
+    // 🔼 المجموعة العلوية
     _drawGroup(
       canvas,
       baseOffset: const Offset(-140, -140).translate(0, verticalShift),
       angle: -0.55,
       size: const Size(280, 280),
-      intensity: 1,
     );
 
-    // 🔽 المجموعة السفلية (طلعناها شوية لفوق)
+    // 🔽 المجموعة السفلية
     _drawGroup(
       canvas,
       baseOffset: Offset(
@@ -25,7 +28,6 @@ class SplashShapesPainter extends CustomPainter {
       ).translate(0, -verticalShift),
       angle: -0.55,
       size: const Size(280, 280),
-      intensity: 1,
     );
   }
 
@@ -34,15 +36,14 @@ class SplashShapesPainter extends CustomPainter {
     required Offset baseOffset,
     required double angle,
     required Size size,
-    required int intensity,
   }) {
-    // Back layer (shadow)
+    // Back layer
     _draw3DRect(
       canvas,
       offset: baseOffset.translate(22, 22),
       size: size,
       angle: angle,
-      depth: 0.26,
+      depth: isDark ? 0.22 : 0.26,
       highlight: false,
     );
 
@@ -52,7 +53,7 @@ class SplashShapesPainter extends CustomPainter {
       offset: baseOffset.translate(12, 12),
       size: size,
       angle: angle,
-      depth: 0.18,
+      depth: isDark ? 0.16 : 0.18,
       highlight: true,
     );
 
@@ -62,7 +63,7 @@ class SplashShapesPainter extends CustomPainter {
       offset: baseOffset,
       size: size,
       angle: angle,
-      depth: 0.12,
+      depth: isDark ? 0.10 : 0.12,
       highlight: true,
     );
   }
@@ -82,14 +83,16 @@ class SplashShapesPainter extends CustomPainter {
 
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
 
+    final baseColor = isDark ? Colors.white : const Color(0xFF023EC5);
+
     final paint = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Colors.white.withOpacity(highlight ? depth + 0.12 : depth),
-          Colors.white.withOpacity(depth),
-          Colors.white.withOpacity(depth - 0.05),
+          baseColor.withOpacity(highlight ? depth + 0.10 : depth),
+          baseColor.withOpacity(depth),
+          baseColor.withOpacity(depth - 0.04),
         ],
         stops: const [0.0, 0.55, 1.0],
       ).createShader(rect);
@@ -99,10 +102,10 @@ class SplashShapesPainter extends CustomPainter {
       paint,
     );
 
-    // Highlight edge لإحساس العمق
+    // Highlight edge
     if (highlight) {
       final edgePaint = Paint()
-        ..color = Colors.white.withOpacity(0.22)
+        ..color = baseColor.withOpacity(isDark ? 0.18 : 0.22)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.1;
 
@@ -116,5 +119,7 @@ class SplashShapesPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant SplashShapesPainter oldDelegate) {
+    return oldDelegate.isDark != isDark;
+  }
 }
