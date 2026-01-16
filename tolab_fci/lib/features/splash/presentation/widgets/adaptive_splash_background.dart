@@ -11,14 +11,16 @@ class AdaptiveSplashBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
     final backgroundColor = isDark ? const Color(0xFF023EC5) : Colors.white;
 
     return Scaffold(
       backgroundColor: backgroundColor,
       body: Stack(
         children: [
-          CustomPaint(size: Size.infinite, painter: SplashShapesPainter()),
+          CustomPaint(
+            size: Size.infinite,
+            painter: SplashShapesPainter(isDark: isDark),
+          ),
           child,
         ],
       ),
