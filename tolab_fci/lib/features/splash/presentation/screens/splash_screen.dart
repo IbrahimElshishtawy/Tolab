@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tolab_fci/features/splash/presentation/widgets/Tolab_Logo_Icon_write(T).dart';
 import 'package:tolab_fci/features/splash/presentation/widgets/splash_background.dart';
 
 class SplashScreen extends StatelessWidget {
@@ -11,19 +12,10 @@ class SplashScreen extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.arrow_outward_rounded,
-                color: Color(0xFF0B4DFF),
-                size: 28,
-              ),
-            ),
-            const SizedBox(width: 10),
+            // 🔲 White square with rotated T
+            TolabLogoBox(),
+            const SizedBox(width: 7),
+
             const Text(
               'OLAB',
               style: TextStyle(
