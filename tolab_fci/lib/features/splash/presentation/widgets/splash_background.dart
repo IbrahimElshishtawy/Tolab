@@ -8,11 +8,17 @@ class SplashBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0B4DFF),
+      backgroundColor: isDark ? const Color(0xFF023EC5) : Colors.white,
+
       body: Stack(
         children: [
-          CustomPaint(size: Size.infinite, painter: SplashShapesPainter()),
+          CustomPaint(
+            size: Size.infinite,
+            painter: SplashShapesPainter(isDark: isDark),
+          ),
           child,
         ],
       ),
