@@ -14,10 +14,22 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'OLAB',
+
+      // 🌞 Light Theme
       theme: ThemeData(
-        fontFamily: 'Cairo', // لو بتستخدم خط عربي
+        brightness: Brightness.light,
+        fontFamily: 'Cairo',
         useMaterial3: true,
       ),
+
+      // 🌙 Dark Theme
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        fontFamily: 'Cairo',
+        useMaterial3: true,
+      ),
+      themeMode: ThemeMode.system,
+
       home: const SplashScreen(),
     );
   }
