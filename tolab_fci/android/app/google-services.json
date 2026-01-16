@@ -1,0 +1,91 @@
+{
+  "project_info": {
+    "project_number": "168050637950",
+    "firebase_url": "https://tolab-e1b84-default-rtdb.firebaseio.com",
+    "project_id": "tolab-e1b84",
+    "storage_bucket": "tolab-e1b84.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:168050637950:android:60e953b012d3bc310aec2f",
+        "android_client_info": {
+          "package_name": "com.example.tolab"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "168050637950-vt629lofge2cscbd4m3mtql3nic64fft.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tolab",
+            "certificate_hash": "99863775d900be6fec8bfba6e059b646b3477548"
+          }
+        },
+        {
+          "client_id": "168050637950-la7d6jh8f4ahh90f6pulndhkbi1bmi95.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3Gt-paXdiUl7FR42asDauoHj5DmWr4gc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "168050637950-la7d6jh8f4ahh90f6pulndhkbi1bmi95.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "168050637950-5sgcp4lq6d36kv45vk5dapf1hlfcaav1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.tolab"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:168050637950:android:27277792b18f19680aec2f",
+        "android_client_info": {
+          "package_name": "com.example.tolab_fci"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "168050637950-la7d6jh8f4ahh90f6pulndhkbi1bmi95.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3Gt-paXdiUl7FR42asDauoHj5DmWr4gc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "168050637950-la7d6jh8f4ahh90f6pulndhkbi1bmi95.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "168050637950-5sgcp4lq6d36kv45vk5dapf1hlfcaav1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.tolab"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
