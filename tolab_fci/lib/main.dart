@@ -1,40 +1,15 @@
 import 'package:flutter/material.dart';
-import 'features/splash/splash_route.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+import 'firebase_options.dart';
+import 'app/app.dart';
+import 'app/store.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
-}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'OLAB',
-
-      // 🌞 Light Theme
-      theme: ThemeData(
-        brightness: Brightness.light,
-        fontFamily: 'Cairo',
-        useMaterial3: true,
-      ),
-
-      // 🌙 Dark Theme
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        fontFamily: 'Cairo',
-        useMaterial3: true,
-      ),
-
-      // ✅ حسب نظام الجهاز
-      themeMode: ThemeMode.system,
-
-      // ✅ Routing
-      initialRoute: SplashRoute.splash,
-      onGenerateRoute: SplashRoute.generateRoute,
-    );
-  }
+  runApp(StoreProvider(store: createStore(), child: const App()));
 }
