@@ -15,8 +15,12 @@ abstract class AuthAction {
 /// بداية تسجيل الدخول (Microsoft)
 class LoginRequestAction extends AuthAction {
   final String selectedRole; // student | doctor | ta | it
+  final String emailHint;
 
-  const LoginRequestAction({required this.selectedRole});
+  const LoginRequestAction({
+    required this.selectedRole,
+    required this.emailHint,
+  });
 }
 
 /// تسجيل الدخول نجح
@@ -51,8 +55,6 @@ class LogoutAction extends AuthAction {
 /// ===============================
 /// Auth State Reset (اختياري)
 /// ===============================
-
-/// إعادة تعيين حالة الـ Auth (مثلاً عند App Restart)
 class ResetAuthStateAction extends AuthAction {
   const ResetAuthStateAction();
 }
