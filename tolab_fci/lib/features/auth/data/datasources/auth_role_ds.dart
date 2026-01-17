@@ -6,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 /// Firestore Only
 /// ===============================
 abstract class AuthRoleDataSource {
-  /// تحديد أو إنشاء Role للمستخدم
   Future<String> resolveUserRole(User user, String selectedRole);
 }
 
@@ -33,8 +32,7 @@ class AuthRoleDataSourceImpl implements AuthRoleDataSource {
     }
 
     //  مستخدم جديد
-    final roleToSave =
-        _isValidRole(selectedRole) ? selectedRole : 'student';
+    final roleToSave = _isValidRole(selectedRole) ? selectedRole : 'student';
 
     await docRef.set({
       'email': user.email,
