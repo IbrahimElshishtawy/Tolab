@@ -23,15 +23,66 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^6.0.0
+
+  # Launcher Icon
   flutter_launcher_icons: ^0.13.1
+
+  # Splash Screen
+  flutter_native_splash: ^2.4.0
 
 flutter:
   uses-material-design: true
 
   assets:
     - assets/icons/
+    
 
-flutter_icons:
+# =========================
+# LAUNCHER ICON CONFIG
+# =========================
+flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/icons/iconapp.png"
+
+# =========================
+# SPLASH SCREEN CONFIG
+# =========================
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/icons/iconapp.png
+
+  android: true
+  ios: true
+
+  android_12:
+    color: "#FFFFFF"
+    image: assets/icons/iconapp.png
+    icon_background_color: "#FFFFFF"
+
+# =========================
+# INTERNATIONALIZATION
+# =========================
+flutter_intl:
+  enabled: true
+  arb_dir: lib/l10n
+  output_dir: lib/l10n/generated
+  class_name: S
+  main_locale: en
+  preferred_supported_locales:
+    - en
+    - ar
+  nullable_getter: false
+  use_deferred_loading: false
+  synthetic_package: false
+  use_build_runner: true
+  overwrite: true
+  header: "// GENERATED CODE - DO NOT MODIFY BY HAND\n// ignore_for_file: type=lint"
+  examples: false
+  sort_arbs_by_key: false
+  remove_unused_resources: true
+  keep_placeholders: false
+  format_code: true
+  use_single_quotes: false
+  indent: 2
+  line_length: 80
