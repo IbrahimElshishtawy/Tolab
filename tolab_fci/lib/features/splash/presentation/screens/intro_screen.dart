@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tolab_fci/features/splash/presentation/widgets/Start_Here_Button.dart';
 import 'package:tolab_fci/features/splash/presentation/widgets/Tolab_Logo_Icon_write(T).dart';
 import 'package:tolab_fci/features/splash/presentation/widgets/adaptive_splash_background.dart';
 
@@ -60,14 +61,7 @@ class IntroScreen extends StatelessWidget {
 
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  'ابدأ من هنا',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : const Color(0xFF023EC5),
-                  ),
-                ),
+                child: StartHereButton(isDark: isDark),
               ),
 
               const Spacer(flex: 4),
