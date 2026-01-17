@@ -1,21 +1,25 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'auth_remote_ds.dart';
+import 'auth_role_ds.dart';
 
-class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  final FirebaseAuth _firebaseAuth;
+class AuthRoleDataSourceImpl implements AuthRoleDataSource {
+  final FirebaseFirestore _firestore;
 
-  AuthRemoteDataSourceImpl(this._firebaseAuth);
+  AuthRoleDataSourceImpl(this._firestore);
 
   @override
-  Future<UserCredential> signInWithMicrosoft() async {
-    final provider = OAuthProvider('microsoft.com');
-    provider.setCustomParameters({'prompt': 'select_account'});
-    return await _firebaseAuth.signInWithProvider(provider);
+  Future<String> resolveUserRole(User user, String selectedRole) async {
+    final doc = await _firestore.collection('users').doc(user.uid).get();
+
+    if (!doc.exists) {
+      await _firestore.collection('users').doc(user.uid).set({
+        'email': user.email,
+        'role': selectedRole,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      return selectedRole;
+    }
+
+    return doc.data()!['role'] as String;
   }
-
-  @override
-  User? getCurrentUser() => _firebaseAuth.currentUser;
-
-  @override
-  Future<void> signOut() async => _firebaseAuth.signOut();
 }
