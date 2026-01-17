@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:tolab_fci/features/auth/presentation/screens/login_screen.dart';
 
