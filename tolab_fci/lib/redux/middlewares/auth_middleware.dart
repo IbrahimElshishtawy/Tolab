@@ -26,7 +26,7 @@ Middleware<AppState> _loginMiddleware(AuthRepository authRepository) {
 
     final email = action.emailHint.trim();
 
-    // Validation: الإيميل فاضي
+    // 1️ Validation: الإيميل فاضي
     if (email.isEmpty) {
       store.dispatch(
         const LoginFailureAction('من فضلك أدخل البريد الإلكتروني الجامعي'),
@@ -34,7 +34,7 @@ Middleware<AppState> _loginMiddleware(AuthRepository authRepository) {
       return;
     }
 
-    // Validation: صيغة الإيميل
+    // 2️ Validation: صيغة الإيميل
     if (!_isValidEmail(email)) {
       store.dispatch(
         const LoginFailureAction('صيغة البريد الإلكتروني غير صحيحة'),
@@ -42,16 +42,18 @@ Middleware<AppState> _loginMiddleware(AuthRepository authRepository) {
       return;
     }
 
-    //  Validation: دومين جامعي
+    // 3️ Validation: دومين جامعي (يشمل subdomains)
     if (!_isUniversityEmail(email)) {
       store.dispatch(
-        const LoginFailureAction('يجب استخدام البريد الإلكتروني الجامعي'),
+        const LoginFailureAction(
+          'من فضلك استخدم البريد الجامعي مثل name@fci.tanta.edu.eg',
+        ),
       );
       return;
     }
 
     try {
-      // Microsoft Login
+      //  Microsoft Login
       final result = await authRepository.signInWithMicrosoft(
         action.selectedRole,
       );
@@ -84,14 +86,13 @@ Middleware<AppState> _logoutMiddleware(AuthRepository authRepository) {
 /// ===============================
 
 bool _isValidEmail(String email) {
-  final emailRegex = RegExp(r'^[\w\.-]+@([\w-]+\.)+[\w-]{2,4}$');
+  final emailRegex = RegExp(r'^[\w\.-]+@([\w-]+\.)+[\w-]{2,}$');
   return emailRegex.hasMatch(email);
 }
 
 bool _isUniversityEmail(String email) {
-  // عدّل الدومين هنا حسب جامعتك
-  const allowedDomains = ['tanta.edu.eg'];
+  const allowedRootDomain = 'tanta.edu.eg';
 
   final domain = email.split('@').last.toLowerCase();
-  return allowedDomains.contains(domain);
+  return domain.endsWith(allowedRootDomain);
 }
