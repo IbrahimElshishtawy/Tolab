@@ -13,12 +13,14 @@ class LoginCard extends StatelessWidget {
   final String selectedRole;
   final TextEditingController emailController;
   final ValueChanged<String> onRoleChanged;
+  final bool isLoading;
 
   const LoginCard({
     super.key,
     required this.selectedRole,
     required this.emailController,
     required this.onRoleChanged,
+    required this.isLoading,
   });
 
   @override
@@ -32,15 +34,6 @@ class LoginCard extends StatelessWidget {
             ? const Color(0xFF121212)
             : Theme.of(context).colorScheme.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
-                  blurRadius: 24,
-                  offset: const Offset(0, -6),
-                ),
-              ],
       ),
       child: Directionality(
         textDirection: TextDirection.rtl,
@@ -55,10 +48,9 @@ class LoginCard extends StatelessWidget {
             EmailField(controller: emailController),
             const SizedBox(height: 30),
             MicrosoftButton(
+              isLoading: isLoading,
               onPressed: () {
                 FocusScope.of(context).unfocus();
-                debugPrint('LOGIN CLICKED: ${emailController.text}');
-
                 StoreProvider.of<AppState>(context).dispatch(
                   LoginRequestAction(
                     selectedRole: selectedRole,
@@ -67,7 +59,6 @@ class LoginCard extends StatelessWidget {
                 );
               },
             ),
-            const SizedBox(height: 15),
           ],
         ),
       ),
