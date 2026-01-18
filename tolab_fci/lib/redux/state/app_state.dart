@@ -8,10 +8,7 @@ class AppState {
   AppState({required this.authState, required this.uiState});
 
   factory AppState.initial() {
-    return AppState(
-      authState: AuthState(isAuthenticated: false, isLoading: false),
-      uiState: UIState.initial(),
-    );
+    return AppState(authState: AuthState.initial(), uiState: UIState.initial());
   }
 
   AppState copyWith({AuthState? authState, UIState? uiState}) {
