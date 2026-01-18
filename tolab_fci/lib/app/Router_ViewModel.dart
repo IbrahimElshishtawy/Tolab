@@ -27,9 +27,8 @@ class RouterViewModel {
 
     return RouterViewModel(
       isAuthenticated: selectIsAuthenticated(state),
-      isLoading: selectIsAuthLoading(state),
+      isLoading: selectAuthLoading(state),
       role: selectUserRole(state),
-
       showSplash: ui.showSplash,
       showIntro: ui.showIntro,
     );
