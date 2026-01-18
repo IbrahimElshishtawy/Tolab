@@ -15,18 +15,15 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<AuthUser> signInWithMicrosoft(String selectedRole) async {
-    // 1️ Firebase Auth (Microsoft)
     final userCredential = await remoteDataSource.signInWithMicrosoft();
-
     final user = userCredential.user;
+
     if (user == null || user.email == null) {
-      throw Exception('Authentication failed: user is null');
+      throw Exception('Authentication failed');
     }
 
-    // 2️ Resolve Role from Firestore
     final role = await roleDataSource.resolveUserRole(user, selectedRole);
 
-    // 3️Return unified AuthUser
     return AuthUser(uid: user.uid, email: user.email!, role: role);
   }
 
