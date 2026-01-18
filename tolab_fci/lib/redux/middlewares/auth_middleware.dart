@@ -1,5 +1,6 @@
 import 'package:redux/redux.dart';
 import 'package:tolab_fci/features/auth/data/repositories/auth_repository.dart';
+import 'package:tolab_fci/redux/actions/ui_actions.dart';
 import '../actions/auth_actions.dart';
 import '../state/app_state.dart';
 
@@ -51,9 +52,7 @@ Middleware<AppState> _loginMiddleware(AuthRepository authRepository) {
       );
       return;
     }
-
     try {
-      //  Microsoft Login
       final result = await authRepository.signInWithMicrosoft(
         action.selectedRole,
       );
@@ -65,6 +64,8 @@ Middleware<AppState> _loginMiddleware(AuthRepository authRepository) {
           role: result.role,
         ),
       );
+      store.dispatch(FinishSplashAction());
+      store.dispatch(FinishIntroAction());
     } catch (e) {
       store.dispatch(LoginFailureAction(e.toString()));
     }
