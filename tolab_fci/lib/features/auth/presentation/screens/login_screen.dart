@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 import 'package:lottie/lottie.dart';
+
 import 'package:tolab_fci/features/auth/presentation/widgets/Login_Card.dart';
 import 'package:tolab_fci/features/splash/presentation/widgets/splash_background.dart';
 import 'package:tolab_fci/features/splash/presentation/widgets/Tolab_Logo_Icon_write(T).dart';
+import 'package:tolab_fci/redux/state/app_state.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,6 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return SplashBackground(
       child: Stack(
         children: [
+          /// Logo
           Positioned(
             top: 108,
             right: 24,
@@ -44,6 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
 
+          /// Lottie
           AnimatedPositioned(
             duration: const Duration(milliseconds: 500),
             curve: Curves.easeOut,
@@ -59,19 +64,24 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
 
+          /// Login Card (Redux Connected)
           Align(
             alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 0),
-              child: LoginCard(
-                selectedRole: selectedRole,
-                emailController: emailController,
-                onRoleChanged: (value) {
-                  setState(() {
-                    selectedRole = value;
-                  });
-                },
-              ),
+            child: StoreConnector<AppState, bool>(
+              distinct: true,
+              converter: (store) => store.state.authState.isLoading,
+              builder: (context, isLoading) {
+                return LoginCard(
+                  selectedRole: selectedRole,
+                  emailController: emailController,
+                  isLoading: isLoading,
+                  onRoleChanged: (value) {
+                    setState(() {
+                      selectedRole = value;
+                    });
+                  },
+                );
+              },
             ),
           ),
         ],
