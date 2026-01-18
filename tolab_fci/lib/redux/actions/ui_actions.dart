@@ -1,0 +1,3 @@
+class FinishSplashAction {}
+
+class FinishIntroAction {}
