@@ -1,5 +1,6 @@
 // ignore_for_file: file_names
 
+import 'package:flutter/foundation.dart';
 import 'package:redux/redux.dart';
 import 'package:tolab_fci/redux/selectors/auth_selectors.dart';
 import 'package:tolab_fci/redux/state/app_state.dart';
@@ -23,14 +24,19 @@ class RouterViewModel {
 
   factory RouterViewModel.fromStore(Store<AppState> store) {
     final state = store.state;
-    final ui = state.uiState;
+
+    debugPrint(
+      '🧭 VM => auth=${state.authState.isAuthenticated}, '
+      'loading=${state.authState.isLoading}, '
+      'role=${state.authState.role}',
+    );
 
     return RouterViewModel(
       isAuthenticated: selectIsAuthenticated(state),
       isLoading: selectAuthLoading(state),
       role: selectUserRole(state),
-      showSplash: ui.showSplash,
-      showIntro: ui.showIntro,
+      showSplash: state.uiState.showSplash,
+      showIntro: state.uiState.showIntro,
     );
   }
 
