@@ -5,7 +5,7 @@ class UIState {
   UIState({required this.showSplash, required this.showIntro});
 
   factory UIState.initial() {
-    return UIState(showSplash: true, showIntro: true);
+    return UIState(showSplash: false, showIntro: false);
   }
 
   UIState copyWith({bool? showSplash, bool? showIntro}) {
