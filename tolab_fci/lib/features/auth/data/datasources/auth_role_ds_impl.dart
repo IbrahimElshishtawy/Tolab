@@ -13,34 +13,44 @@ class AuthRoleDataSourceImpl implements AuthRoleDataSource {
     final docRef = _firestore.collection('users').doc(user.uid);
     final docSnap = await docRef.get();
 
-    //  مستخدم جديد
-    if (!docSnap.exists) {
-      final permissions = _defaultPermissionsForRole(selectedRole);
+    final safeSelectedRole = _normalizeRole(selectedRole);
 
+    if (!docSnap.exists) {
       await docRef.set({
         'uid': user.uid,
         'email': user.email,
-        'role': selectedRole,
+        'role': safeSelectedRole,
         'faculty': _extractFacultyFromEmail(user.email),
-        'permissions': permissions,
+        'permissions': _defaultPermissionsForRole(safeSelectedRole),
         'status': 'active',
         'createdAt': FieldValue.serverTimestamp(),
         'lastLoginAt': FieldValue.serverTimestamp(),
       });
 
-      return selectedRole;
+      return safeSelectedRole;
     }
 
-    // 👤 مستخدم موجود
+    final data = docSnap.data() ?? {};
     await docRef.update({'lastLoginAt': FieldValue.serverTimestamp()});
 
-    final data = docSnap.data()!;
-    return data['role'] as String;
+    final role = (data['role'] as String?)?.trim();
+    if (role == null || role.isEmpty) {
+      await docRef.update({'role': 'student'});
+      return 'student';
+    }
+
+    return _normalizeRole(role);
   }
 
   // ===============================
   // Helpers
   // ===============================
+
+  String _normalizeRole(String role) {
+    final r = role.trim().toLowerCase();
+    const allowed = ['student', 'doctor', 'ta', 'it'];
+    return allowed.contains(r) ? r : 'student';
+  }
 
   Map<String, bool> _defaultPermissionsForRole(String role) {
     switch (role) {
