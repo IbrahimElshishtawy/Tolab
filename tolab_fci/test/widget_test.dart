@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:redux/redux.dart';
 import 'package:tolab_fci/app/app.dart';
+import 'package:tolab_fci/redux/state/app_state.dart';
+import 'package:tolab_fci/redux/reducers/root_reducer.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const App());
+  testWidgets('App builds', (WidgetTester tester) async {
+    final store = Store<AppState>(appReducer, initialState: AppState.initial());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpWidget(App(store: store));
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.byType(MaterialApp), findsOneWidget);
   });
 }
