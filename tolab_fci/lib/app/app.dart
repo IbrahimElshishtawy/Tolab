@@ -1,24 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:redux/redux.dart';
+import 'package:tolab_fci/redux/state/app_state.dart';
 import 'router.dart';
 
 class App extends StatelessWidget {
-  const App({super.key});
+  final Store<AppState> store;
+
+  const App({super.key, required this.store});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'OLAB',
+    return StoreProvider<AppState>(
+      store: store,
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
 
-      // 🌙 Dark Mode فقط
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        fontFamily: 'Cairo',
-        scaffoldBackgroundColor: const Color(0xFF0B4DFF),
-        useMaterial3: true,
+        /// 🔹 Light Theme
+        theme: ThemeData(
+          brightness: Brightness.light,
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue,
+            brightness: Brightness.light,
+          ),
+        ),
+
+        /// 🔹 Dark Theme
+        darkTheme: ThemeData(
+          brightness: Brightness.dark,
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue,
+            brightness: Brightness.dark,
+          ),
+        ),
+
+        /// 🔹 يتبع إعدادات النظام تلقائيًا
+        themeMode: ThemeMode.system,
+
+        home: const AppRouter(),
       ),
-
-      home: const AppRouter(),
     );
   }
 }
