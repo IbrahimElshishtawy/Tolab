@@ -1,15 +1,13 @@
 import 'package:redux/redux.dart';
+import 'package:tolab_fci/redux/reducers/auth_reducer.dart';
 import 'package:tolab_fci/redux/reducers/ui_reducer.dart';
 import '../state/app_state.dart';
-import 'auth_reducer.dart';
 
 /// Root Reducer
-final Reducer<AppState> appReducer = combineReducers<AppState>([
-  TypedReducer<AppState, dynamic>(_authReducer).call,
-]);
+final Reducer<AppState> appReducer = combineReducers<AppState>([_appReducer]);
 
-AppState _authReducer(AppState state, dynamic action) {
-  return state.copyWith(
+AppState _appReducer(AppState state, dynamic action) {
+  return AppState(
     authState: authReducer(state.authState, action),
     uiState: uiReducer(state.uiState, action),
   );

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:tolab_fci/app/Router_ViewModel.dart';
-import 'package:tolab_fci/features/auth/presentation/screens/login_screen.dart';
-import 'package:tolab_fci/features/home/presentation/screens/doctor_home_screen.dart';
-import 'package:tolab_fci/features/home/presentation/screens/it_home_screen.dart';
-import 'package:tolab_fci/features/home/presentation/screens/student_home_screen.dart';
-import 'package:tolab_fci/features/home/presentation/screens/ta_home_screen.dart';
 import 'package:tolab_fci/features/splash/presentation/screens/intro_screen.dart';
-import 'package:tolab_fci/features/splash/presentation/screens/splash_screen.dart';
 import 'package:tolab_fci/redux/state/app_state.dart';
+import 'Router_ViewModel.dart';
+
+// Screens
+import 'package:tolab_fci/features/splash/presentation/screens/splash_screen.dart';
+import 'package:tolab_fci/features/auth/presentation/screens/login_screen.dart';
+import 'package:tolab_fci/features/home/presentation/screens/student_home_screen.dart';
 
 class AppRouter extends StatelessWidget {
   const AppRouter({super.key});
@@ -16,50 +15,56 @@ class AppRouter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, RouterViewModel>(
-      distinct: true,
-      converter: (store) => RouterViewModel.fromStore(store),
+      distinct: false,
+      converter: RouterViewModel.fromStore,
       builder: (context, vm) {
-        // 1️Splash
+        debugPrint(
+          '🧭 VM => splash=${vm.showSplash}, '
+          'intro=${vm.showIntro}, '
+          'auth=${vm.isAuthenticated}, '
+          'role=${vm.role}',
+        );
+
+        Widget screen;
+
+        // 🟣 Splash
         if (vm.showSplash) {
-          return const SplashScreen();
+          screen = const SplashScreen();
+        }
+        // 🔵 Intro
+        else if (vm.showIntro) {
+          screen = const IntroScreen();
+        }
+        // 🔐 Login
+        else if (!vm.isAuthenticated) {
+          screen = const LoginScreen();
+        }
+        // ⏳ Authenticated but role loading
+        else if (vm.role == null) {
+          screen = const SplashScreen();
+        }
+        // 🏠 Student Home
+        else if (vm.role == 'student') {
+          screen = const StudentHomeScreen();
+        }
+        // ❓ Fallback
+        else {
+          screen = const Scaffold(
+            body: Center(child: Text('دور المستخدم غير معروف')),
+          );
         }
 
-        // 2️ Intro
-        if (vm.showIntro) {
-          return const IntroScreen();
-        }
-
-        // 3️ Loading أثناء Auth
-        if (vm.isLoading) {
-          return const SplashScreen();
-        }
-
-        // 4️ Login
-        if (!vm.isAuthenticated) {
-          return const LoginScreen();
-        }
-        //`  Role غير محدد
-        if (vm.isAuthenticated && vm.role == null) {
-          return const LoginScreen();
-        }
-
-        // 5️ Home حسب الدور
-        switch (vm.role) {
-          case 'student':
-            return const StudentHomeScreen();
-
-          case 'doctor':
-            return const DoctorHomeScreen();
-
-          case 'ta':
-            return const TaHomeScreen();
-
-          case 'it':
-            return const ItHomeScreen();
-
-          default:
-            return const LoginScreen();
-        }
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 450),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          child: KeyedSubtree(
+            key: ValueKey<String>(
+              '${vm.showSplash}-${vm.showIntro}-${vm.isAuthenticated}-${vm.role}',
+            ),
+            child: screen,
+          ),
+        );
       },
     );
   }

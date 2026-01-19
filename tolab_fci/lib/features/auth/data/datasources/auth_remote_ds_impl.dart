@@ -13,42 +13,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserCredential> signInWithMicrosoft() async {
-    try {
-      final provider = OAuthProvider('microsoft.com');
+    final provider = OAuthProvider('microsoft.com');
 
-      provider.setScopes(['openid', 'email', 'profile']);
-      provider.setCustomParameters({'tenant': 'organizations'});
+    provider.setScopes(['openid', 'email', 'profile']);
 
-      final userCredential = await _firebaseAuth.signInWithProvider(provider);
-      return userCredential;
-    } on FirebaseAuthException catch (e) {
-      throw Exception(e.message ?? 'فشل تسجيل الدخول عبر Microsoft');
-    } catch (_) {
-      throw Exception('حدث خطأ غير متوقع أثناء تسجيل الدخول عبر Microsoft');
-    }
-  }
+    provider.setCustomParameters({
+      'tenant': 'organizations', // مهم للإيميل الجامعي
+    });
 
-  Future<UserCredential> signInWithEmailPassword(
-    String email,
-    String password,
-  ) async {
-    try {
-      return await _firebaseAuth.signInWithEmailAndPassword(
-        email: email.trim(),
-        password: password,
-      );
-    } on FirebaseAuthException catch (e) {
-      switch (e.code) {
-        case 'user-not-found':
-          throw Exception('الإيميل غير مسجل');
-        case 'wrong-password':
-          throw Exception('كلمة المرور غلط');
-        case 'invalid-email':
-          throw Exception('الإيميل غير صحيح');
-        default:
-          throw Exception('فشل تسجيل الدخول');
-      }
-    }
+    return await FirebaseAuth.instance.signInWithProvider(provider);
   }
 
   @override

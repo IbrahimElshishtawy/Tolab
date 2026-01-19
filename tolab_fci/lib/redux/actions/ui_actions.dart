@@ -1,3 +1,7 @@
-class FinishSplashAction {}
+class ShowSplashAction {}
 
-class FinishIntroAction {}
+class HideSplashAction {}
+
+class ShowIntroAction {}
+
+class HideIntroAction {}

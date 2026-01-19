@@ -68,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
           Align(
             alignment: Alignment.bottomCenter,
             child: StoreConnector<AppState, bool>(
-              distinct: true,
+              distinct: false,
               converter: (store) => store.state.authState.isLoading,
               builder: (context, isLoading) {
                 return LoginCard(
