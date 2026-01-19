@@ -47,15 +47,19 @@ class LoginCard extends StatelessWidget {
             const SizedBox(height: 30),
             EmailField(controller: emailController),
             const SizedBox(height: 30),
-            MicrosoftButton(
-              isLoading: isLoading,
-              onPressed: () {
-                FocusScope.of(context).unfocus();
-                StoreProvider.of<AppState>(context).dispatch(
-                  LoginRequestAction(
-                    selectedRole: selectedRole,
-                    emailHint: emailController.text.trim(),
-                  ),
+            StoreConnector<AppState, bool>(
+              converter: (store) => store.state.authState.isLoading,
+              builder: (context, isLoading) {
+                return MicrosoftButton(
+                  isLoading: isLoading,
+                  onPressed: () {
+                    StoreProvider.of<AppState>(context).dispatch(
+                      LoginRequestAction(
+                        selectedRole: selectedRole,
+                        emailHint: emailController.text.trim(),
+                      ),
+                    );
+                  },
                 );
               },
             ),
