@@ -51,6 +51,7 @@ class LoginCard extends StatelessWidget {
               converter: (store) => store.state.authState.isLoading,
               builder: (context, isLoading) {
                 return MicrosoftButton(
+                  isLoading: isLoading,
                   onPressed: () {
                     StoreProvider.of<AppState>(context).dispatch(
                       LoginRequestAction(
