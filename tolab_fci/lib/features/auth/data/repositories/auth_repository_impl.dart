@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tolab_fci/features/auth/data/repositories/auth_repository.dart';
-
 import '../datasources/auth_remote_ds.dart';
 import '../datasources/auth_role_ds.dart';
 
@@ -15,16 +14,25 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<AuthUser> signInWithMicrosoft(String selectedRole) async {
-    final userCredential = await remoteDataSource.signInWithMicrosoft();
-    final user = userCredential.user;
+    final UserCredential userCredential = await remoteDataSource
+        .signInWithMicrosoft();
 
+    final User? user = userCredential.user;
     if (user == null || user.email == null) {
-      throw Exception('Authentication failed');
+      throw Exception('فشل تسجيل الدخول');
     }
 
-    final role = await roleDataSource.resolveUserRole(user, selectedRole);
+    final String email = user.email!.toLowerCase();
+    const allowedDomain = 'tanta.edu.eg';
+    if (!email.endsWith(allowedDomain)) {
+      throw Exception('يجب استخدام البريد الإلكتروني الجامعي فقط');
+    }
 
-    return AuthUser(uid: user.uid, email: user.email!, role: role);
+    final String role = await roleDataSource.resolveUserRole(
+      user,
+      selectedRole,
+    );
+    return AuthUser(uid: user.uid, email: email, role: role);
   }
 
   @override
