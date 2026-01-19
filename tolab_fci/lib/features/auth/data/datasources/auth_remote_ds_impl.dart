@@ -1,25 +1,59 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'auth_role_ds.dart';
 
-class AuthRoleDataSourceImpl implements AuthRoleDataSource {
-  final FirebaseFirestore _firestore;
+import 'auth_remote_ds.dart';
 
-  AuthRoleDataSourceImpl(this._firestore);
+/// ===============================
+/// Auth Remote Data Source Impl
+/// Firebase Authentication Only
+/// ===============================
+class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
+  final FirebaseAuth _firebaseAuth;
+
+  AuthRemoteDataSourceImpl(this._firebaseAuth);
 
   @override
-  Future<String> resolveUserRole(User user, String selectedRole) async {
-    final doc = await _firestore.collection('users').doc(user.uid).get();
+  Future<UserCredential> signInWithMicrosoft() async {
+    try {
+      final provider = OAuthProvider('microsoft.com');
 
-    if (!doc.exists) {
-      await _firestore.collection('users').doc(user.uid).set({
-        'email': user.email,
-        'role': selectedRole,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-      return selectedRole;
+      provider.setScopes(['openid', 'email', 'profile']);
+      provider.setCustomParameters({'tenant': 'organizations'});
+
+      final userCredential = await _firebaseAuth.signInWithProvider(provider);
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      throw Exception(e.message ?? 'فشل تسجيل الدخول عبر Microsoft');
+    } catch (_) {
+      throw Exception('حدث خطأ غير متوقع أثناء تسجيل الدخول عبر Microsoft');
     }
-
-    return doc.data()!['role'] as String;
   }
+
+  Future<UserCredential> signInWithEmailPassword(
+    String email,
+    String password,
+  ) async {
+    try {
+      return await _firebaseAuth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'user-not-found':
+          throw Exception('الإيميل غير مسجل');
+        case 'wrong-password':
+          throw Exception('كلمة المرور غلط');
+        case 'invalid-email':
+          throw Exception('الإيميل غير صحيح');
+        default:
+          throw Exception('فشل تسجيل الدخول');
+      }
+    }
+  }
+
+  @override
+  User? getCurrentUser() => _firebaseAuth.currentUser;
+
+  @override
+  Future<void> signOut() => _firebaseAuth.signOut();
 }
