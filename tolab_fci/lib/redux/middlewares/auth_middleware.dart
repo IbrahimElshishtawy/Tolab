@@ -1,6 +1,5 @@
 import 'package:redux/redux.dart';
 import 'package:tolab_fci/features/auth/data/repositories/auth_repository.dart';
-import 'package:tolab_fci/redux/actions/ui_actions.dart';
 import '../actions/auth_actions.dart';
 import '../state/app_state.dart';
 
@@ -21,51 +20,28 @@ List<Middleware<AppState>> createAuthMiddleware(AuthRepository authRepository) {
 /// ===============================
 /// Login Middleware
 /// ===============================
+
+// auth_middleware.dart
 Middleware<AppState> _loginMiddleware(AuthRepository authRepository) {
-  return (Store<AppState> store, action, NextDispatcher next) async {
+  return (store, action, next) async {
     next(action);
 
     final email = action.emailHint.trim();
 
-    // 1️ Validation: الإيميل فاضي
     if (email.isEmpty) {
-      store.dispatch(
-        const LoginFailureAction('من فضلك أدخل البريد الإلكتروني الجامعي'),
-      );
+      store.dispatch(const LoginFailureAction('أدخل البريد الجامعي'));
       return;
     }
 
-    // 2️ Validation: صيغة الإيميل
-    if (!_isValidEmail(email)) {
-      store.dispatch(
-        const LoginFailureAction('صيغة البريد الإلكتروني غير صحيحة'),
-      );
+    if (!_isValidEmail(email) || !_isUniversityEmail(email)) {
+      store.dispatch(const LoginFailureAction('بريد جامعي غير صالح'));
       return;
     }
 
-    // 3️ Validation: دومين جامعي (يشمل subdomains)
-    if (!_isUniversityEmail(email)) {
-      store.dispatch(
-        const LoginFailureAction(
-          'من فضلك استخدم البريد الجامعي مثل name@fci.tanta.edu.eg',
-        ),
-      );
-      return;
-    }
     try {
-      final result = await authRepository.signInWithMicrosoft(
-        action.selectedRole,
-      );
-
-      store.dispatch(
-        LoginSuccessAction(
-          uid: result.uid,
-          email: result.email,
-          role: result.role,
-        ),
-      );
-      store.dispatch(FinishSplashAction());
-      store.dispatch(FinishIntroAction());
+      //  فقط افتح Microsoft Login
+      await authRepository.signInWithMicrosoft(action.selectedRole);
+      // ممنوع LoginSuccess هنا
     } catch (e) {
       store.dispatch(LoginFailureAction(e.toString()));
     }
