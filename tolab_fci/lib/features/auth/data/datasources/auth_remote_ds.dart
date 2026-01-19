@@ -22,6 +22,23 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final FirebaseAuth _firebaseAuth;
 
   AuthRemoteDataSourceImpl(this._firebaseAuth);
+  @override
+  Future<UserCredential> signInWithEmailPassword(
+    String email,
+    String password,
+  ) async {
+    try {
+      final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      throw Exception(e.message ?? 'Email/password sign-in failed');
+    } catch (e) {
+      throw Exception('Unexpected error during email/password sign-in');
+    }
+  }
 
   @override
   Future<UserCredential> signInWithMicrosoft() async {
