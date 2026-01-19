@@ -26,7 +26,7 @@ Store<AppState> createStore() {
     initialState: AppState.initial(),
     middleware: [
       ...createAuthMiddleware(authRepository),
-      createAuthListenerMiddleware(firebaseAuth),
+      createAuthListenerMiddleware(firebaseAuth), // ✅ مهم
     ],
   );
 }
