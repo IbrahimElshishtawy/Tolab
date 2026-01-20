@@ -6,6 +6,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 /// Firestore Only
 /// ===============================
 abstract class AuthRoleDataSource {
+  /// 🔍 هل الإيميل موجود في النظام؟
+  Future<bool> isEmailRegistered(String email);
+
+  /// 🎭 تحديد / جلب دور المستخدم
   Future<String> resolveUserRole(User user, String selectedRole);
 }
 
@@ -17,12 +21,31 @@ class AuthRoleDataSourceImpl implements AuthRoleDataSource {
 
   AuthRoleDataSourceImpl(this._firestore);
 
+  /// ===============================
+  /// 🔍 Check if email exists
+  /// ===============================
+  @override
+  Future<bool> isEmailRegistered(String email) async {
+    final normalizedEmail = email.toLowerCase().trim();
+
+    final query = await _firestore
+        .collection('users')
+        .where('email', isEqualTo: normalizedEmail)
+        .limit(1)
+        .get();
+
+    return query.docs.isNotEmpty;
+  }
+
+  /// ===============================
+  /// 🎭 Resolve user role
+  /// ===============================
   @override
   Future<String> resolveUserRole(User user, String selectedRole) async {
     final docRef = _firestore.collection('users').doc(user.uid);
     final snapshot = await docRef.get();
 
-    // المستخدم موجود
+    // ✅ مستخدم موجود
     if (snapshot.exists) {
       final role = snapshot.data()?['role'] as String?;
       if (role == null || role.isEmpty) {
@@ -31,11 +54,11 @@ class AuthRoleDataSourceImpl implements AuthRoleDataSource {
       return role;
     }
 
-    //  مستخدم جديد
+    // 🆕 مستخدم جديد
     final roleToSave = _isValidRole(selectedRole) ? selectedRole : 'student';
 
     await docRef.set({
-      'email': user.email,
+      'email': user.email?.toLowerCase(),
       'role': roleToSave,
       'faculty': _extractFaculty(user.email),
       'createdAt': FieldValue.serverTimestamp(),

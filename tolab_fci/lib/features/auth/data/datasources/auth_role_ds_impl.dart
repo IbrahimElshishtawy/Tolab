@@ -8,6 +8,25 @@ class AuthRoleDataSourceImpl implements AuthRoleDataSource {
 
   AuthRoleDataSourceImpl(this._firestore);
 
+  /// ===============================
+  /// 🔍 Check if email is registered
+  /// ===============================
+  @override
+  Future<bool> isEmailRegistered(String email) async {
+    final normalizedEmail = email.toLowerCase().trim();
+
+    final query = await _firestore
+        .collection('users')
+        .where('email', isEqualTo: normalizedEmail)
+        .limit(1)
+        .get();
+
+    return query.docs.isNotEmpty;
+  }
+
+  /// ===============================
+  /// 🎭 Resolve user role
+  /// ===============================
   @override
   Future<String> resolveUserRole(User user, String selectedRole) async {
     final docRef = _firestore.collection('users').doc(user.uid);
@@ -15,10 +34,11 @@ class AuthRoleDataSourceImpl implements AuthRoleDataSource {
 
     final safeSelectedRole = _normalizeRole(selectedRole);
 
+    // 🆕 مستخدم جديد
     if (!docSnap.exists) {
       await docRef.set({
         'uid': user.uid,
-        'email': user.email,
+        'email': user.email?.toLowerCase(),
         'role': safeSelectedRole,
         'faculty': _extractFacultyFromEmail(user.email),
         'permissions': _defaultPermissionsForRole(safeSelectedRole),
@@ -30,6 +50,7 @@ class AuthRoleDataSourceImpl implements AuthRoleDataSource {
       return safeSelectedRole;
     }
 
+    // 👤 مستخدم موجود
     final data = docSnap.data() ?? {};
     await docRef.update({'lastLoginAt': FieldValue.serverTimestamp()});
 

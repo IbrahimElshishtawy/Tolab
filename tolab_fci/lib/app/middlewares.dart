@@ -29,6 +29,7 @@ List<Middleware<AppState>> createAppMiddlewares() {
   final AuthRepository authRepository = AuthRepositoryImpl(
     remoteDataSource: authRemoteDS,
     roleDataSource: authRoleDS,
+    firestore: firestore,
   );
 
   // ===============================

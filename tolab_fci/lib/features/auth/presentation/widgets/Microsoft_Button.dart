@@ -3,17 +3,26 @@
 import 'package:flutter/material.dart';
 
 class MicrosoftButton extends StatelessWidget {
+  /// يتم استدعاؤه بعد التأكد من صحة الإيميل
   final VoidCallback onPressed;
+
+  /// حالة التحميل من Redux
   final bool isLoading;
+
+  /// هل الزر متاح أم لا (مثلاً لو الإيميل فاضي)
+  final bool isEnabled;
 
   const MicrosoftButton({
     super.key,
     required this.onPressed,
-    this.isLoading = false,
+    required this.isLoading,
+    this.isEnabled = true,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bool disabled = isLoading || !isEnabled;
+
     return SizedBox(
       height: 52,
       width: double.infinity,
@@ -23,7 +32,7 @@ class MicrosoftButton extends StatelessWidget {
         child: Ink(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            gradient: isLoading
+            gradient: disabled
                 ? LinearGradient(
                     colors: [Colors.grey.shade600, Colors.grey.shade500],
                   )
@@ -35,10 +44,12 @@ class MicrosoftButton extends StatelessWidget {
           ),
           child: InkWell(
             borderRadius: BorderRadius.circular(14),
-            onTap: isLoading ? null : onPressed,
+            onTap: disabled ? null : onPressed,
             child: Center(
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 250),
+                switchInCurve: Curves.easeOut,
+                switchOutCurve: Curves.easeIn,
                 child: isLoading
                     ? const SizedBox(
                         key: ValueKey('loading'),

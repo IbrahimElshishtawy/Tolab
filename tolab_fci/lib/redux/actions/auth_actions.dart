@@ -9,21 +9,27 @@ abstract class AuthAction {
 }
 
 /// ===============================
-/// Login Actions
+/// Login Flow Actions
 /// ===============================
 
-/// بداية تسجيل الدخول (Microsoft)
-class LoginRequestAction extends AuthAction {
+class CheckEmailBeforeMicrosoftLoginAction extends AuthAction {
+  final String email;
   final String selectedRole; // student | doctor | ta | it
-  final String emailHint;
 
-  const LoginRequestAction({
+  const CheckEmailBeforeMicrosoftLoginAction({
+    required this.email,
     required this.selectedRole,
-    required this.emailHint,
   });
 }
 
-/// تسجيل الدخول نجح
+class LoginLoadingAction extends AuthAction {
+  const LoginLoadingAction();
+}
+
+class LoginStopLoadingAction extends AuthAction {
+  const LoginStopLoadingAction();
+}
+
 class LoginSuccessAction extends AuthAction {
   final String uid;
   final String email;
@@ -36,18 +42,22 @@ class LoginSuccessAction extends AuthAction {
   });
 }
 
-/// تسجيل الدخول فشل
 class LoginFailureAction extends AuthAction {
   final String error;
 
   const LoginFailureAction(this.error);
 }
 
+class EmailNotRegisteredAction extends AuthAction {
+  final String message;
+
+  const EmailNotRegisteredAction(this.message);
+}
+
 /// ===============================
 /// Logout Actions
 /// ===============================
 
-/// تسجيل الخروج
 class LogoutAction extends AuthAction {
   const LogoutAction();
 }

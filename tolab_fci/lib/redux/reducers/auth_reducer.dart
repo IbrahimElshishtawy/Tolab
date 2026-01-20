@@ -17,10 +17,21 @@ final AuthState initialAuthState = AuthState(
 /// Auth Reducer
 /// ===============================
 AuthState authReducer(AuthState state, dynamic action) {
-  if (action is LoginRequestAction) {
+  if (action is LoginLoadingAction) {
     return state.copyWith(isLoading: true, error: null);
   }
 
+  if (action is LoginStopLoadingAction) {
+    return state.copyWith(isLoading: false);
+  }
+
+  if (action is EmailNotRegisteredAction) {
+    return state.copyWith(
+      isAuthenticated: false,
+      isLoading: false,
+      error: action.message,
+    );
+  }
   if (action is LoginSuccessAction) {
     return state.copyWith(
       isAuthenticated: true,

@@ -23,9 +23,17 @@ class LoginCard extends StatelessWidget {
     required this.isLoading,
   });
 
+  bool _isValidEmail(String email) {
+    return email.isNotEmpty &&
+        email.contains('@') &&
+        email.endsWith('tanta.edu.eg');
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final email = emailController.text.trim().toLowerCase();
+    final isEmailValid = _isValidEmail(email);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
@@ -43,20 +51,30 @@ class LoginCard extends StatelessWidget {
           children: [
             const LoginHeader(),
             const SizedBox(height: 30),
+
+            /// اختيار الدور
             RoleSelector(selectedRole: selectedRole, onChanged: onRoleChanged),
+
             const SizedBox(height: 30),
+
+            /// إدخال الإيميل
             EmailField(controller: emailController),
+
             const SizedBox(height: 30),
+
+            /// زر Microsoft
             StoreConnector<AppState, bool>(
+              distinct: true,
               converter: (store) => store.state.authState.isLoading,
               builder: (context, isLoading) {
                 return MicrosoftButton(
                   isLoading: isLoading,
+                  isEnabled: isEmailValid,
                   onPressed: () {
                     StoreProvider.of<AppState>(context).dispatch(
-                      LoginRequestAction(
+                      CheckEmailBeforeMicrosoftLoginAction(
+                        email: email,
                         selectedRole: selectedRole,
-                        emailHint: emailController.text.trim(),
                       ),
                     );
                   },

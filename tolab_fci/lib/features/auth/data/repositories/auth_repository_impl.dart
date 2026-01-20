@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:tolab_fci/features/auth/data/repositories/auth_repository.dart';
 import '../datasources/auth_remote_ds.dart';
 import '../datasources/auth_role_ds.dart';
@@ -6,40 +8,53 @@ import '../datasources/auth_role_ds.dart';
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
   final AuthRoleDataSource roleDataSource;
+  final FirebaseFirestore firestore;
 
   AuthRepositoryImpl({
     required this.remoteDataSource,
     required this.roleDataSource,
+    required this.firestore,
   });
 
+  /// ===============================
+  /// 🔍 Check if email is registered
+  /// ===============================
   @override
-  Future<AuthUser> signInWithMicrosoft(String selectedRole) async {
-    final UserCredential userCredential = await remoteDataSource
-        .signInWithMicrosoft();
+  Future<bool> isEmailRegistered(String email) async {
+    final normalizedEmail = email.toLowerCase().trim();
 
-    final User? user = userCredential.user;
-    if (user == null || user.email == null) {
-      throw Exception('فشل تسجيل الدخول');
-    }
+    final query = await firestore
+        .collection('users')
+        .where('email', isEqualTo: normalizedEmail)
+        .limit(1)
+        .get();
 
-    final String email = user.email!.toLowerCase();
-    const allowedDomain = 'tanta.edu.eg';
-    if (!email.endsWith(allowedDomain)) {
-      throw Exception('يجب استخدام البريد الإلكتروني الجامعي فقط');
-    }
-
-    final String role = await roleDataSource.resolveUserRole(
-      user,
-      selectedRole,
-    );
-    return AuthUser(uid: user.uid, email: email, role: role);
+    return query.docs.isNotEmpty;
   }
 
+  /// ===============================
+  /// 🔐 Microsoft Sign In
+  /// ===============================
+  @override
+  Future<void> signInWithMicrosoft(String selectedRole) async {
+    // ❗ لا نحدد Role هنا
+    // ❗ لا نعمل LoginSuccess هنا
+    // Firebase Auth Listener هو المسؤول
+
+    await remoteDataSource.signInWithMicrosoft();
+  }
+
+  /// ===============================
+  /// 👤 Current Firebase User
+  /// ===============================
   @override
   User? getCurrentUser() {
     return remoteDataSource.getCurrentUser();
   }
 
+  /// ===============================
+  /// 🚪 Logout
+  /// ===============================
   @override
   Future<void> signOut() async {
     await remoteDataSource.signOut();

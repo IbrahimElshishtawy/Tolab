@@ -3,11 +3,15 @@ import 'package:tolab_fci/features/auth/data/repositories/auth_repository.dart';
 import '../actions/auth_actions.dart';
 import '../state/app_state.dart';
 
+/// ===============================
+/// Auth Middleware
+/// ===============================
 List<Middleware<AppState>> createAuthMiddleware(AuthRepository authRepository) {
   return [
-    TypedMiddleware<AppState, LoginRequestAction>(
-      _loginMiddleware(authRepository),
+    TypedMiddleware<AppState, CheckEmailBeforeMicrosoftLoginAction>(
+      _checkEmailAndLoginMiddleware(authRepository),
     ).call,
+
     TypedMiddleware<AppState, LogoutAction>(
       _logoutMiddleware(authRepository),
     ).call,
@@ -15,27 +19,37 @@ List<Middleware<AppState>> createAuthMiddleware(AuthRepository authRepository) {
 }
 
 /// ===============================
-/// Login Middleware
+/// Check Email + Microsoft Login
 /// ===============================
-Middleware<AppState> _loginMiddleware(AuthRepository authRepository) {
+Middleware<AppState> _checkEmailAndLoginMiddleware(
+  AuthRepository authRepository,
+) {
   return (store, action, next) async {
-    if (store.state.authState.isLoading) return;
     next(action);
+    if (action is! CheckEmailBeforeMicrosoftLoginAction) return;
+    if (store.state.authState.isLoading) return;
 
     try {
-      final result = await authRepository.signInWithMicrosoft(
-        action.selectedRole,
+      store.dispatch(const LoginLoadingAction());
+      final exists = await authRepository.isEmailRegistered(action.email);
+
+      if (!exists) {
+        store.dispatch(
+          const EmailNotRegisteredAction(
+            'هذا البريد غير مسجل في النظام الجامعي',
+          ),
+        );
+
+        store.dispatch(const LoginStopLoadingAction());
+        return;
+      }
+      await authRepository.signInWithMicrosoft(action.selectedRole);
+    } catch (e) {
+      store.dispatch(
+        const LoginFailureAction('حدث خطأ أثناء تسجيل الدخول، حاول مرة أخرى'),
       );
 
-      store.dispatch(
-        LoginSuccessAction(
-          uid: result.uid,
-          email: result.email,
-          role: result.role,
-        ),
-      );
-    } catch (e) {
-      store.dispatch(LoginFailureAction(e.toString()));
+      store.dispatch(const LoginStopLoadingAction());
     }
   };
 }
@@ -46,6 +60,9 @@ Middleware<AppState> _loginMiddleware(AuthRepository authRepository) {
 Middleware<AppState> _logoutMiddleware(AuthRepository authRepository) {
   return (store, action, next) async {
     next(action);
-    await authRepository.signOut();
+
+    if (action is LogoutAction) {
+      await authRepository.signOut();
+    }
   };
 }
