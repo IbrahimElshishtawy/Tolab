@@ -1,20 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
-/// Auth Repository (Abstract)
-/// ===============================
 abstract class AuthRepository {
-  /// 🔍 فحص هل الإيميل مسجل في النظام الجامعي
-  /// (Firestore / DB / API)
-  Future<bool> isEmailRegistered(String email);
-
-  /// 🔐 تسجيل الدخول باستخدام Microsoft
-  /// Firebase Auth Listener هو المسؤول عن LoginSuccess
   Future<void> signInWithMicrosoft(String selectedRole);
-
-  /// 👤 المستخدم الحالي من Firebase
   User? getCurrentUser();
-
-  /// 🚪 تسجيل الخروج
   Future<void> signOut();
 }
 
