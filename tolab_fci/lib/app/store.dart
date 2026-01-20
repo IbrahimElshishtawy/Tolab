@@ -15,24 +15,16 @@ Store<AppState> createStore() {
   final firebaseAuth = FirebaseAuth.instance;
   final firestore = FirebaseFirestore.instance;
 
-  final AuthRemoteDataSource remoteDS = AuthRemoteDataSourceImpl(firebaseAuth);
+  final remoteDS = AuthRemoteDataSourceImpl(firebaseAuth);
+  final roleDS = AuthRoleDataSourceImpl(firestore);
 
-  final AuthRoleDataSource roleDS = AuthRoleDataSourceImpl(firestore);
-
-  final authRepository = AuthRepositoryImpl(
-    remoteDataSource: remoteDS,
-    roleDataSource: roleDS,
-    firestore: firestore,
-  );
+  final authRepository = AuthRepositoryImpl(remoteDataSource: remoteDS);
 
   return Store<AppState>(
     appReducer,
     initialState: AppState.initial(),
     middleware: [
-      /// 1️⃣ Middleware الخاص بالزر والـ login flow
       ...createAuthMiddleware(authRepository),
-
-      /// 2️⃣ Listener الوحيد لـ Firebase Auth
       createAuthListenerMiddleware(firebaseAuth, roleDS),
     ],
   );
