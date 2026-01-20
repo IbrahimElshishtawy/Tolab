@@ -1,68 +1,80 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:redux/redux.dart';
-import 'package:tolab_fci/features/auth/data/repositories/auth_repository.dart';
-import '../actions/auth_actions.dart';
-import '../state/app_state.dart';
+import 'package:tolab_fci/redux/actions/auth_actions.dart';
+import 'package:tolab_fci/redux/state/app_state.dart';
 
-/// ===============================
-/// Auth Middleware
-/// ===============================
-List<Middleware<AppState>> createAuthMiddleware(AuthRepository authRepository) {
-  return [
-    TypedMiddleware<AppState, CheckEmailBeforeMicrosoftLoginAction>(
-      _checkEmailAndLoginMiddleware(authRepository),
-    ).call,
+String detectRoleFromEmail(String email) {
+  // Extract domain from email
+  final domain = email.split('@')[1];
 
-    TypedMiddleware<AppState, LogoutAction>(
-      _logoutMiddleware(authRepository),
-    ).call,
-  ];
+  // Determine role based on email domain or pattern
+  if (domain == 'fci.helwan.edu.eg') {
+    return 'student';
+  } else if (domain == 'admin.fci.helwan.edu.eg') {
+    return 'admin';
+  } else if (domain == 'faculty.fci.helwan.edu.eg') {
+    return 'instructor';
+  }
+
+  return 'guest';
 }
 
-/// ===============================
-/// Check Email + Microsoft Login
-/// ===============================
-Middleware<AppState> _checkEmailAndLoginMiddleware(
-  AuthRepository authRepository,
-) {
-  return (store, action, next) async {
+void authMiddleware(
+  Store<AppState> store,
+  dynamic action,
+  NextDispatcher next,
+) async {
+  if (action is LoginWithMicrosoftAction) {
     next(action);
-    if (action is! CheckEmailBeforeMicrosoftLoginAction) return;
-    if (store.state.authState.isLoading) return;
 
     try {
-      store.dispatch(const LoginLoadingAction());
-      final exists = await authRepository.isEmailRegistered(action.email);
+      final provider = OAuthProvider("microsoft.com");
+      provider.setCustomParameters({
+        "tenant": "common",
+        if (action.loginHint != null) "login_hint": action.loginHint!,
+      });
+      provider.addScope('email');
+      provider.addScope('User.Read');
 
-      if (!exists) {
-        store.dispatch(
-          const EmailNotRegisteredAction(
-            'هذا البريد غير مسجل في النظام الجامعي',
-          ),
-        );
-
-        store.dispatch(const LoginStopLoadingAction());
-        return;
-      }
-      await authRepository.signInWithMicrosoft(action.selectedRole);
-    } catch (e) {
-      store.dispatch(
-        const LoginFailureAction('حدث خطأ أثناء تسجيل الدخول، حاول مرة أخرى'),
+      // 🔐 تسجيل الدخول
+      final credential = await FirebaseAuth.instance.signInWithProvider(
+        provider,
       );
 
-      store.dispatch(const LoginStopLoadingAction());
-    }
-  };
-}
+      final user = credential.user!;
+      final uid = user.uid;
+      final email = user.email ?? action.loginHint ?? ""; 
 
-/// ===============================
-/// Logout Middleware
-/// ===============================
-Middleware<AppState> _logoutMiddleware(AuthRepository authRepository) {
-  return (store, action, next) async {
-    next(action);
+      if (email.isEmpty) {
+         throw FirebaseAuthException(code: 'missing-email', message: 'No email provided by provider');
+      }
 
-    if (action is LogoutAction) {
-      await authRepository.signOut();
+      // 🔎 Firestore role check
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get();
+
+      String role;
+
+      if (!doc.exists) {
+        role = detectRoleFromEmail(email);
+
+        await FirebaseFirestore.instance.collection('users').doc(uid).set({
+          'email': email,
+          'role': role,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      } else {
+        role = doc['role'];
+      }
+
+      store.dispatch(LoginSuccessAction(uid, email, role));
+    } catch (e) {
+      store.dispatch(LoginFailureAction(e.toString()));
     }
-  };
+  }
+
+  next(action);
 }
