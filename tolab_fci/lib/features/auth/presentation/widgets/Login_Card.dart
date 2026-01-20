@@ -27,7 +27,9 @@ class LoginCard extends StatelessWidget {
     return email.isNotEmpty &&
         email.contains('@') &&
         (email.endsWith('fci.helwan.edu.eg') ||
-            email.endsWith('tanta.edu.eg')); // Pending removal of tanta if needed, but keeping for safety
+            email.endsWith(
+              'tanta.edu.eg',
+            )); // Pending removal of tanta if needed, but keeping for safety
   }
 
   @override
@@ -39,9 +41,7 @@ class LoginCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
       decoration: BoxDecoration(
-        color: isDark
-            ? const Color(0xFF121212)
-            : Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).cardColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: Directionality(
@@ -72,11 +72,9 @@ class LoginCard extends StatelessWidget {
                   isLoading: isLoading,
                   isEnabled: isEmailValid,
                   onPressed: () {
-                    StoreProvider.of<AppState>(context).dispatch(
-                      LoginWithMicrosoftAction(
-                        loginHint: email,
-                      ),
-                    );
+                    StoreProvider.of<AppState>(
+                      context,
+                    ).dispatch(LoginWithMicrosoftAction(loginHint: email));
                   },
                 );
               },
