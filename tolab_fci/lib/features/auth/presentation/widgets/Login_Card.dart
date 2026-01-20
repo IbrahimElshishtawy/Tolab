@@ -26,7 +26,8 @@ class LoginCard extends StatelessWidget {
   bool _isValidEmail(String email) {
     return email.isNotEmpty &&
         email.contains('@') &&
-        email.endsWith('tanta.edu.eg');
+        (email.endsWith('fci.helwan.edu.eg') ||
+            email.endsWith('tanta.edu.eg')); // Pending removal of tanta if needed, but keeping for safety
   }
 
   @override
@@ -72,9 +73,8 @@ class LoginCard extends StatelessWidget {
                   isEnabled: isEmailValid,
                   onPressed: () {
                     StoreProvider.of<AppState>(context).dispatch(
-                      CheckEmailBeforeMicrosoftLoginAction(
-                        email: email,
-                        selectedRole: selectedRole,
+                      LoginWithMicrosoftAction(
+                        loginHint: email,
                       ),
                     );
                   },
