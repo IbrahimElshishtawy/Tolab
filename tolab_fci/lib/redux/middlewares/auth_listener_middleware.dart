@@ -4,9 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:redux/redux.dart';
 
 import 'package:tolab_fci/features/auth/data/datasources/auth_role_ds.dart';
+import 'package:tolab_fci/redux/actions/auth_actions.dart';
 import 'package:tolab_fci/redux/actions/ui_actions.dart';
-import '../actions/auth_actions.dart';
-import '../state/app_state.dart';
+import 'package:tolab_fci/redux/state/app_state.dart';
 
 Middleware<AppState> createAuthListenerMiddleware(
   FirebaseAuth firebaseAuth,
@@ -17,13 +17,17 @@ Middleware<AppState> createAuthListenerMiddleware(
   return (Store<AppState> store, action, NextDispatcher next) {
     next(action);
 
-    // نبدأ listener مرة واحدة فقط
+    // 🔐 نعمل subscribe مرة واحدة فقط
     subscription ??= firebaseAuth.authStateChanges().listen((user) async {
       if (kDebugMode) {
-        print('🔥 AUTH LISTENER fired. user=${user?.uid} email=${user?.email}');
+        debugPrint(
+          '🔥 AUTH LISTENER fired. user=${user?.uid} email=${user?.email}',
+        );
       }
 
-      // 🔐 Logout
+      // ===============================
+      // 🚪 User Logged Out
+      // ===============================
       if (user == null) {
         if (store.state.authState.isAuthenticated) {
           store.dispatch(const LogoutAction());
@@ -32,44 +36,72 @@ Middleware<AppState> createAuthListenerMiddleware(
         return;
       }
 
-      final currentUid = store.state.authState.uid;
-      final alreadySameUser =
-          currentUid == user.uid &&
-          store.state.authState.isAuthenticated &&
-          store.state.authState.role != null &&
-          store.state.authState.role!.isNotEmpty &&
-          store.state.authState.role != 'unknown';
+      // ===============================
+      // 📧 Check University Email
+      // ===============================
+      final email = (user.email ?? '').toLowerCase().trim();
 
-      if (alreadySameUser) return;
+      if (!email.endsWith('tanta.edu.eg') && !email.endsWith('fci.helwan.edu.eg')) {
+        store.dispatch(
+          LoginFailureAction('يجب استخدام البريد الإلكتروني الجامعي فقط'),
+        );
+        await firebaseAuth.signOut();
+        return;
+      }
 
+      // ===============================
+      // 🧠 Prevent duplicate dispatch
+      // ===============================
+      final authState = store.state.authState;
+
+      final alreadyAuthenticated =
+          authState.isAuthenticated &&
+          authState.uid == user.uid &&
+          authState.role != null &&
+          authState.role!.isNotEmpty;
+
+      if (alreadyAuthenticated) {
+        if (kDebugMode) {
+          debugPrint('ℹ️ User already authenticated – skip dispatch');
+        }
+        return;
+      }
+
+      // ===============================
+      // 🧑‍🎓 Resolve Role from Firestore
+      // ===============================
       try {
-        final role = await roleDataSource.resolveUserRole(user, 'student');
+        final role = await roleDataSource.resolveUserRole(
+          user,
+          'student', // ✅ Default safe role
+        );
 
         if (kDebugMode) {
-          print('🔥 ROLE RESOLVED = $role');
+          debugPrint('🔥 ROLE RESOLVED = $role');
         }
 
-        // ✅ تسجيل الدخول
         store.dispatch(
-          LoginSuccessAction(
-            uid: user.uid,
-            email: (user.email ?? '').toLowerCase(),
-            role: role,
-          ),
+          LoginSuccessAction(uid: user.uid, email: email, role: role),
         );
+
+        // ✅ إخفاء Splash / Intro بعد نجاح الدخول
         store.dispatch(HideSplashAction());
         store.dispatch(HideIntroAction());
 
         if (kDebugMode) {
-          print('✅ DISPATCHED LoginSuccessAction uid=${user.uid} role=$role');
+          debugPrint(
+            '✅ DISPATCHED LoginSuccessAction uid=${user.uid} role=$role',
+          );
         }
-      } catch (e) {
+      } catch (e, stack) {
         if (kDebugMode) {
-          print('❌ ROLE ERROR: $e');
+          debugPrint('❌ ROLE ERROR: $e');
+          debugPrint('$stack');
         }
-        store.dispatch(LoginFailureAction(e.toString()));
-        store.dispatch(const LogoutAction());
-        store.dispatch(ShowSplashAction());
+
+        store.dispatch(LoginFailureAction('فشل تحميل بيانات المستخدم'));
+
+        await firebaseAuth.signOut();
       }
     });
   };
