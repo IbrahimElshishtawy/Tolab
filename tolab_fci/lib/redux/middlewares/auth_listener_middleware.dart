@@ -41,7 +41,8 @@ Middleware<AppState> createAuthListenerMiddleware(
       // ===============================
       final email = (user.email ?? '').toLowerCase().trim();
 
-      if (!email.endsWith('tanta.edu.eg') && !email.endsWith('fci.helwan.edu.eg')) {
+      if (!email.endsWith('tanta.edu.eg') &&
+          !email.endsWith('fci.helwan.edu.eg')) {
         store.dispatch(
           LoginFailureAction('يجب استخدام البريد الإلكتروني الجامعي فقط'),
         );
@@ -71,18 +72,13 @@ Middleware<AppState> createAuthListenerMiddleware(
       // 🧑‍🎓 Resolve Role from Firestore
       // ===============================
       try {
-        final role = await roleDataSource.resolveUserRole(
-          user,
-          'student', // ✅ Default safe role
-        );
+        final role = await roleDataSource.resolveUserRole(user, 'student');
 
         if (kDebugMode) {
           debugPrint('🔥 ROLE RESOLVED = $role');
         }
 
-        store.dispatch(
-          LoginSuccessAction(uid: user.uid, email: email, role: role),
-        );
+        store.dispatch(LoginSuccessAction(user.uid, email, role));
 
         // ✅ إخفاء Splash / Intro بعد نجاح الدخول
         store.dispatch(HideSplashAction());
