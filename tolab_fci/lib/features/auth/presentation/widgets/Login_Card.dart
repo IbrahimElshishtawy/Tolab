@@ -34,7 +34,6 @@ class LoginCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final email = emailController.text.trim().toLowerCase();
     final isEmailValid = _isValidEmail(email);
 
