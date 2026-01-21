@@ -2,7 +2,7 @@ import '../state/app_state.dart';
 
 /// هل المستخدم مسجّل دخول
 bool selectIsAuthenticated(AppState state) {
-  return state.authState.user != null;
+  return state.authState.isAuthenticated;
 }
 
 /// هل في عملية Auth شغّالة (loading)
@@ -27,5 +27,5 @@ String? selectUserUid(AppState state) {
 
 /// رسالة الخطأ (لو موجودة)
 String? selectAuthError(AppState state) {
-  return state.authState.errorMessage;
+  return state.authState.error;
 }
