@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:redux/redux.dart';
 import 'package:tolab_fci/features/auth/data/repositories/auth_repository_impl.dart';
 
