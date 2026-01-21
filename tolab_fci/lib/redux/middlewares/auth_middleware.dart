@@ -4,6 +4,10 @@ import 'package:redux/redux.dart';
 import 'package:tolab_fci/redux/actions/auth_actions.dart';
 import 'package:tolab_fci/redux/state/app_state.dart';
 
+List<Middleware<AppState>> createAuthMiddleware(dynamic repository) {
+  return [authMiddleware];
+}
+
 String detectRoleFromEmail(String email) {
   // Extract domain from email
   final domain = email.split('@')[1];
@@ -44,10 +48,13 @@ void authMiddleware(
 
       final user = credential.user!;
       final uid = user.uid;
-      final email = user.email ?? action.loginHint ?? ""; 
+      final email = user.email ?? action.loginHint ?? "";
 
       if (email.isEmpty) {
-         throw FirebaseAuthException(code: 'missing-email', message: 'No email provided by provider');
+        throw FirebaseAuthException(
+          code: 'missing-email',
+          message: 'No email provided by provider',
+        );
       }
 
       // 🔎 Firestore role check
