@@ -8,11 +8,10 @@ List<Middleware<AppState>> createAuthMiddleware(dynamic repository) {
   return [authMiddleware];
 }
 
+/// 🔎 تحديد الدور من الإيميل
 String detectRoleFromEmail(String email) {
-  // Extract domain from email
-  final domain = email.split('@')[1];
+  final domain = email.split('@').last;
 
-  // Determine role based on email domain or pattern
   if (domain == 'fci.helwan.edu.eg') {
     return 'student';
   } else if (domain == 'admin.fci.helwan.edu.eg') {
@@ -30,25 +29,36 @@ void authMiddleware(
   NextDispatcher next,
 ) async {
   if (action is LoginWithMicrosoftAction) {
+    // مرّر الأكشن أولاً
     next(action);
 
     try {
       final provider = OAuthProvider("microsoft.com");
+
       provider.setCustomParameters({
         "tenant": "common",
         if (action.loginHint != null) "login_hint": action.loginHint!,
       });
+
       provider.addScope('email');
       provider.addScope('User.Read');
 
-      // 🔐 تسجيل الدخول
+      // 🔐 تسجيل الدخول بـ Microsoft
       final credential = await FirebaseAuth.instance.signInWithProvider(
         provider,
       );
 
-      final user = credential.user!;
+      final user = credential.user;
+
+      if (user == null) {
+        throw FirebaseAuthException(
+          code: 'null-user',
+          message: 'No user returned from provider',
+        );
+      }
+
       final uid = user.uid;
-      final email = user.email ?? action.loginHint ?? "";
+      final email = user.email ?? action.loginHint ?? '';
 
       if (email.isEmpty) {
         throw FirebaseAuthException(
@@ -57,18 +67,17 @@ void authMiddleware(
         );
       }
 
-      // 🔎 Firestore role check
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .get();
+      // 🔎 فحص الدور في Firestore
+      final userRef = FirebaseFirestore.instance.collection('users').doc(uid);
+
+      final doc = await userRef.get();
 
       String role;
 
       if (!doc.exists) {
         role = detectRoleFromEmail(email);
 
-        await FirebaseFirestore.instance.collection('users').doc(uid).set({
+        await userRef.set({
           'email': email,
           'role': role,
           'createdAt': FieldValue.serverTimestamp(),
@@ -76,12 +85,17 @@ void authMiddleware(
       } else {
         role = doc['role'];
       }
-
       store.dispatch(LoginSuccessAction(uid, email, role));
     } catch (e) {
-      store.dispatch(LoginFailureAction(e.toString()));
+      final message = e.toString();
+      if (message.contains('ERROR_WEB_CONTEXT_CANCELED')) {
+        store.dispatch(LoginFailureAction('User cancelled login'));
+        return;
+      }
+      store.dispatch(LoginFailureAction(message));
     }
-  }
 
+    return;
+  }
   next(action);
 }
