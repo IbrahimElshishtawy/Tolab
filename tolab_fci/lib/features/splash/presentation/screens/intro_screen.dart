@@ -36,7 +36,7 @@ class IntroScreen extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                           color: isDark
                               ? Colors.white
-                              : const Color(0xFF023EC5),
+                              : Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ],
@@ -53,7 +53,9 @@ class IntroScreen extends StatelessWidget {
                   fontSize: 36,
                   height: 1.4,
                   fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : const Color(0xFF023EC5),
+                  color: isDark
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.primary,
                 ),
               ),
 
