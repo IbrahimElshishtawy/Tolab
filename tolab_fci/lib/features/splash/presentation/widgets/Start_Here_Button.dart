@@ -46,7 +46,9 @@ class _StartHereButtonState extends State<StartHereButton>
 
   @override
   Widget build(BuildContext context) {
-    final color = widget.isDark ? Colors.white : const Color(0xFF023EC5);
+    final color = widget.isDark
+        ? Colors.white
+        : Theme.of(context).colorScheme.primary;
 
     return InkWell(
       borderRadius: BorderRadius.circular(16),
