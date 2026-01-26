@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -25,39 +19,56 @@ enum AcademicStatus {
 }
 
 model User {
-  id            Int     @id @default(autoincrement())
-  nationalId    String
-  factoryNumber String
+  id            Int      @id @default(autoincrement())
+
+  // ✅ Student login
+  nationalId    String?
+  seatNumber    String?   // رقم الجلوس
+
+  // ✅ Staff login (Doctor/Assistant)
+  email         String?   // university email
+
+  // ✅ Admin login
+  username      String?
+
+  // common
   role          Role
-  isActive      Boolean @default(true)
-  passwordHash  String?
+  isActive      Boolean   @default(true)
+  passwordHash  String?   // للـ staff/admin (والطالب لو حبيت لاحقًا)
 
-  student Student?
+  // relations
+  student       Student?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  @@unique([nationalId, factoryNumber])
+  // ✅ قيود فريدة حسب نوع الدخول (nullable unique مسموح)
+  @@unique([nationalId, seatNumber])
+  @@unique([email])
+  @@unique([username])
+
+  @@index([role])
 }
 
 model Student {
   id             Int            @id @default(autoincrement())
   userId         Int            @unique
+
   academicStatus AcademicStatus @default(ACTIVE)
   level          Int
   department     String
 
-  user         User          @relation(fields: [userId], references: [id])
-  enrollments  Enrollment[]
-  groupMembers GroupMember[]
+  user           User           @relation(fields: [userId], references: [id])
+  enrollments    Enrollment[]
+  groupMembers   GroupMember[]
 }
 
 model Course {
-  id         Int    @id @default(autoincrement())
-  code       String @unique
-  name       String
-  level      Int
-  department String
+  id          Int            @id @default(autoincrement())
+  code        String         @unique
+  name        String
+  level       Int
+  department  String
 
   enrollments Enrollment[]
   schedule    ScheduleSlot[]
@@ -70,43 +81,48 @@ model Enrollment {
   courseId  Int
   createdAt DateTime @default(now())
 
-  student Student @relation(fields: [studentId], references: [id])
-  course  Course  @relation(fields: [courseId], references: [id])
+  student   Student  @relation(fields: [studentId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id])
 
   @@unique([studentId, courseId])
+  @@index([studentId])
+  @@index([courseId])
 }
 
 model ScheduleSlot {
-  id        Int @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   courseId  Int
-  dayOfWeek Int
-  startMin  Int
+
+  dayOfWeek Int      // 1=Mon .. 7=Sun
+  startMin  Int      // 9:30 => 570
   endMin    Int
 
-  course Course @relation(fields: [courseId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id])
 
   @@index([courseId])
 }
 
 model Group {
-  id       Int    @id @default(autoincrement())
-  courseId Int
-  name     String
-  capacity Int    @default(30)
+  id        Int      @id @default(autoincrement())
+  courseId  Int
+  name      String
+  capacity  Int      @default(30)
 
-  course  Course        @relation(fields: [courseId], references: [id])
-  members GroupMember[]
+  course    Course   @relation(fields: [courseId], references: [id])
+  members   GroupMember[]
 
   @@index([courseId])
 }
 
 model GroupMember {
-  id        Int @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   groupId   Int
   studentId Int
 
-  group   Group   @relation(fields: [groupId], references: [id])
-  student Student @relation(fields: [studentId], references: [id])
+  group     Group    @relation(fields: [groupId], references: [id])
+  student   Student  @relation(fields: [studentId], references: [id])
 
   @@unique([groupId, studentId])
+  @@index([studentId])
+  @@index([groupId])
 }
