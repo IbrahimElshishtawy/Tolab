@@ -9,6 +9,7 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  // تنظيف البيانات (ترتيب مهم بسبب العلاقات)
   await prisma.groupMember.deleteMany();
   await prisma.group.deleteMany();
   await prisma.scheduleSlot.deleteMany();
@@ -17,26 +18,48 @@ async function main() {
   await prisma.student.deleteMany();
   await prisma.user.deleteMany();
 
+  // Passwords
   const adminPass = await bcrypt.hash("admin123", 10);
-  const studentPass = await bcrypt.hash("student123", 10);
+  const doctorPass = await bcrypt.hash("doctor123", 10);
+  const assistantPass = await bcrypt.hash("assistant123", 10);
 
-  await prisma.user.create({
+  // ✅ Admin (username + password)
+  const admin = await prisma.user.create({
     data: {
-      nationalId: "11111111111111",
-      factoryNumber: "F001",
+      username: "admin",
       role: "ADMIN",
       isActive: true,
       passwordHash: adminPass,
     },
   });
 
-  await prisma.user.create({
+  // ✅ Doctor (email + password)
+  const doctor = await prisma.user.create({
+    data: {
+      email: "doctor@university.edu",
+      role: "DOCTOR",
+      isActive: true,
+      passwordHash: doctorPass,
+    },
+  });
+
+  // ✅ Assistant (email + password)
+  const assistant = await prisma.user.create({
+    data: {
+      email: "assistant@university.edu",
+      role: "ASSISTANT",
+      isActive: true,
+      passwordHash: assistantPass,
+    },
+  });
+
+  // ✅ Student (nationalId + seatNumber)  — بدون password
+  const studentUser = await prisma.user.create({
     data: {
       nationalId: "22222222222222",
-      factoryNumber: "F002",
+      seatNumber: "S001",
       role: "STUDENT",
       isActive: true,
-      passwordHash: studentPass,
       student: {
         create: {
           academicStatus: "ACTIVE",
@@ -45,26 +68,31 @@ async function main() {
         },
       },
     },
+    include: { student: true },
   });
 
-  const course1 = await prisma.course.create({
+  // Courses + schedule
+  const c1 = await prisma.course.create({
     data: { code: "CS101", name: "Intro to CS", level: 1, department: "CS" },
   });
-
-  const course2 = await prisma.course.create({
+  const c2 = await prisma.course.create({
     data: { code: "CS201", name: "Data Structures", level: 2, department: "CS" },
   });
 
   await prisma.scheduleSlot.createMany({
     data: [
-      { courseId: course1.id, dayOfWeek: 1, startMin: 540, endMin: 600 },
-      { courseId: course2.id, dayOfWeek: 3, startMin: 600, endMin: 660 },
+      { courseId: c1.id, dayOfWeek: 1, startMin: 540, endMin: 600 }, // Mon 9-10
+      { courseId: c2.id, dayOfWeek: 3, startMin: 600, endMin: 660 }, // Wed 10-11
     ],
   });
 
   console.log("✅ Seed done");
-  console.log("Admin login:", { nationalId: "11111111111111", factoryNumber: "F001", password: "admin123" });
-  console.log("Student login:", { nationalId: "22222222222222", factoryNumber: "F002", password: "student123" });
+  console.log("ADMIN login:", { username: "admin", password: "admin123" });
+  console.log("DOCTOR login:", { email: "doctor@university.edu", password: "doctor123" });
+  console.log("ASSISTANT login:", { email: "assistant@university.edu", password: "assistant123" });
+  console.log("STUDENT login:", { nationalId: "22222222222222", seatNumber: "S001" });
+
+  console.log("IDs:", { adminId: admin.id, doctorId: doctor.id, assistantId: assistant.id, studentUserId: studentUser.id });
 }
 
 main()
