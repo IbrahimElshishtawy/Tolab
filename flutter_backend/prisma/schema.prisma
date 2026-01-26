@@ -21,32 +21,22 @@ enum AcademicStatus {
 model User {
   id Int @id @default(autoincrement())
 
-  // ✅ Student login
   nationalId String?
-  seatNumber String? // رقم الجلوس
+  seatNumber String?
+  email      String?
+  username   String?
 
-  // ✅ Staff login (Doctor/Assistant)
-  email String? // university email
-
-  // ✅ Admin login
-  username String?
-
-  // common
   role         Role
   isActive     Boolean @default(true)
-  passwordHash String? // للـ staff/admin (والطالب لو حبيت لاحقًا)
+  passwordHash String?
 
-  // relations
-  student Student?
-
+  student   Student?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // ✅ قيود فريدة حسب نوع الدخول (nullable unique مسموح)
   @@unique([nationalId, seatNumber])
   @@unique([email])
   @@unique([username])
-  @@index([role])
 }
 
 model Student {
