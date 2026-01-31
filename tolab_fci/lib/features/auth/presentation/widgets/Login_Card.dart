@@ -6,7 +6,7 @@ import 'package:tolab_fci/features/auth/presentation/widgets/Email_Field.dart';
 import 'package:tolab_fci/features/auth/presentation/widgets/Login_Header.dart';
 import 'package:tolab_fci/features/auth/presentation/widgets/Microsoft_Button.dart';
 import 'package:tolab_fci/features/auth/presentation/widgets/Role_Selector.dart';
-import 'package:tolab_fci/redux/actions/auth_actions.dart';
+import 'package:tolab_fci/features/auth/ReduX/action/auth_actions.dart';
 import 'package:tolab_fci/redux/state/app_state.dart';
 
 class LoginCard extends StatelessWidget {

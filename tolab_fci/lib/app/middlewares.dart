@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:redux/redux.dart';
 import 'package:tolab_fci/features/auth/data/repositories/auth_repository_impl.dart';
 
-import '../redux/middlewares/auth_middleware.dart';
+import '../features/auth/ReduX/middlewares/auth_middleware.dart';
 import '../features/auth/data/datasources/auth_remote_ds.dart';
 import '../redux/state/app_state.dart';
 

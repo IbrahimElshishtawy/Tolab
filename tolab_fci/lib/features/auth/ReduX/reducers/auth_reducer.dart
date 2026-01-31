@@ -1,5 +1,5 @@
-import '../actions/auth_actions.dart';
-import '../state/auth_state.dart';
+import '../action/auth_actions.dart';
+import '../states/auth_state.dart';
 
 /// ===============================
 /// Initial Auth State

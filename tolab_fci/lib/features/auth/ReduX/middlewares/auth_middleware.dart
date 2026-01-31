@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:redux/redux.dart';
-import 'package:tolab_fci/redux/actions/auth_actions.dart';
+import 'package:tolab_fci/features/auth/ReduX/action/auth_actions.dart';
 import 'package:tolab_fci/redux/state/app_state.dart';
 
 List<Middleware<AppState>> createAuthMiddleware(dynamic repository) {

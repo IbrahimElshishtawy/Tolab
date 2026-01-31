@@ -2,7 +2,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:redux/redux.dart';
-import 'package:tolab_fci/redux/selectors/auth_selectors.dart';
+import 'package:tolab_fci/features/auth/ReduX/selectors/auth_selectors.dart';
 import 'package:tolab_fci/redux/state/app_state.dart';
 
 class RouterViewModel {

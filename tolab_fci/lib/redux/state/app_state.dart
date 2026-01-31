@@ -1,5 +1,5 @@
 import 'package:tolab_fci/redux/reducers/ui_reducer.dart';
-import 'package:tolab_fci/redux/state/auth_state.dart';
+import 'package:tolab_fci/features/auth/ReduX/states/auth_state.dart';
 
 class AppState {
   final AuthState authState;
