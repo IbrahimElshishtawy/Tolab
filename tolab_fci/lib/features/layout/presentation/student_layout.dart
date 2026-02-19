@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:tolab_fci/features/schedule/presentation/screens/schedule_screen.dart';
 import 'package:tolab_fci/features/home/presentation/screens/student_home_screen.dart';
+import 'package:tolab_fci/features/subjects/presentation/screens/subjects_screen.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class StudentLayout extends StatefulWidget {
+  const StudentLayout({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<StudentLayout> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<StudentLayout> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
     StudentHomeScreen(),
-    Center(child: Text('Search')),
-    Center(child: Text('Profile')),
+    SubjectsScreen(),
+    ScheduleScreen(),
     Center(child: Text('Profile')),
     Center(child: Text('Profile')),
   ];
@@ -36,12 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         type: BottomNavigationBarType.fixed, // important if > 3 items
         items: [
-           BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: SvgPicture.asset("assets/svgs/home.svg"),
             activeIcon: SvgPicture.asset("assets/svgs/active_home.svg"),
             label: 'الرئيسية',
           ),
-           BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: SvgPicture.asset("assets/svgs/subject.svg"),
             activeIcon: SvgPicture.asset("assets/svgs/active_subject.svg"),
             label: 'المواد',
