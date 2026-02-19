@@ -26,6 +26,8 @@ class _HomeScreenState extends State<HomeScreen> {
       body: _pages[_currentIndex],
 
       bottomNavigationBar: BottomNavigationBar(
+        selectedItemColor: Color(0XFF023EC5),
+        unselectedItemColor: Color(0XFF000000),
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -37,27 +39,27 @@ class _HomeScreenState extends State<HomeScreen> {
            BottomNavigationBarItem(
             icon: SvgPicture.asset("assets/svgs/home.svg"),
             activeIcon: SvgPicture.asset("assets/svgs/active_home.svg"),
-            label: 'Home',
+            label: 'الرئيسية',
           ),
            BottomNavigationBarItem(
-            icon: SvgPicture.asset("assets/svgs/home.svg"),
-            activeIcon: SvgPicture.asset("assets/svgs/active_home.svg"),
-            label: 'Search',
+            icon: SvgPicture.asset("assets/svgs/subject.svg"),
+            activeIcon: SvgPicture.asset("assets/svgs/active_subject.svg"),
+            label: 'المواد',
           ),
           BottomNavigationBarItem(
             icon: SvgPicture.asset("assets/svgs/schedule.svg"),
             activeIcon: SvgPicture.asset("assets/svgs/active_schedule.svg"),
-            label: 'Profile',
+            label: 'الجدول',
           ),
           BottomNavigationBarItem(
             icon: SvgPicture.asset("assets/svgs/community.svg"),
             activeIcon: SvgPicture.asset("assets/svgs/active_community.svg"),
-            label: 'Profile',
+            label: 'المجتمع',
           ),
           BottomNavigationBarItem(
             icon: SvgPicture.asset("assets/svgs/other.svg"),
             activeIcon: SvgPicture.asset("assets/svgs/active_other.svg"),
-            label: 'Profile',
+            label: 'المزيد',
           ),
         ],
       ),
