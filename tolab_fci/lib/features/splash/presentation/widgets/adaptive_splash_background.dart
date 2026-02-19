@@ -1,7 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'splash_shapes_painter.dart';
+import 'Splash_Shapes_Painter.dart';
 
 class AdaptiveSplashBackground extends StatelessWidget {
   final Widget child;

@@ -8,6 +8,9 @@ import 'Router_ViewModel.dart';
 import 'package:tolab_fci/features/splash/presentation/screens/splash_screen.dart';
 import 'package:tolab_fci/features/auth/presentation/screens/login_screen.dart';
 import 'package:tolab_fci/features/home/presentation/screens/student_home_screen.dart';
+import 'package:tolab_fci/features/home/presentation/screens/doctor_home_screen.dart';
+import 'package:tolab_fci/features/home/presentation/screens/ta_home_screen.dart';
+import 'package:tolab_fci/features/home/presentation/screens/it_home_screen.dart';
 
 class AppRouter extends StatelessWidget {
   const AppRouter({super.key});
@@ -46,6 +49,18 @@ class AppRouter extends StatelessWidget {
         // 🏠 Student Home
         else if (vm.role == 'student') {
           screen = const StudentHomeScreen();
+        }
+        // 👨‍🏫 Doctor Home
+        else if (vm.role == 'doctor') {
+          screen = const DoctorHomeScreen();
+        }
+        // 🧑‍🏫 TA Home
+        else if (vm.role == 'ta') {
+          screen = const TaHomeScreen();
+        }
+        // 🛠 IT Home
+        else if (vm.role == 'it') {
+          screen = const ItHomeScreen();
         }
         // ❓ Fallback
         else {
