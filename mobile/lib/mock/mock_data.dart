@@ -46,3 +46,30 @@ final List<Map<String, dynamic>> mockNotificationsData = [
   {'id': 1, 'title': 'New Material', 'message': 'Dr. Ahmed uploaded Lecture 4'},
   {'id': 2, 'title': 'Task Graded', 'message': 'Your submission for Task 1 has been graded'},
 ];
+
+final List<Map<String, dynamic>> mockSubmissionsData = [
+  {
+    'id': 1,
+    'task_id': 1,
+    'student_name': 'Ali Mohamed',
+    'file_url': 'https://example.com/sub1.zip',
+    'grade': 'A',
+    'submitted_at': '2023-10-24T10:00:00Z',
+  },
+  {
+    'id': 2,
+    'task_id': 1,
+    'student_name': 'Sara Hassan',
+    'file_url': 'https://example.com/sub2.zip',
+    'grade': null,
+    'submitted_at': '2023-10-24T11:30:00Z',
+  },
+  {
+    'id': 3,
+    'task_id': 2,
+    'student_name': 'Omar Khaled',
+    'file_url': 'https://example.com/sub3.zip',
+    'grade': 'B+',
+    'submitted_at': '2023-10-31T09:15:00Z',
+  },
+];

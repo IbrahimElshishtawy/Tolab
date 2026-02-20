@@ -27,7 +27,22 @@ class DoctorHomeDashboard extends StatelessWidget {
               _buildStatCard('Avg Grade', 'B+', Colors.purple),
             ],
           ),
+          const SizedBox(height: 24),
+          const Text('Recent Activity', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          _buildActivityItem('New submission in SWE311 from Ali', '10 mins ago', Icons.history_edu),
+          _buildActivityItem('Quiz results published for CS101', '2 hours ago', Icons.analytics),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActivityItem(String title, String time, IconData icon) {
+    return Card(
+      child: ListTile(
+        leading: Icon(icon, color: Colors.blue),
+        title: Text(title, style: const TextStyle(fontSize: 14)),
+        subtitle: Text(time, style: const TextStyle(fontSize: 12)),
       ),
     );
   }
@@ -63,12 +78,28 @@ class AssistantHomeDashboard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Assistant Tasks', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text('My Schedule Today', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          _buildScheduleItem('09:00 AM', 'Lab 1 - CS101', 'Room 302'),
+          _buildScheduleItem('11:30 AM', 'Office Hours', 'Staff Room'),
+          const SizedBox(height: 24),
+          const Text('Pending Tasks', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
           _buildActionItem(Icons.grade, 'Grade 15 pending assignments', Colors.teal),
-          _buildActionItem(Icons.lab_profile, 'Prepare Lab 4 materials', Colors.indigo),
+          _buildActionItem(Icons.science, 'Prepare Lab 4 materials', Colors.indigo),
           _buildActionItem(Icons.chat, 'Respond to 5 student queries', Colors.deepOrange),
         ],
+      ),
+    );
+  }
+
+  Widget _buildScheduleItem(String time, String title, String room) {
+    return Card(
+      child: ListTile(
+        leading: Text(time, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
+        title: Text(title),
+        subtitle: Text(room),
+        trailing: const Icon(Icons.chevron_right),
       ),
     );
   }
