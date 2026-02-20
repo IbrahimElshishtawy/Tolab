@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import '../../../redux/app_state.dart';
 import 'widgets/details_tabs.dart';
 import 'tasks_screen.dart';
+import 'subject_submissions_screen.dart';
 
 class SubjectDetailsScreen extends StatelessWidget {
   final int subjectId;
@@ -10,32 +13,42 @@ class SubjectDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 5,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-          bottom: const TabBar(
-            isScrollable: true,
-            tabs: [
-              Tab(text: 'Overview'),
-              Tab(text: 'Lectures'),
-              Tab(text: 'Sections'),
-              Tab(text: 'Tasks'),
-              Tab(text: 'Quizzes'),
-            ],
+    return StoreConnector<AppState, bool>(
+      converter: (store) {
+        final role = store.state.authState.role;
+        return role == 'doctor' || role == 'assistant';
+      },
+      builder: (context, isEducator) {
+        return DefaultTabController(
+          length: isEducator ? 6 : 5,
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(title),
+              bottom: TabBar(
+                isScrollable: true,
+                tabs: [
+                  const Tab(text: 'Overview'),
+                  const Tab(text: 'Lectures'),
+                  const Tab(text: 'Sections'),
+                  const Tab(text: 'Tasks'),
+                  const Tab(text: 'Quizzes'),
+                  if (isEducator) const Tab(text: 'Submissions'),
+                ],
+              ),
+            ),
+            body: TabBarView(
+              children: [
+                SubjectOverview(subjectId: subjectId),
+                LecturesList(subjectId: subjectId),
+                SectionsList(subjectId: subjectId),
+                TasksScreen(subjectId: subjectId),
+                QuizzesList(subjectId: subjectId),
+                if (isEducator) SubjectSubmissionsScreen(subjectId: subjectId),
+              ],
+            ),
           ),
-        ),
-        body: TabBarView(
-          children: [
-            SubjectOverview(subjectId: subjectId),
-            LecturesList(subjectId: subjectId),
-            SectionsList(subjectId: subjectId),
-            TasksScreen(subjectId: subjectId),
-            QuizzesList(subjectId: subjectId),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 }

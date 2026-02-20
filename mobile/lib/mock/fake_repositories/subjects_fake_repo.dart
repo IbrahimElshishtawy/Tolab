@@ -12,4 +12,16 @@ class SubjectsFakeRepo {
     await fakeDelay();
     return mockLecturesData.map((json) => Lecture.fromJson(json)).toList();
   }
+
+  Future<void> createLecture(int subjectId, Map<String, dynamic> lectureData) async {
+    await fakeDelay(1000);
+  }
+
+  Future<void> createSection(int subjectId, Map<String, dynamic> sectionData) async {
+    await fakeDelay(1000);
+  }
+
+  Future<void> createQuiz(int subjectId, Map<String, dynamic> quizData) async {
+    await fakeDelay(1200);
+  }
 }

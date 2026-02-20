@@ -1,27 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:go_router/go_router.dart';
+import '../../../redux/app_state.dart';
+import '../redux/calendar_actions.dart';
+import '../redux/calendar_state.dart';
 
 class CalendarScreen extends StatelessWidget {
   const CalendarScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Schedule')),
-      body: Column(
-        children: [
-          _buildCalendarHeader(),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _buildScheduleItem('08:30 AM', 'Introduction to CS', 'Lecture Hall A'),
-                _buildScheduleItem('10:15 AM', 'Software Engineering', 'Room 201'),
-                _buildScheduleItem('01:00 PM', 'Database Lab', 'Lab 3'),
-              ],
-            ),
+    return StoreConnector<AppState, CalendarState>(
+      onInit: (store) => store.dispatch(FetchEventsAction()),
+      converter: (store) => store.state.calendarState,
+      builder: (context, state) {
+        return Scaffold(
+          appBar: AppBar(title: const Text('Schedule')),
+          body: Column(
+            children: [
+              _buildCalendarHeader(),
+              Expanded(
+                child: state.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: state.events.length,
+                      itemBuilder: (context, index) {
+                        final event = state.events[index];
+                        return _buildScheduleItem(
+                          context,
+                          event['start_at'].split('T')[1].substring(0, 5),
+                          event['title'],
+                          event['location'],
+                          route: event['deep_link'],
+                        );
+                      },
+                    ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -50,7 +69,7 @@ class CalendarScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildScheduleItem(String time, String title, String location) {
+  Widget _buildScheduleItem(BuildContext context, String time, String title, String location, {String? route}) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
@@ -63,7 +82,12 @@ class CalendarScreen extends StatelessWidget {
         ),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text(location),
-        trailing: const Icon(Icons.more_vert),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () {
+          if (route != null) {
+            GoRouter.of(context).push(route);
+          }
+        },
       ),
     );
   }

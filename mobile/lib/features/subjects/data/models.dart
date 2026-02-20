@@ -16,6 +16,38 @@ class Subject {
   }
 }
 
+class Quiz {
+  final int id;
+  final String title;
+  final int subjectId;
+  final DateTime startAt;
+  final DateTime endAt;
+  final int duration; // in minutes
+  final int totalPoints;
+
+  Quiz({
+    required this.id,
+    required this.title,
+    required this.subjectId,
+    required this.startAt,
+    required this.endAt,
+    required this.duration,
+    required this.totalPoints,
+  });
+
+  factory Quiz.fromJson(Map<String, dynamic> json) {
+    return Quiz(
+      id: json['id'],
+      title: json['title'],
+      subjectId: json['subject_id'],
+      startAt: DateTime.parse(json['start_at']),
+      endAt: DateTime.parse(json['end_at']),
+      duration: json['duration'],
+      totalPoints: json['total_points'],
+    );
+  }
+}
+
 class Lecture {
   final int id;
   final String title;
