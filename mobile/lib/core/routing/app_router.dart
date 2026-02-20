@@ -7,6 +7,7 @@ import '../../features/subjects/ui/subject_details_screen.dart';
 import '../../features/calendar/ui/calendar_screen.dart';
 import '../../features/community/ui/community_screen.dart';
 import '../../features/profile/ui/profile_screen.dart';
+import '../../features/notifications/ui/notifications_screen.dart';
 import '../ui/widgets/app_scaffold.dart';
 
 final appRouter = GoRouter(
@@ -48,6 +49,10 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/profile',
           builder: (context, state) => const ProfileScreen(),
+        ),
+        GoRoute(
+          path: '/notifications',
+          builder: (context, state) => const NotificationsScreen(),
         ),
       ],
     ),

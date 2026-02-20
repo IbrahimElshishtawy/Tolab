@@ -43,6 +43,22 @@ final List<Map<String, dynamic>> mockTasksData = [
 ];
 
 final List<Map<String, dynamic>> mockNotificationsData = [
-  {'id': 1, 'title': 'New Material', 'message': 'Dr. Ahmed uploaded Lecture 4'},
-  {'id': 2, 'title': 'Task Graded', 'message': 'Your submission for Task 1 has been graded'},
+  {
+    'id': 1,
+    'title': 'New Material',
+    'message': 'Dr. Ahmed uploaded Lecture 4',
+    'deep_link': 'lms://subject/1'
+  },
+  {
+    'id': 2,
+    'title': 'New Assignment',
+    'message': 'Task 2: First UI App has been posted',
+    'deep_link': 'lms://task/2'
+  },
+  {
+    'id': 3,
+    'title': 'Community Update',
+    'message': 'Someone commented on your post',
+    'deep_link': 'lms://post/3'
+  },
 ];

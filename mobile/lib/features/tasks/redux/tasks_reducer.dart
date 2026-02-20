@@ -19,5 +19,34 @@ TasksState tasksReducer(TasksState state, dynamic action) {
       error: action.error,
     );
   }
+
+  if (action is SubmitTaskStartAction) {
+    final newSubmissions = Map<int, TaskSubmissionStatus>.from(state.submissions);
+    newSubmissions[action.taskId] = (newSubmissions[action.taskId] ?? TaskSubmissionStatus()).copyWith(
+      isUploading: true,
+      error: null,
+    );
+    return state.copyWith(submissions: newSubmissions);
+  }
+
+  if (action is SubmitTaskSuccessAction) {
+    final newSubmissions = Map<int, TaskSubmissionStatus>.from(state.submissions);
+    newSubmissions[action.taskId] = (newSubmissions[action.taskId] ?? TaskSubmissionStatus()).copyWith(
+      isUploading: false,
+      isSubmitted: true,
+      submittedAt: action.submittedAt,
+    );
+    return state.copyWith(submissions: newSubmissions);
+  }
+
+  if (action is SubmitTaskFailureAction) {
+    final newSubmissions = Map<int, TaskSubmissionStatus>.from(state.submissions);
+    newSubmissions[action.taskId] = (newSubmissions[action.taskId] ?? TaskSubmissionStatus()).copyWith(
+      isUploading: false,
+      error: action.error,
+    );
+    return state.copyWith(submissions: newSubmissions);
+  }
+
   return state;
 }

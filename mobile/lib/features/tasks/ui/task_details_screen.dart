@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../tasks/data/models.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import '../../../redux/app_state.dart';
+import '../data/models.dart';
+import '../redux/tasks_actions.dart';
+import '../redux/tasks_state.dart';
+import '../../../core/ui/widgets/state_view.dart';
 
 class TaskDetailsScreen extends StatelessWidget {
   final Task task;
@@ -11,24 +16,43 @@ class TaskDetailsScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Task Details')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(task.title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text('Due: ${task.dueDate.toLocal()}', style: const TextStyle(color: Colors.red)),
-            const Divider(height: 32),
-            const Text('Description', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text(task.description),
-            const Spacer(),
-            ElevatedButton.icon(
-              onPressed: () => _showUploadDialog(context),
-              icon: const Icon(Icons.upload_file),
-              label: const Text('Submit Assignment'),
-              style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
-            ),
-          ],
+        child: StoreConnector<AppState, TaskSubmissionStatus>(
+          converter: (store) => store.state.tasksState.submissions[task.id] ?? TaskSubmissionStatus(),
+          builder: (context, status) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(task.title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Text(
+                  status.isSubmitted
+                    ? 'Submitted on ${status.submittedAt?.toLocal()}'
+                    : 'Due: ${task.dueDate.toLocal()}',
+                  style: TextStyle(color: status.isSubmitted ? Colors.green : Colors.red),
+                ),
+                const Divider(height: 32),
+                const Text('Description', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Text(task.description),
+                const Spacer(),
+                if (status.error != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(status.error!, style: const TextStyle(color: Colors.red)),
+                  ),
+                ElevatedButton.icon(
+                  onPressed: status.isUploading || status.isSubmitted
+                      ? null
+                      : () => _showUploadDialog(context),
+                  icon: status.isUploading
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                      : Icon(status.isSubmitted ? Icons.check : Icons.upload_file),
+                  label: Text(status.isUploading ? 'Uploading...' : (status.isSubmitted ? 'Already Submitted' : 'Submit Assignment')),
+                  style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -52,7 +76,9 @@ class TaskDetailsScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Submission successful!')));
+              StoreProvider.of<AppState>(context).dispatch(
+                SubmitTaskAction(task.id, 'https://example.com/submission.pdf'),
+              );
             },
             child: const Text('Upload'),
           ),

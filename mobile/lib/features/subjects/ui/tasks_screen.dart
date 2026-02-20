@@ -27,21 +27,26 @@ class TasksScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             itemCount: tasks.length,
             itemBuilder: (context, index) {
-            final task = tasks[index];
-            return Card(
-              child: ListTile(
-                title: Text(task.title),
-                subtitle: Text('Due: ${task.dueDate.toLocal()}'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => TaskDetailsScreen(task: task)),
-                  );
-                },
-              ),
-                );
-              },
-            ),
+              final task = tasks[index];
+              final isSubmitted = state.submissions[task.id]?.isSubmitted ?? false;
+              return Card(
+                child: ListTile(
+                  title: Text(task.title),
+                  subtitle: Text('Due: ${task.dueDate.toLocal()}'),
+                  trailing: Icon(
+                    isSubmitted ? Icons.check_circle : Icons.pending_outlined,
+                    color: isSubmitted ? Colors.green : Colors.orange,
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => TaskDetailsScreen(task: task)),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
         );
       },
     );

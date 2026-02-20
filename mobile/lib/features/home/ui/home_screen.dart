@@ -15,6 +15,12 @@ class HomeScreen extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             title: Text(role == 'student' ? 'Student Home' : (role == 'doctor' ? 'Doctor Home' : 'Assistant Home')),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.notifications_none),
+                onPressed: () => context.push('/notifications'),
+              ),
+            ],
           ),
           body: SingleChildScrollView(
             child: Column(
