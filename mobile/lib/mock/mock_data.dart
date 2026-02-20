@@ -46,3 +46,75 @@ final List<Map<String, dynamic>> mockNotificationsData = [
   {'id': 1, 'title': 'New Material', 'message': 'Dr. Ahmed uploaded Lecture 4'},
   {'id': 2, 'title': 'Task Graded', 'message': 'Your submission for Task 1 has been graded'},
 ];
+
+final List<Map<String, dynamic>> mockSubmissionsData = [
+  {
+    'id': 1,
+    'task_id': 1,
+    'student_name': 'Ali Mohamed',
+    'file_url': 'https://example.com/sub1.zip',
+    'grade': 'A',
+    'submitted_at': '2023-10-24T10:00:00Z',
+  },
+  {
+    'id': 2,
+    'task_id': 1,
+    'student_name': 'Sara Hassan',
+    'file_url': 'https://example.com/sub2.zip',
+    'grade': null,
+    'submitted_at': '2023-10-24T11:30:00Z',
+  },
+  {
+    'id': 3,
+    'task_id': 2,
+    'student_name': 'Omar Khaled',
+    'file_url': 'https://example.com/sub3.zip',
+    'grade': 'B+',
+    'submitted_at': '2023-10-31T09:15:00Z',
+  },
+];
+
+final List<Map<String, dynamic>> mockQuizzesData = [
+  {
+    'id': 1,
+    'title': 'Midterm Quiz',
+    'subject_id': 1,
+    'start_at': '2023-11-12T09:00:00Z',
+    'end_at': '2023-11-12T10:00:00Z',
+    'duration': 60,
+    'total_points': 20,
+  },
+  {
+    'id': 2,
+    'title': 'Redux Fundamentals',
+    'subject_id': 2,
+    'start_at': '2023-11-15T14:00:00Z',
+    'end_at': '2023-11-15T14:30:00Z',
+    'duration': 30,
+    'total_points': 10,
+  },
+];
+
+final List<Map<String, dynamic>> mockCalendarEventsData = [
+  {
+    'id': 1,
+    'title': 'Introduction to CS',
+    'type': 'lecture',
+    'start_at': '2023-11-15T08:30:00Z',
+    'location': 'Lecture Hall A',
+    'deep_link': 'lms://subjects/1',
+  },
+  {
+    'id': 2,
+    'title': 'Environment Setup Due',
+    'type': 'task',
+    'start_at': '2023-11-15T23:59:59Z',
+    'location': 'Online',
+    'deep_link': 'lms://tasks/1',
+  },
+];
+
+final List<Map<String, dynamic>> mockCommentsData = [
+  {'id': 1, 'post_id': 1, 'user': 'Ali', 'text': 'Great post!', 'created_at': '2023-11-10T10:00:00Z'},
+  {'id': 2, 'post_id': 1, 'user': 'Sara', 'text': 'Very helpful.', 'created_at': '2023-11-10T11:00:00Z'},
+];
