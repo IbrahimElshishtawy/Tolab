@@ -58,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ? null
                         : () {
                             StoreProvider.of<AppState>(context).dispatch(
-                              loginAction(emailController.text, passwordController.text),
+                              LoginAction(emailController.text, passwordController.text),
                             );
                           },
                     child: state.isLoading

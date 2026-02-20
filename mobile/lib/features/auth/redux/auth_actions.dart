@@ -1,7 +1,8 @@
-import 'package:redux/redux.dart';
-import 'package:redux_thunk/redux_thunk.dart';
-import '../data/auth_repository.dart';
-import '../../../redux/app_state.dart';
+class LoginAction {
+  final String email;
+  final String password;
+  LoginAction(this.email, this.password);
+}
 
 class LoginStartAction {}
 
@@ -17,16 +18,3 @@ class LoginFailureAction {
 }
 
 class LogoutAction {}
-
-ThunkAction<AppState> loginAction(String email, String password) {
-  return (Store<AppState> store) async {
-    store.dispatch(LoginStartAction());
-    try {
-      final repo = AuthRepository();
-      final response = await repo.login(email, password);
-      store.dispatch(LoginSuccessAction(email, response.role));
-    } catch (e) {
-      store.dispatch(LoginFailureAction(e.toString()));
-    }
-  };
-}

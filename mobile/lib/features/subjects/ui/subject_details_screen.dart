@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'widgets/details_tabs.dart';
+import 'tasks_screen.dart';
 
 class SubjectDetailsScreen extends StatelessWidget {
   final int subjectId;
@@ -9,13 +11,14 @@ class SubjectDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
           title: Text(title),
           bottom: const TabBar(
             isScrollable: true,
             tabs: [
+              Tab(text: 'Overview'),
               Tab(text: 'Lectures'),
               Tab(text: 'Sections'),
               Tab(text: 'Tasks'),
@@ -25,17 +28,14 @@ class SubjectDetailsScreen extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            _buildTabContent('Lectures'),
-            _buildTabContent('Sections'),
-            _buildTabContent('Tasks'),
-            _buildTabContent('Quizzes'),
+            SubjectOverview(subjectId: subjectId),
+            LecturesList(subjectId: subjectId),
+            SectionsList(subjectId: subjectId),
+            TasksScreen(subjectId: subjectId),
+            QuizzesList(subjectId: subjectId),
           ],
         ),
       ),
     );
-  }
-
-  Widget _buildTabContent(String type) {
-    return Center(child: Text('$type content for subject $subjectId'));
   }
 }

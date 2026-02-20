@@ -12,56 +12,59 @@ class AppScaffold extends StatelessWidget {
     return StoreConnector<AppState, String?>(
       converter: (store) => store.state.authState.role,
       builder: (context, role) {
+        final navItems = _buildNavItems(role);
+
         return Scaffold(
           body: child,
           bottomNavigationBar: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
-            currentIndex: _calculateSelectedIndex(context, role),
-            onTap: (index) => _onItemTapped(index, context, role),
-            items: _buildNavItems(role),
+            currentIndex: _calculateSelectedIndex(context, navItems),
+            onTap: (index) => _onItemTapped(index, context, navItems),
+            items: navItems.map((e) => e.item).toList(),
           ),
         );
       },
     );
   }
 
-  int _calculateSelectedIndex(BuildContext context, String? role) {
+  int _calculateSelectedIndex(BuildContext context, List<_NavItem> items) {
     final String location = GoRouterState.of(context).matchedLocation;
-    if (location.startsWith('/home')) return 0;
-    if (location.startsWith('/subjects')) return 1;
-    if (location.startsWith('/calendar')) return 2;
-    if (location.startsWith('/community')) return 3;
-    if (location.startsWith('/profile')) return 4;
+    for (int i = 0; i < items.length; i++) {
+      if (location.startsWith(items[i].route)) return i;
+    }
     return 0;
   }
 
-  void _onItemTapped(int index, BuildContext context, String? role) {
-    switch (index) {
-      case 0:
-        context.go('/home');
-        break;
-      case 1:
-        context.go('/subjects');
-        break;
-      case 2:
-        context.go('/calendar');
-        break;
-      case 3:
-        context.go('/community');
-        break;
-      case 4:
-        context.go('/profile');
-        break;
-    }
+  void _onItemTapped(int index, BuildContext context, List<_NavItem> items) {
+    context.go(items[index].route);
   }
 
-  List<BottomNavigationBarItem> _buildNavItems(String? role) {
-    return const [
-      BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-      BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Subjects'),
-      BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Schedule'),
-      BottomNavigationBarItem(icon: Icon(Icons.group), label: 'Community'),
-      BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+  List<_NavItem> _buildNavItems(String? role) {
+    if (role == 'doctor' || role == 'assistant') {
+      return [
+        const _NavItem(Icons.home, 'Home', '/home'),
+        const _NavItem(Icons.assignment, 'Grading', '/subjects'),
+        const _NavItem(Icons.person, 'Profile', '/profile'),
+      ];
+    }
+
+    // Default Student Nav
+    return [
+      const _NavItem(Icons.home, 'Home', '/home'),
+      const _NavItem(Icons.book, 'Subjects', '/subjects'),
+      const _NavItem(Icons.calendar_today, 'Schedule', '/calendar'),
+      const _NavItem(Icons.group, 'Community', '/community'),
+      const _NavItem(Icons.person, 'Profile', '/profile'),
     ];
   }
+}
+
+class _NavItem {
+  final IconData icon;
+  final String label;
+  final String route;
+
+  const _NavItem(this.icon, this.label, this.route);
+
+  BottomNavigationBarItem get item => BottomNavigationBarItem(icon: Icon(icon), label: label);
 }
