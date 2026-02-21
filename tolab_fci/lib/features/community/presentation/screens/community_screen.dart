@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tolab_fci/features/community/presentation/screens/messages_screen.dart';
 import 'package:tolab_fci/features/community/presentation/widgets/post_card.dart';
 
 class CommunityScreen extends StatelessWidget {
@@ -13,7 +14,17 @@ class CommunityScreen extends StatelessWidget {
         actions: [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Icon(Icons.message),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MessagesScreen(),
+                  ),
+                );
+              },
+              child: Icon(Icons.message),
+            ),
           ),
         ],
       ),
