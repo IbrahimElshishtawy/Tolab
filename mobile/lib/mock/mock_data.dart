@@ -1,6 +1,3 @@
-import '../features/subjects/data/models.dart';
-import '../features/tasks/data/models.dart';
-
 final List<Map<String, dynamic>> mockSubjectsData = [
   {
     'id': 1,
@@ -23,8 +20,16 @@ final List<Map<String, dynamic>> mockSubjectsData = [
 ];
 
 final List<Map<String, dynamic>> mockLecturesData = [
-  {'id': 101, 'title': 'Lecture 1: Intro to binary', 'content_url': 'https://example.com/lec1.pdf'},
-  {'id': 102, 'title': 'Lecture 2: Control flow', 'content_url': 'https://example.com/lec2.pdf'},
+  {
+    'id': 101,
+    'title': 'Lecture 1: Intro to binary',
+    'content_url': 'https://example.com/lec1.pdf',
+  },
+  {
+    'id': 102,
+    'title': 'Lecture 2: Control flow',
+    'content_url': 'https://example.com/lec2.pdf',
+  },
 ];
 
 final List<Map<String, dynamic>> mockTasksData = [
@@ -44,7 +49,11 @@ final List<Map<String, dynamic>> mockTasksData = [
 
 final List<Map<String, dynamic>> mockNotificationsData = [
   {'id': 1, 'title': 'New Material', 'message': 'Dr. Ahmed uploaded Lecture 4'},
-  {'id': 2, 'title': 'Task Graded', 'message': 'Your submission for Task 1 has been graded'},
+  {
+    'id': 2,
+    'title': 'Task Graded',
+    'message': 'Your submission for Task 1 has been graded',
+  },
 ];
 
 final List<Map<String, dynamic>> mockSubmissionsData = [
@@ -115,6 +124,18 @@ final List<Map<String, dynamic>> mockCalendarEventsData = [
 ];
 
 final List<Map<String, dynamic>> mockCommentsData = [
-  {'id': 1, 'post_id': 1, 'user': 'Ali', 'text': 'Great post!', 'created_at': '2023-11-10T10:00:00Z'},
-  {'id': 2, 'post_id': 1, 'user': 'Sara', 'text': 'Very helpful.', 'created_at': '2023-11-10T11:00:00Z'},
+  {
+    'id': 1,
+    'post_id': 1,
+    'user': 'Ali',
+    'text': 'Great post!',
+    'created_at': '2023-11-10T10:00:00Z',
+  },
+  {
+    'id': 2,
+    'post_id': 1,
+    'user': 'Sara',
+    'text': 'Very helpful.',
+    'created_at': '2023-11-10T11:00:00Z',
+  },
 ];

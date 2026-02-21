@@ -45,7 +45,7 @@ class StateView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.inbox_outlined, color: Colors.grey, size: 48),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text('No data found'),
           ],
         ),

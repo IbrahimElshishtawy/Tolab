@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import '../data/models.dart';
 
@@ -14,7 +16,10 @@ class SubmissionDetailsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Student Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Student Information',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             ListTile(
               leading: const CircleAvatar(child: Icon(Icons.person)),
@@ -22,7 +27,10 @@ class SubmissionDetailsScreen extends StatelessWidget {
               subtitle: const Text('Student ID: 2021001'),
             ),
             const Divider(),
-            const Text('Submission Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Submission Details',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
             Text('Submitted at: ${submission.submittedAt.toLocal()}'),
             const SizedBox(height: 16),
@@ -35,7 +43,9 @@ class SubmissionDetailsScreen extends StatelessWidget {
                   trailing: IconButton(
                     icon: const Icon(Icons.download),
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Downloading file...')));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Downloading file...')),
+                      );
                     },
                   ),
                 ),
@@ -44,7 +54,9 @@ class SubmissionDetailsScreen extends StatelessWidget {
             if (submission.grade == null)
               ElevatedButton(
                 onPressed: () => _showGradeDialog(context),
-                style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
                 child: const Text('Grade Now'),
               )
             else
@@ -57,7 +69,11 @@ class SubmissionDetailsScreen extends StatelessWidget {
                 ),
                 child: Text(
                   'Grade: ${submission.grade}',
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -74,14 +90,21 @@ class SubmissionDetailsScreen extends StatelessWidget {
       builder: (context) => AlertDialog(
         title: const Text('Assign Grade'),
         content: const TextField(
-          decoration: InputDecoration(hintText: 'Enter grade (A, B+, 95, etc.)'),
+          decoration: InputDecoration(
+            hintText: 'Enter grade (A, B+, 95, etc.)',
+          ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Submission graded!')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Submission graded!')),
+              );
             },
             child: const Text('Submit'),
           ),

@@ -6,12 +6,14 @@ import '../../../config/env.dart';
 import 'calendar_actions.dart';
 
 List<Middleware<AppState>> createCalendarMiddlewares() {
-  return [
-    TypedMiddleware<AppState, FetchEventsAction>(_fetchEvents),
-  ];
+  return [TypedMiddleware<AppState, FetchEventsAction>(_fetchEvents).call];
 }
 
-void _fetchEvents(Store<AppState> store, FetchEventsAction action, NextDispatcher next) async {
+void _fetchEvents(
+  Store<AppState> store,
+  FetchEventsAction action,
+  NextDispatcher next,
+) async {
   next(action);
   try {
     List<dynamic> events;

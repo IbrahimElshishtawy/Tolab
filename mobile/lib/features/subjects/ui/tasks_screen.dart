@@ -3,7 +3,6 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import '../../../redux/app_state.dart';
 import '../../tasks/redux/tasks_actions.dart';
-import '../../tasks/redux/tasks_state.dart';
 import '../../tasks/ui/task_details_screen.dart';
 import '../../tasks/ui/task_form_screen.dart';
 import '../../../core/ui/widgets/state_view.dart';
@@ -37,7 +36,12 @@ class TasksScreen extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => TaskDetailsScreen(task: task, subjectId: subjectId)),
+                        MaterialPageRoute(
+                          builder: (context) => TaskDetailsScreen(
+                            task: task,
+                            subjectId: subjectId,
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -51,7 +55,8 @@ class TasksScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => TaskFormScreen(subjectId: subjectId),
+                        builder: (context) =>
+                            TaskFormScreen(subjectId: subjectId),
                       ),
                     );
                   },

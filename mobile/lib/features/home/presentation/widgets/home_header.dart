@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -48,8 +50,9 @@ class HomeHeader extends StatelessWidget {
           CircleAvatar(
             radius: 25,
             backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
-            backgroundImage:
-                profileImageUrl != null ? NetworkImage(profileImageUrl!) : null,
+            backgroundImage: profileImageUrl != null
+                ? NetworkImage(profileImageUrl!)
+                : null,
             child: profileImageUrl == null
                 ? Icon(Icons.person, color: theme.colorScheme.primary)
                 : null,

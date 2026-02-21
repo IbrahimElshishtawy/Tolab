@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 
 class CalendarScreen extends StatelessWidget {
@@ -16,7 +18,12 @@ class CalendarScreen extends StatelessWidget {
               children: [
                 _buildScheduleItem('09:00 AM', 'CS101 - Lecture', 'Hall 1'),
                 _buildScheduleItem('11:00 AM', 'SWE311 - Section', 'Lab 4'),
-                _buildScheduleItem('02:00 PM', 'Assignment Deadline', 'Online', isDeadline: true),
+                _buildScheduleItem(
+                  '02:00 PM',
+                  'Assignment Deadline',
+                  'Online',
+                  isDeadline: true,
+                ),
               ],
             ),
           ),
@@ -42,14 +49,24 @@ class CalendarScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildScheduleItem(String time, String title, String location, {bool isDeadline = false}) {
+  Widget _buildScheduleItem(
+    String time,
+    String title,
+    String location, {
+    bool isDeadline = false,
+  }) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        leading: Text(time, style: const TextStyle(fontWeight: FontWeight.bold)),
+        leading: Text(
+          time,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         title: Text(title),
         subtitle: Text(location),
-        trailing: isDeadline ? const Icon(Icons.timer, color: Colors.red) : const Icon(Icons.chevron_right),
+        trailing: isDeadline
+            ? const Icon(Icons.timer, color: Colors.red)
+            : const Icon(Icons.chevron_right),
       ),
     );
   }
@@ -65,7 +82,10 @@ class _DayItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(day, style: TextStyle(color: isSelected ? Colors.blue : Colors.grey)),
+        Text(
+          day,
+          style: TextStyle(color: isSelected ? Colors.blue : Colors.grey),
+        ),
         const SizedBox(height: 5),
         Container(
           padding: const EdgeInsets.all(8),
@@ -73,7 +93,10 @@ class _DayItem extends StatelessWidget {
             color: isSelected ? Colors.blue : Colors.transparent,
             shape: BoxShape.circle,
           ),
-          child: Text(date, style: TextStyle(color: isSelected ? Colors.white : Colors.black)),
+          child: Text(
+            date,
+            style: TextStyle(color: isSelected ? Colors.white : Colors.black),
+          ),
         ),
       ],
     );

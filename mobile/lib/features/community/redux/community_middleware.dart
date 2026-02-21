@@ -7,14 +7,18 @@ import 'community_actions.dart';
 
 List<Middleware<AppState>> createCommunityMiddlewares() {
   return [
-    TypedMiddleware<AppState, FetchPostsAction>(_fetchPosts),
-    TypedMiddleware<AppState, CreatePostAction>(_createPost),
-    TypedMiddleware<AppState, ToggleLikeAction>(_toggleLike),
-    TypedMiddleware<AppState, AddCommentAction>(_addComment),
+    TypedMiddleware<AppState, FetchPostsAction>(_fetchPosts).call,
+    TypedMiddleware<AppState, CreatePostAction>(_createPost).call,
+    TypedMiddleware<AppState, ToggleLikeAction>(_toggleLike).call,
+    TypedMiddleware<AppState, AddCommentAction>(_addComment).call,
   ];
 }
 
-void _fetchPosts(Store<AppState> store, FetchPostsAction action, NextDispatcher next) async {
+void _fetchPosts(
+  Store<AppState> store,
+  FetchPostsAction action,
+  NextDispatcher next,
+) async {
   next(action);
   try {
     List<dynamic> posts;
@@ -32,7 +36,11 @@ void _fetchPosts(Store<AppState> store, FetchPostsAction action, NextDispatcher 
   }
 }
 
-void _createPost(Store<AppState> store, CreatePostAction action, NextDispatcher next) async {
+void _createPost(
+  Store<AppState> store,
+  CreatePostAction action,
+  NextDispatcher next,
+) async {
   next(action);
   if (Env.useMock) {
     final repo = CommunityFakeRepo();
@@ -44,7 +52,11 @@ void _createPost(Store<AppState> store, CreatePostAction action, NextDispatcher 
   store.dispatch(FetchPostsAction());
 }
 
-void _toggleLike(Store<AppState> store, ToggleLikeAction action, NextDispatcher next) async {
+void _toggleLike(
+  Store<AppState> store,
+  ToggleLikeAction action,
+  NextDispatcher next,
+) async {
   next(action);
   if (Env.useMock) {
     final repo = CommunityFakeRepo();
@@ -55,7 +67,11 @@ void _toggleLike(Store<AppState> store, ToggleLikeAction action, NextDispatcher 
   }
 }
 
-void _addComment(Store<AppState> store, AddCommentAction action, NextDispatcher next) async {
+void _addComment(
+  Store<AppState> store,
+  AddCommentAction action,
+  NextDispatcher next,
+) async {
   next(action);
   if (Env.useMock) {
     final repo = CommunityFakeRepo();

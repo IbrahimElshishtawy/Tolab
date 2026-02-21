@@ -1,3 +1,5 @@
+// ignore_for_file: file_names, deprecated_member_use
+
 import 'package:flutter/material.dart';
 
 class PasswordField extends StatefulWidget {
@@ -22,9 +24,7 @@ class _PasswordFieldState extends State<PasswordField> {
         labelText: 'كلمة المرور',
         prefixIcon: const Icon(Icons.lock_outline),
         suffixIcon: IconButton(
-          icon: Icon(
-            _obscureText ? Icons.visibility_off : Icons.visibility,
-          ),
+          icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
           onPressed: () {
             setState(() {
               _obscureText = !_obscureText;
@@ -32,7 +32,7 @@ class _PasswordFieldState extends State<PasswordField> {
           },
         ),
         filled: true,
-        fillColor: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+        fillColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
           borderSide: BorderSide.none,

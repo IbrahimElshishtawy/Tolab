@@ -30,7 +30,7 @@ Middleware<AppState> createAuthListenerMiddleware(
       // ===============================
       if (user == null) {
         if (store.state.authState.isAuthenticated) {
-          store.dispatch(const LogoutAction());
+          store.dispatch(LogoutAction());
           store.dispatch(ShowSplashAction());
         }
         return;

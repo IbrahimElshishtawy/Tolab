@@ -8,16 +8,24 @@ import '../data/models.dart';
 
 List<Middleware<AppState>> createTasksMiddlewares() {
   return [
-    TypedMiddleware<AppState, FetchTasksAction>(_fetchTasksMiddleware),
-    TypedMiddleware<AppState, CreateTaskAction>(_createTaskMiddleware),
-    TypedMiddleware<AppState, UpdateTaskAction>(_updateTaskMiddleware),
-    TypedMiddleware<AppState, DeleteTaskAction>(_deleteTaskMiddleware),
-    TypedMiddleware<AppState, FetchSubmissionsAction>(_fetchSubmissionsMiddleware),
-    TypedMiddleware<AppState, GradeSubmissionAction>(_gradeSubmissionMiddleware),
+    TypedMiddleware<AppState, FetchTasksAction>(_fetchTasksMiddleware).call,
+    TypedMiddleware<AppState, CreateTaskAction>(_createTaskMiddleware).call,
+    TypedMiddleware<AppState, UpdateTaskAction>(_updateTaskMiddleware).call,
+    TypedMiddleware<AppState, DeleteTaskAction>(_deleteTaskMiddleware).call,
+    TypedMiddleware<AppState, FetchSubmissionsAction>(
+      _fetchSubmissionsMiddleware,
+    ).call,
+    TypedMiddleware<AppState, GradeSubmissionAction>(
+      _gradeSubmissionMiddleware,
+    ).call,
   ];
 }
 
-void _fetchTasksMiddleware(Store<AppState> store, FetchTasksAction action, NextDispatcher next) async {
+void _fetchTasksMiddleware(
+  Store<AppState> store,
+  FetchTasksAction action,
+  NextDispatcher next,
+) async {
   next(action);
 
   store.dispatch(FetchTasksStartAction());
@@ -38,7 +46,11 @@ void _fetchTasksMiddleware(Store<AppState> store, FetchTasksAction action, NextD
   }
 }
 
-void _createTaskMiddleware(Store<AppState> store, CreateTaskAction action, NextDispatcher next) async {
+void _createTaskMiddleware(
+  Store<AppState> store,
+  CreateTaskAction action,
+  NextDispatcher next,
+) async {
   next(action);
   store.dispatch(OperationStartAction());
   try {
@@ -58,7 +70,11 @@ void _createTaskMiddleware(Store<AppState> store, CreateTaskAction action, NextD
   }
 }
 
-void _updateTaskMiddleware(Store<AppState> store, UpdateTaskAction action, NextDispatcher next) async {
+void _updateTaskMiddleware(
+  Store<AppState> store,
+  UpdateTaskAction action,
+  NextDispatcher next,
+) async {
   next(action);
   store.dispatch(OperationStartAction());
   try {
@@ -73,7 +89,11 @@ void _updateTaskMiddleware(Store<AppState> store, UpdateTaskAction action, NextD
   }
 }
 
-void _deleteTaskMiddleware(Store<AppState> store, DeleteTaskAction action, NextDispatcher next) async {
+void _deleteTaskMiddleware(
+  Store<AppState> store,
+  DeleteTaskAction action,
+  NextDispatcher next,
+) async {
   next(action);
   store.dispatch(OperationStartAction());
   try {
@@ -87,7 +107,11 @@ void _deleteTaskMiddleware(Store<AppState> store, DeleteTaskAction action, NextD
   }
 }
 
-void _fetchSubmissionsMiddleware(Store<AppState> store, FetchSubmissionsAction action, NextDispatcher next) async {
+void _fetchSubmissionsMiddleware(
+  Store<AppState> store,
+  FetchSubmissionsAction action,
+  NextDispatcher next,
+) async {
   next(action);
   store.dispatch(FetchTasksStartAction()); // Reuse loading for now
   try {
@@ -96,7 +120,9 @@ void _fetchSubmissionsMiddleware(Store<AppState> store, FetchSubmissionsAction a
       submissions = await TasksFakeRepo().getSubmissions(action.taskId);
     } else {
       final response = await TasksApi().getSubmissions(action.taskId);
-      submissions = (response.data as List).map((e) => Submission.fromJson(e)).toList();
+      submissions = (response.data as List)
+          .map((e) => Submission.fromJson(e))
+          .toList();
     }
     store.dispatch(FetchSubmissionsSuccessAction(action.taskId, submissions));
   } catch (e) {
@@ -104,14 +130,21 @@ void _fetchSubmissionsMiddleware(Store<AppState> store, FetchSubmissionsAction a
   }
 }
 
-void _gradeSubmissionMiddleware(Store<AppState> store, GradeSubmissionAction action, NextDispatcher next) async {
+void _gradeSubmissionMiddleware(
+  Store<AppState> store,
+  GradeSubmissionAction action,
+  NextDispatcher next,
+) async {
   next(action);
   store.dispatch(OperationStartAction());
   try {
     if (Env.useMock) {
       await TasksFakeRepo().gradeSubmission(action.submissionId, action.grade);
     } else {
-      await TasksApi().gradeSubmission(action.submissionId, double.parse(action.grade));
+      await TasksApi().gradeSubmission(
+        action.submissionId,
+        double.parse(action.grade),
+      );
     }
     store.dispatch(OperationSuccessAction());
     store.dispatch(FetchSubmissionsAction(action.taskId));

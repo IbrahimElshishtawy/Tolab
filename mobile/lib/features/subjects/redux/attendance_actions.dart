@@ -1,5 +1,3 @@
-import '../data/attendance_model.dart';
-
 class FetchAttendanceAction {
   final int subjectId;
   FetchAttendanceAction(this.subjectId);
@@ -7,7 +5,8 @@ class FetchAttendanceAction {
 
 class FetchAttendanceSuccessAction {
   final int subjectId;
-  final List<dynamic> data; // Can be List<AttendanceSession> or List<AttendanceRecord>
+  final List<dynamic>
+  data; // Can be List<AttendanceSession> or List<AttendanceRecord>
   FetchAttendanceSuccessAction(this.subjectId, this.data);
 }
 

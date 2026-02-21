@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import '../data/models.dart';
 
@@ -24,7 +26,11 @@ class _QuizAttemptScreenState extends State<QuizAttemptScreen> {
               padding: const EdgeInsets.only(right: 16.0),
               child: Text(
                 '45:00',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
               ),
             ),
           ),
@@ -85,7 +91,8 @@ class _QuizAttemptScreenState extends State<QuizAttemptScreen> {
         title: Text('Option ${String.fromCharCode(65 + index)}'),
         value: index,
         groupValue: _answers[_currentQuestionIndex],
-        onChanged: (val) => setState(() => _answers[_currentQuestionIndex] = val),
+        onChanged: (val) =>
+            setState(() => _answers[_currentQuestionIndex] = val),
       ),
     );
   }

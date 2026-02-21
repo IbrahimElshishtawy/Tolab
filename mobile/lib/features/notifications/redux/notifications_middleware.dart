@@ -7,12 +7,18 @@ import 'notifications_actions.dart';
 
 List<Middleware<AppState>> createNotificationsMiddlewares() {
   return [
-    TypedMiddleware<AppState, FetchNotificationsAction>(_fetchNotifications),
-    TypedMiddleware<AppState, MarkNotificationReadAction>(_markRead),
+    TypedMiddleware<AppState, FetchNotificationsAction>(
+      _fetchNotifications,
+    ).call,
+    TypedMiddleware<AppState, MarkNotificationReadAction>(_markRead).call,
   ];
 }
 
-void _fetchNotifications(Store<AppState> store, FetchNotificationsAction action, NextDispatcher next) async {
+void _fetchNotifications(
+  Store<AppState> store,
+  FetchNotificationsAction action,
+  NextDispatcher next,
+) async {
   next(action);
   try {
     List<dynamic> notifications;
@@ -30,7 +36,11 @@ void _fetchNotifications(Store<AppState> store, FetchNotificationsAction action,
   }
 }
 
-void _markRead(Store<AppState> store, MarkNotificationReadAction action, NextDispatcher next) async {
+void _markRead(
+  Store<AppState> store,
+  MarkNotificationReadAction action,
+  NextDispatcher next,
+) async {
   next(action);
   if (!Env.useMock) {
     await NotificationsApi().markRead(action.id);

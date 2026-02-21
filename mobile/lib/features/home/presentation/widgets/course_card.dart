@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 
 class CourseCard extends StatelessWidget {
@@ -63,8 +65,11 @@ class CourseCard extends StatelessWidget {
               ),
               Row(
                 children: [
-                  const Icon(Icons.people_outline,
-                      color: Colors.white70, size: 16),
+                  const Icon(
+                    Icons.people_outline,
+                    color: Colors.white70,
+                    size: 16,
+                  ),
                   const SizedBox(width: 5),
                   Expanded(
                     child: Text(

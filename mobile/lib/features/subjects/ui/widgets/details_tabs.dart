@@ -18,11 +18,19 @@ class SubjectOverview extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Course Description', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text(
+            'Course Description',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 10),
-          const Text('This course covers the fundamental concepts of the subject, including both theoretical foundations and practical applications.'),
+          const Text(
+            'This course covers the fundamental concepts of the subject, including both theoretical foundations and practical applications.',
+          ),
           const SizedBox(height: 20),
-          const Text('Instructor', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const Text(
+            'Instructor',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           const ListTile(
             leading: CircleAvatar(child: Icon(Icons.person)),
             title: Text('Dr. Ahmed Ali'),
@@ -41,7 +49,9 @@ class LecturesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, bool>(
-      converter: (store) => store.state.authState.role == 'doctor' || store.state.authState.role == 'assistant',
+      converter: (store) =>
+          store.state.authState.role == 'doctor' ||
+          store.state.authState.role == 'assistant',
       builder: (context, isEducator) {
         return Scaffold(
           body: ListView.builder(
@@ -61,7 +71,12 @@ class LecturesList extends StatelessWidget {
           ),
           floatingActionButton: isEducator
               ? FloatingActionButton(
-                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => LectureFormScreen(subjectId: subjectId))),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => LectureFormScreen(subjectId: subjectId),
+                    ),
+                  ),
                   child: const Icon(Icons.add),
                 )
               : null,
@@ -78,7 +93,9 @@ class SectionsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, bool>(
-      converter: (store) => store.state.authState.role == 'doctor' || store.state.authState.role == 'assistant',
+      converter: (store) =>
+          store.state.authState.role == 'doctor' ||
+          store.state.authState.role == 'assistant',
       builder: (context, isEducator) {
         return Scaffold(
           body: ListView.builder(
@@ -98,7 +115,12 @@ class SectionsList extends StatelessWidget {
           ),
           floatingActionButton: isEducator
               ? FloatingActionButton(
-                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => SectionFormScreen(subjectId: subjectId))),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => SectionFormScreen(subjectId: subjectId),
+                    ),
+                  ),
                   child: const Icon(Icons.add),
                 )
               : null,
@@ -115,7 +137,9 @@ class QuizzesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, bool>(
-      converter: (store) => store.state.authState.role == 'doctor' || store.state.authState.role == 'assistant',
+      converter: (store) =>
+          store.state.authState.role == 'doctor' ||
+          store.state.authState.role == 'assistant',
       builder: (context, isEducator) {
         final mockQuiz = Quiz(
           id: 1,
@@ -123,7 +147,7 @@ class QuizzesList extends StatelessWidget {
           subjectId: subjectId,
           startAt: DateTime.now().add(const Duration(days: 2)),
           endAt: DateTime.now().add(const Duration(days: 2, hours: 1)),
-          duration: 60,
+          durationMins: 60,
           totalPoints: 20,
         );
         return Scaffold(
@@ -135,12 +159,16 @@ class QuizzesList extends StatelessWidget {
                 child: ListTile(
                   leading: const Icon(Icons.quiz, color: Colors.purple),
                   title: Text(mockQuiz.title),
-                  subtitle: Text('Start: ${mockQuiz.startAt.toLocal().toString().split('.')[0]}'),
+                  subtitle: Text(
+                    'Start: ${mockQuiz.startAt.toLocal().toString().split('.')[0]}',
+                  ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => QuizDetailsScreen(quiz: mockQuiz)),
+                      MaterialPageRoute(
+                        builder: (_) => QuizDetailsScreen(quiz: mockQuiz),
+                      ),
                     );
                   },
                 ),
@@ -149,7 +177,12 @@ class QuizzesList extends StatelessWidget {
           ),
           floatingActionButton: isEducator
               ? FloatingActionButton(
-                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => QuizFormScreen(subjectId: subjectId))),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => QuizFormScreen(subjectId: subjectId),
+                    ),
+                  ),
                   child: const Icon(Icons.add),
                 )
               : null,

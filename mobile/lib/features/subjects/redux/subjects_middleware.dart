@@ -16,19 +16,39 @@ import '../data/reporting_models.dart';
 
 List<Middleware<AppState>> createSubjectsMiddlewares() {
   return [
-    TypedMiddleware<AppState, FetchSubjectsAction>(_fetchSubjectsMiddleware),
-    TypedMiddleware<AppState, FetchAnnouncementsAction>(_fetchAnnouncementsMiddleware),
-    TypedMiddleware<AppState, CreateAnnouncementAction>(_createAnnouncementMiddleware),
-    TypedMiddleware<AppState, DeleteAnnouncementAction>(_deleteAnnouncementMiddleware),
-    TypedMiddleware<AppState, FetchAttendanceAction>(_fetchAttendanceMiddleware),
-    TypedMiddleware<AppState, StartAttendanceSessionAction>(_startAttendanceMiddleware),
-    TypedMiddleware<AppState, CheckInAction>(_checkInMiddleware),
-    TypedMiddleware<AppState, FetchGradebookAction>(_fetchGradebookMiddleware),
-    TypedMiddleware<AppState, FetchProgressAction>(_fetchProgressMiddleware),
+    TypedMiddleware<AppState, FetchSubjectsAction>(
+      _fetchSubjectsMiddleware,
+    ).call,
+    TypedMiddleware<AppState, FetchAnnouncementsAction>(
+      _fetchAnnouncementsMiddleware,
+    ).call,
+    TypedMiddleware<AppState, CreateAnnouncementAction>(
+      _createAnnouncementMiddleware,
+    ).call,
+    TypedMiddleware<AppState, DeleteAnnouncementAction>(
+      _deleteAnnouncementMiddleware,
+    ).call,
+    TypedMiddleware<AppState, FetchAttendanceAction>(
+      _fetchAttendanceMiddleware,
+    ).call,
+    TypedMiddleware<AppState, StartAttendanceSessionAction>(
+      _startAttendanceMiddleware,
+    ).call,
+    TypedMiddleware<AppState, CheckInAction>(_checkInMiddleware).call,
+    TypedMiddleware<AppState, FetchGradebookAction>(
+      _fetchGradebookMiddleware,
+    ).call,
+    TypedMiddleware<AppState, FetchProgressAction>(
+      _fetchProgressMiddleware,
+    ).call,
   ];
 }
 
-void _fetchSubjectsMiddleware(Store<AppState> store, FetchSubjectsAction action, NextDispatcher next) async {
+void _fetchSubjectsMiddleware(
+  Store<AppState> store,
+  FetchSubjectsAction action,
+  NextDispatcher next,
+) async {
   next(action);
 
   store.dispatch(FetchSubjectsStartAction());
@@ -49,19 +69,31 @@ void _fetchSubjectsMiddleware(Store<AppState> store, FetchSubjectsAction action,
   }
 }
 
-void _fetchAnnouncementsMiddleware(Store<AppState> store, FetchAnnouncementsAction action, NextDispatcher next) async {
+void _fetchAnnouncementsMiddleware(
+  Store<AppState> store,
+  FetchAnnouncementsAction action,
+  NextDispatcher next,
+) async {
   next(action);
   try {
     final api = AnnouncementsApi();
     final response = await api.getAnnouncements(action.subjectId);
-    final announcements = (response.data as List).map((e) => Announcement.fromJson(e)).toList();
-    store.dispatch(FetchAnnouncementsSuccessAction(action.subjectId, announcements));
+    final announcements = (response.data as List)
+        .map((e) => Announcement.fromJson(e))
+        .toList();
+    store.dispatch(
+      FetchAnnouncementsSuccessAction(action.subjectId, announcements),
+    );
   } catch (e) {
     // Handle error
   }
 }
 
-void _createAnnouncementMiddleware(Store<AppState> store, CreateAnnouncementAction action, NextDispatcher next) async {
+void _createAnnouncementMiddleware(
+  Store<AppState> store,
+  CreateAnnouncementAction action,
+  NextDispatcher next,
+) async {
   next(action);
   try {
     final api = AnnouncementsApi();
@@ -76,7 +108,11 @@ void _createAnnouncementMiddleware(Store<AppState> store, CreateAnnouncementActi
   }
 }
 
-void _deleteAnnouncementMiddleware(Store<AppState> store, DeleteAnnouncementAction action, NextDispatcher next) async {
+void _deleteAnnouncementMiddleware(
+  Store<AppState> store,
+  DeleteAnnouncementAction action,
+  NextDispatcher next,
+) async {
   next(action);
   try {
     final api = AnnouncementsApi();
@@ -87,7 +123,11 @@ void _deleteAnnouncementMiddleware(Store<AppState> store, DeleteAnnouncementActi
   }
 }
 
-void _fetchAttendanceMiddleware(Store<AppState> store, FetchAttendanceAction action, NextDispatcher next) async {
+void _fetchAttendanceMiddleware(
+  Store<AppState> store,
+  FetchAttendanceAction action,
+  NextDispatcher next,
+) async {
   next(action);
   try {
     final api = AttendanceApi();
@@ -95,9 +135,13 @@ void _fetchAttendanceMiddleware(Store<AppState> store, FetchAttendanceAction act
     final role = store.state.authState.role;
     List<dynamic> data;
     if (role == 'student') {
-        data = (response.data as List).map((e) => AttendanceRecord.fromJson(e)).toList();
+      data = (response.data as List)
+          .map((e) => AttendanceRecord.fromJson(e))
+          .toList();
     } else {
-        data = (response.data as List).map((e) => AttendanceSession.fromJson(e)).toList();
+      data = (response.data as List)
+          .map((e) => AttendanceSession.fromJson(e))
+          .toList();
     }
     store.dispatch(FetchAttendanceSuccessAction(action.subjectId, data));
   } catch (e) {
@@ -105,7 +149,11 @@ void _fetchAttendanceMiddleware(Store<AppState> store, FetchAttendanceAction act
   }
 }
 
-void _startAttendanceMiddleware(Store<AppState> store, StartAttendanceSessionAction action, NextDispatcher next) async {
+void _startAttendanceMiddleware(
+  Store<AppState> store,
+  StartAttendanceSessionAction action,
+  NextDispatcher next,
+) async {
   next(action);
   try {
     final api = AttendanceApi();
@@ -116,7 +164,11 @@ void _startAttendanceMiddleware(Store<AppState> store, StartAttendanceSessionAct
   }
 }
 
-void _checkInMiddleware(Store<AppState> store, CheckInAction action, NextDispatcher next) async {
+void _checkInMiddleware(
+  Store<AppState> store,
+  CheckInAction action,
+  NextDispatcher next,
+) async {
   next(action);
   try {
     final api = AttendanceApi();
@@ -127,19 +179,29 @@ void _checkInMiddleware(Store<AppState> store, CheckInAction action, NextDispatc
   }
 }
 
-void _fetchGradebookMiddleware(Store<AppState> store, FetchGradebookAction action, NextDispatcher next) async {
+void _fetchGradebookMiddleware(
+  Store<AppState> store,
+  FetchGradebookAction action,
+  NextDispatcher next,
+) async {
   next(action);
   try {
     final api = ReportingApi();
     final response = await api.getGradebook(action.subjectId);
-    final gradebook = (response.data as List).map((e) => GradebookEntry.fromJson(e)).toList();
+    final gradebook = (response.data as List)
+        .map((e) => GradebookEntry.fromJson(e))
+        .toList();
     store.dispatch(FetchGradebookSuccessAction(action.subjectId, gradebook));
   } catch (e) {
     // Handle error
   }
 }
 
-void _fetchProgressMiddleware(Store<AppState> store, FetchProgressAction action, NextDispatcher next) async {
+void _fetchProgressMiddleware(
+  Store<AppState> store,
+  FetchProgressAction action,
+  NextDispatcher next,
+) async {
   next(action);
   try {
     final api = ReportingApi();

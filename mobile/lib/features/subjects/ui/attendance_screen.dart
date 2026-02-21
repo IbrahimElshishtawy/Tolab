@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
@@ -27,9 +29,14 @@ class AttendanceScreen extends StatelessWidget {
                 if (!vm.isEducator) _buildStudentCheckIn(context, vm),
                 if (vm.isEducator) _buildEducatorActions(context, vm),
                 const SizedBox(height: 24),
-                const Text('Attendance History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Attendance History',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 12),
-                ...vm.attendanceData.map((item) => _buildHistoryItem(item, vm.isEducator)),
+                ...vm.attendanceData.map(
+                  (item) => _buildHistoryItem(item, vm.isEducator),
+                ),
               ],
             ),
           ),
@@ -46,11 +53,17 @@ class AttendanceScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            const Text('Enter Attendance Code', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'Enter Attendance Code',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
             TextField(
               controller: codeController,
-              decoration: const InputDecoration(hintText: 'e.g. AB1234', border: OutlineInputBorder()),
+              decoration: const InputDecoration(
+                hintText: 'e.g. AB1234',
+                border: OutlineInputBorder(),
+              ),
               textAlign: TextAlign.center,
               textCapitalization: TextCapitalization.characters,
             ),
@@ -77,7 +90,10 @@ class AttendanceScreen extends StatelessWidget {
             onPressed: () => vm.onStartSession('Lecture', 15),
             icon: const Icon(Icons.play_arrow),
             label: const Text('Start Lecture'),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+            ),
           ),
         ),
         const SizedBox(width: 12),
@@ -86,7 +102,10 @@ class AttendanceScreen extends StatelessWidget {
             onPressed: () => vm.onStartSession('Section', 15),
             icon: const Icon(Icons.play_arrow),
             label: const Text('Start Section'),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.teal,
+              foregroundColor: Colors.white,
+            ),
           ),
         ),
       ],
@@ -100,7 +119,9 @@ class AttendanceScreen extends StatelessWidget {
         child: ListTile(
           leading: const CircleAvatar(child: Icon(Icons.people)),
           title: Text('${session.type} Session'),
-          subtitle: Text('Code: ${session.code} | Starts: ${session.startsAt.toLocal().toString().split('.')[0]}'),
+          subtitle: Text(
+            'Code: ${session.code} | Starts: ${session.startsAt.toLocal().toString().split('.')[0]}',
+          ),
           trailing: const Icon(Icons.chevron_right),
         ),
       );
@@ -110,7 +131,9 @@ class AttendanceScreen extends StatelessWidget {
         child: ListTile(
           leading: const Icon(Icons.check_circle, color: Colors.green),
           title: const Text('Present'),
-          subtitle: Text('Checked in at: ${record.checkedInAt.toLocal().toString().split('.')[0]}'),
+          subtitle: Text(
+            'Checked in at: ${record.checkedInAt.toLocal().toString().split('.')[0]}',
+          ),
         ),
       );
     }
@@ -140,8 +163,11 @@ class _ViewModel {
       attendanceData: store.state.subjectsState.attendance[subjectId] ?? [],
       isLoading: store.state.subjectsState.isLoading,
       isEducator: role != 'student',
-      onStartSession: (type, duration) => store.dispatch(StartAttendanceSessionAction(subjectId, type, duration)),
-      onCheckIn: (sessionId, code) => store.dispatch(CheckInAction(sessionId, code)),
+      onStartSession: (type, duration) => store.dispatch(
+        StartAttendanceSessionAction(subjectId, type, duration),
+      ),
+      onCheckIn: (sessionId, code) =>
+          store.dispatch(CheckInAction(sessionId, code)),
       onRefresh: () => store.dispatch(FetchAttendanceAction(subjectId)),
     );
   }

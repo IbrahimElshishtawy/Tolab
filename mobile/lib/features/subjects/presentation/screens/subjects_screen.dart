@@ -9,19 +9,23 @@ class SubjectsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    Theme.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Subjects'),
-      ),
+      appBar: AppBar(title: const Text('My Subjects')),
       body: StoreConnector<AppState, List<dynamic>>(
-        converter: (store) => [], // TODO: Replace with subjects from state
+        converter: (store) => [],
         builder: (context, subjects) {
           // Dummy data for now if list is empty
-          final displaySubjects = subjects.isEmpty ? [
-            {'name': 'Introduction to Computer Science', 'code': 'CS101', 'id': 1},
-            {'name': 'Software Engineering', 'code': 'SWE311', 'id': 2},
-          ] : subjects;
+          final displaySubjects = subjects.isEmpty
+              ? [
+                  {
+                    'name': 'Introduction to Computer Science',
+                    'code': 'CS101',
+                    'id': 1,
+                  },
+                  {'name': 'Software Engineering', 'code': 'SWE311', 'id': 2},
+                ]
+              : subjects;
 
           return ListView.builder(
             padding: const EdgeInsets.all(20),
@@ -38,7 +42,10 @@ class SubjectsScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => SubjectDetailsScreen(subjectId: subject['id'], title: subject['name']),
+                        builder: (context) => SubjectDetailsScreen(
+                          subjectId: subject['id'],
+                          title: subject['name'],
+                        ),
                       ),
                     );
                   },

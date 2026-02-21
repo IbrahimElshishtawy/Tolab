@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
-import '../../../redux/app_state.dart';
 
 class LectureFormScreen extends StatefulWidget {
   final int subjectId;
@@ -40,13 +38,17 @@ class _LectureFormScreenState extends State<LectureFormScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _urlController,
-                decoration: const InputDecoration(labelText: 'Content URL (PDF/Video)'),
+                decoration: const InputDecoration(
+                  labelText: 'Content URL (PDF/Video)',
+                ),
                 validator: (v) => v!.isEmpty ? 'Enter URL' : null,
               ),
               const Spacer(),
               ElevatedButton(
                 onPressed: _submit,
-                style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
                 child: const Text('Create Lecture'),
               ),
             ],
@@ -59,7 +61,9 @@ class _LectureFormScreenState extends State<LectureFormScreen> {
   void _submit() {
     if (_formKey.currentState!.validate()) {
       // Mock submission
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lecture created successfully!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Lecture created successfully!')),
+      );
       Navigator.pop(context);
     }
   }

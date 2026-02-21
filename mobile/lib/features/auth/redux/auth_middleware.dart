@@ -7,12 +7,16 @@ import 'auth_actions.dart';
 
 List<Middleware<AppState>> createAuthMiddlewares() {
   return [
-    TypedMiddleware<AppState, LoginAction>(_loginMiddleware),
-    TypedMiddleware<AppState, LogoutAction>(_logoutMiddleware),
+    TypedMiddleware<AppState, LoginAction>(_loginMiddleware).call,
+    TypedMiddleware<AppState, LogoutAction>(_logoutMiddleware).call,
   ];
 }
 
-void _loginMiddleware(Store<AppState> store, LoginAction action, NextDispatcher next) async {
+void _loginMiddleware(
+  Store<AppState> store,
+  LoginAction action,
+  NextDispatcher next,
+) async {
   next(action);
 
   store.dispatch(LoginStartAction());
@@ -34,7 +38,11 @@ void _loginMiddleware(Store<AppState> store, LoginAction action, NextDispatcher 
   }
 }
 
-void _logoutMiddleware(Store<AppState> store, LogoutAction action, NextDispatcher next) async {
+void _logoutMiddleware(
+  Store<AppState> store,
+  LogoutAction action,
+  NextDispatcher next,
+) async {
   next(action);
   if (!Env.useMock) {
     await AuthRepository().logout();

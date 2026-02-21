@@ -26,7 +26,9 @@ void authMiddleware(
       });
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = response.data is String
+            ? jsonDecode(response.data)
+            : response.data;
         final token = data['access_token'];
         final role = data['role'];
 
@@ -35,10 +37,16 @@ void authMiddleware(
         await prefs.setString('access_token', token);
         await prefs.setString('user_role', role);
 
-        store.dispatch(LoginSuccessAction(action.email, action.email, role, token: token));
+        store.dispatch(
+          LoginSuccessAction(action.email, action.email, role, token: token),
+        );
       } else {
-        final errorData = jsonDecode(response.body);
-        store.dispatch(LoginFailureAction(errorData['detail'] ?? 'Login failed'));
+        final errorData = response.data is String
+            ? jsonDecode(response.data)
+            : response.data;
+        store.dispatch(
+          LoginFailureAction(errorData['detail'] ?? 'Login failed'),
+        );
       }
     } catch (e) {
       store.dispatch(LoginFailureAction(e.toString()));
