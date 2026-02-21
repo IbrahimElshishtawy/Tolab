@@ -9,7 +9,10 @@ class CommunityScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('مجتمع Tolab'),
+        title: Text(
+              "مجتمع Tolab",
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
+            ),
         centerTitle: true,
         actions: [
           Padding(

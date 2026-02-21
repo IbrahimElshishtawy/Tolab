@@ -54,14 +54,14 @@ class _PostCardState extends State<PostCard> {
                       "د. فاطمة سعيد",
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        fontSize: 14,
+                        fontSize: 20,
                       ),
                     ),
                     Text(
                       "منذ ساعة",
                       style: TextStyle(
                         color: Colors.grey,
-                        fontSize: 12,
+                        fontSize: 16,
                       ),
                     ),
                   ],
@@ -74,7 +74,7 @@ class _PostCardState extends State<PostCard> {
             /// 🔹 Post Text
             const Text(
               "تذكير للطلاب: موعد تسليم الواجب النهائي لمادة الرياضيات المتقطعة هو يوم الخميس القادم، بالتوفيق للجميع!",
-              style: TextStyle(fontSize: 14),
+              style: TextStyle(fontSize: 16),
             ),
 
             const SizedBox(height: 12),
@@ -84,7 +84,7 @@ class _PostCardState extends State<PostCard> {
               borderRadius: BorderRadius.circular(14),
               child: Image.asset(
                 "assets/images/lecture.png",
-                height: 180,
+                height: 199,
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
