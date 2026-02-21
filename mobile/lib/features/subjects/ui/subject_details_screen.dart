@@ -4,6 +4,10 @@ import '../../../redux/app_state.dart';
 import 'widgets/details_tabs.dart';
 import 'tasks_screen.dart';
 import 'subject_submissions_screen.dart';
+import 'announcements_screen.dart';
+import 'attendance_screen.dart';
+import 'progress_screen.dart';
+import 'gradebook_screen.dart';
 
 class SubjectDetailsScreen extends StatelessWidget {
   final int subjectId;
@@ -20,7 +24,7 @@ class SubjectDetailsScreen extends StatelessWidget {
       },
       builder: (context, isEducator) {
         return DefaultTabController(
-          length: isEducator ? 6 : 5,
+          length: isEducator ? 8 : 7,
           child: Scaffold(
             appBar: AppBar(
               title: Text(title),
@@ -28,6 +32,10 @@ class SubjectDetailsScreen extends StatelessWidget {
                 isScrollable: true,
                 tabs: [
                   const Tab(text: 'Overview'),
+                  const Tab(text: 'Announcements'),
+                  const Tab(text: 'Attendance'),
+                  if (!isEducator) const Tab(text: 'Progress'),
+                  if (isEducator) const Tab(text: 'Gradebook'),
                   const Tab(text: 'Lectures'),
                   const Tab(text: 'Sections'),
                   const Tab(text: 'Tasks'),
@@ -39,6 +47,10 @@ class SubjectDetailsScreen extends StatelessWidget {
             body: TabBarView(
               children: [
                 SubjectOverview(subjectId: subjectId),
+                AnnouncementsScreen(subjectId: subjectId),
+                AttendanceScreen(subjectId: subjectId),
+                if (!isEducator) ProgressScreen(subjectId: subjectId),
+                if (isEducator) GradebookScreen(subjectId: subjectId),
                 LecturesList(subjectId: subjectId),
                 SectionsList(subjectId: subjectId),
                 TasksScreen(subjectId: subjectId),

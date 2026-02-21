@@ -22,7 +22,7 @@ class Quiz {
   final int subjectId;
   final DateTime startAt;
   final DateTime endAt;
-  final int duration; // in minutes
+  final int durationMins;
   final int totalPoints;
 
   Quiz({
@@ -31,7 +31,7 @@ class Quiz {
     required this.subjectId,
     required this.startAt,
     required this.endAt,
-    required this.duration,
+    required this.durationMins,
     required this.totalPoints,
   });
 
@@ -42,7 +42,7 @@ class Quiz {
       subjectId: json['subject_id'],
       startAt: DateTime.parse(json['start_at']),
       endAt: DateTime.parse(json['end_at']),
-      duration: json['duration'],
+      durationMins: json['duration_mins'],
       totalPoints: json['total_points'],
     );
   }

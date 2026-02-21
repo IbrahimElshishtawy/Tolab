@@ -5,6 +5,7 @@ import 'package:tolab_fci/features/subjects/redux/subjects_middleware.dart';
 import 'package:tolab_fci/features/tasks/redux/tasks_middleware.dart';
 import 'package:tolab_fci/features/community/redux/community_middleware.dart';
 import 'package:tolab_fci/features/calendar/redux/calendar_middleware.dart';
+import 'package:tolab_fci/features/notifications/redux/notifications_middleware.dart';
 
 List<Middleware<AppState>> createMiddlewares() {
   return [
@@ -13,5 +14,6 @@ List<Middleware<AppState>> createMiddlewares() {
     ...createTasksMiddlewares(),
     ...createCommunityMiddlewares(),
     ...createCalendarMiddlewares(),
+    ...createNotificationsMiddlewares(),
   ];
 }

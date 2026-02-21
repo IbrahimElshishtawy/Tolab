@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=lms
+      - POSTGRES_PASSWORD=lms_password
+      - POSTGRES_DB=lms_db
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./backend
+    restart: always
+    volumes:
+      - ./backend:/app
+      - backend_uploads:/app/uploads
+    environment:
+      - DATABASE_URL=postgresql://lms:lms_password@db:5432/lms_db
+      - SECRET_KEY=your-secret-key-for-jwt-keep-it-safe
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - STORAGE_PROVIDER=local
+      - UPLOAD_DIR=/app/uploads
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    command: >
+      sh -c "alembic upgrade head &&
+             python seed.py &&
+             uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+
+volumes:
+  postgres_data:
+  backend_uploads:

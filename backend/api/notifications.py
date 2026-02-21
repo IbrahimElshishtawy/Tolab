@@ -1,8 +1,8 @@
 from typing import List, Any
 from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
-from backend.api import deps
-from backend.models import Notification, User
+from api import deps
+from models import Notification, User
 
 router = APIRouter()
 
@@ -10,9 +10,22 @@ router = APIRouter()
 def read_notifications(
     db: Session = Depends(deps.get_db),
     current_user: User = Depends(deps.get_current_active_user),
+    skip: int = 0,
+    limit: int = 100,
 ) -> Any:
-    statement = select(Notification).where(Notification.user_id == current_user.id)
-    return db.exec(statement).all()
+    statement = select(Notification).where(Notification.user_id == current_user.id).order_by(Notification.created_at.desc())
+    return db.exec(statement.offset(skip).limit(limit)).all()
+
+@router.post("/", response_model=Notification)
+def create_notification(
+    notification: Notification,
+    db: Session = Depends(deps.get_db),
+    current_user: User = Depends(deps.get_current_active_user),
+) -> Any:
+    db.add(notification)
+    db.commit()
+    db.refresh(notification)
+    return notification
 
 @router.put("/{id}/read")
 def mark_notification_as_read(

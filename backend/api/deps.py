@@ -4,9 +4,9 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from pydantic import ValidationError
 from sqlmodel import Session, create_engine, select
-from backend.core.config import settings
-from backend.core.security import ALGORITHM
-from backend.models import User
+from core.config import settings
+from core.security import ALGORITHM
+from models import User, AuditLog
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/login/access-token"
@@ -42,6 +42,24 @@ def get_current_active_user(
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
+def log_action(
+    db: Session,
+    user_id: int,
+    action: str,
+    resource: str,
+    resource_id: Optional[str] = None,
+    details: Optional[str] = None
+):
+    log = AuditLog(
+        user_id=user_id,
+        action=action,
+        resource=resource,
+        resource_id=resource_id,
+        details=details
+    )
+    db.add(log)
+    db.commit()
 
 class RoleChecker:
     def __init__(self, allowed_roles: list):

@@ -1,0 +1,4 @@
+subject_code,subject_name,department,level,semester,year,doctor_id
+CS101,Intro to Computer Science,CS,1,1,2023,2
+SWE311,Software Engineering,CS,3,1,2023,2
+IS212,Database Systems,IS,2,1,2023,2

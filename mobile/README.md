@@ -34,3 +34,30 @@ The app is currently configured to use mock data for demonstration purposes.
 2. **Dashboard**: View metrics like "Pending Submissions" and use "Quick Actions" to create content.
 3. **Content Creation**: Use the floating '+' button in Lectures, Sections, Tasks, or Quizzes tabs to add new materials.
 4. **Grading**: Navigate to the "Submissions" tab in any subject or task to view student uploads and assign grades.
+
+## Phase 1 Production Integration
+
+The app is now integrated with a real FastAPI + PostgreSQL backend.
+
+### Setup Backend (Docker)
+1. At repo root: `docker-compose up --build`
+2. This runs migrations, seeds the DB, and starts the API at `http://localhost:8000`.
+
+### Setup Mobile
+1. Ensure `mobile/lib/config/env.dart` has `useMock = false`.
+2. Point `baseUrl` to your machine's IP if running on a physical device.
+
+### Quick Start (Docker)
+1. Ensure Docker is running.
+2. In the root directory: `docker-compose up --build -d`
+3. Backend will be available at `http://localhost:8000`.
+4. Run mobile: `cd mobile && flutter run` (Ensure `useMock = false` in `env.dart`).
+
+### Integration Checklist (PHASE 1)
+- [x] **Auth**: Login with `student@lms.com` / `password123` or `doctor@lms.com`.
+- [x] **Announcements**: Official tab with pinning support.
+- [x] **Attendance**: Code-based check-in with 15-minute expiry.
+- [x] **Gradebook**: Educator-only view with aggregate results.
+- [x] **Progress**: Student-only view showing own completion/average.
+- [x] **Security**: JWT refresh token rotation enforced.
+- [x] **Audit Logs**: Core actions recorded in DB.

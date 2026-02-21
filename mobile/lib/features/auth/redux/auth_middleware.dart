@@ -8,11 +8,12 @@ import 'auth_actions.dart';
 List<Middleware<AppState>> createAuthMiddlewares() {
   return [
     TypedMiddleware<AppState, LoginAction>(_loginMiddleware),
+    TypedMiddleware<AppState, LogoutAction>(_logoutMiddleware),
   ];
 }
 
 void _loginMiddleware(Store<AppState> store, LoginAction action, NextDispatcher next) async {
-  next(action); // Let the reducer handle LoginStartAction if needed, but here we dispatch explicit start action
+  next(action);
 
   store.dispatch(LoginStartAction());
 
@@ -30,5 +31,12 @@ void _loginMiddleware(Store<AppState> store, LoginAction action, NextDispatcher 
     store.dispatch(LoginSuccessAction(action.email, role));
   } catch (e) {
     store.dispatch(LoginFailureAction(e.toString()));
+  }
+}
+
+void _logoutMiddleware(Store<AppState> store, LogoutAction action, NextDispatcher next) async {
+  next(action);
+  if (!Env.useMock) {
+    await AuthRepository().logout();
   }
 }

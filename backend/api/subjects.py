@@ -1,8 +1,8 @@
 from typing import List, Any
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
-from backend.api import deps
-from backend.models import Subject, User, Enrollment, UserRole
+from api import deps
+from models import Subject, User, Enrollment, UserRole
 
 router = APIRouter()
 
@@ -10,6 +10,8 @@ router = APIRouter()
 def read_subjects(
     db: Session = Depends(deps.get_db),
     current_user: User = Depends(deps.get_current_active_user),
+    skip: int = 0,
+    limit: int = 100,
 ) -> Any:
     """
     Retrieve subjects based on user role.
@@ -22,7 +24,7 @@ def read_subjects(
     else:
         statement = select(Subject)
 
-    return db.exec(statement).all()
+    return db.exec(statement.offset(skip).limit(limit)).all()
 
 @router.get("/{id}", response_model=Subject)
 def read_subject_by_id(

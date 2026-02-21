@@ -9,6 +9,17 @@ class UserRole(str, Enum):
     ASSISTANT = "assistant"
     IT_ADMIN = "it"
 
+class RefreshToken(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    jti: str = Field(index=True, unique=True)
+    user_id: int = Field(foreign_key="user.id")
+    expires_at: datetime
+    is_revoked: bool = Field(default=False)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    # Relationship
+    user: "User" = Relationship(back_populates="refresh_tokens")
+
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     email: str = Field(index=True, unique=True)
@@ -22,3 +33,4 @@ class User(SQLModel, table=True):
     enrollments: List["Enrollment"] = Relationship(back_populates="student")
     posts: List["Post"] = Relationship(back_populates="author")
     comments: List["Comment"] = Relationship(back_populates="author")
+    refresh_tokens: List["RefreshToken"] = Relationship(back_populates="user")

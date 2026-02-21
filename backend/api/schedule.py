@@ -1,8 +1,8 @@
 from typing import List, Any
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
-from backend.api import deps
-from backend.models import Schedule, User
+from api import deps
+from models import Schedule, User
 
 router = APIRouter()
 

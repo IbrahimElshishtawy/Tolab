@@ -11,12 +11,15 @@ class AuthRepository {
     final loginResponse = LoginResponse.fromJson(response.data);
 
     await _store.saveToken(loginResponse.accessToken);
+    if (loginResponse.refreshToken != null) {
+      await _store.saveRefreshToken(loginResponse.refreshToken!);
+    }
     await _store.saveRole(loginResponse.role);
 
     return loginResponse;
   }
 
   Future<void> logout() async {
-    await _store.clear();
+    await _store.clearAll();
   }
 }
