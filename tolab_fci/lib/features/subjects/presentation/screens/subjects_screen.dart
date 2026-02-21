@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tolab_fci/features/subjects/presentation/screens/subject_details_screen.dart';
 import 'package:tolab_fci/features/subjects/presentation/widgets/custom_subject_card.dart';
 
 class SubjectsScreen extends StatelessWidget {
@@ -75,7 +76,16 @@ class SubjectsScreen extends StatelessWidget {
         itemBuilder: (context, index) {
           return Padding(
             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            child: subjectList[index],
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SubjectDetailsScreen(),
+                  ),
+                );
+              },
+              child: subjectList[index]),
           );
         },
       ),

@@ -28,27 +28,25 @@ class _ScheduleScreenState extends State<ScheduleScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('جدول الحضور',
-        style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),),
+        title: Text(
+          'جدول الحضور',
+          style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
+        ),
         centerTitle: true,
         bottom: TabBar(
+          indicatorSize: TabBarIndicatorSize.tab,
           controller: _tabController,
           isScrollable: true,
-          padding: EdgeInsets.zero,
           tabAlignment: TabAlignment.start,
-          labelColor: Color(0xFF000000),
-          labelStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-          indicatorWeight: 1,
           indicator: BoxDecoration(
-            boxShadow:  [
-              BoxShadow(
-                color: Color(0xFF023EC5),
-                blurRadius: 55,
-              ),
-            ],
+            color: Color(0xFF023EC5).withOpacity(.2),
+            borderRadius: BorderRadius.circular(15),
           ),
+          labelColor: Colors.black,
+          unselectedLabelColor: Colors.grey,
+          labelStyle: const TextStyle(fontWeight: FontWeight.w600),
           tabs: [
-            Tab(text: 'السبت',),
+            Tab(text: 'السبت'),
             Tab(text: 'الاحد'),
             Tab(text: 'الاثنين'),
             Tab(text: 'الثلاثاء'),
