@@ -3,10 +3,14 @@ from models import User, UserRole, Subject, Enrollment, Task, Lecture, Section
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
 
+import os
+from core.config import settings
+from models import Quiz, QuizAttempt, Post, Comment, Notification, Schedule, Reaction, Announcement, AttendanceSession, AttendanceRecord
+
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
-sqlite_url = "sqlite:///./lms.db"
-engine = create_engine(sqlite_url)
+database_url = os.environ.get("DATABASE_URL", "sqlite:///./lms.db")
+engine = create_engine(database_url)
 
 def get_password_hash(password):
     return pwd_context.hash(password)
@@ -96,6 +100,74 @@ def seed_data():
             subject_id=subject1.id
         )
         session.add(task)
+
+        # 6. Add Quiz
+        quiz = Quiz(
+            title="Intro Quiz",
+            subject_id=subject1.id,
+            start_at=datetime.utcnow(),
+            end_at=datetime.utcnow() + timedelta(hours=24),
+            duration_mins=30,
+            total_points=10
+        )
+        session.add(quiz)
+
+        # 7. Add Community
+        post = Post(
+            content="Welcome to CS101! Feel free to ask questions here.",
+            author_id=doctor.id,
+            subject_id=subject1.id
+        )
+        session.add(post)
+        session.commit()
+
+        comment = Comment(
+            content="Thanks Dr. Ahmed!",
+            post_id=post.id,
+            author_id=student.id
+        )
+        session.add(comment)
+
+        # 8. Add Notification
+        notif = Notification(
+            user_id=student.id,
+            title="New Content",
+            message="Lecture 1 has been uploaded.",
+            deep_link=f"lms://subjects/{subject1.id}"
+        )
+        session.add(notif)
+
+        # 9. Add Schedule
+        schedule = Schedule(
+            subject_id=subject1.id,
+            day_of_week=0, # Monday
+            start_time="09:00",
+            end_time="11:00",
+            location="Room 302",
+            type="Lecture"
+        )
+        session.add(schedule)
+
+        # 10. Add Announcement
+        announcement = Announcement(
+            subject_id=subject1.id,
+            title="Welcome Note",
+            body="Welcome to the new semester! Please check the syllabus.",
+            created_by=doctor.id,
+            pinned=True
+        )
+        session.add(announcement)
+
+        # 11. Add Attendance Session
+        att_session = AttendanceSession(
+            subject_id=subject1.id,
+            type="Lecture",
+            starts_at=datetime.utcnow(),
+            ends_at=datetime.utcnow() + timedelta(minutes=30),
+            code="ABC123",
+            created_by=doctor.id
+        )
+        session.add(att_session)
 
         session.commit()
         print("Seeding completed successfully.")

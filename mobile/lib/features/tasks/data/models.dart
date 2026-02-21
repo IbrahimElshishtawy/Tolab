@@ -37,9 +37,9 @@ class Submission {
     return Submission(
       id: json['id'],
       taskId: json['task_id'],
-      studentName: json['student_name'],
+      studentName: json['student_name'] ?? 'Unknown',
       fileUrl: json['file_url'],
-      grade: json['grade'],
+      grade: json['grade']?.toString(),
       submittedAt: DateTime.parse(json['submitted_at']),
     );
   }

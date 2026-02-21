@@ -17,7 +17,7 @@ class QuizDetailsScreen extends StatelessWidget {
           children: [
             Text(quiz.title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
-            _buildInfoRow(Icons.timer, 'Duration', '${quiz.duration} minutes'),
+            _buildInfoRow(Icons.timer, 'Duration', '${quiz.durationMins} minutes'),
             _buildInfoRow(Icons.grade, 'Total Points', '${quiz.totalPoints} points'),
             _buildInfoRow(Icons.calendar_today, 'Start Time', quiz.startAt.toLocal().toString()),
             _buildInfoRow(Icons.calendar_today, 'End Time', quiz.endAt.toLocal().toString()),

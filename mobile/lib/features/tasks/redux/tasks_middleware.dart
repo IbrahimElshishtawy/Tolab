@@ -45,7 +45,11 @@ void _createTaskMiddleware(Store<AppState> store, CreateTaskAction action, NextD
     if (Env.useMock) {
       await TasksFakeRepo().createTask(action.subjectId, action.task);
     } else {
-      // await TasksApi().createTask(action.subjectId, action.task);
+      await TasksApi().createTask(action.subjectId, {
+        'title': action.task.title,
+        'description': action.task.description,
+        'due_date': action.task.dueDate.toIso8601String(),
+      });
     }
     store.dispatch(OperationSuccessAction());
     store.dispatch(FetchTasksAction(action.subjectId));
@@ -90,6 +94,9 @@ void _fetchSubmissionsMiddleware(Store<AppState> store, FetchSubmissionsAction a
     List<Submission> submissions = [];
     if (Env.useMock) {
       submissions = await TasksFakeRepo().getSubmissions(action.taskId);
+    } else {
+      final response = await TasksApi().getSubmissions(action.taskId);
+      submissions = (response.data as List).map((e) => Submission.fromJson(e)).toList();
     }
     store.dispatch(FetchSubmissionsSuccessAction(action.taskId, submissions));
   } catch (e) {
@@ -103,6 +110,8 @@ void _gradeSubmissionMiddleware(Store<AppState> store, GradeSubmissionAction act
   try {
     if (Env.useMock) {
       await TasksFakeRepo().gradeSubmission(action.submissionId, action.grade);
+    } else {
+      await TasksApi().gradeSubmission(action.submissionId, double.parse(action.grade));
     }
     store.dispatch(OperationSuccessAction());
     store.dispatch(FetchSubmissionsAction(action.taskId));

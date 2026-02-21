@@ -1,8 +1,8 @@
 import logging
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from backend.core.config import settings
-from backend.api import auth, subjects, content, tasks, schedule, community, notifications
+from core.config import settings
+from api import auth, subjects, content, tasks, schedule, community, notifications, quizzes, announcements, attendance, gradebook
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -43,6 +43,10 @@ app.include_router(auth.router, prefix=settings.API_V1_STR, tags=["login"])
 app.include_router(subjects.router, prefix=f"{settings.API_V1_STR}/subjects", tags=["subjects"])
 app.include_router(content.router, prefix=settings.API_V1_STR, tags=["content"])
 app.include_router(tasks.router, prefix=settings.API_V1_STR, tags=["tasks"])
+app.include_router(quizzes.router, prefix=f"{settings.API_V1_STR}/quizzes", tags=["quizzes"])
 app.include_router(schedule.router, prefix=f"{settings.API_V1_STR}/schedule", tags=["schedule"])
 app.include_router(community.router, prefix=settings.API_V1_STR, tags=["community"])
 app.include_router(notifications.router, prefix=f"{settings.API_V1_STR}/notifications", tags=["notifications"])
+app.include_router(announcements.router, prefix=settings.API_V1_STR, tags=["announcements"])
+app.include_router(attendance.router, prefix=settings.API_V1_STR, tags=["attendance"])
+app.include_router(gradebook.router, prefix=settings.API_V1_STR, tags=["gradebook"])

@@ -1,0 +1,5 @@
+user_id,role,full_name,email,password,department,level,section
+1,student,Youssef Mansour,student@lms.com,password123,CS,3,1
+2,doctor,Dr. Ahmed Ali,doctor@lms.com,password123,CS,all,all
+3,assistant,Eng. Sara Mohamed,ta@lms.com,password123,CS,all,1
+4,it,IT Admin,it@lms.com,password123,IT,all,all
