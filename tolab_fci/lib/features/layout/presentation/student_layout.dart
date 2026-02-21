@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:tolab_fci/features/community/presentation/screens/community_screen.dart';
 import 'package:tolab_fci/features/schedule/presentation/screens/schedule_screen.dart';
 import 'package:tolab_fci/features/home/presentation/screens/student_home_screen.dart';
 import 'package:tolab_fci/features/subjects/presentation/screens/subjects_screen.dart';
@@ -18,7 +19,7 @@ class _HomeScreenState extends State<StudentLayout> {
     StudentHomeScreen(),
     SubjectsScreen(),
     ScheduleScreen(),
-    Center(child: Text('Profile')),
+    CommunityScreen(),
     Center(child: Text('Profile')),
   ];
 
