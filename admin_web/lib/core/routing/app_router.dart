@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:admin_web/features/auth/presentation/auth_provider.dart';
 import 'package:admin_web/features/auth/presentation/screens/login_screen.dart';
+import 'package:admin_web/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:admin_web/features/students/presentation/screens/students_list_screen.dart';
 import 'package:admin_web/features/students/presentation/screens/student_detail_screen.dart';
 import 'package:admin_web/features/academic/presentation/screens/academic_structure_screen.dart';
@@ -35,7 +36,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: '/',
-            builder: (context, state) => const Center(child: Text('Welcome to Tolab Admin Dashboard')),
+            builder: (context, state) => const DashboardScreen(),
           ),
           GoRoute(
             path: '/students',
