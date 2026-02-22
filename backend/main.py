@@ -2,7 +2,7 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from core.config import settings
-from api import auth, subjects, content, tasks, schedule, community, notifications, quizzes, announcements, attendance, gradebook
+from api import auth, subjects, content, tasks, schedule, community, notifications, quizzes, announcements, attendance, gradebook, admin
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -50,3 +50,4 @@ app.include_router(notifications.router, prefix=f"{settings.API_V1_STR}/notifica
 app.include_router(announcements.router, prefix=settings.API_V1_STR, tags=["announcements"])
 app.include_router(attendance.router, prefix=settings.API_V1_STR, tags=["attendance"])
 app.include_router(gradebook.router, prefix=settings.API_V1_STR, tags=["gradebook"])
+app.include_router(admin.router, prefix=f"{settings.API_V1_STR}/admin", tags=["admin"])

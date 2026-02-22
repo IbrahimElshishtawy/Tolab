@@ -17,8 +17,8 @@ def login_access_token(
     user = db.exec(select(User).where(User.email == form_data.username)).first()
     if not user or not security.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Incorrect email or password")
-    elif not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+    elif not user.is_active or user.enrollment_status in ["Suspended", "Deactivated"]:
+        raise HTTPException(status_code=400, detail="Account is inactive or suspended")
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)

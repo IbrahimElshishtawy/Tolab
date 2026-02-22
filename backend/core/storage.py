@@ -60,3 +60,13 @@ def get_storage_provider() -> StorageProvider:
         return LocalStorageProvider(settings.UPLOAD_DIR)
     # Future: S3StorageProvider
     raise ValueError(f"Unknown storage provider: {settings.STORAGE_PROVIDER}")
+
+# Helper for backward compatibility
+def save_upload_file(file: UploadFile, sub_dir: str = "") -> str:
+    import asyncio
+    provider = get_storage_provider()
+    # This is a sync wrapper for an async method, might be risky in some contexts
+    # but for FastAPI endpoints it should be fine if not called from an async loop
+    # or if we use run_until_complete.
+    # Actually most endpoints are def not async def so they run in threadpool.
+    return asyncio.run(provider.save(file, sub_dir))
