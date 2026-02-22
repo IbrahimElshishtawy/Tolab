@@ -118,13 +118,14 @@ def upgrade() -> None:
     op.create_index(op.f('ix_notification_created_at'), 'notification', ['created_at'], unique=False)
     op.create_index(op.f('ix_post_author_id'), 'post', ['author_id'], unique=False)
     op.create_index(op.f('ix_post_subject_id'), 'post', ['subject_id'], unique=False)
-    op.add_column('submission', sa.Column('feedback_comment', sqlmodel.sql.sqltypes.AutoString(), nullable=True))
-    op.add_column('submission', sa.Column('graded_at', sa.DateTime(), nullable=True))
-    op.add_column('submission', sa.Column('graded_by', sa.Integer(), nullable=True))
-    op.create_index(op.f('ix_submission_student_id'), 'submission', ['student_id'], unique=False)
-    op.create_index(op.f('ix_submission_task_id'), 'submission', ['task_id'], unique=False)
-    op.create_foreign_key(None, 'submission', 'user', ['graded_by'], ['id'])
-    op.drop_column('submission', 'feedback')
+    with op.batch_alter_table('submission', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('feedback_comment', sqlmodel.sql.sqltypes.AutoString(), nullable=True))
+        batch_op.add_column(sa.Column('graded_at', sa.DateTime(), nullable=True))
+        batch_op.add_column(sa.Column('graded_by', sa.Integer(), nullable=True))
+        batch_op.create_index(batch_op.f('ix_submission_student_id'), ['student_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_submission_task_id'), ['task_id'], unique=False)
+        batch_op.create_foreign_key('fk_submission_graded_by_user', 'user', ['graded_by'], ['id'])
+        batch_op.drop_column('feedback')
     op.create_index(op.f('ix_task_subject_id'), 'task', ['subject_id'], unique=False)
     # ### end Alembic commands ###
 

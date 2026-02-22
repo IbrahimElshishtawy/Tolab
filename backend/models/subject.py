@@ -19,6 +19,7 @@ class Subject(SQLModel, table=True):
     doctor_id: int = Field(foreign_key="user.id")
 
     # Relationships
+    doctor: "User" = Relationship(back_populates="subjects_taught")
     enrollments: List[Enrollment] = Relationship(back_populates="subject")
     lectures: List["Lecture"] = Relationship(back_populates="subject")
     sections: List["Section"] = Relationship(back_populates="subject")

@@ -22,3 +22,4 @@ class Section(SQLModel, table=True):
 
     # Relationship
     subject: "Subject" = Relationship(back_populates="sections")
+    assistant: "User" = Relationship(back_populates="sections_taught")
