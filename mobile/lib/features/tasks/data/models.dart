@@ -1,17 +1,34 @@
 class Task {
   final int id;
+  final int weekNumber;
+  final String sourceName;
+  final String ownerName;
   final String title;
   final String description;
   final DateTime dueDate;
+  final String? pdfUrl;
 
-  Task({required this.id, required this.title, required this.description, required this.dueDate});
+  Task({
+    required this.id,
+    required this.weekNumber,
+    required this.sourceName,
+    required this.ownerName,
+    required this.title,
+    required this.description,
+    required this.dueDate,
+    this.pdfUrl,
+  });
 
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
       id: json['id'],
+      weekNumber: json['week_number'] ?? 0,
+      sourceName: json['source_name'] ?? '',
+      ownerName: json['owner_name'] ?? '',
       title: json['title'],
       description: json['description'],
       dueDate: DateTime.parse(json['due_date']),
+      pdfUrl: json['pdf_url'],
     );
   }
 }

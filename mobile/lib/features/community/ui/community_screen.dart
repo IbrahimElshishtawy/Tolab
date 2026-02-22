@@ -3,10 +3,18 @@ import 'package:flutter_redux/flutter_redux.dart';
 import '../../../redux/app_state.dart';
 import '../redux/community_actions.dart';
 import '../redux/community_state.dart';
-import 'create_post_screen.dart';
+import '../data/models.dart';
+import '../../../core/localization/localization_manager.dart';
 
-class CommunityScreen extends StatelessWidget {
+class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
+
+  @override
+  State<CommunityScreen> createState() => _CommunityScreenState();
+}
+
+class _CommunityScreenState extends State<CommunityScreen> {
+  String _filter = 'All posts';
 
   @override
   Widget build(BuildContext context) {
@@ -15,162 +23,229 @@ class CommunityScreen extends StatelessWidget {
       converter: (store) => store.state.communityState,
       builder: (context, state) {
         return Scaffold(
-          appBar: AppBar(title: const Text('Community')),
-          body: state.isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: state.posts.length,
-                  itemBuilder: (context, index) {
-                    return PostCard(post: state.posts[index]);
-                  },
+          backgroundColor: Colors.grey.shade100,
+          body: SafeArea(
+            child: Column(
+              children: [
+                _buildHeader(),
+                _buildFilter(),
+                Expanded(
+                  child: state.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _buildPostsList(state.posts),
                 ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreatePostScreen())),
-            child: const Icon(Icons.add),
+              ],
+            ),
           ),
         );
       },
     );
   }
-}
 
-class PostCard extends StatelessWidget {
-  final Map<String, dynamic> post;
-  const PostCard({super.key, required this.post});
-
-  @override
-  Widget build(BuildContext context) {
-    final isLiked = post['is_liked'] as bool? ?? false;
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => PostDetailsScreen(post: post)),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      color: Colors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
+              const Icon(Icons.school, color: Colors.blue, size: 30),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const CircleAvatar(child: Icon(Icons.person)),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(post['user'], style: const TextStyle(fontWeight: FontWeight.bold)),
-                      Text(post['created_at'].toString().split('T')[0], style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(post['content']),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  IconButton(
-                    icon: Icon(isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
-                         size: 18, color: isLiked ? Colors.blue : null),
-                    onPressed: () {
-                      StoreProvider.of<AppState>(context).dispatch(ToggleLikeAction(post['id']));
-                    },
-                  ),
-                  Text('${post['likes']}'),
-                  const SizedBox(width: 16),
-                  const Icon(Icons.comment_outlined, size: 18),
-                  const SizedBox(width: 4),
-                  Text('${post['comments_count']}'),
+                  const Text('Hello, Ahmed Mohamed', style: TextStyle(color: Colors.grey, fontSize: 14)),
+                  Text('community_nav'.tr(), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                 ],
               ),
             ],
           ),
-        ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildFilter() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text('Recent Posts', style: TextStyle(fontWeight: FontWeight.bold)),
+          DropdownButton<String>(
+            value: _filter,
+            underline: const SizedBox(),
+            items: ['Oldest', 'All posts', 'Newest'].map((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value, style: const TextStyle(fontSize: 14)),
+              );
+            }).toList(),
+            onChanged: (val) {
+              if (val != null) setState(() => _filter = val);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPostsList(List<dynamic> posts) {
+    // In a real app we would filter the list based on _filter
+    if (posts.isEmpty) return const Center(child: Text('No posts yet'));
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemCount: posts.length,
+      itemBuilder: (context, index) {
+        final postData = posts[index];
+        // Handle both Map (from existing code) and Post model
+        final post = postData is Post ? postData : Post.fromJson(postData);
+        return CommunityPostCard(post: post);
+      },
     );
   }
 }
 
-class PostDetailsScreen extends StatelessWidget {
-  final Map<String, dynamic> post;
-  const PostDetailsScreen({super.key, required this.post});
+class CommunityPostCard extends StatefulWidget {
+  final Post post;
+  const CommunityPostCard({super.key, required this.post});
+
+  @override
+  State<CommunityPostCard> createState() => _CommunityPostCardState();
+}
+
+class _CommunityPostCardState extends State<CommunityPostCard> {
+  bool _showComments = false;
+  final _commentController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Post Details')),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  PostCard(post: post),
-                  const Divider(),
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text('Comments', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  ),
-                  _buildCommentsList(),
-                ],
-              ),
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(backgroundColor: Colors.blue.shade100, child: const Icon(Icons.person)),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(widget.post.authorName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(widget.post.createdAt.toString().split(' ')[0], style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                  ],
+                ),
+              ],
             ),
-          ),
-          _buildCommentInput(context),
+            const SizedBox(height: 12),
+            Text(widget.post.text),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                _buildReactionIcon('👍', widget.post.likes),
+                _buildReactionIcon('❤️', 0),
+                _buildReactionIcon('💡', 0),
+                const Spacer(),
+                TextButton(
+                  onPressed: () => setState(() => _showComments = !_showComments),
+                  child: Text('${widget.post.commentsCount} comments'),
+                ),
+              ],
+            ),
+            if (_showComments) ...[
+              const Divider(),
+              _buildCommentsList(),
+              const SizedBox(height: 12),
+              _buildAddCommentInput(),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReactionIcon(String emoji, int count) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(20)),
+      child: Row(
+        children: [
+          Text(emoji),
+          if (count > 0) ...[
+            const SizedBox(width: 4),
+            Text('$count', style: const TextStyle(fontSize: 12)),
+          ],
         ],
       ),
     );
   }
 
   Widget _buildCommentsList() {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: 2,
-      itemBuilder: (context, i) {
-        return ListTile(
-          leading: const CircleAvatar(radius: 14),
-          title: Text(i == 0 ? 'Ali' : 'Sara'),
-          subtitle: Text(i == 0 ? 'Great post!' : 'Very helpful.'),
+    return Column(
+      children: widget.post.comments.map((comment) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const CircleAvatar(radius: 12, child: Icon(Icons.person, size: 12)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(comment.studentName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text(comment.dateTime.toString().split(' ')[0], style: const TextStyle(color: Colors.grey, fontSize: 10)),
+                      ],
+                    ),
+                    Text(comment.text, style: const TextStyle(fontSize: 13)),
+                  ],
+                ),
+              ),
+            ],
+          ),
         );
-      },
+      }).toList(),
     );
   }
 
-  Widget _buildCommentInput(BuildContext context) {
-    final controller = TextEditingController();
-    return Container(
-      padding: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: controller,
-              decoration: const InputDecoration(hintText: 'Add a comment...', border: InputBorder.none),
+  Widget _buildAddCommentInput() {
+    return Row(
+      children: [
+        Expanded(
+          child: TextFormField(
+            controller: _commentController,
+            maxLength: 300,
+            decoration: InputDecoration(
+              hintText: 'Add a comment...',
+              counterText: "",
+              isDense: true,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.send, color: Colors.blue),
-            onPressed: () {
-              if (controller.text.isNotEmpty) {
-                StoreProvider.of<AppState>(context).dispatch(AddCommentAction(post['id'], controller.text));
-                controller.clear();
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Comment added!')));
-              }
-            },
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 8),
+        IconButton(
+          onPressed: () {
+            if (_commentController.text.length >= 2) {
+              StoreProvider.of<AppState>(context).dispatch(AddCommentAction(widget.post.id, _commentController.text));
+              _commentController.clear();
+            }
+          },
+          icon: const Icon(Icons.send, color: Colors.blue),
+        ),
+      ],
     );
   }
 }

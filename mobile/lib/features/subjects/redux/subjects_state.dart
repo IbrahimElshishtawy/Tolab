@@ -3,10 +3,14 @@ import '../data/announcement_model.dart';
 
 class SubjectsState {
   final List<Subject> subjects;
-  final Map<int, List<Announcement>> announcements; // subjectId -> list
-  final Map<int, List<dynamic>> attendance; // subjectId -> list (sessions or records)
-  final Map<int, List<dynamic>> gradebooks; // subjectId -> list
-  final Map<int, dynamic> studentProgress; // subjectId -> object
+  final Map<int, List<Announcement>> announcements;
+  final Map<int, List<dynamic>> attendance;
+  final Map<int, List<dynamic>> gradebooks;
+  final Map<int, dynamic> studentProgress;
+  final Map<int, List<Lecture>> lectures;
+  final Map<int, List<Section>> sections;
+  final Map<int, List<Quiz>> quizzes;
+  final Map<int, List<Summary>> summaries;
   final bool isLoading;
   final String? error;
 
@@ -16,6 +20,10 @@ class SubjectsState {
     required this.attendance,
     required this.gradebooks,
     required this.studentProgress,
+    required this.lectures,
+    required this.sections,
+    required this.quizzes,
+    required this.summaries,
     required this.isLoading,
     this.error,
   });
@@ -26,6 +34,10 @@ class SubjectsState {
     attendance: {},
     gradebooks: {},
     studentProgress: {},
+    lectures: {},
+    sections: {},
+    quizzes: {},
+    summaries: {},
     isLoading: false,
   );
 
@@ -35,6 +47,10 @@ class SubjectsState {
     Map<int, List<dynamic>>? attendance,
     Map<int, List<dynamic>>? gradebooks,
     Map<int, dynamic>? studentProgress,
+    Map<int, List<Lecture>>? lectures,
+    Map<int, List<Section>>? sections,
+    Map<int, List<Quiz>>? quizzes,
+    Map<int, List<Summary>>? summaries,
     bool? isLoading,
     String? error,
   }) {
@@ -44,6 +60,10 @@ class SubjectsState {
       attendance: attendance ?? this.attendance,
       gradebooks: gradebooks ?? this.gradebooks,
       studentProgress: studentProgress ?? this.studentProgress,
+      lectures: lectures ?? this.lectures,
+      sections: sections ?? this.sections,
+      quizzes: quizzes ?? this.quizzes,
+      summaries: summaries ?? this.summaries,
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
     );

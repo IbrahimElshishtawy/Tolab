@@ -10,7 +10,26 @@ class SubjectsFakeRepo {
 
   Future<List<Lecture>> getLectures(int subjectId) async {
     await fakeDelay();
-    return mockLecturesData.map((json) => Lecture.fromJson(json)).toList();
+    final list = mockLecturesDataMap[subjectId] ?? [];
+    return list.map((json) => Lecture.fromJson(json)).toList();
+  }
+
+  Future<List<Section>> getSections(int subjectId) async {
+    await fakeDelay();
+    final list = mockSectionsDataMap[subjectId] ?? [];
+    return list.map((json) => Section.fromJson(json)).toList();
+  }
+
+  Future<List<Quiz>> getQuizzes(int subjectId) async {
+    await fakeDelay();
+    final list = mockQuizzesDataMap[subjectId] ?? [];
+    return list.map((json) => Quiz.fromJson(json)).toList();
+  }
+
+  Future<List<Summary>> getSummaries(int subjectId) async {
+    await fakeDelay();
+    final list = mockSummariesDataMap[subjectId] ?? [];
+    return list.map((json) => Summary.fromJson(json)).toList();
   }
 
   Future<void> createLecture(int subjectId, Map<String, dynamic> lectureData) async {

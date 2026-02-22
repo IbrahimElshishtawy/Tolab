@@ -1,54 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:tolab_fci/redux/state/app_state.dart';
-import 'package:tolab_fci/features/home/presentation/widgets/course_card.dart';
-import 'subject_details_screen.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../redux/app_state.dart';
+import '../../data/models.dart';
+import '../../redux/subjects_actions.dart';
+import '../../../../core/localization/localization_manager.dart';
 
 class SubjectsScreen extends StatelessWidget {
   const SubjectsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('My Subjects')),
-      body: StoreConnector<AppState, List<dynamic>>(
-        converter: (store) => [],
+      appBar: AppBar(title: Text('subjects_nav'.tr())),
+      body: StoreConnector<AppState, List<Subject>>(
+        onInit: (store) => store.dispatch(FetchSubjectsAction()),
+        converter: (store) => store.state.subjectsState.subjects,
         builder: (context, subjects) {
-          // Dummy data for now if list is empty
-          final displaySubjects = subjects.isEmpty
-              ? [
-                  {
-                    'name': 'Introduction to Computer Science',
-                    'code': 'CS101',
-                    'id': 1,
-                  },
-                  {'name': 'Software Engineering', 'code': 'SWE311', 'id': 2},
-                ]
-              : subjects;
-
+          if (subjects.isEmpty) {
+            return const Center(child: Text('No subjects found'));
+          }
           return ListView.builder(
-            padding: const EdgeInsets.all(20),
-            itemCount: displaySubjects.length,
+            padding: const EdgeInsets.all(16),
+            itemCount: subjects.length,
             itemBuilder: (context, index) {
-              final subject = displaySubjects[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 15),
-                child: CourseCard(
-                  courseName: subject['name'],
-                  courseCode: subject['code'],
-                  studentsCount: 'Active',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SubjectDetailsScreen(
-                          subjectId: subject['id'],
-                          title: subject['name'],
-                        ),
-                      ),
-                    );
-                  },
+              final subject = subjects[index];
+              return Card(
+                elevation: 2,
+                margin: const EdgeInsets.only(bottom: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(16),
+                  title: Text(subject.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  subtitle: Text(subject.code, style: const TextStyle(color: Colors.blue)),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () => context.push('/subjects/${subject.id}', extra: subject.name),
                 ),
               );
             },
