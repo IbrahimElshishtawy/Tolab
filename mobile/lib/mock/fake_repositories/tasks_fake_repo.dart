@@ -5,11 +5,8 @@ import '../mock_data.dart';
 class TasksFakeRepo {
   Future<List<Task>> getTasks(int subjectId) async {
     await fakeDelay();
-    return mockTasksData.map((json) => Task.fromJson(json)).toList();
-  }
-
-  Future<void> submitTask(int taskId, String fileUrl) async {
-    await fakeDelay(1500);
+    final list = mockTasksDataMap[subjectId] ?? [];
+    return list.map((json) => Task.fromJson(json)).toList();
   }
 
   Future<void> createTask(int subjectId, Task task) async {
@@ -17,22 +14,19 @@ class TasksFakeRepo {
   }
 
   Future<void> updateTask(Task task) async {
-    await fakeDelay(1000);
+    await fakeDelay(800);
   }
 
   Future<void> deleteTask(int taskId) async {
-    await fakeDelay(1000);
+    await fakeDelay(500);
   }
 
   Future<List<Submission>> getSubmissions(int taskId) async {
     await fakeDelay();
-    return mockSubmissionsData
-        .where((json) => json['task_id'] == taskId)
-        .map((json) => Submission.fromJson(json))
-        .toList();
+    return mockSubmissionsData.map((json) => Submission.fromJson(json)).toList();
   }
 
   Future<void> gradeSubmission(int submissionId, String grade) async {
-    await fakeDelay(800);
+    await fakeDelay(600);
   }
 }

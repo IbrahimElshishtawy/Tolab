@@ -41,7 +41,37 @@ List<Middleware<AppState>> createSubjectsMiddlewares() {
     TypedMiddleware<AppState, FetchProgressAction>(
       _fetchProgressMiddleware,
     ).call,
+    TypedMiddleware<AppState, FetchSubjectContentAction>(
+      _fetchSubjectContentMiddleware,
+    ).call,
   ];
+}
+
+void _fetchSubjectContentMiddleware(
+  Store<AppState> store,
+  FetchSubjectContentAction action,
+  NextDispatcher next,
+) async {
+  next(action);
+  try {
+    if (Env.useMock) {
+      final repo = SubjectsFakeRepo();
+      final lectures = await repo.getLectures(action.subjectId);
+      final sections = await repo.getSections(action.subjectId);
+      final quizzes = await repo.getQuizzes(action.subjectId);
+      final summaries = await repo.getSummaries(action.subjectId);
+
+      store.dispatch(FetchSubjectContentSuccessAction(
+        subjectId: action.subjectId,
+        lectures: lectures,
+        sections: sections,
+        quizzes: quizzes,
+        summaries: summaries,
+      ));
+    }
+  } catch (e) {
+    // Handle error
+  }
 }
 
 void _fetchSubjectsMiddleware(

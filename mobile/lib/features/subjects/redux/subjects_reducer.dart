@@ -4,6 +4,7 @@ import 'announcements_actions.dart';
 import 'attendance_actions.dart';
 import 'reporting_actions.dart';
 import '../data/announcement_model.dart';
+import '../data/models.dart';
 
 SubjectsState subjectsReducer(SubjectsState state, dynamic action) {
   if (action is FetchSubjectsStartAction) {
@@ -20,6 +21,33 @@ SubjectsState subjectsReducer(SubjectsState state, dynamic action) {
       isLoading: false,
       error: action.error,
     );
+  }
+
+  if (action is FetchSubjectContentSuccessAction) {
+    final newLectures = Map<int, List<Lecture>>.from(state.lectures);
+    final newSections = Map<int, List<Section>>.from(state.sections);
+    final newQuizzes = Map<int, List<Quiz>>.from(state.quizzes);
+    final newSummaries = Map<int, List<Summary>>.from(state.summaries);
+
+    newLectures[action.subjectId] = action.lectures;
+    newSections[action.subjectId] = action.sections;
+    newQuizzes[action.subjectId] = action.quizzes;
+    newSummaries[action.subjectId] = action.summaries;
+
+    return state.copyWith(
+      lectures: newLectures,
+      sections: newSections,
+      quizzes: newQuizzes,
+      summaries: newSummaries,
+    );
+  }
+
+  if (action is AddSummaryAction) {
+    final newSummaries = Map<int, List<Summary>>.from(state.summaries);
+    final subjectSummaries = List<Summary>.from(newSummaries[action.subjectId] ?? []);
+    subjectSummaries.add(action.summary);
+    newSummaries[action.subjectId] = subjectSummaries;
+    return state.copyWith(summaries: newSummaries);
   }
 
   if (action is FetchAnnouncementsSuccessAction) {

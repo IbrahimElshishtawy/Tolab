@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:go_router/go_router.dart';
 import '../../../redux/app_state.dart';
+import '../../localization/localization_manager.dart';
 
 class AppScaffold extends StatelessWidget {
   final Widget child;
@@ -40,21 +41,13 @@ class AppScaffold extends StatelessWidget {
   }
 
   List<_NavItem> _buildNavItems(String? role) {
-    if (role == 'doctor' || role == 'assistant') {
-      return [
-        const _NavItem(Icons.home, 'Home', '/home'),
-        const _NavItem(Icons.assignment, 'Grading', '/subjects'),
-        const _NavItem(Icons.person, 'Profile', '/profile'),
-      ];
-    }
-
-    // Default Student Nav
+    // For this task, we focus on Student side
     return [
-      const _NavItem(Icons.home, 'Home', '/home'),
-      const _NavItem(Icons.book, 'Subjects', '/subjects'),
-      const _NavItem(Icons.calendar_today, 'Schedule', '/calendar'),
-      const _NavItem(Icons.group, 'Community', '/community'),
-      const _NavItem(Icons.person, 'Profile', '/profile'),
+      _NavItem(Icons.home, 'home_nav'.tr(), '/home'),
+      _NavItem(Icons.book, 'subjects_nav'.tr(), '/subjects'),
+      _NavItem(Icons.calendar_today, 'schedule_nav'.tr(), '/calendar'),
+      _NavItem(Icons.group, 'community_nav'.tr(), '/community'),
+      _NavItem(Icons.more_horiz, 'more_nav'.tr(), '/more'),
     ];
   }
 }

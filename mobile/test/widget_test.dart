@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:redux/redux.dart';
-import 'package:tolab_fci/app/app.dart';
-import 'package:tolab_fci/redux/state/app_state.dart';
-import 'package:tolab_fci/redux/reducers/root_reducer.dart';
+import 'package:tolab_fci/app.dart';
+import 'package:tolab_fci/redux/app_state.dart';
+import 'package:tolab_fci/redux/reducers.dart';
 
 void main() {
   testWidgets('App builds', (WidgetTester tester) async {
@@ -11,6 +11,12 @@ void main() {
 
     await tester.pumpWidget(App(store: store));
 
+    // Pump to handle any initial frames
+    await tester.pump();
+
     expect(find.byType(MaterialApp), findsOneWidget);
+
+    // To handle the SplashScreen timer if it's still there
+    await tester.pumpAndSettle(const Duration(seconds: 3));
   });
 }

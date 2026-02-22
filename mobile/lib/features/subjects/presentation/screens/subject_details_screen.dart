@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'lectures_screen.dart';
-import 'sections_screen.dart';
-import 'tasks_screen.dart';
-import 'quizzes_screen.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../redux/app_state.dart';
+import '../../redux/subjects_actions.dart';
+import '../../../../core/localization/localization_manager.dart';
 
 class SubjectDetailsScreen extends StatelessWidget {
   final int subjectId;
@@ -12,27 +13,47 @@ class SubjectDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-          bottom: const TabBar(
-            isScrollable: true,
-            tabs: [
-              Tab(text: 'Lectures'),
-              Tab(text: 'Sections'),
-              Tab(text: 'Tasks'),
-              Tab(text: 'Quizzes'),
-            ],
-          ),
-        ),
-        body: TabBarView(
+    return StoreConnector<AppState, void>(
+      onInit: (store) => store.dispatch(FetchSubjectContentAction(subjectId)),
+      converter: (store) {},
+      builder: (context, _) => Scaffold(
+        appBar: AppBar(title: Text(title)),
+        body: GridView.count(
+          padding: const EdgeInsets.all(24),
+          crossAxisCount: 2,
+          mainAxisSpacing: 20,
+          crossAxisSpacing: 20,
           children: [
-            LecturesScreen(subjectId: subjectId),
-            SectionsScreen(subjectId: subjectId),
-            TasksScreen(subjectId: subjectId),
-            QuizzesScreen(subjectId: subjectId),
+            _buildDetailTile(context, 'lectures'.tr(), Icons.play_lesson, Colors.orange, 'lectures'),
+            _buildDetailTile(context, 'sections'.tr(), Icons.people, Colors.green, 'sections'),
+            _buildDetailTile(context, 'quizzes'.tr(), Icons.quiz, Colors.purple, 'quizzes'),
+            _buildDetailTile(context, 'tasks'.tr(), Icons.task, Colors.blue, 'tasks'),
+            _buildDetailTile(context, 'summaries'.tr(), Icons.summarize, Colors.teal, 'summaries'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailTile(BuildContext context, String label, IconData icon, Color color, String route) {
+    return InkWell(
+      onTap: () => context.push('/subjects/$subjectId/$route'),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+              child: Icon(icon, color: color, size: 32),
+            ),
+            const SizedBox(height: 16),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           ],
         ),
       ),
