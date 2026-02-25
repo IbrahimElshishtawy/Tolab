@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:redux/redux.dart';
-import 'package:tolab_fci/app.dart';
+import 'package:tolab_fci/main.dart';
 import 'package:tolab_fci/redux/app_state.dart';
 import 'package:tolab_fci/redux/reducers.dart';
 

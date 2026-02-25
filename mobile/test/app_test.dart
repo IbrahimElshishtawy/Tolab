@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tolab_fci/app.dart';
-import 'package:tolab_fci/redux/store.dart';
+import 'package:tolab_fci/main.dart';
 
 void main() {
   testWidgets('App renders correctly', (WidgetTester tester) async {
