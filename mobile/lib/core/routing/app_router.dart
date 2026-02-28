@@ -22,16 +22,50 @@ import '../../features/more/presentation/screens/academic_results_screen.dart';
 import '../../features/more/presentation/screens/language_screen.dart';
 import '../../features/more/presentation/screens/notification_settings_screen.dart';
 import '../ui/widgets/app_scaffold.dart';
+import '../ui/widgets/admin_shell.dart';
+import '../../features/admin/presentation/screens/admin_users_screen.dart';
+import '../../features/admin/presentation/screens/admin_subjects_screen.dart';
+import '../../features/admin/presentation/screens/admin_offerings_screen.dart';
+import '../../features/admin/presentation/screens/admin_content_screen.dart';
+import '../../features/admin/presentation/screens/admin_schedule_screen.dart';
+import '../../features/admin/presentation/screens/admin_moderation_screen.dart';
+import '../../features/admin/presentation/screens/admin_broadcast_notifications_screen.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import '../../redux/app_state.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/login',
+  redirect: (context, state) {
+    final store = StoreProvider.of<AppState>(context);
+    final authState = store.state.authState;
+    final bool loggingIn = state.matchedLocation == '/login' ||
+        state.matchedLocation == '/forget-password' ||
+        state.matchedLocation == '/verify-code' ||
+        state.matchedLocation == '/reset-password';
+
+    if (!authState.isAuthenticated) {
+      return loggingIn ? null : '/login';
+    }
+
+    if (loggingIn) {
+      return authState.role == 'ADMIN' ? '/admin/users' : '/home';
+    }
+
+    return null;
+  },
   routes: [
     GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
     GoRoute(path: '/forget-password', builder: (context, state) => const ForgetPasswordScreen()),
     GoRoute(path: '/verify-code', builder: (context, state) => const VerificationCodeScreen()),
     GoRoute(path: '/reset-password', builder: (context, state) => const ResetPasswordScreen()),
     ShellRoute(
-      builder: (context, state, child) => AppScaffold(child: child),
+      builder: (context, state, child) {
+        final store = StoreProvider.of<AppState>(context);
+        if (store.state.authState.role == 'ADMIN') {
+          return AdminShell(child: child);
+        }
+        return AppScaffold(child: child);
+      },
       routes: [
         GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
         GoRoute(
@@ -69,6 +103,15 @@ final appRouter = GoRouter(
         GoRoute(path: '/results', builder: (context, state) => const AcademicResultsScreen()),
         GoRoute(path: '/language', builder: (context, state) => const LanguageScreen()),
         GoRoute(path: '/notification-settings', builder: (context, state) => const NotificationSettingsScreen()),
+
+        // Admin Routes
+        GoRoute(path: '/admin/users', builder: (context, state) => const AdminUsersScreen()),
+        GoRoute(path: '/admin/subjects', builder: (context, state) => const AdminSubjectsScreen()),
+        GoRoute(path: '/admin/offerings', builder: (context, state) => const AdminOfferingsScreen()),
+        GoRoute(path: '/admin/content', builder: (context, state) => const AdminContentScreen()),
+        GoRoute(path: '/admin/schedule', builder: (context, state) => const AdminScheduleScreen()),
+        GoRoute(path: '/admin/moderation', builder: (context, state) => const AdminModerationScreen()),
+        GoRoute(path: '/admin/broadcast', builder: (context, state) => const AdminBroadcastNotificationsScreen()),
       ],
     ),
   ],

@@ -3,6 +3,7 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'redux/app_state.dart';
 import 'core/routing/app_router.dart';
+import 'core/ui/theme.dart';
 
 class App extends StatelessWidget {
   final Store<AppState> store;
@@ -15,7 +16,8 @@ class App extends StatelessWidget {
       store: store,
       child: MaterialApp.router(
         routerConfig: appRouter,
-        title: 'LMS Platform',
+        title: 'University Portal',
+        theme: AppTheme.lightTheme,
         debugShowCheckedModeBanner: false,
       ),
     );

@@ -2,7 +2,7 @@ class AuthState {
   final bool isAuthenticated;
   final bool isLoading;
   final String? email;
-  final String? role;
+  final String? role; // 'ADMIN' or 'STUDENT'
   final String? error;
 
   AuthState({

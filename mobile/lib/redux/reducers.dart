@@ -19,5 +19,7 @@ AppState appReducer(AppState state, dynamic action) {
     calendarState: calendarReducer(state.calendarState, action),
     communityState: communityReducer(state.communityState, action),
     notificationsState: notificationsReducer(state.notificationsState, action),
+    adminState: state.adminState, // Placeholder for now
+    uiState: state.uiState, // Placeholder for now
   );
 }

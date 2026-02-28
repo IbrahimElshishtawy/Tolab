@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'loaders.dart';
 
 class StateView extends StatelessWidget {
   final bool isLoading;
@@ -19,7 +20,18 @@ class StateView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: List.generate(
+            5,
+            (index) => const Padding(
+              padding: EdgeInsets.only(bottom: 16.0),
+              child: ShimmerLoader(height: 100),
+            ),
+          ),
+        ),
+      );
     }
 
     if (error != null) {
