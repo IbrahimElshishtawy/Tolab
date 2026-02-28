@@ -1,42 +1,88 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import '../../../../redux/app_state.dart';
+import '../../../../redux/state/admin_state.dart';
+import '../../redux/admin_actions.dart';
 import '../../../../core/ui/widgets/university_widgets.dart';
 import '../../../../core/ui/widgets/app_scaffold.dart';
 import '../../../../core/ui/tokens/spacing_tokens.dart';
 
-class AdminUsersScreen extends StatelessWidget {
+class AdminUsersScreen extends StatefulWidget {
   const AdminUsersScreen({super.key});
 
   @override
+  State<AdminUsersScreen> createState() => _AdminUsersScreenState();
+}
+
+class _AdminUsersScreenState extends State<AdminUsersScreen> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      final store = StoreProvider.of<AppState>(context);
+      if (!store.state.adminState.isLoading && store.state.adminState.hasMoreUsers) {
+        store.dispatch(FetchUsersAction(page: store.state.adminState.userPage));
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      title: 'User Management',
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.file_upload),
-          onPressed: () => _showImportBottomSheet(context),
-          tooltip: 'Import Bulk',
-        ),
-      ],
-      child: ListView.builder(
-        padding: const EdgeInsets.all(AppSpacing.l),
-        itemCount: 10,
-        itemBuilder: (context, index) {
-          return AppCard(
-            margin: const EdgeInsets.only(bottom: AppSpacing.m),
-            child: ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const CircleAvatar(child: Icon(Icons.person)),
-              title: Text('User ${index + 1}', style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text('student${index + 1}@university.edu'),
-              trailing: Switch(value: true, onChanged: (v) {}),
+    return StoreConnector<AppState, AdminState>(
+      onInit: (store) => store.dispatch(FetchUsersAction(page: 1)),
+      converter: (store) => store.state.adminState,
+      builder: (context, state) {
+        return AppScaffold(
+          title: 'User Management',
+          isLoading: state.isLoading && state.users.isEmpty,
+          error: state.error,
+          onRetry: () => StoreProvider.of<AppState>(context).dispatch(FetchUsersAction(page: 1)),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.file_upload),
+              onPressed: () => _showImportBottomSheet(context),
+              tooltip: 'Import Bulk',
             ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(Icons.person_add),
-      ),
+          ],
+          child: ListView.builder(
+            controller: _scrollController,
+            padding: const EdgeInsets.all(AppSpacing.l),
+            itemCount: state.users.length + (state.hasMoreUsers ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index == state.users.length) {
+                return const Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator()));
+              }
+              final user = state.users[index];
+              return AppCard(
+                margin: const EdgeInsets.only(bottom: AppSpacing.m),
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const CircleAvatar(child: Icon(Icons.person)),
+                  title: Text(user['name'] ?? 'User', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text(user['email'] ?? ''),
+                  trailing: Switch(value: true, onChanged: (v) {}),
+                ),
+              );
+            },
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {},
+            child: const Icon(Icons.person_add),
+          ),
+        );
+      },
     );
   }
 

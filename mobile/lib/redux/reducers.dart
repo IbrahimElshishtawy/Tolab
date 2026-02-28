@@ -6,6 +6,7 @@ import 'package:tolab_fci/features/community/redux/community_reducer.dart';
 import 'package:tolab_fci/features/calendar/redux/calendar_reducer.dart';
 import 'package:tolab_fci/features/notifications/redux/notifications_reducer.dart';
 import 'package:tolab_fci/features/auth/redux/auth_actions.dart';
+import 'package:tolab_fci/features/admin/redux/admin_reducer.dart';
 
 AppState appReducer(AppState state, dynamic action) {
   if (action is LogoutAction) {
@@ -19,7 +20,7 @@ AppState appReducer(AppState state, dynamic action) {
     calendarState: calendarReducer(state.calendarState, action),
     communityState: communityReducer(state.communityState, action),
     notificationsState: notificationsReducer(state.notificationsState, action),
-    adminState: state.adminState, // Placeholder for now
+    adminState: adminReducer(state.adminState, action),
     uiState: state.uiState, // Placeholder for now
   );
 }
