@@ -7,6 +7,8 @@ import '../redux/community_state.dart';
 import '../data/models.dart';
 import '../../../core/localization/localization_manager.dart';
 import '../../../core/ui/widgets/university_widgets.dart';
+import '../../../core/ui/widgets/app_scaffold.dart';
+import '../../../core/ui/tokens/spacing_tokens.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
@@ -24,19 +26,18 @@ class _CommunityScreenState extends State<CommunityScreen> {
       onInit: (store) => store.dispatch(FetchPostsAction()),
       converter: (store) => store.state.communityState,
       builder: (context, state) {
-        return Scaffold(
-          body: SafeArea(
-            child: Column(
-              children: [
-                _buildHeader(),
-                _buildFilter(),
-                Expanded(
-                  child: state.isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : _buildPostsList(state.posts),
-                ),
-              ],
-            ),
+        return AppScaffold(
+          title: 'community_nav'.tr(),
+          isLoading: state.isLoading && state.posts.isEmpty,
+          isEmpty: !state.isLoading && state.posts.isEmpty,
+          child: Column(
+            children: [
+              _buildHeader(),
+              _buildFilter(),
+              Expanded(
+                child: _buildPostsList(state.posts),
+              ),
+            ],
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () => _showCreatePostSheet(context),
@@ -137,7 +138,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
   }
 
   Widget _buildPostsList(List<dynamic> posts) {
-    if (posts.isEmpty) return const Center(child: Text('No posts yet'));
+    if (posts.isEmpty) return const SizedBox.shrink();
 
     return AnimationLimiter(
       child: ListView.builder(
@@ -176,8 +177,8 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
 
   @override
   Widget build(BuildContext context) {
-    return UniversityCard(
-      margin: const EdgeInsets.only(bottom: 16),
+    return AppCard(
+      margin: const EdgeInsets.only(bottom: AppSpacing.l),
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -217,7 +218,6 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
             ],
           ],
         ),
-      ),
     );
   }
 
@@ -293,7 +293,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
               _commentController.clear();
             }
           },
-          icon: const Icon(Icons.send, color: AppTheme.primaryNavy),
+          icon: Icon(Icons.send, color: Theme.of(context).colorScheme.primary),
         ),
       ],
     );

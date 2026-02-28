@@ -38,9 +38,9 @@ class AdminShell extends StatelessWidget {
             label: 'Moderation',
           ),
           NavigationDestination(
-            icon: const Icon(Icons.notifications_outlined),
-            selectedIcon: const Icon(Icons.notifications),
-            label: 'Alerts',
+            icon: const Icon(Icons.more_horiz_outlined),
+            selectedIcon: const Icon(Icons.more_horiz),
+            label: 'More',
           ),
         ],
       ),
@@ -52,7 +52,9 @@ class AdminShell extends StatelessWidget {
     if (location.startsWith('/admin/subjects')) return 1;
     if (location.startsWith('/admin/content')) return 2;
     if (location.startsWith('/admin/moderation')) return 3;
-    if (location.startsWith('/admin/broadcast')) return 4;
+    if (location.startsWith('/admin/offerings') ||
+        location.startsWith('/admin/schedule') ||
+        location.startsWith('/admin/broadcast')) return 4;
     return 0;
   }
 
@@ -71,8 +73,47 @@ class AdminShell extends StatelessWidget {
         context.go('/admin/moderation');
         break;
       case 4:
-        context.go('/admin/broadcast');
+        _showMoreMenu(context);
         break;
     }
+  }
+
+  void _showMoreMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.assignment_ind),
+              title: const Text('Enrollments'),
+              onTap: () {
+                Navigator.pop(context);
+                context.go('/admin/offerings');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.calendar_month),
+              title: const Text('Schedule'),
+              onTap: () {
+                Navigator.pop(context);
+                context.go('/admin/schedule');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.notifications),
+              title: const Text('Broadcast'),
+              onTap: () {
+                Navigator.pop(context);
+                context.go('/admin/broadcast');
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
   }
 }

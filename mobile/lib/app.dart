@@ -18,6 +18,8 @@ class App extends StatelessWidget {
         routerConfig: appRouter,
         title: 'University Portal',
         theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.system,
         debugShowCheckedModeBanner: false,
       ),
     );

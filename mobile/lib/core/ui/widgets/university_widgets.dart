@@ -1,31 +1,40 @@
 import 'package:flutter/material.dart';
+import '../tokens/color_tokens.dart';
+import '../tokens/radius_tokens.dart';
+import '../tokens/spacing_tokens.dart';
 
-class UniversityCard extends StatelessWidget {
+class AppCard extends StatelessWidget {
   final Widget child;
   final VoidCallback? onTap;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
   final Color? color;
+  final double? elevation;
 
-  const UniversityCard({
+  const AppCard({
     super.key,
     required this.child,
     this.onTap,
     this.padding,
     this.margin,
     this.color,
+    this.elevation,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       color: color,
-      margin: margin,
+      margin: margin ?? EdgeInsets.zero,
+      elevation: elevation ?? Theme.of(context).cardTheme.elevation,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.l),
+      ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.l),
         child: Padding(
-          padding: padding ?? const EdgeInsets.all(16.0),
+          padding: padding ?? const EdgeInsets.all(AppSpacing.l),
           child: child,
         ),
       ),
@@ -38,6 +47,8 @@ class AppButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final bool isLoading;
   final IconData? icon;
+  final bool isTonal;
+  final bool isOutline;
 
   const AppButton({
     super.key,
@@ -45,6 +56,8 @@ class AppButton extends StatefulWidget {
     this.onPressed,
     this.isLoading = false,
     this.icon,
+    this.isTonal = false,
+    this.isOutline = false,
   });
 
   @override
@@ -73,34 +86,98 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    Widget buttonContent = widget.isLoading
+        ? const SizedBox(
+            height: 20,
+            width: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
+          )
+        : Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (widget.icon != null) ...[
+                Icon(widget.icon, size: 20),
+                const SizedBox(width: AppSpacing.s),
+              ],
+              Text(widget.text),
+            ],
+          );
+
     return GestureDetector(
       onTapDown: (_) => _controller.forward(),
       onTapUp: (_) => _controller.reverse(),
       onTapCancel: () => _controller.reverse(),
       child: ScaleTransition(
         scale: _scaleAnimation,
-        child: ElevatedButton(
-          onPressed: widget.isLoading ? null : widget.onPressed,
-          child: widget.isLoading
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (widget.icon != null) ...[
-                      Icon(widget.icon, size: 20),
-                      const SizedBox(width: 8),
-                    ],
-                    Text(widget.text),
-                  ],
-                ),
+        child: _buildButton(buttonContent),
+      ),
+    );
+  }
+
+  Widget _buildButton(Widget content) {
+    if (widget.isOutline) {
+      return OutlinedButton(
+        onPressed: widget.isLoading ? null : widget.onPressed,
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(double.infinity, 52),
+          side: const BorderSide(color: AppColors.primary),
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.rM),
         ),
+        child: content,
+      );
+    }
+
+    if (widget.isTonal) {
+      return FilledButton.tonal(
+        onPressed: widget.isLoading ? null : widget.onPressed,
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(double.infinity, 52),
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.rM),
+        ),
+        child: content,
+      );
+    }
+
+    return ElevatedButton(
+      onPressed: widget.isLoading ? null : widget.onPressed,
+      child: content,
+    );
+  }
+}
+
+class SectionHeader extends StatelessWidget {
+  final String title;
+  final String? actionLabel;
+  final VoidCallback? onActionPressed;
+
+  const SectionHeader({
+    super.key,
+    required this.title,
+    this.actionLabel,
+    this.onActionPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.l),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          if (actionLabel != null)
+            TextButton(
+              onPressed: onActionPressed,
+              child: Text(actionLabel!),
+            ),
+        ],
       ),
     );
   }

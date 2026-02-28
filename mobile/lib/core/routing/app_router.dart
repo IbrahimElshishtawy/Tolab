@@ -23,6 +23,7 @@ import '../../features/more/presentation/screens/language_screen.dart';
 import '../../features/more/presentation/screens/notification_settings_screen.dart';
 import '../ui/widgets/app_scaffold.dart';
 import '../ui/widgets/admin_shell.dart';
+import '../ui/widgets/student_shell.dart';
 import '../../features/admin/presentation/screens/admin_users_screen.dart';
 import '../../features/admin/presentation/screens/admin_subjects_screen.dart';
 import '../../features/admin/presentation/screens/admin_offerings_screen.dart';
@@ -64,7 +65,7 @@ final appRouter = GoRouter(
         if (store.state.authState.role == 'ADMIN') {
           return AdminShell(child: child);
         }
-        return AppScaffold(child: child);
+        return StudentShell(child: child);
       },
       routes: [
         GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),

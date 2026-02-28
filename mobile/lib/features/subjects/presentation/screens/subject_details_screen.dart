@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/ui/widgets/university_widgets.dart';
+import '../../../../core/ui/widgets/business_widgets.dart';
+import '../../../../core/ui/tokens/spacing_tokens.dart';
 
 class SubjectDetailsScreen extends StatelessWidget {
   final int subjectId;
@@ -50,17 +52,18 @@ class _PlaceholderList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.l),
       itemCount: 5,
       itemBuilder: (context, index) {
-        return UniversityCard(
-          margin: const EdgeInsets.only(bottom: 12),
-          child: ListTile(
-            leading: const Icon(Icons.file_present, color: Colors.blue),
-            title: Text('$title Item ${index + 1}'),
-            subtitle: const Text('Uploaded on Oct 12, 2023'),
-            trailing: const Icon(Icons.download),
-            onTap: () {},
+        return AppCard(
+          margin: const EdgeInsets.only(bottom: AppSpacing.m),
+          padding: EdgeInsets.zero,
+          child: FileTile(
+            fileName: '$title Item ${index + 1}',
+            subtitle: 'Uploaded on Oct 12, 2023',
+            fileType: index % 2 == 0 ? 'pdf' : 'doc',
+            onOpen: () {},
+            onDownload: () {},
           ),
         );
       },
