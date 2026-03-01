@@ -5,6 +5,8 @@ import '../../../redux/app_state.dart';
 import '../redux/auth_actions.dart';
 import '../redux/auth_state.dart';
 import '../../../core/localization/localization_manager.dart';
+import '../../../core/ui/widgets/university_widgets.dart';
+import '../../../core/ui/tokens/spacing_tokens.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -121,24 +123,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Text('forget_password'.tr()),
                       ),
                     ),
-                    const SizedBox(height: 32),
-                    ElevatedButton(
-                      onPressed: (_isFormValid && !state.isLoading)
+                    const SizedBox(height: AppSpacing.xxxl),
+                    AppButton(
+                      text: 'login_btn'.tr(),
+                      isLoading: state.isLoading,
+                      onPressed: _isFormValid
                           ? () {
                               StoreProvider.of<AppState>(context).dispatch(
                                 LoginAction(emailController.text, passwordController.text),
                               );
                             }
                           : null,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
-                      ),
-                      child: state.isLoading
-                          ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                          : Text('login_btn'.tr(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),

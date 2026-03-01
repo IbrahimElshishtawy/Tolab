@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../../redux/app_state.dart';
 import '../redux/community_actions.dart';
 import '../redux/community_state.dart';
 import '../data/models.dart';
 import '../../../core/localization/localization_manager.dart';
+import '../../../core/ui/widgets/university_widgets.dart';
+import '../../../core/ui/widgets/app_scaffold.dart';
+import '../../../core/ui/tokens/spacing_tokens.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
@@ -22,23 +26,64 @@ class _CommunityScreenState extends State<CommunityScreen> {
       onInit: (store) => store.dispatch(FetchPostsAction()),
       converter: (store) => store.state.communityState,
       builder: (context, state) {
-        return Scaffold(
-          backgroundColor: Colors.grey.shade100,
-          body: SafeArea(
-            child: Column(
-              children: [
-                _buildHeader(),
-                _buildFilter(),
-                Expanded(
-                  child: state.isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : _buildPostsList(state.posts),
-                ),
-              ],
-            ),
+        return AppScaffold(
+          title: 'community_nav'.tr(),
+          isLoading: state.isLoading && state.posts.isEmpty,
+          isEmpty: !state.isLoading && state.posts.isEmpty,
+          child: Column(
+            children: [
+              _buildHeader(),
+              _buildFilter(),
+              Expanded(
+                child: _buildPostsList(state.posts),
+              ),
+            ],
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => _showCreatePostSheet(context),
+            child: const Icon(Icons.add_comment),
           ),
         );
       },
+    );
+  }
+
+  void _showCreatePostSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 20,
+          right: 20,
+          top: 20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('Create New Post', style: Theme.of(context).textTheme.headlineMedium),
+            const SizedBox(height: 16),
+            TextField(
+              maxLines: 5,
+              decoration: InputDecoration(
+                hintText: "What's on your mind?",
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            AppButton(
+              text: 'Post',
+              onPressed: () => Navigator.pop(context),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
     );
   }
 
@@ -93,18 +138,27 @@ class _CommunityScreenState extends State<CommunityScreen> {
   }
 
   Widget _buildPostsList(List<dynamic> posts) {
-    // In a real app we would filter the list based on _filter
-    if (posts.isEmpty) return const Center(child: Text('No posts yet'));
+    if (posts.isEmpty) return const SizedBox.shrink();
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: posts.length,
-      itemBuilder: (context, index) {
-        final postData = posts[index];
-        // Handle both Map (from existing code) and Post model
-        final post = postData is Post ? postData : Post.fromJson(postData);
-        return CommunityPostCard(post: post);
-      },
+    return AnimationLimiter(
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: posts.length,
+        itemBuilder: (context, index) {
+          final postData = posts[index];
+          final post = postData is Post ? postData : Post.fromJson(postData);
+          return AnimationConfiguration.staggeredList(
+            position: index,
+            duration: const Duration(milliseconds: 375),
+            child: SlideAnimation(
+              verticalOffset: 50.0,
+              child: FadeInAnimation(
+                child: CommunityPostCard(post: post),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -123,12 +177,9 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+    return AppCard(
+      margin: const EdgeInsets.only(bottom: AppSpacing.l),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -167,7 +218,6 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
             ],
           ],
         ),
-      ),
     );
   }
 
@@ -243,7 +293,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
               _commentController.clear();
             }
           },
-          icon: const Icon(Icons.send, color: Colors.blue),
+          icon: Icon(Icons.send, color: Theme.of(context).colorScheme.primary),
         ),
       ],
     );

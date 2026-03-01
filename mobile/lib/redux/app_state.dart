@@ -4,6 +4,8 @@ import 'package:tolab_fci/features/tasks/redux/tasks_state.dart';
 import 'package:tolab_fci/features/calendar/redux/calendar_state.dart';
 import 'package:tolab_fci/features/community/redux/community_state.dart';
 import 'package:tolab_fci/features/notifications/redux/notifications_state.dart';
+import 'package:tolab_fci/redux/state/admin_state.dart';
+import 'package:tolab_fci/redux/state/ui_state.dart';
 
 class AppState {
   final AuthState authState;
@@ -12,6 +14,8 @@ class AppState {
   final CalendarState calendarState;
   final CommunityState communityState;
   final NotificationsState notificationsState;
+  final AdminState adminState;
+  final UIState uiState;
 
   AppState({
     required this.authState,
@@ -20,6 +24,8 @@ class AppState {
     required this.calendarState,
     required this.communityState,
     required this.notificationsState,
+    required this.adminState,
+    required this.uiState,
   });
 
   factory AppState.initial() {
@@ -30,6 +36,8 @@ class AppState {
       calendarState: CalendarState.initial(),
       communityState: CommunityState.initial(),
       notificationsState: NotificationsState.initial(),
+      adminState: AdminState.initial(),
+      uiState: UIState.initial(),
     );
   }
 
@@ -40,6 +48,8 @@ class AppState {
     CalendarState? calendarState,
     CommunityState? communityState,
     NotificationsState? notificationsState,
+    AdminState? adminState,
+    UIState? uiState,
   }) {
     return AppState(
       authState: authState ?? this.authState,
@@ -48,6 +58,8 @@ class AppState {
       calendarState: calendarState ?? this.calendarState,
       communityState: communityState ?? this.communityState,
       notificationsState: notificationsState ?? this.notificationsState,
+      adminState: adminState ?? this.adminState,
+      uiState: uiState ?? this.uiState,
     );
   }
 }

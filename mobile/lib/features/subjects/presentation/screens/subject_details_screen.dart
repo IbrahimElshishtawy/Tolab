@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
-import 'package:go_router/go_router.dart';
-import '../../../../redux/app_state.dart';
-import '../../redux/subjects_actions.dart';
-import '../../../../core/localization/localization_manager.dart';
+import '../../../../core/ui/widgets/university_widgets.dart';
+import '../../../../core/ui/widgets/business_widgets.dart';
+import '../../../../core/ui/tokens/spacing_tokens.dart';
 
 class SubjectDetailsScreen extends StatelessWidget {
   final int subjectId;
@@ -13,50 +11,71 @@ class SubjectDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<AppState, void>(
-      onInit: (store) => store.dispatch(FetchSubjectContentAction(subjectId)),
-      converter: (store) {},
-      builder: (context, _) => Scaffold(
-        appBar: AppBar(title: Text(title)),
-        body: GridView.count(
-          padding: const EdgeInsets.all(24),
-          crossAxisCount: 2,
-          mainAxisSpacing: 20,
-          crossAxisSpacing: 20,
+    return DefaultTabController(
+      length: 7,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(title),
+          bottom: const TabBar(
+            isScrollable: true,
+            tabs: [
+              Tab(text: 'Grades'),
+              Tab(text: 'Lectures'),
+              Tab(text: 'Sections'),
+              Tab(text: 'Summaries'),
+              Tab(text: 'Tasks'),
+              Tab(text: 'Exams'),
+              Tab(text: 'Group'),
+            ],
+          ),
+        ),
+        body: const TabBarView(
           children: [
-            _buildDetailTile(context, 'lectures'.tr(), Icons.play_lesson, Colors.orange, 'lectures'),
-            _buildDetailTile(context, 'sections'.tr(), Icons.people, Colors.green, 'sections'),
-            _buildDetailTile(context, 'quizzes'.tr(), Icons.quiz, Colors.purple, 'quizzes'),
-            _buildDetailTile(context, 'tasks'.tr(), Icons.task, Colors.blue, 'tasks'),
-            _buildDetailTile(context, 'summaries'.tr(), Icons.summarize, Colors.teal, 'summaries'),
+            _PlaceholderList(title: 'Grades'),
+            _PlaceholderList(title: 'Lectures'),
+            _PlaceholderList(title: 'Sections'),
+            _PlaceholderList(title: 'Summaries'),
+            _PlaceholderList(title: 'Tasks'),
+            _PlaceholderList(title: 'Exams'),
+            _GroupView(),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildDetailTile(BuildContext context, String label, IconData icon, Color color, String route) {
-    return InkWell(
-      onTap: () => context.push('/subjects/$subjectId/$route'),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
-              child: Icon(icon, color: color, size: 32),
-            ),
-            const SizedBox(height: 16),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          ],
-        ),
-      ),
+class _PlaceholderList extends StatelessWidget {
+  final String title;
+  const _PlaceholderList({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(AppSpacing.l),
+      itemCount: 5,
+      itemBuilder: (context, index) {
+        return AppCard(
+          margin: const EdgeInsets.only(bottom: AppSpacing.m),
+          padding: EdgeInsets.zero,
+          child: FileTile(
+            fileName: '$title Item ${index + 1}',
+            subtitle: 'Uploaded on Oct 12, 2023',
+            fileType: index % 2 == 0 ? 'pdf' : 'doc',
+            onOpen: () {},
+            onDownload: () {},
+          ),
+        );
+      },
     );
+  }
+}
+
+class _GroupView extends StatelessWidget {
+  const _GroupView();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: Text('Subject Group Feed'));
   }
 }
