@@ -6,6 +6,7 @@ import '../redux/auth_actions.dart';
 import '../redux/auth_state.dart';
 import '../../../core/localization/localization_manager.dart';
 import '../../../core/ui/widgets/university_widgets.dart';
+import '../../../core/ui/widgets/academic_logo.dart';
 import '../../../core/ui/tokens/spacing_tokens.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -68,16 +69,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 40),
-                    Center(
-                      child: Container(
-                        height: 100,
-                        width: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.school, size: 50, color: Colors.blue),
-                      ),
+                    const Center(
+                      child: AcademicLogo(size: 100),
                     ),
                     const SizedBox(height: 24),
                     Text(

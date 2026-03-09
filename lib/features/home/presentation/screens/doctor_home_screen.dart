@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:tolab_fci/redux/state/app_state.dart';
+import '../../../../redux/app_state.dart';
 import '../widgets/home_header.dart';
 import '../widgets/search_bar_widget.dart';
-import '../widgets/course_card.dart';
-import '../widgets/quick_action_card.dart';
+import '../../../../core/ui/widgets/university_widgets.dart';
+import '../../../../core/ui/widgets/business_widgets.dart';
+import '../../../../core/ui/tokens/spacing_tokens.dart';
+import '../../../../core/ui/tokens/color_tokens.dart';
 
 class DoctorHomeScreen extends StatelessWidget {
   const DoctorHomeScreen({super.key});
@@ -32,95 +34,79 @@ class DoctorHomeScreen extends StatelessWidget {
                       hintText: 'Search subjects or students...'),
                   const SizedBox(height: 25),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'My Courses',
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: StatTile(
+                            label: 'Total Students',
+                            value: '315',
+                            icon: Icons.people_alt_rounded,
+                            color: AppColors.primary,
                           ),
                         ),
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text('See All'),
+                        const SizedBox(width: AppSpacing.m),
+                        Expanded(
+                          child: StatTile(
+                            label: 'Pending Grades',
+                            value: '24',
+                            icon: Icons.pending_actions_rounded,
+                            color: AppColors.warning,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 15),
-                  SizedBox(
-                    height: 160,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.only(left: 20),
-                      children: [
-                        CourseCard(
-                          courseName: 'Software Engineering',
-                          courseCode: 'CS311',
-                          studentsCount: '120 Students',
-                          onTap: () {},
+                  const SizedBox(height: AppSpacing.xxl),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.l),
+                    child: SectionHeader(title: 'Course Overview'),
+                  ),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+                    itemCount: 3,
+                    itemBuilder: (context, index) {
+                      final courses = ['Software Engineering', 'Database Systems', 'Operating Systems'];
+                      final codes = ['CS311', 'IS212', 'CS221'];
+                      return AppCard(
+                        margin: const EdgeInsets.only(bottom: AppSpacing.m),
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: Container(
+                            padding: const EdgeInsets.all(AppSpacing.s),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(Icons.class_rounded, color: AppColors.primary),
+                          ),
+                          title: Text(courses[index], style: const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text('${codes[index]} • ${120 - (index * 15)} Students'),
+                          trailing: const Icon(Icons.chevron_right),
                         ),
-                        CourseCard(
-                          courseName: 'Database Systems',
-                          courseCode: 'IS212',
-                          studentsCount: '85 Students',
-                          onTap: () {},
-                        ),
-                        CourseCard(
-                          courseName: 'Operating Systems',
-                          courseCode: 'CS221',
-                          studentsCount: '110 Students',
-                          onTap: () {},
-                        ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 25),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      'Doctor Actions',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.l),
+                    child: SectionHeader(title: 'Quick Management'),
                   ),
-                  const SizedBox(height: 15),
                   GridView.count(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     crossAxisCount: 2,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    mainAxisSpacing: 15,
-                    crossAxisSpacing: 15,
-                    childAspectRatio: 1.3,
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+                    mainAxisSpacing: AppSpacing.m,
+                    crossAxisSpacing: AppSpacing.m,
+                    childAspectRatio: 1.5,
                     children: [
-                      QuickActionCard(
-                        title: 'Post\nAnnouncement',
-                        icon: Icons.campaign_outlined,
-                        color: Colors.orange,
-                        onTap: () {},
-                      ),
-                      QuickActionCard(
-                        title: 'Upload\nMaterials',
-                        icon: Icons.upload_file_outlined,
-                        color: Colors.blue,
-                        onTap: () {},
-                      ),
-                      QuickActionCard(
-                        title: 'View\nGrades',
-                        icon: Icons.assignment_turned_in_outlined,
-                        color: Colors.green,
-                        onTap: () {},
-                      ),
-                      QuickActionCard(
-                        title: 'Attendance',
-                        icon: Icons.how_to_reg_outlined,
-                        color: Colors.purple,
-                        onTap: () {},
-                      ),
+                      _buildQuickAction(context, 'Broadcast', Icons.campaign_rounded, AppColors.secondary),
+                      _buildQuickAction(context, 'Curriculum', Icons.menu_book_rounded, AppColors.success),
+                      _buildQuickAction(context, 'Assessments', Icons.quiz_rounded, AppColors.warning),
+                      _buildQuickAction(context, 'Schedule', Icons.event_note_rounded, AppColors.info),
                     ],
                   ),
                   const SizedBox(height: 25),
@@ -130,6 +116,22 @@ class DoctorHomeScreen extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildQuickAction(BuildContext context, String label, IconData icon, Color color) {
+    return AppCard(
+      onTap: () {},
+      color: color.withOpacity(0.05),
+      padding: const EdgeInsets.all(AppSpacing.m),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: color, size: 28),
+          const SizedBox(height: 8),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+        ],
+      ),
     );
   }
 }

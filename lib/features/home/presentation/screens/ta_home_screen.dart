@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:tolab_fci/redux/state/app_state.dart';
+import '../../../../redux/app_state.dart';
 import '../widgets/home_header.dart';
 import '../widgets/search_bar_widget.dart';
-import '../widgets/course_card.dart';
-import '../widgets/quick_action_card.dart';
+import '../../../../core/ui/widgets/university_widgets.dart';
+import '../../../../core/ui/widgets/business_widgets.dart';
+import '../../../../core/ui/tokens/spacing_tokens.dart';
+import '../../../../core/ui/tokens/color_tokens.dart';
 
 class TaHomeScreen extends StatelessWidget {
   const TaHomeScreen({super.key});
@@ -30,81 +32,60 @@ class TaHomeScreen extends StatelessWidget {
                   ),
                   const SearchBarWidget(hintText: 'Search labs or students...'),
                   const SizedBox(height: 25),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      'Upcoming Lab Sessions',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.l),
+                    child: SectionHeader(title: 'Laboratory Status'),
                   ),
-                  const SizedBox(height: 15),
-                  SizedBox(
-                    height: 160,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.only(left: 20),
-                      children: [
-                        CourseCard(
-                          courseName: 'Intro to Programming Lab',
-                          courseCode: 'CS101 - Lab',
-                          studentsCount: '30 Students',
-                          onTap: () {},
-                        ),
-                        CourseCard(
-                          courseName: 'Data Structures Lab',
-                          courseCode: 'CS201 - Lab',
-                          studentsCount: '25 Students',
-                          onTap: () {},
-                        ),
-                      ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+                    child: AppCard(
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(AppSpacing.l),
+                            decoration: BoxDecoration(
+                              color: AppColors.success.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.biotech_rounded, color: AppColors.success),
+                          ),
+                          const SizedBox(width: AppSpacing.l),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Next Session: Data Structures', style: TextStyle(fontWeight: FontWeight.bold)),
+                                Text('Lab 402 • Starts in 15 mins', style: theme.textTheme.bodySmall),
+                              ],
+                            ),
+                          ),
+                          AppButton(
+                            text: 'Enter',
+                            isTonal: true,
+                            onPressed: () {},
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 25),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      'TA Dashboard',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.l),
+                    child: SectionHeader(title: 'TA Toolbelt'),
                   ),
-                  const SizedBox(height: 15),
                   GridView.count(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     crossAxisCount: 2,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    mainAxisSpacing: 15,
-                    crossAxisSpacing: 15,
-                    childAspectRatio: 1.3,
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+                    mainAxisSpacing: AppSpacing.m,
+                    crossAxisSpacing: AppSpacing.m,
+                    childAspectRatio: 1.5,
                     children: [
-                      QuickActionCard(
-                        title: 'Grade\nAssignments',
-                        icon: Icons.grade_outlined,
-                        color: Colors.teal,
-                        onTap: () {},
-                      ),
-                      QuickActionCard(
-                        title: 'Student\nQueries',
-                        icon: Icons.question_answer_outlined,
-                        color: Colors.indigo,
-                        onTap: () {},
-                      ),
-                      QuickActionCard(
-                        title: 'Lab\nAttendance',
-                        icon: Icons.playlist_add_check_outlined,
-                        color: Colors.deepOrange,
-                        onTap: () {},
-                      ),
-                      QuickActionCard(
-                        title: 'Office\nHours',
-                        icon: Icons.event_available_outlined,
-                        color: Colors.brown,
-                        onTap: () {},
-                      ),
+                      _buildTaAction(context, 'Grades', Icons.grading_rounded, Colors.teal),
+                      _buildTaAction(context, 'Queries', Icons.forum_rounded, Colors.indigo),
+                      _buildTaAction(context, 'Attendance', Icons.fact_check_rounded, Colors.deepOrange),
+                      _buildTaAction(context, 'Calendar', Icons.event_note_rounded, Colors.brown),
                     ],
                   ),
                   const SizedBox(height: 25),
@@ -114,6 +95,22 @@ class TaHomeScreen extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildTaAction(BuildContext context, String label, IconData icon, Color color) {
+    return AppCard(
+      onTap: () {},
+      color: color.withOpacity(0.05),
+      padding: const EdgeInsets.all(AppSpacing.m),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: color, size: 28),
+          const SizedBox(height: 8),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+        ],
+      ),
     );
   }
 }

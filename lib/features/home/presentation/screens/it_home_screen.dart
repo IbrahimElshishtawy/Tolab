@@ -2,9 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:tolab_fci/redux/state/app_state.dart';
+import '../../../../redux/app_state.dart';
 import '../widgets/home_header.dart';
-import '../widgets/quick_action_card.dart';
+import '../../../../core/ui/widgets/university_widgets.dart';
+import '../../../../core/ui/widgets/business_widgets.dart';
+import '../../../../core/ui/tokens/spacing_tokens.dart';
+import '../../../../core/ui/tokens/color_tokens.dart';
 
 class ItHomeScreen extends StatelessWidget {
   const ItHomeScreen({super.key});
@@ -30,35 +33,32 @@ class ItHomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(15),
-                        border: Border.all(
-                          color: Colors.green.withOpacity(0.3),
-                        ),
-                      ),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+                    child: AppCard(
+                      color: AppColors.success.withOpacity(0.05),
                       child: Row(
                         children: [
-                          const Icon(Icons.check_circle, color: Colors.green),
-                          const SizedBox(width: 15),
+                          Container(
+                            padding: const EdgeInsets.all(AppSpacing.m),
+                            decoration: BoxDecoration(
+                              color: AppColors.success.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.verified_user_rounded, color: AppColors.success),
+                          ),
+                          const SizedBox(width: AppSpacing.l),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'System Status: Healthy',
+                                  'Infrastructure Secure',
                                   style: theme.textTheme.titleMedium?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.green[800],
+                                    color: AppColors.success,
                                   ),
                                 ),
-                                Text(
-                                  'All services are running normally.',
-                                  style: theme.textTheme.bodySmall,
-                                ),
+                                const Text('All 12 clusters are healthy', style: TextStyle(fontSize: 12)),
                               ],
                             ),
                           ),
@@ -67,75 +67,48 @@ class ItHomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 25),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      'Admin Panel',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.l),
+                    child: SectionHeader(title: 'Admin Command Center'),
                   ),
-                  const SizedBox(height: 15),
                   GridView.count(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     crossAxisCount: 2,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    mainAxisSpacing: 15,
-                    crossAxisSpacing: 15,
-                    childAspectRatio: 1.3,
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+                    mainAxisSpacing: AppSpacing.m,
+                    crossAxisSpacing: AppSpacing.m,
+                    childAspectRatio: 1.5,
                     children: [
-                      QuickActionCard(
-                        title: 'User\nManagement',
-                        icon: Icons.manage_accounts_outlined,
-                        color: Colors.blueGrey,
-                        onTap: () {},
-                      ),
-                      QuickActionCard(
-                        title: 'System\nLogs',
-                        icon: Icons.terminal_outlined,
-                        color: Colors.deepPurple,
-                        onTap: () {},
-                      ),
-                      QuickActionCard(
-                        title: 'App\nSettings',
-                        icon: Icons.settings_applications_outlined,
-                        color: Colors.blue,
-                        onTap: () {},
-                      ),
-                      QuickActionCard(
-                        title: 'Database\nBackup',
-                        icon: Icons.backup_outlined,
-                        color: Colors.redAccent,
-                        onTap: () {},
-                      ),
+                      _buildAdminAction(context, 'Users', Icons.manage_accounts_rounded, Colors.blueGrey),
+                      _buildAdminAction(context, 'Security', Icons.security_rounded, Colors.deepPurple),
+                      _buildAdminAction(context, 'Config', Icons.settings_suggest_rounded, Colors.blue),
+                      _buildAdminAction(context, 'Audit', Icons.history_edu_rounded, Colors.redAccent),
                     ],
                   ),
                   const SizedBox(height: 25),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      'Recent Reports',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.l),
+                    child: SectionHeader(title: 'Critical Alerts'),
                   ),
-                  const SizedBox(height: 10),
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: 3,
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+                    itemCount: 2,
                     itemBuilder: (context, index) {
-                      return ListTile(
-                        leading: const CircleAvatar(
-                          child: Icon(Icons.bug_report_outlined),
+                      return AppCard(
+                        margin: const EdgeInsets.only(bottom: AppSpacing.m),
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const CircleAvatar(
+                            backgroundColor: Colors.redAccent,
+                            child: Icon(Icons.priority_high_rounded, color: Colors.white),
+                          ),
+                          title: Text(index == 0 ? 'Storage Threshold' : 'Auth Gateway Latency'),
+                          subtitle: Text(index == 0 ? '92% of server capacity used' : 'Latency increased by 40%'),
+                          trailing: const Icon(Icons.chevron_right),
                         ),
-                        title: Text('Report #${index + 1024}'),
-                        subtitle: const Text('Pending review by IT'),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () {},
                       );
                     },
                   ),
@@ -146,6 +119,22 @@ class ItHomeScreen extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildAdminAction(BuildContext context, String label, IconData icon, Color color) {
+    return AppCard(
+      onTap: () {},
+      color: color.withOpacity(0.05),
+      padding: const EdgeInsets.all(AppSpacing.m),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: color, size: 28),
+          const SizedBox(height: 8),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+        ],
+      ),
     );
   }
 }

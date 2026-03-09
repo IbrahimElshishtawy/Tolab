@@ -49,7 +49,10 @@ final appRouter = GoRouter(
     }
 
     if (loggingIn) {
-      return authState.role == 'ADMIN' ? '/admin/users' : '/home';
+      if (authState.role == 'ADMIN' || authState.role == 'IT') {
+        return '/admin/users';
+      }
+      return '/home';
     }
 
     return null;
@@ -62,7 +65,8 @@ final appRouter = GoRouter(
     ShellRoute(
       builder: (context, state, child) {
         final store = StoreProvider.of<AppState>(context);
-        if (store.state.authState.role == 'ADMIN') {
+        final role = store.state.authState.role?.toUpperCase();
+        if (role == 'ADMIN' || role == 'IT') {
           return AdminShell(child: child);
         }
         return StudentShell(child: child);
