@@ -92,8 +92,12 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   void _submit() {
     if (_formKey.currentState!.validate()) {
       final store = StoreProvider.of<AppState>(context);
+      final authState = store.state.authState;
       final task = Task(
         id: widget.task?.id ?? 0,
+        weekNumber: widget.task?.weekNumber ?? 1,
+        sourceName: widget.task?.sourceName ?? 'Task Form',
+        ownerName: widget.task?.ownerName ?? authState.email ?? 'Unknown',
         title: _titleController.text,
         description: _descriptionController.text,
         dueDate: _dueDate,

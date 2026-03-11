@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tolab_fci/core/localization/localization_manager.dart';
 
 class AdminShell extends StatelessWidget {
   final Widget child;
@@ -54,7 +53,9 @@ class AdminShell extends StatelessWidget {
     if (location.startsWith('/admin/moderation')) return 3;
     if (location.startsWith('/admin/offerings') ||
         location.startsWith('/admin/schedule') ||
-        location.startsWith('/admin/broadcast')) return 4;
+        location.startsWith('/admin/broadcast')) {
+      return 4;
+    }
     return 0;
   }
 
@@ -81,7 +82,9 @@ class AdminShell extends StatelessWidget {
   void _showMoreMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,

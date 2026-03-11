@@ -1,7 +1,7 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../redux/app_state.dart';
 import '../../../../core/localization/localization_manager.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -43,7 +43,10 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: const Icon(Icons.school, color: Colors.white, size: 30),
           ),
           const SizedBox(width: 12),
@@ -51,8 +54,14 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('welcome_back'.tr(), style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                const Text('Ahmed Mohamed', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  'welcome_back'.tr(),
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+                const Text(
+                  'Ahmed Mohamed',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
               ],
             ),
           ),
@@ -67,8 +76,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 top: 8,
                 child: Container(
                   padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                  child: const Text('3', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Text(
+                    '3',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -94,7 +113,15 @@ class _HomeScreenState extends State<HomeScreen> {
           DateTime date = DateTime.now().add(Duration(days: index - 3));
           bool isSelected = DateUtils.isSameDay(date, _selectedDate);
 
-          List<String> weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+          List<String> weekDays = [
+            'Mon',
+            'Tue',
+            'Wed',
+            'Thu',
+            'Fri',
+            'Sat',
+            'Sun',
+          ];
           String dayName = weekDays[date.weekday - 1];
 
           return GestureDetector(
@@ -105,14 +132,33 @@ class _HomeScreenState extends State<HomeScreen> {
               decoration: BoxDecoration(
                 color: isSelected ? Colors.blue : Colors.white,
                 borderRadius: BorderRadius.circular(15),
-                boxShadow: [if (!isSelected) BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)],
+                boxShadow: [
+                  if (!isSelected)
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 4,
+                    ),
+                ],
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(dayName, style: TextStyle(color: isSelected ? Colors.white70 : Colors.grey, fontSize: 12)),
+                  Text(
+                    dayName,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white70 : Colors.grey,
+                      fontSize: 12,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text(date.day.toString(), style: TextStyle(color: isSelected ? Colors.white : Colors.black, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    date.day.toString(),
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -127,7 +173,9 @@ class _HomeScreenState extends State<HomeScreen> {
       margin: const EdgeInsets.all(20),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [Colors.blue.shade700, Colors.blue.shade500]),
+        gradient: LinearGradient(
+          colors: [Colors.blue.shade700, Colors.blue.shade500],
+        ),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
@@ -136,8 +184,21 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Ahmed Mohamed', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-              Text('ID: 2023001', style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14)),
+              const Text(
+                'Ahmed Mohamed',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                'ID: 2023001',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.8),
+                  fontSize: 14,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -171,7 +232,10 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Text('Upcoming Online Lectures', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          child: Text(
+            'Upcoming Online Lectures',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
         ),
         ListView.builder(
           shrinkWrap: true,
@@ -197,7 +261,10 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Text('Upcoming Online Quizzes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          child: Text(
+            'Upcoming Online Quizzes',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
         ),
         ListView.builder(
           shrinkWrap: true,
@@ -217,20 +284,31 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildItemCard({required String title, required String subtitle, required String time, required IconData icon, required Color color}) {
+  Widget _buildItemCard({
+    required String title,
+    required String subtitle,
+    required String time,
+    required IconData icon,
+    required Color color,
+  }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
+        ],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Icon(icon, color: color),
           ),
           const SizedBox(width: 16),
@@ -238,13 +316,29 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(subtitle, style: const TextStyle(color: Colors.grey, fontSize: 14)),
+                Text(
+                  subtitle,
+                  style: const TextStyle(color: Colors.grey, fontSize: 14),
+                ),
               ],
             ),
           ),
-          Text(time, style: TextStyle(color: Colors.blue.shade700, fontSize: 12, fontWeight: FontWeight.bold)),
+          Text(
+            time,
+            style: TextStyle(
+              color: Colors.blue.shade700,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );

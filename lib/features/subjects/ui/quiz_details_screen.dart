@@ -20,7 +20,11 @@ class QuizDetailsScreen extends StatelessWidget {
             _buildInfoRow(Icons.timer, 'Duration', '${quiz.durationMins} minutes'),
             _buildInfoRow(Icons.grade, 'Total Points', '${quiz.totalPoints} points'),
             _buildInfoRow(Icons.calendar_today, 'Start Time', quiz.startAt.toLocal().toString()),
-            _buildInfoRow(Icons.calendar_today, 'End Time', quiz.endAt.toLocal().toString()),
+            _buildInfoRow(
+              Icons.calendar_today,
+              'End Time',
+              quiz.endAt?.toLocal().toString() ?? 'Not specified',
+            ),
             const Divider(height: 32),
             const Text(
               'Instructions:',

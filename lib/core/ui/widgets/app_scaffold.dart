@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'state_view.dart';
-import '../tokens/spacing_tokens.dart';
 
 class AppScaffold extends StatelessWidget {
   final String? title;
@@ -30,10 +29,7 @@ class AppScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: title != null
-          ? AppBar(
-              title: Text(title!),
-              actions: actions,
-            )
+          ? AppBar(title: Text(title!), actions: actions)
           : null,
       body: StateView(
         isLoading: isLoading,

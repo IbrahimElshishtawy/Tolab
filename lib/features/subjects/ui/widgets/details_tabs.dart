@@ -143,6 +143,10 @@ class QuizzesList extends StatelessWidget {
       builder: (context, isEducator) {
         final mockQuiz = Quiz(
           id: 1,
+          type: QuizType.online,
+          weekNumber: 8,
+          sourceName: 'Quiz Portal',
+          ownerName: 'Dr. Ahmed Ali',
           title: 'Midterm Quiz',
           subjectId: subjectId,
           startAt: DateTime.now().add(const Duration(days: 2)),
