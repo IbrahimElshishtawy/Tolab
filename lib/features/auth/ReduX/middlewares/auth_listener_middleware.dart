@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:redux/redux.dart';
 
+import 'package:tolab_fci/features/auth/data/auth_roles.dart';
 import 'package:tolab_fci/features/auth/data/datasources/auth_role_ds.dart';
 import 'package:tolab_fci/features/auth/ReduX/action/auth_actions.dart';
 import 'package:tolab_fci/redux/actions/ui_actions.dart';
@@ -72,7 +73,10 @@ Middleware<AppState> createAuthListenerMiddleware(
       // 🧑‍🎓 Resolve Role from Firestore
       // ===============================
       try {
-        final role = await roleDataSource.resolveUserRole(user, 'student');
+        final role = await roleDataSource.resolveUserRole(
+          user,
+          AuthRoles.defaultDeveloperRole,
+        );
 
         if (kDebugMode) {
           debugPrint('🔥 ROLE RESOLVED = $role');

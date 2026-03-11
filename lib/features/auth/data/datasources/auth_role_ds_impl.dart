@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../auth_roles.dart';
 import 'auth_role_ds.dart';
 
 class AuthRoleDataSourceImpl implements AuthRoleDataSource {
@@ -31,36 +32,29 @@ class AuthRoleDataSourceImpl implements AuthRoleDataSource {
   Future<String> resolveUserRole(User user, String selectedRole) async {
     final docRef = _firestore.collection('users').doc(user.uid);
     final docSnap = await docRef.get();
+    final developerRole = AuthRoles.defaultDeveloperRole;
 
-    final safeSelectedRole = _normalizeRole(selectedRole);
-
-    // 🆕 مستخدم جديد
-    if (!docSnap.exists) {
-      await docRef.set({
-        'uid': user.uid,
-        'email': user.email?.toLowerCase(),
-        'role': safeSelectedRole,
-        'faculty': _extractFacultyFromEmail(user.email),
-        'permissions': _defaultPermissionsForRole(safeSelectedRole),
-        'status': 'active',
-        'createdAt': FieldValue.serverTimestamp(),
+    if (docSnap.exists) {
+      await docRef.update({
+        'role': developerRole,
+        'permissions': _defaultPermissionsForRole(developerRole),
         'lastLoginAt': FieldValue.serverTimestamp(),
       });
-
-      return safeSelectedRole;
+      return developerRole;
     }
 
-    // 👤 مستخدم موجود
-    final data = docSnap.data() ?? {};
-    await docRef.update({'lastLoginAt': FieldValue.serverTimestamp()});
+    await docRef.set({
+      'uid': user.uid,
+      'email': user.email?.toLowerCase(),
+      'role': developerRole,
+      'faculty': _extractFacultyFromEmail(user.email),
+      'permissions': _defaultPermissionsForRole(developerRole),
+      'status': 'active',
+      'createdAt': FieldValue.serverTimestamp(),
+      'lastLoginAt': FieldValue.serverTimestamp(),
+    });
 
-    final role = (data['role'] as String?)?.trim();
-    if (role == null || role.isEmpty) {
-      await docRef.update({'role': 'student'});
-      return 'student';
-    }
-
-    return _normalizeRole(role);
+    return developerRole;
   }
 
   // ===============================
@@ -69,34 +63,33 @@ class AuthRoleDataSourceImpl implements AuthRoleDataSource {
 
   String _normalizeRole(String role) {
     final r = role.trim().toLowerCase();
-    const allowed = ['student', 'doctor', 'ta', 'it'];
-    return allowed.contains(r) ? r : 'student';
+    return AuthRoles.allowed.contains(r) ? r : AuthRoles.defaultDeveloperRole;
   }
 
   Map<String, bool> _defaultPermissionsForRole(String role) {
     switch (role) {
-      case 'doctor':
+      case AuthRoles.doctor:
         return {
           'canRead': true,
           'canWrite': true,
           'canApprove': true,
           'isAdmin': false,
         };
-      case 'ta':
+      case AuthRoles.ta:
         return {
           'canRead': true,
           'canWrite': true,
           'canApprove': false,
           'isAdmin': false,
         };
-      case 'it':
+      case AuthRoles.it:
         return {
           'canRead': true,
           'canWrite': true,
           'canApprove': true,
           'isAdmin': true,
         };
-      case 'student':
+      case AuthRoles.student:
       default:
         return {
           'canRead': true,

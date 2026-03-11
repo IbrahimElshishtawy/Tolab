@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:tolab_fci/features/auth/ui/login_screen.dart';
 import 'package:tolab_fci/features/splash/presentation/screens/intro_screen.dart';
 import 'package:tolab_fci/redux/state/app_state.dart';
 import 'Router_ViewModel.dart';
 
 // Screens
 import 'package:tolab_fci/features/splash/presentation/screens/splash_screen.dart';
-import 'package:tolab_fci/features/auth/presentation/screens/login_screen.dart';
 import 'package:tolab_fci/features/home/presentation/screens/student_home_screen.dart';
 import 'package:tolab_fci/features/home/presentation/screens/doctor_home_screen.dart';
 import 'package:tolab_fci/features/home/presentation/screens/ta_home_screen.dart';

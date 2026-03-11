@@ -6,7 +6,6 @@ import 'core/localization/localization_manager.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize localization with English by default
   await LocalizationManager.load('en');
 
   final store = createStore();

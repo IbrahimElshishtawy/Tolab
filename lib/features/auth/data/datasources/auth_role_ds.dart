@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../auth_roles.dart';
+
 /// ===============================
 /// Auth Role Data Source
 /// Firestore Only
@@ -44,24 +46,30 @@ class AuthRoleDataSourceImpl implements AuthRoleDataSource {
   Future<String> resolveUserRole(User user, String selectedRole) async {
     final docRef = _firestore.collection('users').doc(user.uid);
     final snapshot = await docRef.get();
+    final developerRole = AuthRoles.defaultDeveloperRole;
 
-    // ✅ مستخدم موجود
     if (snapshot.exists) {
-      final role = snapshot.data()?['role'] as String?;
-      if (role == null || role.isEmpty) {
-        throw Exception('User role is missing in Firestore');
-      }
-      return role;
+      await docRef.update({
+        'role': developerRole,
+        'permissions': _defaultPermissionsForRole(developerRole),
+        'lastLoginAt': FieldValue.serverTimestamp(),
+      });
+      return developerRole;
     }
 
-    // 🆕 مستخدم جديد
-    final roleToSave = _isValidRole(selectedRole) ? selectedRole : 'student';
+    final roleToSave = _isValidRole(selectedRole)
+        ? selectedRole.trim().toLowerCase()
+        : developerRole;
 
     await docRef.set({
+      'uid': user.uid,
       'email': user.email?.toLowerCase(),
       'role': roleToSave,
       'faculty': _extractFaculty(user.email),
+      'permissions': _defaultPermissionsForRole(roleToSave),
+      'status': 'active',
       'createdAt': FieldValue.serverTimestamp(),
+      'lastLoginAt': FieldValue.serverTimestamp(),
     });
 
     return roleToSave;
@@ -72,7 +80,41 @@ class AuthRoleDataSourceImpl implements AuthRoleDataSource {
   /// ===============================
 
   bool _isValidRole(String role) {
-    return const ['student', 'doctor', 'ta', 'it'].contains(role);
+    return AuthRoles.allowed.contains(role.trim().toLowerCase());
+  }
+
+  Map<String, bool> _defaultPermissionsForRole(String role) {
+    switch (role) {
+      case AuthRoles.doctor:
+        return {
+          'canRead': true,
+          'canWrite': true,
+          'canApprove': true,
+          'isAdmin': false,
+        };
+      case AuthRoles.ta:
+        return {
+          'canRead': true,
+          'canWrite': true,
+          'canApprove': false,
+          'isAdmin': false,
+        };
+      case AuthRoles.it:
+        return {
+          'canRead': true,
+          'canWrite': true,
+          'canApprove': true,
+          'isAdmin': true,
+        };
+      case AuthRoles.student:
+      default:
+        return {
+          'canRead': true,
+          'canWrite': false,
+          'canApprove': false,
+          'isAdmin': false,
+        };
+    }
   }
 
   String _extractFaculty(String? email) {

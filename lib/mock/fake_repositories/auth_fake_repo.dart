@@ -4,9 +4,7 @@ import '../fake_delay.dart';
 class AuthFakeRepo {
   Future<LoginResponse> login(String email, String password) async {
     await fakeDelay();
-    String role = 'student';
-    if (email.contains('doctor')) role = 'doctor';
-    if (email.contains('ta')) role = 'assistant';
+    const role = 'it';
 
     return LoginResponse(
       accessToken: 'fake_token_${DateTime.now().millisecondsSinceEpoch}',
