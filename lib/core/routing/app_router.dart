@@ -1,9 +1,13 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/ui/login_screen.dart';
 import '../../features/auth/ui/forget_password_screen.dart';
 import '../../features/auth/ui/verification_code_screen.dart';
 import '../../features/auth/ui/reset_password_screen.dart';
-import '../../features/home/ui/home_screen.dart';
+import '../../features/home/presentation/screens/student_home_screen.dart';
+import '../../features/home/presentation/screens/doctor_home_screen.dart';
+import '../../features/home/presentation/screens/ta_home_screen.dart';
+import '../../features/home/presentation/screens/it_home_screen.dart';
 import '../../features/subjects/presentation/screens/subjects_screen.dart';
 import '../../features/subjects/presentation/screens/subject_details_screen.dart';
 import '../../features/subjects/presentation/screens/lectures_screen.dart';
@@ -76,7 +80,10 @@ final appRouter = GoRouter(
         return StudentShell(child: child);
       },
       routes: [
-        GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+        GoRoute(
+          path: '/home',
+          builder: (context, state) => const _RoleAwareHomeScreen(),
+        ),
         GoRoute(
           path: '/subjects',
           builder: (context, state) => const SubjectsScreen(),
@@ -195,3 +202,24 @@ final appRouter = GoRouter(
     ),
   ],
 );
+
+class _RoleAwareHomeScreen extends StatelessWidget {
+  const _RoleAwareHomeScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    final role = StoreProvider.of<AppState>(context).state.authState.role;
+
+    switch (role) {
+      case 'doctor':
+        return const DoctorHomeScreen();
+      case 'ta':
+        return const TaHomeScreen();
+      case 'it':
+        return const ItHomeScreen();
+      case 'student':
+      default:
+        return const StudentHomeScreen();
+    }
+  }
+}

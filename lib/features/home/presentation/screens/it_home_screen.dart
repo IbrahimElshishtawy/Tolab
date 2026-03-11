@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:tolab_fci/redux/state/app_state.dart';
+import 'package:tolab_fci/redux/app_state.dart';
 import '../widgets/home_header.dart';
 import '../widgets/quick_action_card.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:tolab_fci/redux/state/app_state.dart';
+import 'package:tolab_fci/redux/app_state.dart';
 import '../widgets/home_header.dart';
 import '../widgets/search_bar_widget.dart';
 import '../widgets/course_card.dart';
