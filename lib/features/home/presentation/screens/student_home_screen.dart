@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
@@ -37,52 +40,54 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
       backgroundColor: const Color(0xFFF3F7FC),
       body: _screens[_selectedIndex],
       bottomNavigationBar: Container(
-        margin: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.96),
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x140E2A47),
-              blurRadius: 28,
-              offset: Offset(0, 12),
-            ),
-          ],
-        ),
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 14),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: NavigationBar(
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-            height: 74,
-            backgroundColor: Colors.transparent,
-            indicatorColor: const Color(0xFFE6F0FF),
-            destinations: const [
-              NavigationDestination(
-                icon: Icon(Icons.home_rounded),
-                label: 'Home',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.menu_book_rounded),
-                label: 'Subjects',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.calendar_month_rounded),
-                label: 'Schedule',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.forum_rounded),
-                label: 'Community',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.person_rounded),
-                label: 'Profile',
-              ),
-            ],
+          borderRadius: BorderRadius.circular(30),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: NavigationBar(
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              height: 76,
+              backgroundColor: const Color(0xEAF8FBFF),
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+              labelBehavior:
+                  NavigationDestinationLabelBehavior.onlyShowSelected,
+              indicatorColor: const Color(0xFFDEEBFF),
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(CupertinoIcons.house),
+                  selectedIcon: Icon(CupertinoIcons.house_fill),
+                  label: 'Home',
+                ),
+                NavigationDestination(
+                  icon: Icon(CupertinoIcons.book),
+                  selectedIcon: Icon(CupertinoIcons.book_fill),
+                  label: 'Subjects',
+                ),
+                NavigationDestination(
+                  icon: Icon(CupertinoIcons.calendar),
+                  selectedIcon: Icon(CupertinoIcons.calendar_today),
+                  label: 'Schedule',
+                ),
+                NavigationDestination(
+                  icon: Icon(CupertinoIcons.bubble_left_bubble_right),
+                  selectedIcon:
+                      Icon(CupertinoIcons.bubble_left_bubble_right_fill),
+                  label: 'Community',
+                ),
+                NavigationDestination(
+                  icon: Icon(CupertinoIcons.person_circle),
+                  selectedIcon: Icon(CupertinoIcons.person_circle_fill),
+                  label: 'Profile',
+                ),
+              ],
+            ),
           ),
         ),
       ),

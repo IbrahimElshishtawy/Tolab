@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,36 +15,52 @@ class AdminShell extends StatelessWidget {
 
     return Scaffold(
       body: child,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _getSelectedIndex(location),
-        onDestinationSelected: (index) => _onItemTapped(index, context),
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.people_outline),
-            selectedIcon: const Icon(Icons.people),
-            label: 'Users',
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(30),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: NavigationBar(
+              selectedIndex: _getSelectedIndex(location),
+              onDestinationSelected: (index) => _onItemTapped(index, context),
+              height: 76,
+              backgroundColor: const Color(0xEAF8FBFF),
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+              labelBehavior:
+                  NavigationDestinationLabelBehavior.onlyShowSelected,
+              indicatorColor: const Color(0xFFDEEBFF),
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(CupertinoIcons.person_2),
+                  selectedIcon: Icon(CupertinoIcons.person_2_fill),
+                  label: 'Users',
+                ),
+                NavigationDestination(
+                  icon: Icon(CupertinoIcons.book),
+                  selectedIcon: Icon(CupertinoIcons.book_fill),
+                  label: 'Subjects',
+                ),
+                NavigationDestination(
+                  icon: Icon(CupertinoIcons.doc_text),
+                  selectedIcon: Icon(CupertinoIcons.doc_text_fill),
+                  label: 'Content',
+                ),
+                NavigationDestination(
+                  icon: Icon(CupertinoIcons.shield),
+                  selectedIcon: Icon(CupertinoIcons.shield_fill),
+                  label: 'Moderation',
+                ),
+                NavigationDestination(
+                  icon: Icon(CupertinoIcons.ellipsis_circle),
+                  selectedIcon: Icon(CupertinoIcons.ellipsis_circle_fill),
+                  label: 'More',
+                ),
+              ],
+            ),
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.book_outlined),
-            selectedIcon: const Icon(Icons.book),
-            label: 'Subjects',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.upload_file_outlined),
-            selectedIcon: const Icon(Icons.upload_file),
-            label: 'Content',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.gavel_outlined),
-            selectedIcon: const Icon(Icons.gavel),
-            label: 'Moderation',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.more_horiz_outlined),
-            selectedIcon: const Icon(Icons.more_horiz),
-            label: 'More',
-          ),
-        ],
+        ),
       ),
     );
   }

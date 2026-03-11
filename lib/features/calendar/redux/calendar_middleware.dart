@@ -1,5 +1,5 @@
 import 'package:redux/redux.dart';
-import '../../../redux/app_state.dart';
+import 'package:tolab_fci/redux/app_state.dart';
 import '../../../mock/fake_repositories/calendar_fake_repo.dart';
 import '../data/calendar_api.dart';
 import '../../../config/env.dart';

@@ -55,10 +55,7 @@ class DoctorHomeScreen extends StatelessWidget {
                         title: 'Your teaching pipeline is on track',
                         description:
                             'Review active courses, publish updates, and monitor academic performance from a single faculty dashboard.',
-                        gradient: const [
-                          Color(0xFF102B46),
-                          Color(0xFF235E98),
-                        ],
+                        gradient: const [Color(0xFF102B46), Color(0xFF235E98)],
                         trailing: const Icon(
                           Icons.auto_graph_rounded,
                           color: Color(0xFFFFD27A),
@@ -248,10 +245,7 @@ class _DoctorTimelineTile extends StatelessWidget {
             child: Text(
               time,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.w800,
-              ),
+              style: TextStyle(color: color, fontWeight: FontWeight.w800),
             ),
           ),
           const SizedBox(width: 12),

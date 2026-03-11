@@ -20,7 +20,13 @@ class AdminSubjectsScreen extends StatelessWidget {
           title: 'Subjects',
           isLoading: state.isLoading && state.subjects.isEmpty,
           error: state.error,
-          onRetry: () => StoreProvider.of<AppState>(context).dispatch(FetchAdminSubjectsAction()),
+          onRetry: () => StoreProvider.of<AppState>(
+            context,
+          ).dispatch(FetchAdminSubjectsAction()),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {},
+            child: const Icon(Icons.add),
+          ),
           child: ListView.builder(
             padding: const EdgeInsets.all(AppSpacing.l),
             itemCount: state.subjects.length,
@@ -30,16 +36,18 @@ class AdminSubjectsScreen extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: AppSpacing.m),
                 child: ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(subject['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  title: Text(
+                    subject['name'] ?? '',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text(subject['code'] ?? ''),
-                  trailing: IconButton(icon: const Icon(Icons.edit_outlined), onPressed: () {}),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.edit_outlined),
+                    onPressed: () {},
+                  ),
                 ),
               );
             },
-          ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {},
-            child: const Icon(Icons.add),
           ),
         );
       },

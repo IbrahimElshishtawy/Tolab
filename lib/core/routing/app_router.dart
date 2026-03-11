@@ -35,12 +35,16 @@ import '../../features/admin/presentation/screens/admin_moderation_screen.dart';
 import '../../features/admin/presentation/screens/admin_broadcast_notifications_screen.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import '../../redux/app_state.dart';
+import 'role_routing.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/login',
   redirect: (context, state) {
     final store = StoreProvider.of<AppState>(context);
     final authState = store.state.authState;
+    final role = normalizeAuthRole(authState.role);
+    final isAdmin = role == 'admin';
+    final isAdminRoute = state.matchedLocation.startsWith('/admin');
     final bool loggingIn =
         state.matchedLocation == '/login' ||
         state.matchedLocation == '/forget-password' ||
@@ -52,7 +56,15 @@ final appRouter = GoRouter(
     }
 
     if (loggingIn) {
-      return authState.role == 'ADMIN' ? '/admin/users' : '/home';
+      return landingRouteForRole(authState.role);
+    }
+
+    if (isAdmin && !isAdminRoute) {
+      return '/admin/users';
+    }
+
+    if (!isAdmin && isAdminRoute) {
+      return '/home';
     }
 
     return null;
@@ -74,7 +86,7 @@ final appRouter = GoRouter(
     ShellRoute(
       builder: (context, state, child) {
         final store = StoreProvider.of<AppState>(context);
-        if (store.state.authState.role == 'ADMIN') {
+        if (normalizeAuthRole(store.state.authState.role) == 'admin') {
           return AdminShell(child: child);
         }
         return StudentShell(child: child);
@@ -208,7 +220,9 @@ class _RoleAwareHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final role = StoreProvider.of<AppState>(context).state.authState.role;
+    final role = normalizeAuthRole(
+      StoreProvider.of<AppState>(context).state.authState.role,
+    );
 
     switch (role) {
       case 'doctor':

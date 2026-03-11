@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
-import '../../../redux/app_state.dart';
+import 'package:tolab_fci/redux/app_state.dart';
 import '../data/models.dart';
 import '../redux/tasks_actions.dart';
 import '../../../core/ui/widgets/state_view.dart';
@@ -10,7 +10,11 @@ class SubmissionsListScreen extends StatelessWidget {
   final int taskId;
   final String taskTitle;
 
-  const SubmissionsListScreen({super.key, required this.taskId, required this.taskTitle});
+  const SubmissionsListScreen({
+    super.key,
+    required this.taskId,
+    required this.taskTitle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,12 +36,16 @@ class SubmissionsListScreen extends StatelessWidget {
                 return ListTile(
                   leading: const CircleAvatar(child: Icon(Icons.person)),
                   title: Text(submission.studentName),
-                  subtitle: Text('Submitted: ${submission.submittedAt.toLocal().toString().split('.')[0]}'),
+                  subtitle: Text(
+                    'Submitted: ${submission.submittedAt.toLocal().toString().split('.')[0]}',
+                  ),
                   trailing: Text(
                     submission.grade ?? 'Ungraded',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: submission.grade != null ? Colors.green : Colors.orange,
+                      color: submission.grade != null
+                          ? Colors.green
+                          : Colors.orange,
                     ),
                   ),
                   onTap: () => _showGradingDialog(context, submission),
@@ -69,12 +77,17 @@ class SubmissionsListScreen extends StatelessWidget {
               ),
             TextField(
               controller: controller,
-              decoration: const InputDecoration(labelText: 'Grade (e.g. A, 95, B+)'),
+              decoration: const InputDecoration(
+                labelText: 'Grade (e.g. A, 95, B+)',
+              ),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             onPressed: () {
               StoreProvider.of<AppState>(context).dispatch(

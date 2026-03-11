@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:go_router/go_router.dart';
-import '../../../redux/app_state.dart';
+import 'package:tolab_fci/redux/app_state.dart';
 import '../../../config/env.dart';
 import '../redux/auth_actions.dart';
 import '../redux/auth_state.dart';
@@ -12,6 +12,7 @@ import '../../../core/ui/tokens/color_tokens.dart';
 import '../../../core/ui/tokens/radius_tokens.dart';
 import '../../../core/ui/widgets/university_widgets.dart';
 import '../../../core/ui/tokens/spacing_tokens.dart';
+import '../../../core/routing/role_routing.dart';
 import '../../../mock/mock_data.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -62,11 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFF4F8FF),
-              Color(0xFFEAF1FF),
-              Color(0xFFF9FBFF),
-            ],
+            colors: [Color(0xFFF4F8FF), Color(0xFFEAF1FF), Color(0xFFF9FBFF)],
           ),
         ),
         child: Stack(
@@ -92,13 +89,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 converter: (store) => store.state.authState,
                 onWillChange: (oldState, newState) {
                   if (newState.isAuthenticated) {
-                    context.go('/home');
+                    context.go(landingRouteForRole(newState.role));
                   }
                   if (newState.error != null &&
                       newState.error != oldState?.error) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(newState.error!)),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(newState.error!)));
                   }
                 },
                 builder: (context, state) {
@@ -156,8 +153,9 @@ class _LoginScreenState extends State<LoginScreen> {
         bottom: compact ? 8 : 56,
       ),
       child: Column(
-        crossAxisAlignment:
-            compact ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+        crossAxisAlignment: compact
+            ? CrossAxisAlignment.center
+            : CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -169,8 +167,11 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: const [
-                Icon(Icons.verified_user_rounded,
-                    color: AppColors.primary, size: 18),
+                Icon(
+                  Icons.verified_user_rounded,
+                  color: AppColors.primary,
+                  size: 18,
+                ),
                 SizedBox(width: 8),
                 Text(
                   'University access portal',
@@ -213,10 +214,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 icon: Icons.auto_awesome_mosaic_rounded,
                 label: 'Modern dashboard',
               ),
-              _FeatureChip(
-                icon: Icons.shield_rounded,
-                label: 'Secure access',
-              ),
+              _FeatureChip(icon: Icons.shield_rounded, label: 'Secure access'),
               _FeatureChip(
                 icon: Icons.groups_2_rounded,
                 label: 'Faculty workflow',
@@ -327,9 +325,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             : Icons.visibility_rounded,
                         color: AppColors.grey500,
                       ),
-                      onPressed: () => setState(
-                        () => _obscurePassword = !_obscurePassword,
-                      ),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
                     ),
                   ),
                   validator: _validatePassword,
@@ -440,10 +437,7 @@ class _LoginScreenState extends State<LoginScreen> {
       fillColor: Colors.white.withValues(alpha: 0.9),
       prefixIcon: Icon(icon, color: AppColors.grey500),
       suffixIcon: suffix,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 18,
-        vertical: 18,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       enabledBorder: OutlineInputBorder(
         borderRadius: AppRadius.rL,
         borderSide: const BorderSide(color: Color(0xFFDCE4F2)),
@@ -463,10 +457,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildGlowBubble({
-    required double size,
-    required List<Color> colors,
-  }) {
+  Widget _buildGlowBubble({required double size, required List<Color> colors}) {
     return IgnorePointer(
       child: Container(
         width: size,
@@ -525,10 +516,7 @@ class _FeatureChip extends StatelessWidget {
   final IconData icon;
   final String label;
 
-  const _FeatureChip({
-    required this.icon,
-    required this.label,
-  });
+  const _FeatureChip({required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {

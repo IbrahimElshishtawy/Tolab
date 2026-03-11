@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tolab_fci/core/localization/localization_manager.dart';
@@ -13,36 +16,54 @@ class StudentShell extends StatelessWidget {
 
     return Scaffold(
       body: child,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _getSelectedIndex(location),
-        onDestinationSelected: (index) => _onItemTapped(index, context),
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.home_outlined),
-            selectedIcon: const Icon(Icons.home),
-            label: 'home_nav'.tr(),
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(30),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: NavigationBar(
+              selectedIndex: _getSelectedIndex(location),
+              onDestinationSelected: (index) => _onItemTapped(index, context),
+              height: 76,
+              backgroundColor: const Color(0xEAF8FBFF),
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+              labelBehavior:
+                  NavigationDestinationLabelBehavior.onlyShowSelected,
+              indicatorColor: const Color(0xFFDEEBFF),
+              destinations: [
+                NavigationDestination(
+                  icon: const Icon(CupertinoIcons.house),
+                  selectedIcon: const Icon(CupertinoIcons.house_fill),
+                  label: 'home_nav'.tr(),
+                ),
+                NavigationDestination(
+                  icon: const Icon(CupertinoIcons.book),
+                  selectedIcon: const Icon(CupertinoIcons.book_fill),
+                  label: 'subjects_nav'.tr(),
+                ),
+                NavigationDestination(
+                  icon: const Icon(CupertinoIcons.calendar),
+                  selectedIcon: const Icon(CupertinoIcons.calendar_today),
+                  label: 'schedule_nav'.tr(),
+                ),
+                NavigationDestination(
+                  icon: const Icon(CupertinoIcons.bubble_left_bubble_right),
+                  selectedIcon:
+                      const Icon(CupertinoIcons.bubble_left_bubble_right_fill),
+                  label: 'community_nav'.tr(),
+                ),
+                NavigationDestination(
+                  icon: const Icon(CupertinoIcons.square_grid_2x2),
+                  selectedIcon:
+                      const Icon(CupertinoIcons.square_grid_2x2_fill),
+                  label: 'more_nav'.tr(),
+                ),
+              ],
+            ),
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.book_outlined),
-            selectedIcon: const Icon(Icons.book),
-            label: 'subjects_nav'.tr(),
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.calendar_month_outlined),
-            selectedIcon: const Icon(Icons.calendar_month),
-            label: 'schedule_nav'.tr(),
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.groups_outlined),
-            selectedIcon: const Icon(Icons.groups),
-            label: 'community_nav'.tr(),
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.more_horiz_outlined),
-            selectedIcon: const Icon(Icons.more_horiz),
-            label: 'more_nav'.tr(),
-          ),
-        ],
+        ),
       ),
     );
   }
