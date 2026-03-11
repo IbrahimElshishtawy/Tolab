@@ -402,7 +402,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
                 if (Env.useMock) ...[
