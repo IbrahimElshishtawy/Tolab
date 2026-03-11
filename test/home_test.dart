@@ -5,6 +5,8 @@ import 'package:redux/redux.dart';
 import 'package:tolab_fci/features/home/presentation/screens/doctor_home_screen.dart';
 import 'package:tolab_fci/features/home/presentation/screens/it_home_screen.dart';
 import 'package:tolab_fci/features/home/presentation/screens/ta_home_screen.dart';
+import 'package:tolab_fci/redux/app_state.dart';
+import 'package:tolab_fci/redux/reducers.dart';
 
 void main() {
   late Store<AppState> store;
