@@ -4,8 +4,7 @@ class AuthRoles {
   static const String ta = 'ta';
   static const String it = 'it';
 
-  // The app has no dedicated "developer" role, so developer access maps to IT.
-  static const String defaultDeveloperRole = it;
+  static const String defaultRole = student;
 
   static const List<String> allowed = <String>[
     student,

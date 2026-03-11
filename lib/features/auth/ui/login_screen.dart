@@ -11,6 +11,7 @@ import '../../../core/ui/tokens/color_tokens.dart';
 import '../../../core/ui/tokens/radius_tokens.dart';
 import '../../../core/ui/widgets/university_widgets.dart';
 import '../../../core/ui/tokens/spacing_tokens.dart';
+import '../../../mock/mock_data.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -397,12 +398,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: AppColors.grey700,
                             fontSize: 13,
                             height: 1.45,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
+                const SizedBox(height: 18),
+                _buildDemoAccountsSection(),
+              ],
+            ),
+          ),
               ],
             ),
           ),
@@ -479,6 +482,40 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
+  Widget _buildDemoAccountsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text(
+          'Demo Accounts',
+          style: TextStyle(
+            color: AppColors.grey800,
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: mockAuthAccounts.map((account) {
+            return _DemoAccountChip(
+              label: account['label'] ?? '',
+              role: account['role'] ?? '',
+              onTap: () {
+                setState(() {
+                  emailController.text = account['email'] ?? '';
+                  passwordController.text = account['password'] ?? '';
+                  _isFormValid = true;
+                });
+              },
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
 }
 
 class _FeatureChip extends StatelessWidget {
@@ -512,6 +549,59 @@ class _FeatureChip extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _DemoAccountChip extends StatelessWidget {
+  final String label;
+  final String role;
+  final VoidCallback onTap;
+
+  const _DemoAccountChip({
+    required this.label,
+    required this.role,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: AppRadius.rL,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF4F7FC),
+            borderRadius: AppRadius.rL,
+            border: Border.all(color: const Color(0xFFDCE4F2)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  color: AppColors.grey900,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                role.toUpperCase(),
+                style: const TextStyle(
+                  color: AppColors.secondary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -1,3 +1,30 @@
+final List<Map<String, String>> mockAuthAccounts = [
+  {
+    'label': 'Student',
+    'email': 'student@tanta.edu.eg',
+    'password': '123456',
+    'role': 'student',
+  },
+  {
+    'label': 'Doctor',
+    'email': 'doctor@tanta.edu.eg',
+    'password': '123456',
+    'role': 'doctor',
+  },
+  {
+    'label': 'Teaching Assistant',
+    'email': 'ta@tanta.edu.eg',
+    'password': '123456',
+    'role': 'ta',
+  },
+  {
+    'label': 'IT Admin',
+    'email': 'it@tanta.edu.eg',
+    'password': '123456',
+    'role': 'it',
+  },
+];
+
 final List<Map<String, dynamic>> mockSubjectsData = [
   {
     'id': 1,

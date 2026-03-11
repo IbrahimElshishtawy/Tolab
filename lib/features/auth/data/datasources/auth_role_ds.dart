@@ -46,20 +46,25 @@ class AuthRoleDataSourceImpl implements AuthRoleDataSource {
   Future<String> resolveUserRole(User user, String selectedRole) async {
     final docRef = _firestore.collection('users').doc(user.uid);
     final snapshot = await docRef.get();
-    final developerRole = AuthRoles.defaultDeveloperRole;
+    final defaultRole = AuthRoles.defaultRole;
 
     if (snapshot.exists) {
+      final data = snapshot.data() ?? {};
+      final storedRole = _isValidRole((data['role'] as String?) ?? '')
+          ? (data['role'] as String).trim().toLowerCase()
+          : defaultRole;
+
       await docRef.update({
-        'role': developerRole,
-        'permissions': _defaultPermissionsForRole(developerRole),
+        'role': storedRole,
+        'permissions': _defaultPermissionsForRole(storedRole),
         'lastLoginAt': FieldValue.serverTimestamp(),
       });
-      return developerRole;
+      return storedRole;
     }
 
     final roleToSave = _isValidRole(selectedRole)
         ? selectedRole.trim().toLowerCase()
-        : developerRole;
+        : defaultRole;
 
     await docRef.set({
       'uid': user.uid,

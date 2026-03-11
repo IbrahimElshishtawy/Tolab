@@ -75,7 +75,7 @@ Middleware<AppState> createAuthListenerMiddleware(
       try {
         final role = await roleDataSource.resolveUserRole(
           user,
-          AuthRoles.defaultDeveloperRole,
+          AuthRoles.defaultRole,
         );
 
         if (kDebugMode) {

@@ -32,29 +32,32 @@ class AuthRoleDataSourceImpl implements AuthRoleDataSource {
   Future<String> resolveUserRole(User user, String selectedRole) async {
     final docRef = _firestore.collection('users').doc(user.uid);
     final docSnap = await docRef.get();
-    final developerRole = AuthRoles.defaultDeveloperRole;
+    final safeSelectedRole = _normalizeRole(selectedRole);
 
     if (docSnap.exists) {
+      final data = docSnap.data() ?? {};
+      final storedRole = _normalizeRole((data['role'] as String?) ?? '');
+
       await docRef.update({
-        'role': developerRole,
-        'permissions': _defaultPermissionsForRole(developerRole),
+        'role': storedRole,
+        'permissions': _defaultPermissionsForRole(storedRole),
         'lastLoginAt': FieldValue.serverTimestamp(),
       });
-      return developerRole;
+      return storedRole;
     }
 
     await docRef.set({
       'uid': user.uid,
       'email': user.email?.toLowerCase(),
-      'role': developerRole,
+      'role': safeSelectedRole,
       'faculty': _extractFacultyFromEmail(user.email),
-      'permissions': _defaultPermissionsForRole(developerRole),
+      'permissions': _defaultPermissionsForRole(safeSelectedRole),
       'status': 'active',
       'createdAt': FieldValue.serverTimestamp(),
       'lastLoginAt': FieldValue.serverTimestamp(),
     });
 
-    return developerRole;
+    return safeSelectedRole;
   }
 
   // ===============================
@@ -62,8 +65,10 @@ class AuthRoleDataSourceImpl implements AuthRoleDataSource {
   // ===============================
 
   String _normalizeRole(String role) {
-    final r = role.trim().toLowerCase();
-    return AuthRoles.allowed.contains(r) ? r : AuthRoles.defaultDeveloperRole;
+    final normalized = role.trim().toLowerCase();
+    return AuthRoles.allowed.contains(normalized)
+        ? normalized
+        : AuthRoles.defaultRole;
   }
 
   Map<String, bool> _defaultPermissionsForRole(String role) {
