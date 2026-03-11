@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'package:tolab_fci/features/community/presentation/screens/community_screen.dart';
+import 'package:tolab_fci/features/home/presentation/widgets/dashboard_shell.dart';
 import 'package:tolab_fci/features/home/presentation/widgets/home_header.dart';
 import 'package:tolab_fci/features/home/presentation/widgets/quick_action_card.dart';
 import 'package:tolab_fci/features/home/presentation/widgets/search_bar_widget.dart';
@@ -101,21 +102,17 @@ class StudentHomeContent extends StatelessWidget {
         return SafeArea(
           child: Stack(
             children: [
-              Positioned(
+              const DashboardOrb(
+                size: 220,
                 top: -100,
                 right: -30,
-                child: _BackgroundOrb(
-                  size: 220,
-                  colors: const [Color(0xFFCADFFF), Color(0xFF8EB6FF)],
-                ),
+                colors: [Color(0xFFCADFFF), Color(0xFF8EB6FF)],
               ),
-              Positioned(
+              const DashboardOrb(
+                size: 180,
                 top: 220,
                 left: -70,
-                child: _BackgroundOrb(
-                  size: 180,
-                  colors: const [Color(0xFFE7F0FF), Color(0xFFB7D0FF)],
-                ),
+                colors: [Color(0xFFE7F0FF), Color(0xFFB7D0FF)],
               ),
               CustomScrollView(
                 slivers: [
@@ -139,7 +136,7 @@ class StudentHomeContent extends StatelessWidget {
                         const SizedBox(height: 28),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: _SectionTitle(
+                          child: DashboardSectionTitle(
                             title: 'Quick Access',
                             actionLabel: 'This Week',
                             subtitle: 'Jump to the most-used student tools',
@@ -186,7 +183,7 @@ class StudentHomeContent extends StatelessWidget {
                         const SizedBox(height: 28),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: _SectionTitle(
+                          child: DashboardSectionTitle(
                             title: 'Continue Learning',
                             actionLabel:
                                 vm.subjects.isEmpty ? 'No subjects yet' : 'See All',
@@ -235,7 +232,7 @@ class StudentHomeContent extends StatelessWidget {
                   const SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
-                      child: _SectionTitle(
+                      child: DashboardSectionTitle(
                         title: 'Upcoming Deadlines',
                         actionLabel: 'Prioritized',
                         subtitle: 'Stay ahead of the nearest academic deadlines',
@@ -311,192 +308,23 @@ class _StudentOverviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0E2A47), Color(0xFF225C9C)],
-        ),
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x240E2A47),
-            blurRadius: 26,
-            offset: Offset(0, 14),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.auto_awesome_rounded,
-                        color: Colors.white, size: 16),
-                    SizedBox(width: 8),
-                    Text(
-                      'Focus Mode',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              const Icon(
-                Icons.waving_hand_rounded,
-                color: Color(0xFFFFD27A),
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          Text(
-            'Good progress, $userName',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              height: 1.1,
-            ),
-          ),
-          const SizedBox(height: 10),
-          const Text(
+      child: DashboardHeroCard(
+        badge: 'Focus Mode',
+        badgeIcon: Icons.auto_awesome_rounded,
+        title: 'Good progress, $userName',
+        description:
             'You are on track this week. Complete the next assignment and review one quiz to keep your streak active.',
-            style: TextStyle(
-              color: Color(0xFFD6E7FF),
-              fontSize: 14,
-              height: 1.5,
-            ),
-          ),
-          const SizedBox(height: 20),
-          const Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              _MetricChip(
-                value: '84%',
-                label: 'Attendance',
-              ),
-              _MetricChip(
-                value: '3',
-                label: 'Tasks pending',
-              ),
-              _MetricChip(
-                value: '7',
-                label: 'Study streak',
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MetricChip extends StatelessWidget {
-  final String value;
-  final String label;
-
-  const _MetricChip({
-    required this.value,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 104,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFFD6E7FF),
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  final String title;
-  final String actionLabel;
-  final String? subtitle;
-
-  const _SectionTitle({
-    required this.title,
-    required this.actionLabel,
-    this.subtitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                title,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-              ),
-            ),
-            Text(
-              actionLabel,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: const Color(0xFF3469C8),
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-          ],
+        gradient: const [Color(0xFF0E2A47), Color(0xFF225C9C)],
+        trailing: const Icon(
+          Icons.waving_hand_rounded,
+          color: Color(0xFFFFD27A),
         ),
-        if (subtitle != null) ...[
-          const SizedBox(height: 6),
-          Text(
-            subtitle!,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFF6C7C92),
-                  height: 1.45,
-                ),
-          ),
+        footer: const [
+          HeroMetricChip(value: '84%', label: 'Attendance'),
+          HeroMetricChip(value: '3', label: 'Tasks pending'),
+          HeroMetricChip(value: '7', label: 'Study streak'),
         ],
-      ],
+      ),
     );
   }
 }
@@ -962,37 +790,6 @@ class _ScheduleItem extends StatelessWidget {
           ),
           Icon(Icons.chevron_right_rounded, color: color),
         ],
-      ),
-    );
-  }
-}
-
-class _BackgroundOrb extends StatelessWidget {
-  final double size;
-  final List<Color> colors;
-
-  const _BackgroundOrb({
-    required this.size,
-    required this.colors,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: LinearGradient(colors: colors),
-          boxShadow: [
-            BoxShadow(
-              color: colors.last.withValues(alpha: 0.16),
-              blurRadius: 36,
-              spreadRadius: 8,
-            ),
-          ],
-        ),
       ),
     );
   }

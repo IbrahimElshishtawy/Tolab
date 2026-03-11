@@ -16,9 +16,8 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -27,35 +26,46 @@ class HomeHeader extends StatelessWidget {
             children: [
               Text(
                 'Welcome back,',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: const Color(0xFF6D7B90),
                 ),
               ),
+              const SizedBox(height: 4),
               Text(
                 userName,
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.onSurface,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF17212F),
                 ),
               ),
+              const SizedBox(height: 6),
               Text(
                 role,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.w500,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: const Color(0xFF3469C8),
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
           ),
-          CircleAvatar(
-            radius: 25,
-            backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
-            backgroundImage: profileImageUrl != null
-                ? NetworkImage(profileImageUrl!)
-                : null,
-            child: profileImageUrl == null
-                ? Icon(Icons.person, color: theme.colorScheme.primary)
-                : null,
+          Container(
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFFBFD5FF), Color(0xFFE9F1FF)],
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: CircleAvatar(
+              radius: 25,
+              backgroundColor: Colors.white,
+              backgroundImage: profileImageUrl != null
+                  ? NetworkImage(profileImageUrl!)
+                  : null,
+              child: profileImageUrl == null
+                  ? const Icon(Icons.person, color: Color(0xFF3469C8))
+                  : null,
+            ),
           ),
         ],
       ),
