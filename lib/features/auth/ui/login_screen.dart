@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:go_router/go_router.dart';
 import '../../../redux/app_state.dart';
+import '../../../config/env.dart';
 import '../redux/auth_actions.dart';
 import '../redux/auth_state.dart';
 import '../../../core/localization/localization_manager.dart';
@@ -401,8 +402,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 18),
-                _buildDemoAccountsSection(),
+                if (Env.useMock || Env.debugMode) ...[
+                  const SizedBox(height: 18),
+                  _buildDemoAccountsSection(),
+                ],
               ],
             ),
           ),
