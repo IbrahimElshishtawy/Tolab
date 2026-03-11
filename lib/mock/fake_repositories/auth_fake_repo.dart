@@ -6,20 +6,19 @@ class AuthFakeRepo {
   Future<LoginResponse> login(String email, String password) async {
     await fakeDelay();
     final normalizedEmail = email.trim().toLowerCase();
-    final matchedAccount = mockAuthAccounts.cast<Map<String, String>?>().firstWhere(
+    final matchIndex = mockAuthAccounts.indexWhere(
       (account) =>
-          account != null &&
           account['email'] == normalizedEmail &&
           account['password'] == password,
-      orElse: () => null,
     );
 
-    if (matchedAccount == null) {
+    if (matchIndex == -1) {
       throw Exception(
         'Invalid mock credentials. Use one of the predefined demo accounts.',
       );
     }
 
+    final matchedAccount = mockAuthAccounts[matchIndex];
     final role = matchedAccount['role']!;
 
     return LoginResponse(
