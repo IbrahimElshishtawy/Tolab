@@ -1,0 +1,4 @@
+subject_code,type,day_of_week,start_time,end_time,location,section
+CS101,Lecture,0,09:00,11:00,Room 302,all
+CS101,Section,2,11:30,13:30,Lab 1,1
+SWE311,Lecture,1,10:00,12:00,Room 201,all
