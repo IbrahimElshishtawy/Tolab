@@ -1,13 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
 import 'app.dart';
-import 'redux/store.dart';
-import 'core/localization/localization_manager.dart';
+import 'app/config/app_config.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await LocalizationManager.load('en');
-
-  final store = createStore();
-  runApp(App(store: store));
+  await AppConfig.bootstrap();
+  runApp(const TolabApp());
 }

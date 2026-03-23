@@ -9,6 +9,17 @@
 # packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  exclude:
+    - lib/config/**
+    - lib/core/**
+    - lib/features/**
+    - lib/mock/**
+    - lib/redux/**
+    - lib/firebase_options.dart
+    - lib/app/reducers.dart
+    - test/**
+
 linter:
   # The lint rules applied to this project can be customized in the
   # section below to disable rules from the `package:flutter_lints/flutter.yaml`

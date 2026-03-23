@@ -1,26 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
-import 'package:redux/redux.dart';
-import 'redux/app_state.dart';
-import 'core/routing/app_router.dart';
-import 'core/ui/theme.dart';
+import 'package:get/get.dart';
 
-class App extends StatelessWidget {
-  final Store<AppState> store;
+import 'app/config/initial_binding.dart';
+import 'app/core/localization/app_translations.dart';
+import 'app/core/services/app_service.dart';
+import 'app/core/services/theme_service.dart';
+import 'app/core/theme/app_theme.dart';
+import 'app/routes/app_pages.dart';
+import 'app/routes/app_routes.dart';
 
-  const App({super.key, required this.store});
+class TolabApp extends StatelessWidget {
+  const TolabApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return StoreProvider<AppState>(
-      store: store,
-      child: MaterialApp.router(
-        routerConfig: appRouter,
-        title: 'University Portal',
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system,
+    final appService = Get.find<AppService>();
+    final themeService = Get.find<ThemeService>();
+
+    return Obx(
+      () => GetMaterialApp(
+        title: 'Tolab',
         debugShowCheckedModeBanner: false,
+        initialBinding: InitialBinding(),
+        initialRoute: AppRoutes.splash,
+        getPages: AppPages.routes,
+        locale: appService.locale.value,
+        fallbackLocale: AppTranslations.fallbackLocale,
+        translations: AppTranslations(),
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        themeMode: themeService.themeMode.value,
+        defaultTransition: Transition.noTransition,
       ),
     );
   }
