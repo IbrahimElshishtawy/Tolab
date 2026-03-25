@@ -14,7 +14,8 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email:rfc,dns'],
+            // Accept local/dev domains like admin@tolab.local during development.
+            'email' => ['required', 'email:rfc'],
             'password' => ['required', 'string', 'min:6', 'max:255'],
             'device_name' => ['nullable', 'string', 'max:100'],
         ];
