@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Core\Enums\UserRole;
+use App\Modules\UserManagement\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
@@ -18,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Relation::enforceMorphMap([
+            'user' => User::class,
             'lecture' => \App\Modules\Content\Models\Lecture::class,
             'section_session' => \App\Modules\Content\Models\SectionSession::class,
             'summary' => \App\Modules\Content\Models\Summary::class,
