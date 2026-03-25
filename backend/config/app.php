@@ -11,8 +11,4 @@ return [
     'faker_locale' => env('APP_FAKER_LOCALE', 'ar_EG'),
     'key' => env('APP_KEY'),
     'cipher' => 'AES-256-CBC',
-    'providers' => [
-        App\Providers\AppServiceProvider::class,
-        App\Providers\AuthServiceProvider::class,
-    ],
 ];

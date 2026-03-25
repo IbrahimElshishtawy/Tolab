@@ -13,6 +13,8 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -44,8 +46,16 @@ return Application::configure(basePath: dirname(__DIR__))
             return api_error('Resource not found.', [], Response::HTTP_NOT_FOUND);
         });
 
+        $exceptions->render(function (NotFoundHttpException $exception, Request $request) {
+            return api_error('Route not found.', [], Response::HTTP_NOT_FOUND);
+        });
+
         $exceptions->render(function (ApiException $exception, Request $request) {
             return api_error($exception->getMessage(), $exception->getErrors(), $exception->getStatus());
+        });
+
+        $exceptions->render(function (HttpExceptionInterface $exception, Request $request) {
+            return api_error($exception->getMessage() ?: Response::$statusTexts[$exception->getStatusCode()] ?? 'HTTP error.', [], $exception->getStatusCode());
         });
 
         $exceptions->render(function (\Throwable $exception, Request $request) {
