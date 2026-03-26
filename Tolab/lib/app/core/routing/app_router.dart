@@ -61,75 +61,65 @@ class AppRouter {
           path: RoutePaths.login,
           builder: (context, state) => const LoginScreen(),
         ),
-        ShellRoute(
-          navigatorKey: _shellNavigatorKey,
-          pageBuilder: (context, state, child) => NoTransitionPage<void>(
-            key: ValueKey<String>('shell:${state.uri.path}'),
-            restorationId: 'shell:${state.uri.path}',
-            child: _buildShell(context, state, child),
-          ),
-          routes: [
-            GoRoute(
-              path: RoutePaths.dashboard,
-              builder: (context, state) => const DashboardScreen(),
-            ),
-            GoRoute(
-              path: RoutePaths.students,
-              builder: (context, state) => const StudentsScreen(),
-            ),
-            GoRoute(
-              path: RoutePaths.staff,
-              builder: (context, state) => const StaffScreen(),
-            ),
-            GoRoute(
-              path: RoutePaths.departments,
-              builder: (context, state) => const DepartmentsScreen(),
-            ),
-            GoRoute(
-              path: RoutePaths.sections,
-              builder: (context, state) => const SectionsScreen(),
-            ),
-            GoRoute(
-              path: RoutePaths.subjects,
-              builder: (context, state) => const SubjectsScreen(),
-            ),
-            GoRoute(
-              path: RoutePaths.courseOfferings,
-              builder: (context, state) => const CourseOfferingsScreen(),
-            ),
-            GoRoute(
-              path: RoutePaths.enrollments,
-              builder: (context, state) => const EnrollmentsScreen(),
-            ),
-            GoRoute(
-              path: RoutePaths.content,
-              builder: (context, state) => const ContentScreen(),
-            ),
-            GoRoute(
-              path: RoutePaths.schedule,
-              builder: (context, state) => const ScheduleScreen(),
-            ),
-            GoRoute(
-              path: RoutePaths.uploads,
-              builder: (context, state) => const UploadsScreen(),
-            ),
-            GoRoute(
-              path: RoutePaths.notifications,
-              builder: (context, state) => const NotificationsScreen(),
-            ),
-            GoRoute(
-              path: RoutePaths.moderation,
-              builder: (context, state) => const ModerationScreen(),
-            ),
-            GoRoute(
-              path: RoutePaths.roles,
-              builder: (context, state) => const RolesScreen(),
-            ),
-            GoRoute(
-              path: RoutePaths.settings,
-              builder: (context, state) => const SettingsScreen(),
-            ),
-          ],
+        _shellPageRoute(
+          path: RoutePaths.dashboard,
+          child: const DashboardScreen(),
+        ),
+        _shellPageRoute(
+          path: RoutePaths.students,
+          child: const StudentsScreen(),
+        ),
+        _shellPageRoute(
+          path: RoutePaths.staff,
+          child: const StaffScreen(),
+        ),
+        _shellPageRoute(
+          path: RoutePaths.departments,
+          child: const DepartmentsScreen(),
+        ),
+        _shellPageRoute(
+          path: RoutePaths.sections,
+          child: const SectionsScreen(),
+        ),
+        _shellPageRoute(
+          path: RoutePaths.subjects,
+          child: const SubjectsScreen(),
+        ),
+        _shellPageRoute(
+          path: RoutePaths.courseOfferings,
+          child: const CourseOfferingsScreen(),
+        ),
+        _shellPageRoute(
+          path: RoutePaths.enrollments,
+          child: const EnrollmentsScreen(),
+        ),
+        _shellPageRoute(
+          path: RoutePaths.content,
+          child: const ContentScreen(),
+        ),
+        _shellPageRoute(
+          path: RoutePaths.schedule,
+          child: const ScheduleScreen(),
+        ),
+        _shellPageRoute(
+          path: RoutePaths.uploads,
+          child: const UploadsScreen(),
+        ),
+        _shellPageRoute(
+          path: RoutePaths.notifications,
+          child: const NotificationsScreen(),
+        ),
+        _shellPageRoute(
+          path: RoutePaths.moderation,
+          child: const ModerationScreen(),
+        ),
+        _shellPageRoute(
+          path: RoutePaths.roles,
+          child: const RolesScreen(),
+        ),
+        _shellPageRoute(
+          path: RoutePaths.settings,
+          child: const SettingsScreen(),
         ),
       ],
     );
@@ -138,9 +128,18 @@ class AppRouter {
   final Store<AppState> _store;
   final GlobalKey<NavigatorState> _rootNavigatorKey =
       GlobalKey<NavigatorState>(debugLabel: 'rootNavigator');
-  final GlobalKey<NavigatorState> _shellNavigatorKey =
-      GlobalKey<NavigatorState>(debugLabel: 'shellNavigator');
   late final GoRouter router;
+
+  GoRoute _shellPageRoute({required String path, required Widget child}) {
+    return GoRoute(
+      path: path,
+      pageBuilder: (context, state) => NoTransitionPage<void>(
+        key: state.pageKey,
+        restorationId: state.pageKey.value,
+        child: _buildShell(context, state, child),
+      ),
+    );
+  }
 
   Widget _buildShell(BuildContext context, GoRouterState state, Widget child) {
     return StoreConnector<AppState, _ShellViewModel>(

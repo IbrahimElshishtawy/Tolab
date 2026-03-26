@@ -37,107 +37,25 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               event.start.month == _selectedDay.month &&
               event.start.day == _selectedDay.day;
         }).toList()..sort((a, b) => a.start.compareTo(b.start));
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const PageHeader(
-              title: 'Schedule',
-              subtitle:
-                  'Plan lectures, sections, and exams in a polished calendar workspace with compact operational visibility.',
-              breadcrumbs: ['Admin', 'Academic', 'Schedule'],
-              actions: [
-                PremiumButton(
-                  label: 'Sync rooms',
-                  icon: Icons.meeting_room_outlined,
-                  isSecondary: true,
-                ),
-                PremiumButton(
-                  label: 'Add event',
-                  icon: Icons.event_available_rounded,
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            Wrap(
-              spacing: AppSpacing.md,
-              runSpacing: AppSpacing.md,
-              children: [
-                _ScheduleMetric(
-                  label: 'Today',
-                  value: selectedEvents.length.toString(),
-                  color: AppColors.primary,
-                ),
-                _ScheduleMetric(
-                  label: 'This week',
-                  value: state.items.length.toString(),
-                  color: AppColors.secondary,
-                ),
-                const _ScheduleMetric(
-                  label: 'Exam blocks',
-                  value: '4',
-                  color: AppColors.warning,
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Expanded(
-              child: AsyncStateView(
-                status: state.status,
-                errorMessage: state.errorMessage,
-                onRetry: () => StoreProvider.of<AppState>(
-                  context,
-                ).dispatch(LoadScheduleAction()),
-                isEmpty: state.items.isEmpty,
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final showSidePanel = constraints.maxWidth > 1180;
-
-                    return showSidePanel
-                        ? Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+        return LayoutBuilder(
+          builder: (context, viewportConstraints) {
+            final showSidePanel = viewportConstraints.maxWidth > 1180;
+            final content = AsyncStateView(
+              status: state.status,
+              errorMessage: state.errorMessage,
+              onRetry: () => StoreProvider.of<AppState>(
+                context,
+              ).dispatch(LoadScheduleAction()),
+              isEmpty: state.items.isEmpty,
+              child: showSidePanel
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 7,
+                          child: Column(
                             children: [
                               Expanded(
-                                flex: 7,
-                                child: Column(
-                                  children: [
-                                    Expanded(
-                                      child: AppCalendarPanel(
-                                        focusedDay: _focusedDay,
-                                        selectedDay: _selectedDay,
-                                        events: state.items,
-                                        onDaySelected:
-                                            (selectedDay, focusedDay) {
-                                              setState(() {
-                                                _selectedDay = selectedDay;
-                                                _focusedDay = focusedDay;
-                                              });
-                                            },
-                                        onPageChanged: (focusedDay) => setState(
-                                          () => _focusedDay = focusedDay,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: AppSpacing.md),
-                                    _TimelineStrip(events: state.items),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: AppSpacing.md),
-                              Expanded(
-                                flex: 4,
-                                child: _DayAgendaPanel(
-                                  expandContent: true,
-                                  selectedDay: _selectedDay,
-                                  selectedEvents: selectedEvents,
-                                ),
-                              ),
-                            ],
-                          )
-                        : ListView(
-                            children: [
-                              SizedBox(
-                                height: 560,
                                 child: AppCalendarPanel(
                                   focusedDay: _focusedDay,
                                   selectedDay: _selectedDay,
@@ -153,20 +71,115 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                 ),
                               ),
                               const SizedBox(height: AppSpacing.md),
-                              _DayAgendaPanel(
-                                expandContent: false,
-                                selectedDay: _selectedDay,
-                                selectedEvents: selectedEvents,
-                              ),
-                              const SizedBox(height: AppSpacing.md),
                               _TimelineStrip(events: state.items),
                             ],
-                          );
-                  },
-                ),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          flex: 4,
+                          child: _DayAgendaPanel(
+                            expandContent: true,
+                            selectedDay: _selectedDay,
+                            selectedEvents: selectedEvents,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 560,
+                          child: AppCalendarPanel(
+                            focusedDay: _focusedDay,
+                            selectedDay: _selectedDay,
+                            events: state.items,
+                            onDaySelected: (selectedDay, focusedDay) {
+                              setState(() {
+                                _selectedDay = selectedDay;
+                                _focusedDay = focusedDay;
+                              });
+                            },
+                            onPageChanged: (focusedDay) =>
+                                setState(() => _focusedDay = focusedDay),
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        _DayAgendaPanel(
+                          expandContent: false,
+                          selectedDay: _selectedDay,
+                          selectedEvents: selectedEvents,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        _TimelineStrip(events: state.items),
+                      ],
+                    ),
+            );
+
+            final pageContent = [
+              const PageHeader(
+                title: 'Schedule',
+                subtitle:
+                    'Plan lectures, sections, and exams in a polished calendar workspace with compact operational visibility.',
+                breadcrumbs: ['Admin', 'Academic', 'Schedule'],
+                actions: [
+                  PremiumButton(
+                    label: 'Sync rooms',
+                    icon: Icons.meeting_room_outlined,
+                    isSecondary: true,
+                  ),
+                  PremiumButton(
+                    label: 'Add event',
+                    icon: Icons.event_available_rounded,
+                  ),
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: AppSpacing.xl),
+              Wrap(
+                spacing: AppSpacing.md,
+                runSpacing: AppSpacing.md,
+                children: [
+                  _ScheduleMetric(
+                    label: 'Today',
+                    value: selectedEvents.length.toString(),
+                    color: AppColors.primary,
+                  ),
+                  _ScheduleMetric(
+                    label: 'This week',
+                    value: state.items.length.toString(),
+                    color: AppColors.secondary,
+                  ),
+                  const _ScheduleMetric(
+                    label: 'Exam blocks',
+                    value: '4',
+                    color: AppColors.warning,
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+            ];
+
+            if (showSidePanel) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ...pageContent,
+                  Expanded(child: content),
+                ],
+              );
+            }
+
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ...pageContent,
+                  content,
+                ],
+              ),
+            );
+          },
         );
       },
     );

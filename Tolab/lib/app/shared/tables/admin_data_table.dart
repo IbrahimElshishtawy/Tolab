@@ -18,10 +18,18 @@ class AdminTableColumn<T> {
 }
 
 class AdminDataTable<T> extends StatelessWidget {
-  const AdminDataTable({super.key, required this.items, required this.columns});
+  const AdminDataTable({
+    super.key,
+    required this.items,
+    required this.columns,
+    this.shrinkWrap = false,
+    this.physics,
+  });
 
   final List<T> items;
   final List<AdminTableColumn<T>> columns;
+  final bool shrinkWrap;
+  final ScrollPhysics? physics;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +37,9 @@ class AdminDataTable<T> extends StatelessWidget {
       builder: (context, constraints) {
         if (constraints.maxWidth < 860) {
           return ListView.separated(
+            shrinkWrap: shrinkWrap,
+            primary: physics == null,
+            physics: physics,
             itemCount: items.length,
             separatorBuilder: (context, index) =>
                 const SizedBox(height: AppSpacing.md),

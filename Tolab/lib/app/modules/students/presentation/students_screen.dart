@@ -36,146 +36,165 @@ class _StudentsScreenState extends State<StudentsScreen> {
       onInit: (store) => store.dispatch(LoadStudentsAction()),
       converter: (store) => store.state.studentsState,
       builder: (context, state) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const PageHeader(
-              title: 'Students',
-              subtitle:
-                  'Review enrollment, academic standing, and lifecycle status with a premium management workspace.',
-              breadcrumbs: ['Admin', 'Registry', 'Students'],
-              actions: [
-                PremiumButton(
-                  label: 'Import CSV',
-                  icon: Icons.file_upload_outlined,
-                  isSecondary: true,
-                ),
-                PremiumButton(
-                  label: 'Add student',
-                  icon: Icons.person_add_alt_rounded,
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            Wrap(
-              spacing: AppSpacing.md,
-              runSpacing: AppSpacing.md,
-              children: const [
-                _StudentSummaryCard(
-                  label: 'Active',
-                  value: '12,480',
-                  detail: '+312 this week',
-                  color: AppColors.primary,
-                ),
-                _StudentSummaryCard(
-                  label: 'At risk',
-                  value: '184',
-                  detail: 'Needs advisor review',
-                  color: AppColors.warning,
-                ),
-                _StudentSummaryCard(
-                  label: 'Deferred',
-                  value: '38',
-                  detail: 'Pending documents',
-                  color: AppColors.info,
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            FilterBar(
-              searchHint: 'Search student name, email, ID, section',
-              filters: const [
-                'All students',
-                'Top performers',
-                'At risk',
-                'New intake',
-              ],
-              selectedFilter: _selectedFilter,
-              onFilterSelected: (value) =>
-                  setState(() => _selectedFilter = value),
-              trailing: const [
-                PremiumButton(
-                  label: 'Filters',
-                  icon: Icons.filter_alt_outlined,
-                  isSecondary: true,
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Expanded(
-              child: AsyncStateView(
-                status: state.status,
-                errorMessage: state.errorMessage,
-                onRetry: () => StoreProvider.of<AppState>(
-                  context,
-                ).dispatch(LoadStudentsAction()),
-                isEmpty: state.items.isEmpty,
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final showSidePanel = constraints.maxWidth > 1120;
+        return LayoutBuilder(
+          builder: (context, viewportConstraints) {
+            final showSidePanel = viewportConstraints.maxWidth > 1120;
+            final content = AsyncStateView(
+              status: state.status,
+              errorMessage: state.errorMessage,
+              onRetry: () => StoreProvider.of<AppState>(
+                context,
+              ).dispatch(LoadStudentsAction()),
+              isEmpty: state.items.isEmpty,
+              child: showSidePanel
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 7,
+                          child: _StudentsTableCard(
+                            items: state.items,
+                            expandTable: true,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          flex: 4,
+                          child: SingleChildScrollView(
+                            child: _StudentFormCard(
+                              selectedDepartment: _selectedDepartment,
+                              selectedLevel: _selectedLevel,
+                              selectedStatus: _selectedStatus,
+                              onDepartmentChanged: (value) => setState(
+                                () => _selectedDepartment =
+                                    value ?? _selectedDepartment,
+                              ),
+                              onLevelChanged: (value) => setState(
+                                () => _selectedLevel =
+                                    value ?? _selectedLevel,
+                              ),
+                              onStatusChanged: (value) => setState(
+                                () => _selectedStatus =
+                                    value ?? _selectedStatus,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _StudentsTableCard(
+                          items: state.items,
+                          expandTable: false,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        _StudentFormCard(
+                          selectedDepartment: _selectedDepartment,
+                          selectedLevel: _selectedLevel,
+                          selectedStatus: _selectedStatus,
+                          onDepartmentChanged: (value) => setState(
+                            () =>
+                                _selectedDepartment = value ?? _selectedDepartment,
+                          ),
+                          onLevelChanged: (value) => setState(
+                            () => _selectedLevel = value ?? _selectedLevel,
+                          ),
+                          onStatusChanged: (value) => setState(
+                            () => _selectedStatus = value ?? _selectedStatus,
+                          ),
+                        ),
+                      ],
+                    ),
+            );
 
-                    return showSidePanel
-                        ? Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 7,
-                                child: _StudentsTableCard(items: state.items),
-                              ),
-                              const SizedBox(width: AppSpacing.md),
-                              Expanded(
-                                flex: 4,
-                                child: _StudentFormCard(
-                                  selectedDepartment: _selectedDepartment,
-                                  selectedLevel: _selectedLevel,
-                                  selectedStatus: _selectedStatus,
-                                  onDepartmentChanged: (value) => setState(
-                                    () => _selectedDepartment =
-                                        value ?? _selectedDepartment,
-                                  ),
-                                  onLevelChanged: (value) => setState(
-                                    () => _selectedLevel =
-                                        value ?? _selectedLevel,
-                                  ),
-                                  onStatusChanged: (value) => setState(
-                                    () => _selectedStatus =
-                                        value ?? _selectedStatus,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        : ListView(
-                            children: [
-                              SizedBox(
-                                height: 540,
-                                child: _StudentsTableCard(items: state.items),
-                              ),
-                              const SizedBox(height: AppSpacing.md),
-                              _StudentFormCard(
-                                selectedDepartment: _selectedDepartment,
-                                selectedLevel: _selectedLevel,
-                                selectedStatus: _selectedStatus,
-                                onDepartmentChanged: (value) => setState(
-                                  () => _selectedDepartment =
-                                      value ?? _selectedDepartment,
-                                ),
-                                onLevelChanged: (value) => setState(
-                                  () =>
-                                      _selectedLevel = value ?? _selectedLevel,
-                                ),
-                                onStatusChanged: (value) => setState(
-                                  () => _selectedStatus =
-                                      value ?? _selectedStatus,
-                                ),
-                              ),
-                            ],
-                          );
-                  },
-                ),
+            final pageContent = [
+              const PageHeader(
+                title: 'Students',
+                subtitle:
+                    'Review enrollment, academic standing, and lifecycle status with a premium management workspace.',
+                breadcrumbs: ['Admin', 'Registry', 'Students'],
+                actions: [
+                  PremiumButton(
+                    label: 'Import CSV',
+                    icon: Icons.file_upload_outlined,
+                    isSecondary: true,
+                  ),
+                  PremiumButton(
+                    label: 'Add student',
+                    icon: Icons.person_add_alt_rounded,
+                  ),
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: AppSpacing.xl),
+              Wrap(
+                spacing: AppSpacing.md,
+                runSpacing: AppSpacing.md,
+                children: const [
+                  _StudentSummaryCard(
+                    label: 'Active',
+                    value: '12,480',
+                    detail: '+312 this week',
+                    color: AppColors.primary,
+                  ),
+                  _StudentSummaryCard(
+                    label: 'At risk',
+                    value: '184',
+                    detail: 'Needs advisor review',
+                    color: AppColors.warning,
+                  ),
+                  _StudentSummaryCard(
+                    label: 'Deferred',
+                    value: '38',
+                    detail: 'Pending documents',
+                    color: AppColors.info,
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              FilterBar(
+                searchHint: 'Search student name, email, ID, section',
+                filters: const [
+                  'All students',
+                  'Top performers',
+                  'At risk',
+                  'New intake',
+                ],
+                selectedFilter: _selectedFilter,
+                onFilterSelected: (value) =>
+                    setState(() => _selectedFilter = value),
+                trailing: const [
+                  PremiumButton(
+                    label: 'Filters',
+                    icon: Icons.filter_alt_outlined,
+                    isSecondary: true,
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+            ];
+
+            if (showSidePanel) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ...pageContent,
+                  Expanded(child: content),
+                ],
+              );
+            }
+
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ...pageContent,
+                  content,
+                ],
+              ),
+            );
+          },
         );
       },
     );
@@ -183,14 +202,67 @@ class _StudentsScreenState extends State<StudentsScreen> {
 }
 
 class _StudentsTableCard extends StatelessWidget {
-  const _StudentsTableCard({required this.items});
+  const _StudentsTableCard({
+    required this.items,
+    this.expandTable = true,
+  });
 
   final List<Student> items;
+  final bool expandTable;
 
   @override
   Widget build(BuildContext context) {
+    final table = AdminDataTable<Student>(
+      items: items,
+      shrinkWrap: !expandTable,
+      physics: expandTable ? null : const NeverScrollableScrollPhysics(),
+      columns: [
+        AdminTableColumn<Student>(
+          label: 'Student',
+          cellBuilder: (item) => _IdentityCell(
+            title: item.name,
+            subtitle: item.id,
+            icon: Icons.person_outline_rounded,
+          ),
+        ),
+        AdminTableColumn<Student>(
+          label: 'Contact',
+          cellBuilder: (item) => _StackedCell(
+            primary: item.email,
+            secondary: '${item.enrolledSubjects} active subjects',
+          ),
+        ),
+        AdminTableColumn<Student>(
+          label: 'Academic',
+          cellBuilder: (item) => _StackedCell(
+            primary: '${item.department}  ${item.level}',
+            secondary: item.section,
+          ),
+        ),
+        AdminTableColumn<Student>(
+          label: 'Performance',
+          cellBuilder: (item) => _PerformanceCell(student: item),
+        ),
+        AdminTableColumn<Student>(
+          label: 'Actions',
+          cellBuilder: (item) => Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              StatusBadge(item.status),
+              const SizedBox(width: AppSpacing.sm),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.edit_outlined, size: 18),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+
     return AppCard(
       child: Column(
+        mainAxisSize: expandTable ? MainAxisSize.max : MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -215,53 +287,7 @@ class _StudentsTableCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          Expanded(
-            child: AdminDataTable<Student>(
-              items: items,
-              columns: [
-                AdminTableColumn<Student>(
-                  label: 'Student',
-                  cellBuilder: (item) => _IdentityCell(
-                    title: item.name,
-                    subtitle: item.id,
-                    icon: Icons.person_outline_rounded,
-                  ),
-                ),
-                AdminTableColumn<Student>(
-                  label: 'Contact',
-                  cellBuilder: (item) => _StackedCell(
-                    primary: item.email,
-                    secondary: '${item.enrolledSubjects} active subjects',
-                  ),
-                ),
-                AdminTableColumn<Student>(
-                  label: 'Academic',
-                  cellBuilder: (item) => _StackedCell(
-                    primary: '${item.department}  ${item.level}',
-                    secondary: item.section,
-                  ),
-                ),
-                AdminTableColumn<Student>(
-                  label: 'Performance',
-                  cellBuilder: (item) => _PerformanceCell(student: item),
-                ),
-                AdminTableColumn<Student>(
-                  label: 'Actions',
-                  cellBuilder: (item) => Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      StatusBadge(item.status),
-                      const SizedBox(width: AppSpacing.sm),
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.edit_outlined, size: 18),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          if (expandTable) Expanded(child: table) else table,
         ],
       ),
     );
