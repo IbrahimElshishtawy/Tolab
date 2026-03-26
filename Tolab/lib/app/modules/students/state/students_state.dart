@@ -2,20 +2,21 @@ import 'package:redux/redux.dart';
 
 import '../../../core/services/app_dependencies.dart';
 import '../../../shared/enums/load_status.dart';
-import '../../../shared/models/student.dart';
 import '../../../shared/states/entity_collection_state.dart';
 import '../../../state/app_state.dart';
+import '../models/student_admin_models.dart';
 
-typedef StudentsState = EntityCollectionState<Student>;
+typedef StudentsState = EntityCollectionState<StudentAdminRecord>;
 
-const StudentsState initialStudentsState = EntityCollectionState<Student>();
+const StudentsState initialStudentsState =
+    EntityCollectionState<StudentAdminRecord>();
 
 class LoadStudentsAction {}
 
 class StudentsLoadedAction {
   StudentsLoadedAction(this.items);
 
-  final List<Student> items;
+  final List<StudentAdminRecord> items;
 }
 
 class StudentsFailedAction {

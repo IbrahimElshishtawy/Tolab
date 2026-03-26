@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
-import '../../../core/colors/app_colors.dart';
-import '../../../core/constants/app_constants.dart';
+import '../../../core/responsive/app_breakpoints.dart';
 import '../../../core/spacing/app_spacing.dart';
-import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/page_header.dart';
-import '../../../shared/forms/app_dropdown_field.dart';
-import '../../../shared/forms/app_text_field.dart';
-import '../../../shared/models/student.dart';
-import '../../../shared/tables/admin_data_table.dart';
-import '../../../shared/widgets/async_state_view.dart';
-import '../../../shared/widgets/filter_bar.dart';
+import '../../../shared/enums/load_status.dart';
 import '../../../shared/widgets/premium_button.dart';
-import '../../../shared/widgets/status_badge.dart';
 import '../../../state/app_state.dart';
+import '../models/student_admin_models.dart';
 import '../state/students_state.dart';
+import 'widgets/student_details_panel.dart';
+import 'widgets/students_analytics_section.dart';
+import 'widgets/students_bulk_action_bar.dart';
+import 'widgets/students_feedback_state.dart';
+import 'widgets/students_registry_section.dart';
+import 'widgets/students_search_panel.dart';
 
 class StudentsScreen extends StatefulWidget {
   const StudentsScreen({super.key});
@@ -25,10 +24,33 @@ class StudentsScreen extends StatefulWidget {
 }
 
 class _StudentsScreenState extends State<StudentsScreen> {
-  String _selectedFilter = 'All students';
-  String _selectedDepartment = 'Computer Science';
-  String _selectedStatus = 'Active';
-  String _selectedLevel = 'Level 4';
+  late final TextEditingController _searchController;
+  String _query = '';
+  String _department = 'All departments';
+  String _batch = 'All batches';
+  String _status = 'All statuses';
+  String _segment = 'All students';
+  String _gpaMode = 'Distribution';
+  String _attendanceScope = 'All';
+  String _subjectMode = 'Activity';
+  String _interactionMode = 'Trend';
+  bool _advancedOpen = false;
+  String _sortBy = 'gpa';
+  bool _sortAscending = false;
+  String? _selectedStudentId;
+  final Set<String> _selectedIds = <String>{};
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,162 +58,217 @@ class _StudentsScreenState extends State<StudentsScreen> {
       onInit: (store) => store.dispatch(LoadStudentsAction()),
       converter: (store) => store.state.studentsState,
       builder: (context, state) {
-        return LayoutBuilder(
-          builder: (context, viewportConstraints) {
-            final showSidePanel = viewportConstraints.maxWidth > 1120;
-            final content = AsyncStateView(
-              status: state.status,
-              errorMessage: state.errorMessage,
-              onRetry: () => StoreProvider.of<AppState>(
+        final filtered = _filteredStudents(state.items);
+        final sorted = _sortedStudents(filtered);
+        final selectedStudent = _resolveSelectedStudent(sorted);
+        final showSidePanel = MediaQuery.sizeOf(context).width >= 1280;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const PageHeader(
+              title: 'Students Management',
+              subtitle:
+                  'Monitor academic health, attendance, permissions, credits, engagement, and course-registration readiness from one premium admin workspace.',
+              breadcrumbs: ['Admin', 'Students Department', 'Students'],
+              actions: [
+                PremiumButton(
+                  label: 'Import students',
+                  icon: Icons.file_upload_outlined,
+                  isSecondary: true,
+                ),
+                PremiumButton(
+                  label: 'Add student',
+                  icon: Icons.person_add_alt_rounded,
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            Expanded(
+              child: _buildBody(
                 context,
-              ).dispatch(LoadStudentsAction()),
-              isEmpty: state.items.isEmpty,
-              child: showSidePanel
-                  ? Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 7,
-                          child: _StudentsTableCard(
-                            items: state.items,
-                            expandTable: true,
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          flex: 4,
-                          child: SingleChildScrollView(
-                            child: _StudentFormCard(
-                              selectedDepartment: _selectedDepartment,
-                              selectedLevel: _selectedLevel,
-                              selectedStatus: _selectedStatus,
-                              onDepartmentChanged: (value) => setState(
-                                () => _selectedDepartment =
-                                    value ?? _selectedDepartment,
-                              ),
-                              onLevelChanged: (value) => setState(
-                                () => _selectedLevel =
-                                    value ?? _selectedLevel,
-                              ),
-                              onStatusChanged: (value) => setState(
-                                () => _selectedStatus =
-                                    value ?? _selectedStatus,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _StudentsTableCard(
-                          items: state.items,
-                          expandTable: false,
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        _StudentFormCard(
-                          selectedDepartment: _selectedDepartment,
-                          selectedLevel: _selectedLevel,
-                          selectedStatus: _selectedStatus,
-                          onDepartmentChanged: (value) => setState(
-                            () =>
-                                _selectedDepartment = value ?? _selectedDepartment,
-                          ),
-                          onLevelChanged: (value) => setState(
-                            () => _selectedLevel = value ?? _selectedLevel,
-                          ),
-                          onStatusChanged: (value) => setState(
-                            () => _selectedStatus = value ?? _selectedStatus,
-                          ),
-                        ),
-                      ],
-                    ),
-            );
-
-            final pageContent = [
-              const PageHeader(
-                title: 'Students',
-                subtitle:
-                    'Review enrollment, academic standing, and lifecycle status with a premium management workspace.',
-                breadcrumbs: ['Admin', 'Registry', 'Students'],
-                actions: [
-                  PremiumButton(
-                    label: 'Import CSV',
-                    icon: Icons.file_upload_outlined,
-                    isSecondary: true,
-                  ),
-                  PremiumButton(
-                    label: 'Add student',
-                    icon: Icons.person_add_alt_rounded,
-                  ),
-                ],
+                state: state,
+                students: sorted,
+                selectedStudent: selectedStudent,
+                showSidePanel: showSidePanel,
               ),
-              const SizedBox(height: AppSpacing.xl),
-              Wrap(
-                spacing: AppSpacing.md,
-                runSpacing: AppSpacing.md,
-                children: const [
-                  _StudentSummaryCard(
-                    label: 'Active',
-                    value: '12,480',
-                    detail: '+312 this week',
-                    color: AppColors.primary,
-                  ),
-                  _StudentSummaryCard(
-                    label: 'At risk',
-                    value: '184',
-                    detail: 'Needs advisor review',
-                    color: AppColors.warning,
-                  ),
-                  _StudentSummaryCard(
-                    label: 'Deferred',
-                    value: '38',
-                    detail: 'Pending documents',
-                    color: AppColors.info,
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              FilterBar(
-                searchHint: 'Search student name, email, ID, section',
-                filters: const [
-                  'All students',
-                  'Top performers',
-                  'At risk',
-                  'New intake',
-                ],
-                selectedFilter: _selectedFilter,
-                onFilterSelected: (value) =>
-                    setState(() => _selectedFilter = value),
-                trailing: const [
-                  PremiumButton(
-                    label: 'Filters',
-                    icon: Icons.filter_alt_outlined,
-                    isSecondary: true,
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.lg),
-            ];
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-            if (showSidePanel) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ...pageContent,
-                  Expanded(child: content),
-                ],
-              );
-            }
+  Widget _buildBody(
+    BuildContext context, {
+    required StudentsState state,
+    required List<StudentAdminRecord> students,
+    required StudentAdminRecord? selectedStudent,
+    required bool showSidePanel,
+  }) {
+    if (state.status == LoadStatus.loading) {
+      return const Center(child: CircularProgressIndicator.adaptive());
+    }
 
+    if (state.status == LoadStatus.failure) {
+      return StudentsFeedbackState(
+        title: 'Could not load students',
+        subtitle: state.errorMessage ?? 'Try refreshing the module.',
+        icon: Icons.error_outline_rounded,
+        action: PremiumButton(
+          label: 'Retry',
+          icon: Icons.refresh_rounded,
+          onPressed: () => StoreProvider.of<AppState>(
+            context,
+          ).dispatch(LoadStudentsAction()),
+        ),
+      );
+    }
+
+    if (students.isEmpty) {
+      return StudentsFeedbackState(
+        title: 'No students match these filters',
+        subtitle:
+            'Adjust the search terms or clear filters to bring students back into view.',
+        icon: Icons.inbox_outlined,
+        action: PremiumButton(
+          label: 'Clear filters',
+          icon: Icons.restart_alt_rounded,
+          onPressed: _clearFilters,
+        ),
+      );
+    }
+
+    final mainColumn = ListView(
+      children: [
+        StudentsAnalyticsSection(
+          students: students,
+          gpaMode: _gpaMode,
+          onGpaModeChanged: (value) => setState(() => _gpaMode = value),
+          attendanceScope: _attendanceScope,
+          onAttendanceScopeChanged: (value) =>
+              setState(() => _attendanceScope = value),
+          subjectMode: _subjectMode,
+          onSubjectModeChanged: (value) => setState(() => _subjectMode = value),
+          interactionMode: _interactionMode,
+          onInteractionModeChanged: (value) =>
+              setState(() => _interactionMode = value),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        StudentsSearchPanel(
+          searchController: _searchController,
+          query: _query,
+          department: _department,
+          batch: _batch,
+          status: _status,
+          segment: _segment,
+          advancedOpen: _advancedOpen,
+          onQueryChanged: (value) => setState(() => _query = value),
+          onDepartmentChanged: (value) => setState(() => _department = value),
+          onBatchChanged: (value) => setState(() => _batch = value),
+          onStatusChanged: (value) => setState(() => _status = value),
+          onSegmentChanged: (value) => setState(() => _segment = value),
+          onToggleAdvanced: () =>
+              setState(() => _advancedOpen = !_advancedOpen),
+          onClear: _clearFilters,
+        ),
+        if (_selectedIds.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.lg),
+          StudentsBulkActionBar(
+            count: _selectedIds.length,
+            onClear: () => setState(_selectedIds.clear),
+          ),
+        ],
+        const SizedBox(height: AppSpacing.lg),
+        StudentsRegistrySection(
+          students: students,
+          selectedIds: _selectedIds,
+          selectedStudentId: selectedStudent?.id,
+          sortBy: _sortBy,
+          sortAscending: _sortAscending,
+          onSelectAll: (value) {
+            setState(() {
+              if (value) {
+                _selectedIds
+                  ..clear()
+                  ..addAll(students.map((student) => student.id));
+              } else {
+                _selectedIds.clear();
+              }
+            });
+          },
+          onToggleSelection: (id, selected) {
+            setState(() {
+              if (selected) {
+                _selectedIds.add(id);
+              } else {
+                _selectedIds.remove(id);
+              }
+            });
+          },
+          onSort: (column) {
+            setState(() {
+              if (_sortBy == column) {
+                _sortAscending = !_sortAscending;
+              } else {
+                _sortBy = column;
+                _sortAscending = column == 'student';
+              }
+            });
+          },
+          onOpenStudent: (student) =>
+              _handleOpenStudent(student, showSidePanel),
+        ),
+      ],
+    );
+
+    if (!showSidePanel || selectedStudent == null) {
+      return mainColumn;
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(flex: 7, child: mainColumn),
+        const SizedBox(width: AppSpacing.lg),
+        SizedBox(
+          width: 430,
+          child: SingleChildScrollView(
+            child: StudentDetailsPanel(
+              student: selectedStudent,
+              selectedCount: _selectedIds.length,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _handleOpenStudent(StudentAdminRecord student, bool showSidePanel) {
+    setState(() => _selectedStudentId = student.id);
+    if (showSidePanel) return;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        final deviceType = AppBreakpoints.resolve(context);
+        final maxHeight = deviceType == DeviceScreenType.mobile ? 0.92 : 0.82;
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: maxHeight,
+          maxChildSize: 0.96,
+          minChildSize: 0.60,
+          builder: (context, scrollController) {
             return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ...pageContent,
-                  content,
-                ],
+              controller: scrollController,
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+              child: StudentDetailsPanel(
+                student: student,
+                selectedCount: _selectedIds.length,
+                onClose: () => Navigator.of(context).pop(),
               ),
             );
           },
@@ -199,391 +276,75 @@ class _StudentsScreenState extends State<StudentsScreen> {
       },
     );
   }
-}
 
-class _StudentsTableCard extends StatelessWidget {
-  const _StudentsTableCard({
-    required this.items,
-    this.expandTable = true,
-  });
-
-  final List<Student> items;
-  final bool expandTable;
-
-  @override
-  Widget build(BuildContext context) {
-    final table = AdminDataTable<Student>(
-      items: items,
-      shrinkWrap: !expandTable,
-      physics: expandTable ? null : const NeverScrollableScrollPhysics(),
-      columns: [
-        AdminTableColumn<Student>(
-          label: 'Student',
-          cellBuilder: (item) => _IdentityCell(
-            title: item.name,
-            subtitle: item.id,
-            icon: Icons.person_outline_rounded,
-          ),
-        ),
-        AdminTableColumn<Student>(
-          label: 'Contact',
-          cellBuilder: (item) => _StackedCell(
-            primary: item.email,
-            secondary: '${item.enrolledSubjects} active subjects',
-          ),
-        ),
-        AdminTableColumn<Student>(
-          label: 'Academic',
-          cellBuilder: (item) => _StackedCell(
-            primary: '${item.department}  ${item.level}',
-            secondary: item.section,
-          ),
-        ),
-        AdminTableColumn<Student>(
-          label: 'Performance',
-          cellBuilder: (item) => _PerformanceCell(student: item),
-        ),
-        AdminTableColumn<Student>(
-          label: 'Actions',
-          cellBuilder: (item) => Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              StatusBadge(item.status),
-              const SizedBox(width: AppSpacing.sm),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.edit_outlined, size: 18),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-
-    return AppCard(
-      child: Column(
-        mainAxisSize: expandTable ? MainAxisSize.max : MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Student registry',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Compact academic records, engagement, and status control.',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-              ),
-              const StatusBadge('Synced', icon: Icons.cloud_done_rounded),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          if (expandTable) Expanded(child: table) else table,
-        ],
-      ),
-    );
+  List<StudentAdminRecord> _filteredStudents(
+    List<StudentAdminRecord> students,
+  ) {
+    return students.where((student) {
+      final matchesQuery =
+          _query.isEmpty ||
+          student.fullName.toLowerCase().contains(_query.toLowerCase()) ||
+          student.id.toLowerCase().contains(_query.toLowerCase()) ||
+          student.nationalId.contains(_query) ||
+          student.email.toLowerCase().contains(_query.toLowerCase());
+      final matchesDepartment =
+          _department == 'All departments' || student.department == _department;
+      final matchesBatch = _batch == 'All batches' || student.batch == _batch;
+      final matchesStatus =
+          _status == 'All statuses' || student.status == _status;
+      final matchesSegment = switch (_segment) {
+        'At risk' => student.isAtRisk,
+        'Graduation ready' => student.remainingCreditHours <= 30,
+        _ => true,
+      };
+      return matchesQuery &&
+          matchesDepartment &&
+          matchesBatch &&
+          matchesStatus &&
+          matchesSegment;
+    }).toList();
   }
-}
 
-class _StudentFormCard extends StatelessWidget {
-  const _StudentFormCard({
-    required this.selectedDepartment,
-    required this.selectedLevel,
-    required this.selectedStatus,
-    required this.onDepartmentChanged,
-    required this.onLevelChanged,
-    required this.onStatusChanged,
-  });
-
-  final String selectedDepartment;
-  final String selectedLevel;
-  final String selectedStatus;
-  final ValueChanged<String?> onDepartmentChanged;
-  final ValueChanged<String?> onLevelChanged;
-  final ValueChanged<String?> onStatusChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Add / Edit student',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Premium form layout for quick registry updates and clean profile setup.',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          const AppTextField(
-            label: 'Full name',
-            initialValue: 'Mariam Tarek',
-            prefixIcon: Icons.person_outline_rounded,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          const AppTextField(
-            label: 'Email',
-            initialValue: 'mariam.tarek@tolab.edu',
-            prefixIcon: Icons.alternate_email_rounded,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          const AppTextField(
-            label: 'Student ID',
-            initialValue: 'ST-1028',
-            prefixIcon: Icons.badge_outlined,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          AppDropdownField<String>(
-            label: 'Department',
-            value: selectedDepartment,
-            onChanged: onDepartmentChanged,
-            items: const [
-              AppDropdownItem(
-                value: 'Computer Science',
-                label: 'Computer Science',
-              ),
-              AppDropdownItem(
-                value: 'Information Systems',
-                label: 'Information Systems',
-              ),
-              AppDropdownItem(value: 'Engineering', label: 'Engineering'),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Row(
-            children: [
-              Expanded(
-                child: AppDropdownField<String>(
-                  label: 'Level',
-                  value: selectedLevel,
-                  onChanged: onLevelChanged,
-                  items: const [
-                    AppDropdownItem(value: 'Level 1', label: 'Level 1'),
-                    AppDropdownItem(value: 'Level 2', label: 'Level 2'),
-                    AppDropdownItem(value: 'Level 3', label: 'Level 3'),
-                    AppDropdownItem(value: 'Level 4', label: 'Level 4'),
-                  ],
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: AppDropdownField<String>(
-                  label: 'Status',
-                  value: selectedStatus,
-                  onChanged: onStatusChanged,
-                  items: const [
-                    AppDropdownItem(value: 'Active', label: 'Active'),
-                    AppDropdownItem(value: 'Pending', label: 'Pending'),
-                    AppDropdownItem(value: 'Inactive', label: 'Inactive'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          const AppTextField(
-            label: 'Advisor notes',
-            initialValue:
-                'High-performing student with strong attendance and clean moderation history.',
-            maxLines: 4,
-            hint: 'Optional notes',
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              color: AppColors.secondarySoft.withValues(alpha: 0.45),
-              borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.auto_awesome_rounded,
-                  color: AppColors.secondary,
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Text(
-                    'Suggested section placement: CS-4A based on current seat availability.',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          const Row(
-            children: [
-              Expanded(
-                child: PremiumButton(
-                  label: 'Save draft',
-                  icon: Icons.save_outlined,
-                  isSecondary: true,
-                ),
-              ),
-              SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: PremiumButton(
-                  label: 'Publish profile',
-                  icon: Icons.check_circle_outline_rounded,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StudentSummaryCard extends StatelessWidget {
-  const _StudentSummaryCard({
-    required this.label,
-    required this.value,
-    required this.detail,
-    required this.color,
-  });
-
-  final String label;
-  final String value;
-  final String detail;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 220,
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(AppConstants.cardRadius),
-        border: Border.all(color: Theme.of(context).dividerColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: AppSpacing.sm),
-          Text(value, style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: 6),
-          Text(
-            detail,
-            style: Theme.of(
-              context,
-            ).textTheme.labelMedium?.copyWith(color: color),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _IdentityCell extends StatelessWidget {
-  const _IdentityCell({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-  });
-
-  final String title;
-  final String subtitle;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          height: 40,
-          width: 40,
-          decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Icon(icon, color: AppColors.primary, size: 20),
+  List<StudentAdminRecord> _sortedStudents(List<StudentAdminRecord> students) {
+    final sorted = [...students];
+    sorted.sort((left, right) {
+      final factor = _sortAscending ? 1 : -1;
+      final result = switch (_sortBy) {
+        'student' => left.fullName.compareTo(right.fullName),
+        'academic' => '${left.department}${left.academicLevel}'.compareTo(
+          '${right.department}${right.academicLevel}',
         ),
-        const SizedBox(width: AppSpacing.sm),
-        Flexible(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: Theme.of(context).textTheme.titleSmall),
-              const SizedBox(height: 2),
-              Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
-            ],
-          ),
-        ),
-      ],
-    );
+        'attendance' => left.attendanceRate.compareTo(right.attendanceRate),
+        'credits' => left.earnedCreditHours.compareTo(right.earnedCreditHours),
+        _ => left.cumulativeGpa.compareTo(right.cumulativeGpa),
+      };
+      return result * factor;
+    });
+    return sorted;
   }
-}
 
-class _StackedCell extends StatelessWidget {
-  const _StackedCell({required this.primary, required this.secondary});
-
-  final String primary;
-  final String secondary;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(primary, style: Theme.of(context).textTheme.bodyMedium),
-        const SizedBox(height: 2),
-        Text(secondary, style: Theme.of(context).textTheme.bodySmall),
-      ],
+  StudentAdminRecord? _resolveSelectedStudent(
+    List<StudentAdminRecord> students,
+  ) {
+    if (students.isEmpty) return null;
+    final selected = students.where(
+      (student) => student.id == _selectedStudentId,
     );
+    if (selected.isNotEmpty) return selected.first;
+    return students.first;
   }
-}
 
-class _PerformanceCell extends StatelessWidget {
-  const _PerformanceCell({required this.student});
-
-  final Student student;
-
-  @override
-  Widget build(BuildContext context) {
-    final fill = (student.gpa / 4).clamp(0, 1).toDouble();
-
-    return SizedBox(
-      width: 150,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'GPA ${student.gpa.toStringAsFixed(2)}',
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(999),
-            child: LinearProgressIndicator(
-              minHeight: 8,
-              value: fill,
-              backgroundColor: AppColors.slateSoft.withValues(alpha: 0.6),
-              valueColor: AlwaysStoppedAnimation<Color>(
-                fill > 0.8 ? AppColors.secondary : AppColors.primary,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+  void _clearFilters() {
+    setState(() {
+      _query = '';
+      _department = 'All departments';
+      _batch = 'All batches';
+      _status = 'All statuses';
+      _segment = 'All students';
+      _advancedOpen = false;
+      _attendanceScope = 'All';
+      _selectedIds.clear();
+      _searchController.clear();
+    });
   }
 }
