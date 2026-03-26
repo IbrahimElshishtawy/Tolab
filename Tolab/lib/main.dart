@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
 
+import 'admin/config/admin_bootstrap.dart';
 import 'app.dart';
-import 'app/config/app_config.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await AppConfig.bootstrap();
+  await AdminBootstrap.initialize();
   runApp(const TolabApp());
 }

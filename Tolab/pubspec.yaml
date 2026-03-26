@@ -18,6 +18,9 @@ dependencies:
   flutter_secure_storage: ^9.2.4
   shared_preferences: ^2.5.3
   connectivity_plus: ^6.1.5
+  data_table_2: ^2.5.15
+  file_picker: ^10.1.9
+  flutter_local_notifications: ^19.4.0
   cached_network_image: ^3.4.1
   shimmer: ^3.0.0
   flutter_staggered_animations: ^1.1.1
