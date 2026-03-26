@@ -127,6 +127,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               Expanded(
                                 flex: 4,
                                 child: _DayAgendaPanel(
+                                  expandContent: true,
                                   selectedDay: _selectedDay,
                                   selectedEvents: selectedEvents,
                                 ),
@@ -153,6 +154,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               ),
                               const SizedBox(height: AppSpacing.md),
                               _DayAgendaPanel(
+                                expandContent: false,
                                 selectedDay: _selectedDay,
                                 selectedEvents: selectedEvents,
                               ),
@@ -175,15 +177,75 @@ class _DayAgendaPanel extends StatelessWidget {
   const _DayAgendaPanel({
     required this.selectedDay,
     required this.selectedEvents,
+    this.expandContent = true,
   });
 
   final DateTime selectedDay;
   final List<ScheduleEventModel> selectedEvents;
+  final bool expandContent;
 
   @override
   Widget build(BuildContext context) {
+    final agendaContent = selectedEvents.isEmpty
+        ? Center(
+            child: Text(
+              'No scheduled events for this day.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          )
+        : ListView.separated(
+            shrinkWrap: !expandContent,
+            physics: expandContent
+                ? null
+                : const NeverScrollableScrollPhysics(),
+            itemCount: selectedEvents.length,
+            separatorBuilder: (context, index) =>
+                const SizedBox(height: AppSpacing.sm),
+            itemBuilder: (context, index) {
+              final event = selectedEvents[index];
+              return Container(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: event.color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(
+                    AppConstants.mediumRadius,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            event.title,
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                        ),
+                        StatusBadge(event.type.toUpperCase()),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(event.course),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${DateFormat.Hm().format(event.start)} - ${DateFormat.Hm().format(event.end)}  ${event.location}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      event.instructor,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+
     return AppCard(
       child: Column(
+        mainAxisSize: expandContent ? MainAxisSize.max : MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -196,63 +258,10 @@ class _DayAgendaPanel extends StatelessWidget {
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: AppSpacing.lg),
-          if (selectedEvents.isEmpty)
-            Expanded(
-              child: Center(
-                child: Text(
-                  'No scheduled events for this day.',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ),
-            )
+          if (expandContent)
+            Expanded(child: agendaContent)
           else
-            Expanded(
-              child: ListView.separated(
-                itemCount: selectedEvents.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: AppSpacing.sm),
-                itemBuilder: (context, index) {
-                  final event = selectedEvents[index];
-                  return Container(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    decoration: BoxDecoration(
-                      color: event.color.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(
-                        AppConstants.mediumRadius,
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                event.title,
-                                style: Theme.of(context).textTheme.titleSmall,
-                              ),
-                            ),
-                            StatusBadge(event.type.toUpperCase()),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Text(event.course),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${DateFormat.Hm().format(event.start)} - ${DateFormat.Hm().format(event.end)}  ${event.location}',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          event.instructor,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
+            agendaContent,
           const SizedBox(height: AppSpacing.md),
           const Row(
             children: [

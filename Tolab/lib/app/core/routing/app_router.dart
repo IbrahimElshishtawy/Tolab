@@ -247,10 +247,25 @@ class AppRouter {
 
 class _StoreRefreshListenable extends ChangeNotifier {
   _StoreRefreshListenable(Store<AppState> store) {
-    _subscription = store.onChange.listen((_) => notifyListeners());
+    _isBootstrapped = store.state.bootstrapState.isReady;
+    _isAuthenticated = store.state.authState.isAuthenticated;
+    _subscription = store.onChange.listen((state) {
+      final nextIsBootstrapped = state.bootstrapState.isReady;
+      final nextIsAuthenticated = state.authState.isAuthenticated;
+      if (nextIsBootstrapped == _isBootstrapped &&
+          nextIsAuthenticated == _isAuthenticated) {
+        return;
+      }
+
+      _isBootstrapped = nextIsBootstrapped;
+      _isAuthenticated = nextIsAuthenticated;
+      notifyListeners();
+    });
   }
 
   late final StreamSubscription<AppState> _subscription;
+  late bool _isBootstrapped;
+  late bool _isAuthenticated;
 
   @override
   void dispose() {

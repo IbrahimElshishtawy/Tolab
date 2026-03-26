@@ -94,7 +94,35 @@ class _StaffScreenState extends State<StaffScreen> {
                               const SizedBox(width: AppSpacing.md),
                               Expanded(
                                 flex: 4,
-                                child: _StaffDetailsPanel(
+                                child: SingleChildScrollView(
+                                  child: _StaffDetailsPanel(
+                                    selectedRole: _selectedRole,
+                                    selectedDepartment: _selectedDepartment,
+                                    onRoleChanged: (value) => setState(
+                                      () =>
+                                          _selectedRole = value ?? _selectedRole,
+                                    ),
+                                    onDepartmentChanged: (value) => setState(
+                                      () => _selectedDepartment =
+                                          value ?? _selectedDepartment,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        : SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _StaffGrid(
+                                  items: state.items,
+                                  shrinkWrap: true,
+                                  physics:
+                                      const NeverScrollableScrollPhysics(),
+                                ),
+                                const SizedBox(height: AppSpacing.md),
+                                _StaffDetailsPanel(
                                   selectedRole: _selectedRole,
                                   selectedDepartment: _selectedDepartment,
                                   onRoleChanged: (value) => setState(
@@ -106,25 +134,8 @@ class _StaffScreenState extends State<StaffScreen> {
                                         value ?? _selectedDepartment,
                                   ),
                                 ),
-                              ),
-                            ],
-                          )
-                        : ListView(
-                            children: [
-                              _StaffGrid(items: state.items),
-                              const SizedBox(height: AppSpacing.md),
-                              _StaffDetailsPanel(
-                                selectedRole: _selectedRole,
-                                selectedDepartment: _selectedDepartment,
-                                onRoleChanged: (value) => setState(
-                                  () => _selectedRole = value ?? _selectedRole,
-                                ),
-                                onDepartmentChanged: (value) => setState(
-                                  () => _selectedDepartment =
-                                      value ?? _selectedDepartment,
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           );
                   },
                 ),
@@ -138,9 +149,15 @@ class _StaffScreenState extends State<StaffScreen> {
 }
 
 class _StaffGrid extends StatelessWidget {
-  const _StaffGrid({required this.items});
+  const _StaffGrid({
+    required this.items,
+    this.shrinkWrap = false,
+    this.physics,
+  });
 
   final List<StaffMember> items;
+  final bool shrinkWrap;
+  final ScrollPhysics? physics;
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +171,9 @@ class _StaffGrid extends StatelessWidget {
 
         return AnimationLimiter(
           child: GridView.builder(
-            shrinkWrap: true,
+            shrinkWrap: shrinkWrap,
+            primary: physics == null,
+            physics: physics,
             itemCount: items.length,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: crossAxisCount,
