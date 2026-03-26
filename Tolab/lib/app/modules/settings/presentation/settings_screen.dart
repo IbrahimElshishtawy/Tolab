@@ -41,7 +41,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: 'Settings',
               subtitle:
                   'Tune the workspace, security posture, and communication defaults with grouped premium settings surfaces.',
-              breadcrumbs: const ['Admin', 'Preferences', 'Settings'],
+              breadcrumbs: const ['Admin', 'Preferences', 'Workspace'],
               actions: [
                 PremiumButton(
                   label: 'Toggle theme',
@@ -53,6 +53,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
             const SizedBox(height: AppSpacing.xl),
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: const [
+                _CategoryChip(label: 'Security'),
+                _CategoryChip(label: 'Experience'),
+                _CategoryChip(label: 'Workspace'),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.lg),
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
@@ -102,7 +112,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ),
                                   const SizedBox(height: AppSpacing.md),
                                   _SettingsSection(
-                                    title: 'Security',
+                                    title: 'Security Controls',
                                     subtitle:
                                         'Session controls, audit visibility, and workspace protection.',
                                     children: [
@@ -185,7 +195,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                             const SizedBox(height: AppSpacing.md),
                             _SettingsSection(
-                              title: 'Security',
+                              title: 'Security Controls',
                               subtitle:
                                   'Session controls, audit visibility, and workspace protection.',
                               children: [
@@ -222,6 +232,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         );
       },
+    );
+  }
+}
+
+class _CategoryChip extends StatelessWidget {
+  const _CategoryChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(AppConstants.pillRadius),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(
+          context,
+        ).textTheme.labelMedium?.copyWith(color: AppColors.primary),
+      ),
     );
   }
 }

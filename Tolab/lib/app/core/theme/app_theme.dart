@@ -130,53 +130,53 @@ class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: ButtonStyle(
-          elevation: const MaterialStatePropertyAll(0),
-          minimumSize: const MaterialStatePropertyAll(
+          elevation: const WidgetStatePropertyAll(0),
+          minimumSize: const WidgetStatePropertyAll(
             Size(0, AppConstants.denseInputHeight),
           ),
-          padding: const MaterialStatePropertyAll(
+          padding: const WidgetStatePropertyAll(
             EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           ),
-          shape: MaterialStatePropertyAll(
+          shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppConstants.smallRadius),
             ),
           ),
-          textStyle: MaterialStatePropertyAll(textTheme.labelLarge),
-          backgroundColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.disabled)) {
+          textStyle: WidgetStatePropertyAll(textTheme.labelLarge),
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.disabled)) {
               return AppColors.primary.withValues(alpha: 0.42);
             }
-            if (states.contains(MaterialState.pressed)) {
+            if (states.contains(WidgetState.pressed)) {
               return AppColors.primary.withValues(alpha: 0.92);
             }
             return AppColors.primary;
           }),
-          foregroundColor: const MaterialStatePropertyAll(Colors.white),
-          overlayColor: MaterialStatePropertyAll(
+          foregroundColor: const WidgetStatePropertyAll(Colors.white),
+          overlayColor: WidgetStatePropertyAll(
             Colors.white.withValues(alpha: 0.06),
           ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
-          elevation: const MaterialStatePropertyAll(0),
-          minimumSize: const MaterialStatePropertyAll(
+          elevation: const WidgetStatePropertyAll(0),
+          minimumSize: const WidgetStatePropertyAll(
             Size(0, AppConstants.denseInputHeight),
           ),
-          padding: const MaterialStatePropertyAll(
+          padding: const WidgetStatePropertyAll(
             EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           ),
-          shape: MaterialStatePropertyAll(
+          shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppConstants.smallRadius),
             ),
           ),
-          side: MaterialStatePropertyAll(BorderSide(color: divider)),
-          textStyle: MaterialStatePropertyAll(textTheme.labelLarge),
-          foregroundColor: MaterialStatePropertyAll(scheme.onSurface),
-          backgroundColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.pressed)) {
+          side: WidgetStatePropertyAll(BorderSide(color: divider)),
+          textStyle: WidgetStatePropertyAll(textTheme.labelLarge),
+          foregroundColor: WidgetStatePropertyAll(scheme.onSurface),
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) {
               return AppColors.primary.withValues(alpha: 0.05);
             }
             return surfaceColor;
@@ -185,9 +185,9 @@ class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: ButtonStyle(
-          foregroundColor: MaterialStatePropertyAll(scheme.onSurface),
-          textStyle: MaterialStatePropertyAll(textTheme.labelLarge),
-          shape: MaterialStatePropertyAll(
+          foregroundColor: WidgetStatePropertyAll(scheme.onSurface),
+          textStyle: WidgetStatePropertyAll(textTheme.labelLarge),
+          shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppConstants.smallRadius),
             ),
@@ -196,17 +196,17 @@ class AppTheme {
       ),
       iconButtonTheme: IconButtonThemeData(
         style: ButtonStyle(
-          minimumSize: const MaterialStatePropertyAll(Size(42, 42)),
-          padding: const MaterialStatePropertyAll(EdgeInsets.zero),
-          backgroundColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.pressed)) {
+          minimumSize: const WidgetStatePropertyAll(Size(42, 42)),
+          padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) {
               return AppColors.primary.withValues(alpha: 0.10);
             }
             return elevatedSurface;
           }),
-          foregroundColor: MaterialStatePropertyAll(scheme.onSurface),
-          side: MaterialStatePropertyAll(BorderSide(color: divider)),
-          shape: MaterialStatePropertyAll(
+          foregroundColor: WidgetStatePropertyAll(scheme.onSurface),
+          side: WidgetStatePropertyAll(BorderSide(color: divider)),
+          shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppConstants.smallRadius),
             ),
@@ -222,7 +222,7 @@ class AppTheme {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       ),
       dataTableTheme: DataTableThemeData(
-        headingRowColor: MaterialStatePropertyAll(mutedSurface),
+        headingRowColor: WidgetStatePropertyAll(mutedSurface),
         headingTextStyle: textTheme.labelLarge?.copyWith(
           color: isDark
               ? AppColors.textSecondaryDark
@@ -238,19 +238,19 @@ class AppTheme {
         side: BorderSide(color: divider, width: 1.2),
       ),
       switchTheme: SwitchThemeData(
-        thumbColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return Colors.white;
           }
           return isDark ? AppColors.textSecondaryDark : Colors.white;
         }),
-        trackColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return AppColors.primary;
           }
           return isDark ? AppColors.surfaceElevatedDark : AppColors.slateSoft;
         }),
-        trackOutlineColor: MaterialStatePropertyAll(Colors.transparent),
+        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: surfaceColor,

@@ -70,12 +70,11 @@ class AppCalendarPanel extends StatelessWidget {
                   child: Wrap(
                     spacing: 3,
                     children: dayEvents.take(3).map((event) {
-                      final scheduleEvent = event as ScheduleEventModel;
                       return Container(
                         height: 6,
                         width: 6,
                         decoration: BoxDecoration(
-                          color: scheduleEvent.color,
+                          color: event.color,
                           borderRadius: BorderRadius.circular(
                             AppConstants.pillRadius,
                           ),

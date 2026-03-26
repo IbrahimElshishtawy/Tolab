@@ -33,27 +33,27 @@ class PremiumButton extends StatelessWidget {
         : Colors.white;
 
     final style = ButtonStyle(
-      elevation: const MaterialStatePropertyAll(0),
-      minimumSize: const MaterialStatePropertyAll(
+      elevation: const WidgetStatePropertyAll(0),
+      minimumSize: const WidgetStatePropertyAll(
         Size(0, AppConstants.denseInputHeight),
       ),
-      padding: const MaterialStatePropertyAll(
+      padding: const WidgetStatePropertyAll(
         EdgeInsets.symmetric(horizontal: 18, vertical: 14),
       ),
       side: isSecondary
-          ? MaterialStatePropertyAll(BorderSide(color: borderColor))
+          ? WidgetStatePropertyAll(BorderSide(color: borderColor))
           : null,
-      backgroundColor: MaterialStateProperty.resolveWith((states) {
-        if (states.contains(MaterialState.disabled)) {
+      backgroundColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) {
           return backgroundColor.withValues(alpha: 0.4);
         }
-        if (states.contains(MaterialState.pressed)) {
+        if (states.contains(WidgetState.pressed)) {
           return backgroundColor.withValues(alpha: 0.9);
         }
         return backgroundColor;
       }),
-      foregroundColor: MaterialStatePropertyAll(foregroundColor),
-      shape: MaterialStatePropertyAll(
+      foregroundColor: WidgetStatePropertyAll(foregroundColor),
+      shape: WidgetStatePropertyAll(
         RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.smallRadius),
         ),

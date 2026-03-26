@@ -30,7 +30,8 @@ class AdminDataTable<T> extends StatelessWidget {
         if (constraints.maxWidth < 860) {
           return ListView.separated(
             itemCount: items.length,
-            separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
+            separatorBuilder: (context, index) =>
+                const SizedBox(height: AppSpacing.md),
             itemBuilder: (context, index) {
               final item = items[index];
               return AnimationConfiguration.staggeredList(
@@ -89,7 +90,7 @@ class AdminDataTable<T> extends StatelessWidget {
               rows: [
                 for (var index = 0; index < items.length; index++)
                   DataRow2(
-                    color: MaterialStatePropertyAll(
+                    color: WidgetStatePropertyAll(
                       index.isEven
                           ? Colors.transparent
                           : Theme.of(

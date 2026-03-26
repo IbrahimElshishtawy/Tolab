@@ -311,7 +311,7 @@ class _Sidebar extends StatelessWidget {
           Expanded(
             child: ListView.separated(
               itemCount: destinations.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 6),
+              separatorBuilder: (context, index) => const SizedBox(height: 6),
               itemBuilder: (context, index) {
                 final item = destinations[index];
                 return _SidebarNavTile(
@@ -474,9 +474,7 @@ class _TopBar extends StatelessWidget {
                       }
                     },
                     icon: Icon(
-                      isMobile
-                          ? Icons.menu_rounded
-                          : Icons.left_panel_open_rounded,
+                      isMobile ? Icons.menu_rounded : Icons.menu_open_rounded,
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),

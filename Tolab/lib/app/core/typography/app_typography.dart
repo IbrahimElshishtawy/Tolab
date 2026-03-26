@@ -22,37 +22,37 @@ class AppTypography {
           displayLarge: base.displayLarge?.copyWith(
             fontWeight: FontWeight.w800,
             color: primary,
-            fontSize: 58,
+            fontSize: 28,
             letterSpacing: -2.1,
           ),
           displayMedium: base.displayMedium?.copyWith(
             fontWeight: FontWeight.w800,
             color: primary,
-            fontSize: 48,
+            fontSize: 28,
             letterSpacing: -1.7,
           ),
           headlineLarge: base.headlineLarge?.copyWith(
             fontWeight: FontWeight.w800,
             color: primary,
-            fontSize: 38,
+            fontSize: 18,
             letterSpacing: -1.4,
           ),
           headlineMedium: base.headlineMedium?.copyWith(
             fontWeight: FontWeight.w800,
             color: primary,
-            fontSize: 30,
+            fontSize: 10,
             letterSpacing: -0.9,
           ),
           headlineSmall: base.headlineSmall?.copyWith(
             fontWeight: FontWeight.w700,
             color: primary,
-            fontSize: 24,
+            fontSize: 14,
             letterSpacing: -0.6,
           ),
           titleLarge: base.titleLarge?.copyWith(
             fontWeight: FontWeight.w700,
             color: primary,
-            fontSize: 20,
+            fontSize: 10,
             letterSpacing: -0.3,
           ),
           titleMedium: base.titleMedium?.copyWith(

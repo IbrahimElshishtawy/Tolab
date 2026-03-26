@@ -209,7 +209,7 @@ class _DayAgendaPanel extends StatelessWidget {
             Expanded(
               child: ListView.separated(
                 itemCount: selectedEvents.length,
-                separatorBuilder: (_, __) =>
+                separatorBuilder: (context, index) =>
                     const SizedBox(height: AppSpacing.sm),
                 itemBuilder: (context, index) {
                   final event = selectedEvents[index];
@@ -301,7 +301,8 @@ class _TimelineStrip extends StatelessWidget {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: sorted.length,
-              separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.md),
+              separatorBuilder: (context, index) =>
+                  const SizedBox(width: AppSpacing.md),
               itemBuilder: (context, index) {
                 final event = sorted[index];
                 return Container(
