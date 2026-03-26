@@ -21,6 +21,8 @@ dependencies:
   data_table_2: ^2.5.15
   file_picker: ^10.1.9
   flutter_local_notifications: ^19.4.0
+  firebase_core: ^4.4.0
+  firebase_messaging: ^16.1.0
   cached_network_image: ^3.4.1
   shimmer: ^3.0.0
   flutter_staggered_animations: ^1.1.1
