@@ -6,8 +6,8 @@ import '../../../../shared/widgets/premium_button.dart';
 import '../../models/staff_admin_models.dart';
 import '../charts/staff_analytics_charts.dart';
 import '../design/staff_management_tokens.dart';
+import 'staff_data_primitives.dart';
 import 'staff_permissions_panel.dart';
-import 'staff_section_card.dart';
 import 'staff_segmented_control.dart';
 import 'staff_status_badge.dart';
 
@@ -18,6 +18,7 @@ class StaffDetailsPanel extends StatefulWidget {
     required this.onEdit,
     required this.onManagePermissions,
     required this.onTogglePermission,
+    this.initialTab = 'Overview',
     this.onClose,
   });
 
@@ -25,6 +26,7 @@ class StaffDetailsPanel extends StatefulWidget {
   final ValueChanged<StaffAdminRecord> onEdit;
   final ValueChanged<StaffAdminRecord> onManagePermissions;
   final void Function(String permissionId, bool enabled) onTogglePermission;
+  final String initialTab;
   final VoidCallback? onClose;
 
   @override
@@ -32,7 +34,22 @@ class StaffDetailsPanel extends StatefulWidget {
 }
 
 class _StaffDetailsPanelState extends State<StaffDetailsPanel> {
-  String _tab = 'Overview';
+  late String _tab;
+
+  @override
+  void initState() {
+    super.initState();
+    _tab = widget.initialTab;
+  }
+
+  @override
+  void didUpdateWidget(covariant StaffDetailsPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.record.id != widget.record.id ||
+        oldWidget.initialTab != widget.initialTab) {
+      _tab = widget.initialTab;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +84,12 @@ class _StaffDetailsPanelState extends State<StaffDetailsPanel> {
           _ProfileHero(record: record),
           const SizedBox(height: AppSpacing.lg),
           StaffSegmentedControl(
-            options: const ['Overview', 'Permissions', 'Activity', 'Monitoring'],
+            options: const [
+              'Overview',
+              'Permissions',
+              'Activity',
+              'Monitoring',
+            ],
             value: _tab,
             onChanged: (value) => setState(() => _tab = value),
           ),
@@ -76,26 +98,26 @@ class _StaffDetailsPanelState extends State<StaffDetailsPanel> {
             duration: const Duration(milliseconds: 220),
             child: switch (_tab) {
               'Permissions' => _PermissionsTab(
-                  key: const ValueKey('permissions'),
-                  record: record,
-                  onManagePermissions: widget.onManagePermissions,
-                  onTogglePermission: widget.onTogglePermission,
-                ),
+                key: const ValueKey('permissions'),
+                record: record,
+                onManagePermissions: widget.onManagePermissions,
+                onTogglePermission: widget.onTogglePermission,
+              ),
               'Activity' => _ActivityTab(
-                  key: const ValueKey('activity'),
-                  record: record,
-                ),
+                key: const ValueKey('activity'),
+                record: record,
+              ),
               'Monitoring' => _MonitoringTab(
-                  key: const ValueKey('monitoring'),
-                  record: record,
-                  onEdit: widget.onEdit,
-                  onManagePermissions: widget.onManagePermissions,
-                ),
-              _OverviewTab(
-                  key: const ValueKey('overview'),
-                  record: record,
-                  onEdit: widget.onEdit,
-                ),
+                key: const ValueKey('monitoring'),
+                record: record,
+                onEdit: widget.onEdit,
+                onManagePermissions: widget.onManagePermissions,
+              ),
+              _ => _OverviewTab(
+                key: const ValueKey('overview'),
+                record: record,
+                onEdit: widget.onEdit,
+              ),
             },
           ),
         ],
@@ -111,12 +133,6 @@ class _ProfileHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final initials = record.fullName
-        .split(' ')
-        .take(2)
-        .map((part) => part.characters.first)
-        .join();
-
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
@@ -135,25 +151,24 @@ class _ProfileHero extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: StaffManagementPalette.doctor,
-            child: Text(
-              initials,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(color: Colors.white),
-            ),
+          StaffAvatarBadge(
+            fullName: record.fullName,
+            isDoctor: record.isDoctor,
+            size: 60,
+            radius: 20,
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(record.fullName, style: Theme.of(context).textTheme.titleLarge),
+                Text(
+                  record.fullName,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 const SizedBox(height: 4),
                 Text(
-                  '${record.role} · ${record.department} · ${record.employeeId}',
+                  '${record.role} • ${record.department} • ${record.employeeId}',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: AppSpacing.sm),
@@ -164,6 +179,7 @@ class _ProfileHero extends StatelessWidget {
                     StaffStatusBadge(record.status),
                     StaffStatusBadge(record.roleTypeLabel),
                     StaffStatusBadge('Last active ${record.lastActiveLabel}'),
+                    StaffStatusBadge(record.accountHealthBand),
                   ],
                 ),
               ],
@@ -182,11 +198,7 @@ class _ProfileHero extends StatelessWidget {
 }
 
 class _OverviewTab extends StatelessWidget {
-  const _OverviewTab({
-    super.key,
-    required this.record,
-    required this.onEdit,
-  });
+  const _OverviewTab({super.key, required this.record, required this.onEdit});
 
   final StaffAdminRecord record;
   final ValueChanged<StaffAdminRecord> onEdit;
@@ -196,14 +208,46 @@ class _OverviewTab extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _InfoGrid(
-          items: [
-            _InfoItem('Email', record.email),
-            _InfoItem('Role', record.role),
-            _InfoItem('Doctor type', record.roleTypeLabel),
-            _InfoItem('Department', record.department),
-            _InfoItem('Account status', record.accountCreationStatus),
-            _InfoItem('Created', record.createdAtLabel),
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          children: [
+            StaffInfoTile(
+              label: 'Email',
+              value: record.email,
+              icon: Icons.alternate_email_rounded,
+              width: 190,
+            ),
+            StaffInfoTile(
+              label: 'Role',
+              value: record.role,
+              icon: Icons.work_outline_rounded,
+              width: 160,
+            ),
+            StaffInfoTile(
+              label: 'Doctor type',
+              value: record.roleTypeLabel,
+              icon: Icons.badge_outlined,
+              width: 190,
+            ),
+            StaffInfoTile(
+              label: 'Department',
+              value: record.department,
+              icon: Icons.apartment_rounded,
+              width: 180,
+            ),
+            StaffInfoTile(
+              label: 'Account status',
+              value: record.accountCreationStatus,
+              icon: Icons.verified_user_outlined,
+              width: 180,
+            ),
+            StaffInfoTile(
+              label: 'Created',
+              value: record.createdAtLabel,
+              icon: Icons.event_available_outlined,
+              width: 180,
+            ),
           ],
         ),
         const SizedBox(height: AppSpacing.lg),
@@ -213,10 +257,59 @@ class _OverviewTab extends StatelessWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
-              _MetricTile(label: 'Subjects', value: '${record.subjectsAssigned}'),
-              _MetricTile(label: 'Lectures', value: '${record.lecturesUploaded}'),
+              _MetricTile(
+                label: 'Subjects',
+                value: '${record.subjectsAssigned}',
+              ),
+              _MetricTile(
+                label: 'Lectures',
+                value: '${record.lecturesUploaded}',
+              ),
               _MetricTile(label: 'Tasks', value: '${record.tasksCreated}'),
               _MetricTile(label: 'Posts', value: '${record.postsCreated}'),
+              _MetricTile(label: 'Uploads', value: '${record.uploadsCount}'),
+              _MetricTile(
+                label: 'Permission coverage',
+                value: '${record.permissionCoverage.round()}%',
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        _CardBlock(
+          title: 'Monitoring pulse',
+          child: Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              SizedBox(
+                width: 180,
+                child: StaffMetricMeter(
+                  value: record.attendanceRate / 100,
+                  primary: record.attendanceSummary,
+                  secondary: record.attendanceBand,
+                  color: StaffManagementPalette.attendance,
+                  compact: true,
+                ),
+              ),
+              SizedBox(
+                width: 180,
+                child: StaffMetricMeter(
+                  value: record.engagementRate / 100,
+                  primary: record.engagementSummary,
+                  secondary: record.engagementBand,
+                  color: StaffManagementPalette.engagement,
+                  compact: true,
+                ),
+              ),
+              SizedBox(
+                width: 180,
+                child: StaffInfoTile(
+                  label: 'Monitoring summary',
+                  value: record.monitoringSummary,
+                  icon: Icons.monitor_heart_outlined,
+                ),
+              ),
             ],
           ),
         ),
@@ -336,7 +429,7 @@ class _ActivityTab extends StatelessWidget {
               for (final subject in record.subjects)
                 Padding(
                   padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                  child: _SubjectRow(subject: subject),
+                  child: StaffSubjectActivityCard(subject: subject),
                 ),
             ],
           ),
@@ -382,6 +475,10 @@ class _MonitoringTab extends StatelessWidget {
                 label: 'Recent activity',
                 value: record.recentActivity,
               ),
+              _MetricTile(
+                label: 'Usage summary',
+                value: record.activitySummary,
+              ),
             ],
           ),
         ),
@@ -393,7 +490,7 @@ class _MonitoringTab extends StatelessWidget {
               for (final event in record.timeline)
                 Padding(
                   padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                  child: _TimelineRow(event: event),
+                  child: StaffTimelineTile(event: event),
                 ),
             ],
           ),
@@ -496,45 +593,6 @@ class _CompletionRing extends StatelessWidget {
   }
 }
 
-class _InfoGrid extends StatelessWidget {
-  const _InfoGrid({required this.items});
-
-  final List<_InfoItem> items;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: AppSpacing.sm,
-      runSpacing: AppSpacing.sm,
-      children: [
-        for (final item in items)
-          SizedBox(
-            width: 180,
-            child: Container(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              decoration: StaffManagementDecorations.outline(context),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(item.label, style: Theme.of(context).textTheme.bodySmall),
-                  const SizedBox(height: 6),
-                  Text(item.value, style: Theme.of(context).textTheme.titleSmall),
-                ],
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _InfoItem {
-  const _InfoItem(this.label, this.value);
-
-  final String label;
-  final String value;
-}
-
 class _MetricTile extends StatelessWidget {
   const _MetricTile({required this.label, required this.value});
 
@@ -544,7 +602,7 @@ class _MetricTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 146,
+      width: 156,
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -559,138 +617,6 @@ class _MetricTile extends StatelessWidget {
           Text(value, style: Theme.of(context).textTheme.titleSmall),
         ],
       ),
-    );
-  }
-}
-
-class _SubjectRow extends StatelessWidget {
-  const _SubjectRow({required this.subject});
-
-  final StaffSubjectAssignment subject;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
-        border: Border.all(color: Theme.of(context).dividerColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${subject.code} · ${subject.title}',
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subject.section,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-              ),
-              StaffStatusBadge(subject.status),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: [
-              StaffStatusBadge('${subject.lectures} lectures'),
-              StaffStatusBadge('${subject.tasks} tasks'),
-              StaffStatusBadge('${subject.posts} posts'),
-              StaffStatusBadge('${subject.uploads} uploads'),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppConstants.pillRadius),
-            child: LinearProgressIndicator(
-              value: subject.engagementRate / 100,
-              minHeight: 8,
-              backgroundColor: StaffManagementPalette.engagement.withValues(
-                alpha: 0.12,
-              ),
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                StaffManagementPalette.engagement,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TimelineRow extends StatelessWidget {
-  const _TimelineRow({required this.event});
-
-  final StaffTimelineEvent event;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = switch (event.emphasis) {
-      'critical' => StaffManagementPalette.risk,
-      'attention' => StaffManagementPalette.delegated,
-      'strong' => StaffManagementPalette.attendance,
-      _ => StaffManagementPalette.doctor,
-    };
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          margin: const EdgeInsets.only(top: 4),
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
-              border: Border.all(color: Theme.of(context).dividerColor),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        event.title,
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                    ),
-                    Text(
-                      event.timeLabel,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  event.subtitle,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

@@ -34,6 +34,7 @@ class StaffSearchActionsPanel extends StatelessWidget {
     required this.onAddDoctor,
     required this.onAddAssistant,
     required this.onManagePermissions,
+    required this.onExport,
   });
 
   final TextEditingController searchController;
@@ -58,6 +59,7 @@ class StaffSearchActionsPanel extends StatelessWidget {
   final VoidCallback onAddDoctor;
   final VoidCallback onAddAssistant;
   final VoidCallback onManagePermissions;
+  final VoidCallback onExport;
 
   @override
   Widget build(BuildContext context) {
@@ -88,10 +90,11 @@ class StaffSearchActionsPanel extends StatelessWidget {
             isSecondary: true,
             onPressed: onManagePermissions,
           ),
-          const PremiumButton(
+          PremiumButton(
             label: 'Export',
             icon: Icons.download_rounded,
             isSecondary: true,
+            onPressed: onExport,
           ),
         ],
       ),
@@ -111,15 +114,17 @@ class StaffSearchActionsPanel extends StatelessWidget {
               StaffStatusBadge(roleFilter),
               if (departmentFilter != 'All departments')
                 StaffStatusBadge(departmentFilter),
-              if (statusFilter != 'All statuses') StaffStatusBadge(statusFilter),
+              if (statusFilter != 'All statuses')
+                StaffStatusBadge(statusFilter),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
           LayoutBuilder(
             builder: (context, constraints) {
               final compact = constraints.maxWidth < 980;
-              final searchWidth =
-                  compact ? constraints.maxWidth : constraints.maxWidth * 0.34;
+              final searchWidth = compact
+                  ? constraints.maxWidth
+                  : constraints.maxWidth * 0.32;
               return Wrap(
                 spacing: AppSpacing.md,
                 runSpacing: AppSpacing.md,
@@ -177,6 +182,38 @@ class StaffSearchActionsPanel extends StatelessWidget {
                       onChanged: onStatusChanged,
                     ),
                   ),
+                  if (!compact)
+                    SizedBox(
+                      width: 220,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.md,
+                          vertical: AppSpacing.sm,
+                        ),
+                        decoration: StaffManagementDecorations.outline(context),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Control pulse',
+                              style: Theme.of(context).textTheme.labelMedium,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              activeFilterCount == 0
+                                  ? 'All staff in view'
+                                  : 'Focused monitoring mode',
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              '$resultsCount profiles currently visible in the filtered directory.',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               );
             },
@@ -238,7 +275,7 @@ class StaffSearchActionsPanel extends StatelessWidget {
                         children: const [
                           _AdvancedChip(label: 'Attendance below 70%'),
                           _AdvancedChip(label: 'Delegated doctors only'),
-                          _AdvancedChip(label: 'Invite pending'),
+                          _AdvancedChip(label: 'Monitoring active'),
                           _AdvancedChip(label: 'Low permissions coverage'),
                           _AdvancedChip(label: 'High content output'),
                           _AdvancedChip(label: 'Inactive accounts'),

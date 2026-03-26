@@ -5,15 +5,12 @@ import '../../../../core/spacing/app_spacing.dart';
 import '../../../../shared/widgets/premium_button.dart';
 import '../../models/staff_admin_models.dart';
 import '../design/staff_management_tokens.dart';
+import '../widgets/staff_data_primitives.dart';
 import '../widgets/staff_permissions_panel.dart';
 import '../widgets/staff_status_badge.dart';
 
 class StaffAccountFormSheet extends StatefulWidget {
-  const StaffAccountFormSheet({
-    super.key,
-    this.record,
-    this.rolePreset,
-  });
+  const StaffAccountFormSheet({super.key, this.record, this.rolePreset});
 
   final StaffAdminRecord? record;
   final String? rolePreset;
@@ -45,17 +42,19 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
     _emailController = TextEditingController(text: record?.email ?? '');
     _idController = TextEditingController(text: record?.employeeId ?? '');
     _assignmentController = TextEditingController(
-      text: record?.subjects
+      text:
+          record?.subjects
               .map((subject) => '${subject.code} ${subject.title}')
               .join(', ') ??
           '',
     );
     _notesController = TextEditingController(
-      text: record?.recentActivity ?? 'Academic assignments and onboarding notes.',
+      text:
+          record?.recentActivity ??
+          'Academic assignments and onboarding notes.',
     );
     _role = widget.rolePreset ?? record?.role ?? 'Doctor';
-    _doctorType =
-        record?.doctorType ?? 'Internal faculty doctor';
+    _doctorType = record?.doctorType ?? 'Internal faculty doctor';
     _department = record?.department ?? 'Computer Science';
     _status = record?.status ?? 'Active';
     _groups = record?.permissionGroups ?? _defaultPermissionGroups();
@@ -76,6 +75,8 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
     final title = widget.record == null
         ? 'Create ${_isDoctor ? 'doctor' : 'assistant'} account'
         : 'Edit staff account';
+    final width = MediaQuery.sizeOf(context).width;
+    final useSideSummary = width >= 1100;
 
     return SafeArea(
       child: Material(
@@ -127,126 +128,173 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
                   runSpacing: AppSpacing.sm,
                   children: [
                     StaffStatusBadge(_role),
-                    StaffStatusBadge(_isDoctor ? _doctorType : 'Teaching assistant'),
+                    StaffStatusBadge(
+                      _isDoctor ? _doctorType : 'Teaching assistant',
+                    ),
                     StaffStatusBadge(_status),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                _FormSection(
-                  title: 'Identity',
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final compact = constraints.maxWidth < 820;
-                      return Wrap(
-                        spacing: AppSpacing.md,
-                        runSpacing: AppSpacing.md,
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    if (!useSideSummary) {
+                      return Column(
                         children: [
-                          SizedBox(
-                            width: compact ? constraints.maxWidth : 320,
-                            child: TextField(
-                              controller: _nameController,
-                              decoration: const InputDecoration(
-                                labelText: 'Full name',
-                                prefixIcon: Icon(Icons.person_outline_rounded),
-                              ),
-                            ),
+                          _IdentitySection(
+                            nameController: _nameController,
+                            emailController: _emailController,
+                            idController: _idController,
+                            department: _department,
+                            onDepartmentChanged: (value) =>
+                                setState(() => _department = value),
                           ),
-                          SizedBox(
-                            width: compact ? constraints.maxWidth : 320,
-                            child: TextField(
-                              controller: _emailController,
-                              decoration: const InputDecoration(
-                                labelText: 'Email',
-                                prefixIcon: Icon(Icons.alternate_email_rounded),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: compact ? constraints.maxWidth : 220,
-                            child: TextField(
-                              controller: _idController,
-                              decoration: const InputDecoration(
-                                labelText: 'Staff ID',
-                                prefixIcon: Icon(Icons.badge_outlined),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: compact ? constraints.maxWidth : 220,
-                            child: _DropdownField(
-                              label: 'Department',
-                              value: _department,
-                              items: const [
-                                'Computer Science',
-                                'Information Systems',
-                                'Engineering',
-                              ],
-                              onChanged: (value) =>
-                                  setState(() => _department = value),
-                            ),
+                          const SizedBox(height: AppSpacing.lg),
+                          _RoleSection(
+                            role: _role,
+                            doctorType: _doctorType,
+                            status: _status,
+                            isDoctor: _isDoctor,
+                            assignmentController: _assignmentController,
+                            onRoleChanged: (value) =>
+                                setState(() => _role = value),
+                            onDoctorTypeChanged: (value) =>
+                                setState(() => _doctorType = value),
+                            onStatusChanged: (value) =>
+                                setState(() => _status = value),
                           ),
                         ],
                       );
-                    },
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                _FormSection(
-                  title: 'Role and access',
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final compact = constraints.maxWidth < 820;
-                      return Wrap(
-                        spacing: AppSpacing.md,
-                        runSpacing: AppSpacing.md,
-                        children: [
-                          SizedBox(
-                            width: compact ? constraints.maxWidth : 220,
-                            child: _DropdownField(
-                              label: 'Role type',
-                              value: _role,
-                              items: const ['Doctor', 'Assistant'],
-                              onChanged: (value) => setState(() => _role = value),
-                            ),
-                          ),
-                          if (_isDoctor)
-                            SizedBox(
-                              width: compact ? constraints.maxWidth : 280,
-                              child: _DropdownField(
-                                label: 'Doctor type',
-                                value: _doctorType,
-                                items: const [
-                                  'Internal faculty doctor',
-                                  'Delegated / external doctor',
-                                ],
-                                onChanged: (value) =>
+                    }
+
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: Column(
+                            children: [
+                              _IdentitySection(
+                                nameController: _nameController,
+                                emailController: _emailController,
+                                idController: _idController,
+                                department: _department,
+                                onDepartmentChanged: (value) =>
+                                    setState(() => _department = value),
+                              ),
+                              const SizedBox(height: AppSpacing.lg),
+                              _RoleSection(
+                                role: _role,
+                                doctorType: _doctorType,
+                                status: _status,
+                                isDoctor: _isDoctor,
+                                assignmentController: _assignmentController,
+                                onRoleChanged: (value) =>
+                                    setState(() => _role = value),
+                                onDoctorTypeChanged: (value) =>
                                     setState(() => _doctorType = value),
+                                onStatusChanged: (value) =>
+                                    setState(() => _status = value),
                               ),
-                            ),
-                          SizedBox(
-                            width: compact ? constraints.maxWidth : 220,
-                            child: _DropdownField(
-                              label: 'Account status',
-                              value: _status,
-                              items: const ['Active', 'Inactive'],
-                              onChanged: (value) => setState(() => _status = value),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.lg),
+                        Expanded(
+                          child: _FormSection(
+                            title: 'Account blueprint',
+                            child: ListenableBuilder(
+                              listenable: Listenable.merge([
+                                _nameController,
+                                _emailController,
+                                _assignmentController,
+                              ]),
+                              builder: (context, _) {
+                                final previewName = _nameController.text.isEmpty
+                                    ? 'Staff profile preview'
+                                    : _nameController.text;
+                                final previewEmail =
+                                    _emailController.text.isEmpty
+                                    ? 'Account email preview'
+                                    : _emailController.text;
+                                final assignmentSummary =
+                                    _assignmentController.text.isEmpty
+                                    ? 'No assignments entered yet.'
+                                    : _assignmentController.text;
+
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        StaffAvatarBadge(
+                                          fullName: previewName,
+                                          isDoctor: _isDoctor,
+                                          size: 58,
+                                          radius: 20,
+                                        ),
+                                        const SizedBox(width: AppSpacing.md),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                previewName,
+                                                style: Theme.of(
+                                                  context,
+                                                ).textTheme.titleMedium,
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                previewEmail,
+                                                style: Theme.of(
+                                                  context,
+                                                ).textTheme.bodySmall,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: AppSpacing.md),
+                                    Wrap(
+                                      spacing: AppSpacing.sm,
+                                      runSpacing: AppSpacing.sm,
+                                      children: [
+                                        StaffStatusBadge(_role),
+                                        StaffStatusBadge(
+                                          _isDoctor
+                                              ? _doctorType
+                                              : 'Teaching assistant',
+                                        ),
+                                        StaffStatusBadge(_status),
+                                      ],
+                                    ),
+                                    const SizedBox(height: AppSpacing.md),
+                                    StaffMetricMeter(
+                                      value: _permissionCoverage,
+                                      primary:
+                                          '${(_permissionCoverage * 100).round()}% permissions configured',
+                                      secondary:
+                                          '$_enabledPermissionsCount enabled academic actions ready at onboarding',
+                                      color: StaffManagementPalette.doctor,
+                                      compact: true,
+                                    ),
+                                    const SizedBox(height: AppSpacing.md),
+                                    StaffInfoTile(
+                                      label: 'Academic assignment summary',
+                                      value: assignmentSummary,
+                                      icon: Icons.library_books_outlined,
+                                    ),
+                                  ],
+                                );
+                              },
                             ),
                           ),
-                          SizedBox(
-                            width: compact ? constraints.maxWidth : 360,
-                            child: TextField(
-                              controller: _assignmentController,
-                              maxLines: 2,
-                              decoration: const InputDecoration(
-                                labelText: 'Academic assignments',
-                                hintText: 'Subjects, sections, labs, or teaching load',
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 _FormSection(
@@ -288,7 +336,8 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
                     maxLines: 4,
                     decoration: const InputDecoration(
                       labelText: 'Onboarding notes',
-                      hintText: 'Account review notes, allocation context, or internal remarks',
+                      hintText:
+                          'Account review notes, allocation context, or internal remarks',
                     ),
                   ),
                 ),
@@ -306,7 +355,9 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
                     const SizedBox(width: AppSpacing.sm),
                     Expanded(
                       child: PremiumButton(
-                        label: widget.record == null ? 'Create account' : 'Save changes',
+                        label: widget.record == null
+                            ? 'Create account'
+                            : 'Save changes',
                         icon: Icons.check_circle_outline_rounded,
                         onPressed: () => Navigator.of(context).pop(),
                       ),
@@ -319,6 +370,22 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
         ),
       ),
     );
+  }
+
+  int get _enabledPermissionsCount => _groups.fold<int>(
+    0,
+    (sum, group) =>
+        sum +
+        group.permissions.where((permission) => permission.enabled).length,
+  );
+
+  double get _permissionCoverage {
+    final total = _groups.fold<int>(
+      0,
+      (sum, group) => sum + group.permissions.length,
+    );
+    if (total == 0) return 0;
+    return _enabledPermissionsCount / total;
   }
 
   void _togglePermission(String permissionId, bool enabled) {
@@ -348,7 +415,8 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
           StaffPermission(
             id: 'create_lectures',
             title: 'Create lectures',
-            description: 'Publish lecture sessions and structured lecture entries.',
+            description:
+                'Publish lecture sessions and structured lecture entries.',
             enabled: true,
           ),
           StaffPermission(
@@ -386,7 +454,8 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
           StaffPermission(
             id: 'view_progress',
             title: 'View student progress',
-            description: 'Track academic completion and student progress metrics.',
+            description:
+                'Track academic completion and student progress metrics.',
             enabled: false,
           ),
         ],
@@ -400,7 +469,8 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
           StaffPermission(
             id: 'post_course_updates',
             title: 'Post in course/community',
-            description: 'Create posts and academic announcements for students.',
+            description:
+                'Create posts and academic announcements for students.',
             enabled: true,
           ),
           StaffPermission(
@@ -412,7 +482,8 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
           StaffPermission(
             id: 'update_schedule',
             title: 'Update schedule',
-            description: 'Adjust classes or academic schedule items when allowed.',
+            description:
+                'Adjust classes or academic schedule items when allowed.',
             enabled: false,
           ),
         ],
@@ -470,6 +541,165 @@ class _DropdownField extends StatelessWidget {
       onChanged: (next) {
         if (next != null) onChanged(next);
       },
+    );
+  }
+}
+
+class _IdentitySection extends StatelessWidget {
+  const _IdentitySection({
+    required this.nameController,
+    required this.emailController,
+    required this.idController,
+    required this.department,
+    required this.onDepartmentChanged,
+  });
+
+  final TextEditingController nameController;
+  final TextEditingController emailController;
+  final TextEditingController idController;
+  final String department;
+  final ValueChanged<String> onDepartmentChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return _FormSection(
+      title: 'Identity',
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 820;
+          return Wrap(
+            spacing: AppSpacing.md,
+            runSpacing: AppSpacing.md,
+            children: [
+              SizedBox(
+                width: compact ? constraints.maxWidth : 320,
+                child: TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Full name',
+                    prefixIcon: Icon(Icons.person_outline_rounded),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: compact ? constraints.maxWidth : 320,
+                child: TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    prefixIcon: Icon(Icons.alternate_email_rounded),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: compact ? constraints.maxWidth : 220,
+                child: TextField(
+                  controller: idController,
+                  decoration: const InputDecoration(
+                    labelText: 'Staff ID',
+                    prefixIcon: Icon(Icons.badge_outlined),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: compact ? constraints.maxWidth : 220,
+                child: _DropdownField(
+                  label: 'Department',
+                  value: department,
+                  items: const [
+                    'Computer Science',
+                    'Information Systems',
+                    'Engineering',
+                  ],
+                  onChanged: onDepartmentChanged,
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _RoleSection extends StatelessWidget {
+  const _RoleSection({
+    required this.role,
+    required this.doctorType,
+    required this.status,
+    required this.isDoctor,
+    required this.assignmentController,
+    required this.onRoleChanged,
+    required this.onDoctorTypeChanged,
+    required this.onStatusChanged,
+  });
+
+  final String role;
+  final String doctorType;
+  final String status;
+  final bool isDoctor;
+  final TextEditingController assignmentController;
+  final ValueChanged<String> onRoleChanged;
+  final ValueChanged<String> onDoctorTypeChanged;
+  final ValueChanged<String> onStatusChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return _FormSection(
+      title: 'Role and access',
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 820;
+          return Wrap(
+            spacing: AppSpacing.md,
+            runSpacing: AppSpacing.md,
+            children: [
+              SizedBox(
+                width: compact ? constraints.maxWidth : 220,
+                child: _DropdownField(
+                  label: 'Role type',
+                  value: role,
+                  items: const ['Doctor', 'Assistant'],
+                  onChanged: onRoleChanged,
+                ),
+              ),
+              if (isDoctor)
+                SizedBox(
+                  width: compact ? constraints.maxWidth : 280,
+                  child: _DropdownField(
+                    label: 'Doctor type',
+                    value: doctorType,
+                    items: const [
+                      'Internal faculty doctor',
+                      'Delegated / external doctor',
+                    ],
+                    onChanged: onDoctorTypeChanged,
+                  ),
+                ),
+              SizedBox(
+                width: compact ? constraints.maxWidth : 220,
+                child: _DropdownField(
+                  label: 'Account status',
+                  value: status,
+                  items: const ['Active', 'Inactive'],
+                  onChanged: onStatusChanged,
+                ),
+              ),
+              SizedBox(
+                width: compact ? constraints.maxWidth : 360,
+                child: TextField(
+                  controller: assignmentController,
+                  maxLines: 2,
+                  decoration: const InputDecoration(
+                    labelText: 'Academic assignments',
+                    hintText: 'Subjects, sections, labs, or teaching load',
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

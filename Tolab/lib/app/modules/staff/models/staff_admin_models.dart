@@ -65,16 +65,16 @@ class StaffAdminRecord {
   bool get isDelegatedDoctor => isDoctor && !isInternalDoctor;
 
   int get enabledPermissionsCount => permissionGroups.fold<int>(
-        0,
-        (sum, group) =>
-            sum +
-            group.permissions.where((permission) => permission.enabled).length,
-      );
+    0,
+    (sum, group) =>
+        sum +
+        group.permissions.where((permission) => permission.enabled).length,
+  );
 
   int get totalPermissionsCount => permissionGroups.fold<int>(
-        0,
-        (sum, group) => sum + group.permissions.length,
-      );
+    0,
+    (sum, group) => sum + group.permissions.length,
+  );
 
   int get totalAcademicOutputs =>
       lecturesUploaded + tasksCreated + postsCreated + uploadsCount;
@@ -91,6 +91,10 @@ class StaffAdminRecord {
   String get roleTypeLabel => doctorType ?? 'Teaching assistant';
   String get attendanceSummary => '${attendanceRate.round()}% present';
   String get engagementSummary => '${engagementRate.round()}% engagement';
+  String get activitySummary =>
+      '$totalAcademicOutputs academic outputs • $scheduleUpdates schedule changes';
+  String get monitoringSummary =>
+      '$accountCreationStatus • Last active $lastActiveLabel';
 
   String get attendanceBand {
     if (attendanceRate >= 90) return 'Excellent';
@@ -104,6 +108,12 @@ class StaffAdminRecord {
     if (engagementRate >= 76) return 'Healthy';
     if (engagementRate >= 65) return 'Moderate';
     return 'Low activity';
+  }
+
+  String get accountHealthBand {
+    if (needsAttention) return 'Needs review';
+    if (permissionCoverage >= 88 && attendanceRate >= 88) return 'Controlled';
+    return 'Monitored';
   }
 
   StaffAdminRecord copyWith({
@@ -157,9 +167,7 @@ class StaffPermissionGroup {
   final IconData icon;
   final List<StaffPermission> permissions;
 
-  StaffPermissionGroup copyWith({
-    List<StaffPermission>? permissions,
-  }) {
+  StaffPermissionGroup copyWith({List<StaffPermission>? permissions}) {
     return StaffPermissionGroup(
       id: id,
       title: title,

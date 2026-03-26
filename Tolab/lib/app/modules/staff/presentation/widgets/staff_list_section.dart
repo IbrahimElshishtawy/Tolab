@@ -7,6 +7,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../models/staff_admin_models.dart';
 import '../design/staff_management_tokens.dart';
+import 'staff_data_primitives.dart';
 import 'staff_section_card.dart';
 import 'staff_status_badge.dart';
 
@@ -21,6 +22,8 @@ class StaffListSection extends StatelessWidget {
     required this.onOpenDetails,
     required this.onEdit,
     required this.onManagePermissions,
+    required this.onViewAttendance,
+    required this.onInspectActivity,
   });
 
   final List<StaffAdminRecord> records;
@@ -31,6 +34,8 @@ class StaffListSection extends StatelessWidget {
   final ValueChanged<StaffAdminRecord> onOpenDetails;
   final ValueChanged<StaffAdminRecord> onEdit;
   final ValueChanged<StaffAdminRecord> onManagePermissions;
+  final ValueChanged<StaffAdminRecord> onViewAttendance;
+  final ValueChanged<StaffAdminRecord> onInspectActivity;
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +65,8 @@ class StaffListSection extends StatelessWidget {
                   onOpenDetails: onOpenDetails,
                   onEdit: onEdit,
                   onManagePermissions: onManagePermissions,
+                  onViewAttendance: onViewAttendance,
+                  onInspectActivity: onInspectActivity,
                 )
               : _StaffTable(
                   records: records,
@@ -70,6 +77,8 @@ class StaffListSection extends StatelessWidget {
                   onOpenDetails: onOpenDetails,
                   onEdit: onEdit,
                   onManagePermissions: onManagePermissions,
+                  onViewAttendance: onViewAttendance,
+                  onInspectActivity: onInspectActivity,
                 );
         },
       ),
@@ -87,6 +96,8 @@ class _StaffTable extends StatelessWidget {
     required this.onOpenDetails,
     required this.onEdit,
     required this.onManagePermissions,
+    required this.onViewAttendance,
+    required this.onInspectActivity,
   });
 
   final List<StaffAdminRecord> records;
@@ -97,6 +108,8 @@ class _StaffTable extends StatelessWidget {
   final ValueChanged<StaffAdminRecord> onOpenDetails;
   final ValueChanged<StaffAdminRecord> onEdit;
   final ValueChanged<StaffAdminRecord> onManagePermissions;
+  final ValueChanged<StaffAdminRecord> onViewAttendance;
+  final ValueChanged<StaffAdminRecord> onInspectActivity;
 
   @override
   Widget build(BuildContext context) {
@@ -107,9 +120,9 @@ class _StaffTable extends StatelessWidget {
         sortAscending: sortAscending,
         columnSpacing: 16,
         horizontalMargin: 12,
-        dataRowHeight: 86,
+        dataRowHeight: 98,
         headingRowHeight: 58,
-        minWidth: 1360,
+        minWidth: 1400,
         columns: [
           DataColumn2(
             label: const Text('Staff'),
@@ -127,10 +140,12 @@ class _StaffTable extends StatelessWidget {
           ),
           DataColumn2(
             label: const Text('Attendance'),
+            size: ColumnSize.L,
             onSort: (index, ascending) => onSort('attendance'),
           ),
           DataColumn2(
             label: const Text('Engagement'),
+            size: ColumnSize.L,
             onSort: (index, ascending) => onSort('engagement'),
           ),
           DataColumn2(
@@ -164,22 +179,30 @@ class _StaffTable extends StatelessWidget {
                   ),
                 ),
                 DataCell(
-                  _MetricMeter(
-                    value: record.attendanceRate / 100,
-                    primary: '${record.attendanceRate.round()}%',
-                    secondary: record.attendanceRate >= 80
-                        ? 'Healthy presence'
-                        : 'Needs follow-up',
-                    color: StaffManagementPalette.attendance,
+                  SizedBox(
+                    width: 170,
+                    child: StaffMetricMeter(
+                      value: record.attendanceRate / 100,
+                      primary: '${record.attendanceRate.round()}%',
+                      secondary: record.attendanceRate >= 80
+                          ? 'Healthy presence'
+                          : 'Needs follow-up',
+                      color: StaffManagementPalette.attendance,
+                      compact: true,
+                    ),
                   ),
                 ),
                 DataCell(
-                  _MetricMeter(
-                    value: record.engagementRate / 100,
-                    primary: '${record.engagementRate.round()}%',
-                    secondary:
-                        '${record.lecturesUploaded + record.tasksCreated + record.postsCreated} academic outputs',
-                    color: StaffManagementPalette.engagement,
+                  SizedBox(
+                    width: 180,
+                    child: StaffMetricMeter(
+                      value: record.engagementRate / 100,
+                      primary: '${record.engagementRate.round()}%',
+                      secondary:
+                          '${record.lecturesUploaded + record.tasksCreated + record.postsCreated} academic outputs',
+                      color: StaffManagementPalette.engagement,
+                      compact: true,
+                    ),
                   ),
                 ),
                 DataCell(
@@ -198,18 +221,24 @@ class _StaffTable extends StatelessWidget {
                 DataCell(
                   Row(
                     children: [
-                      IconButton(
+                      StaffActionIconButton(
                         onPressed: () => onOpenDetails(record),
-                        icon: const Icon(Icons.visibility_outlined, size: 18),
+                        icon: Icons.visibility_outlined,
+                        tooltip: 'Open details',
                       ),
-                      IconButton(
+                      StaffActionIconButton(
                         onPressed: () => onEdit(record),
-                        icon: const Icon(Icons.edit_outlined, size: 18),
+                        icon: Icons.edit_outlined,
+                        tooltip: 'Edit account',
                       ),
                       PopupMenuButton<String>(
                         onSelected: (value) {
                           if (value == 'permissions') {
                             onManagePermissions(record);
+                          } else if (value == 'attendance') {
+                            onViewAttendance(record);
+                          } else if (value == 'activity') {
+                            onInspectActivity(record);
                           }
                         },
                         itemBuilder: (context) => const [
@@ -259,6 +288,8 @@ class _StaffCardList extends StatelessWidget {
     required this.onOpenDetails,
     required this.onEdit,
     required this.onManagePermissions,
+    required this.onViewAttendance,
+    required this.onInspectActivity,
   });
 
   final List<StaffAdminRecord> records;
@@ -266,6 +297,8 @@ class _StaffCardList extends StatelessWidget {
   final ValueChanged<StaffAdminRecord> onOpenDetails;
   final ValueChanged<StaffAdminRecord> onEdit;
   final ValueChanged<StaffAdminRecord> onManagePermissions;
+  final ValueChanged<StaffAdminRecord> onViewAttendance;
+  final ValueChanged<StaffAdminRecord> onInspectActivity;
 
   @override
   Widget build(BuildContext context) {
@@ -328,52 +361,72 @@ class _StaffCardList extends StatelessWidget {
                             icon: Icons.badge_outlined,
                             label: record.employeeId,
                           ),
+                          _InfoChip(
+                            icon: Icons.monitor_heart_outlined,
+                            label: record.accountHealthBand,
+                          ),
                         ],
                       ),
                       const SizedBox(height: AppSpacing.md),
                       Row(
                         children: [
                           Expanded(
-                            child: _MetricMeter(
+                            child: StaffMetricMeter(
                               value: record.attendanceRate / 100,
                               primary: '${record.attendanceRate.round()}%',
                               secondary: 'attendance',
                               color: StaffManagementPalette.attendance,
+                              compact: true,
                             ),
                           ),
                           const SizedBox(width: AppSpacing.sm),
                           Expanded(
-                            child: _MetricMeter(
+                            child: StaffMetricMeter(
                               value: record.engagementRate / 100,
                               primary: '${record.engagementRate.round()}%',
                               secondary: 'engagement',
                               color: StaffManagementPalette.engagement,
+                              compact: true,
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: AppSpacing.md),
-                      Row(
+                      Wrap(
+                        spacing: AppSpacing.sm,
+                        runSpacing: AppSpacing.sm,
                         children: [
-                          Expanded(
+                          SizedBox(
+                            width: 180,
                             child: _MetricText(
                               primary: record.permissionsSummary,
                               secondary: record.accountCreationStatus,
                             ),
                           ),
-                          IconButton(
+                          StaffActionIconButton(
                             onPressed: () => onEdit(record),
-                            icon: const Icon(Icons.edit_outlined),
+                            icon: Icons.edit_outlined,
+                            tooltip: 'Edit account',
                           ),
-                          IconButton(
+                          StaffActionIconButton(
                             onPressed: () => onManagePermissions(record),
-                            icon: const Icon(
-                              Icons.admin_panel_settings_outlined,
-                            ),
+                            icon: Icons.admin_panel_settings_outlined,
+                            tooltip: 'Manage permissions',
                           ),
-                          IconButton(
+                          StaffActionIconButton(
+                            onPressed: () => onViewAttendance(record),
+                            icon: Icons.fact_check_outlined,
+                            tooltip: 'View attendance',
+                          ),
+                          StaffActionIconButton(
+                            onPressed: () => onInspectActivity(record),
+                            icon: Icons.timeline_rounded,
+                            tooltip: 'Inspect activity',
+                          ),
+                          StaffActionIconButton(
                             onPressed: () => onOpenDetails(record),
-                            icon: const Icon(Icons.chevron_right_rounded),
+                            icon: Icons.chevron_right_rounded,
+                            tooltip: 'Open details',
                           ),
                         ],
                       ),
@@ -396,35 +449,9 @@ class _IdentityCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final initials = record.fullName
-        .split(' ')
-        .take(2)
-        .map((part) => part.characters.first)
-        .join();
-    final gradient = record.isDoctor
-        ? const [StaffManagementPalette.doctor, StaffManagementPalette.internal]
-        : const [
-            StaffManagementPalette.assistant,
-            StaffManagementPalette.engagement,
-          ];
-
     return Row(
       children: [
-        Container(
-          width: 44,
-          height: 44,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(colors: gradient),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Text(
-            initials,
-            style: Theme.of(
-              context,
-            ).textTheme.labelLarge?.copyWith(color: Colors.white),
-          ),
-        ),
+        StaffAvatarBadge(fullName: record.fullName, isDoctor: record.isDoctor),
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: Column(
@@ -437,7 +464,7 @@ class _IdentityCell extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                '${record.email} · ${record.employeeId}',
+                '${record.email} • ${record.employeeId}',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
@@ -486,43 +513,6 @@ class _MetricText extends StatelessWidget {
   }
 }
 
-class _MetricMeter extends StatelessWidget {
-  const _MetricMeter({
-    required this.value,
-    required this.primary,
-    required this.secondary,
-    required this.color,
-  });
-
-  final double value;
-  final String primary;
-  final String secondary;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(primary, style: Theme.of(context).textTheme.titleSmall),
-        const SizedBox(height: 2),
-        Text(secondary, style: Theme.of(context).textTheme.bodySmall),
-        const SizedBox(height: 8),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(AppConstants.pillRadius),
-          child: LinearProgressIndicator(
-            value: value.clamp(0, 1),
-            minHeight: 8,
-            backgroundColor: color.withValues(alpha: 0.12),
-            valueColor: AlwaysStoppedAnimation<Color>(color),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _InfoChip extends StatelessWidget {
   const _InfoChip({required this.icon, required this.label});
 
@@ -544,7 +534,11 @@ class _InfoChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: StaffManagementPalette.neutral),
+          Icon(
+            icon,
+            size: 14,
+            color: StaffManagementPalette.subtleText(context),
+          ),
           const SizedBox(width: 6),
           Text(label, style: Theme.of(context).textTheme.labelMedium),
         ],

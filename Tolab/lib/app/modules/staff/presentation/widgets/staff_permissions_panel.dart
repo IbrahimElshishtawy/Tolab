@@ -4,6 +4,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../models/staff_admin_models.dart';
 import '../design/staff_management_tokens.dart';
+import 'staff_data_primitives.dart';
 import 'staff_status_badge.dart';
 
 class StaffPermissionsPanel extends StatelessWidget {
@@ -22,13 +23,33 @@ class StaffPermissionsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final totalPermissions = groups.fold<int>(
+      0,
+      (sum, group) => sum + group.permissions.length,
+    );
+    final enabledPermissions = groups.fold<int>(
+      0,
+      (sum, group) =>
+          sum +
+          group.permissions.where((permission) => permission.enabled).length,
+    );
+    final coverage = totalPermissions == 0
+        ? 0.0
+        : enabledPermissions / totalPermissions;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (header != null) ...[
-          header!,
-          const SizedBox(height: AppSpacing.md),
-        ],
+        if (header != null) ...[header!, const SizedBox(height: AppSpacing.md)],
+        StaffMetricMeter(
+          value: coverage,
+          primary: '${(coverage * 100).round()}% permission coverage',
+          secondary:
+              '$enabledPermissions of $totalPermissions academic permissions currently enabled',
+          color: StaffManagementPalette.doctor,
+          compact: true,
+        ),
+        const SizedBox(height: AppSpacing.md),
         LayoutBuilder(
           builder: (context, constraints) {
             final compact = constraints.maxWidth < 900;
@@ -70,6 +91,9 @@ class _PermissionGroupCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final enabledCount = group.permissions.where((item) => item.enabled).length;
+    final coverage = group.permissions.isEmpty
+        ? 0.0
+        : enabledCount / group.permissions.length;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: StaffManagementDecorations.outline(context),
@@ -98,7 +122,10 @@ class _PermissionGroupCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(group.title, style: Theme.of(context).textTheme.titleSmall),
+                    Text(
+                      group.title,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
                     const SizedBox(height: 2),
                     Text(
                       group.subtitle,
@@ -109,6 +136,14 @@ class _PermissionGroupCard extends StatelessWidget {
               ),
               StaffStatusBadge('$enabledCount active'),
             ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          StaffMetricMeter(
+            value: coverage,
+            primary: '${(coverage * 100).round()}% access coverage',
+            secondary: 'Grouped permissions for ${group.title.toLowerCase()}',
+            color: StaffManagementPalette.engagement,
+            compact: true,
           ),
           const SizedBox(height: AppSpacing.md),
           for (final permission in group.permissions)

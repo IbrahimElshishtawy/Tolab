@@ -17,17 +17,21 @@ class StaffOverviewStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     final doctors = records.where((item) => item.isDoctor).toList();
     final assistants = records.where((item) => item.isAssistant).toList();
-    final internalDoctors = doctors.where((item) => item.isInternalDoctor).length;
-    final delegatedDoctors = doctors.where((item) => item.isDelegatedDoctor).length;
+    final internalDoctors = doctors
+        .where((item) => item.isInternalDoctor)
+        .length;
+    final delegatedDoctors = doctors
+        .where((item) => item.isDelegatedDoctor)
+        .length;
     final activeCount = records.where((item) => item.status == 'Active').length;
     final needsAttention = records.where((item) => item.needsAttention).length;
     final permissionAverage = records.isEmpty
         ? 0.0
         : records.fold<double>(
-              0,
-              (sum, item) => sum + item.permissionCoverage,
-            ) /
-            records.length;
+                0,
+                (sum, item) => sum + item.permissionCoverage,
+              ) /
+              records.length;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -68,7 +72,7 @@ class StaffOverviewStrip extends StatelessWidget {
                 subtitle:
                     '$internalDoctors internal and $delegatedDoctors delegated doctors.',
                 accent: StaffManagementPalette.internal,
-                icon: Icons.stethoscope_rounded,
+                icon: Icons.local_hospital_rounded,
                 footer: Wrap(
                   spacing: AppSpacing.xs,
                   runSpacing: AppSpacing.xs,
@@ -92,9 +96,9 @@ class StaffOverviewStrip extends StatelessWidget {
                 progress: assistants.isEmpty
                     ? 0
                     : assistants
-                            .where((item) => item.engagementRate >= 80)
-                            .length /
-                        assistants.length,
+                              .where((item) => item.engagementRate >= 80)
+                              .length /
+                          assistants.length,
                 progressLabel: 'High-engagement assistants',
                 footer: const StaffStatusBadge('Section and lab support'),
               ),
@@ -191,7 +195,9 @@ class _OverviewMetricCard extends StatelessWidget {
                   height: 6,
                   decoration: BoxDecoration(
                     color: accent.withValues(alpha: 0.18),
-                    borderRadius: BorderRadius.circular(AppConstants.pillRadius),
+                    borderRadius: BorderRadius.circular(
+                      AppConstants.pillRadius,
+                    ),
                   ),
                 ),
               ],
@@ -204,7 +210,10 @@ class _OverviewMetricCard extends StatelessWidget {
             Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
             if (progress != null && progressLabel != null) ...[
               const SizedBox(height: AppSpacing.md),
-              Text(progressLabel!, style: Theme.of(context).textTheme.labelMedium),
+              Text(
+                progressLabel!,
+                style: Theme.of(context).textTheme.labelMedium,
+              ),
               const SizedBox(height: AppSpacing.xs),
               ClipRRect(
                 borderRadius: BorderRadius.circular(AppConstants.pillRadius),

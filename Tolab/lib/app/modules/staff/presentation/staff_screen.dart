@@ -45,6 +45,7 @@ class _StaffScreenState extends State<StaffScreen> {
   String _sortBy = 'staff';
   bool _sortAscending = true;
   String? _selectedId;
+  String _selectedDetailsTab = 'Overview';
 
   final Map<String, bool> _permissionOverrides = <String, bool>{};
 
@@ -136,9 +137,8 @@ class _StaffScreenState extends State<StaffScreen> {
         action: PremiumButton(
           label: 'Retry',
           icon: Icons.refresh_rounded,
-          onPressed: () => StoreProvider.of<AppState>(
-            context,
-          ).dispatch(LoadStaffAction()),
+          onPressed: () =>
+              StoreProvider.of<AppState>(context).dispatch(LoadStaffAction()),
         ),
       );
     }
@@ -197,6 +197,7 @@ class _StaffScreenState extends State<StaffScreen> {
               _openPermissionsSheet(target);
             }
           },
+          onExport: _handleExport,
         ),
         const SizedBox(height: AppSpacing.lg),
         if (filtered.isEmpty)
@@ -222,6 +223,16 @@ class _StaffScreenState extends State<StaffScreen> {
                 _handleOpenDetails(record, showDetailsPanel),
             onEdit: (record) => _openAccountForm(record: record),
             onManagePermissions: _openPermissionsSheet,
+            onViewAttendance: (record) => _handleOpenDetails(
+              record,
+              showDetailsPanel,
+              initialTab: 'Monitoring',
+            ),
+            onInspectActivity: (record) => _handleOpenDetails(
+              record,
+              showDetailsPanel,
+              initialTab: 'Activity',
+            ),
           ),
       ],
     );
@@ -239,7 +250,9 @@ class _StaffScreenState extends State<StaffScreen> {
           width: 430,
           child: SingleChildScrollView(
             child: StaffDetailsPanel(
+              key: ValueKey('${selected.id}:$_selectedDetailsTab'),
               record: selected,
+              initialTab: _selectedDetailsTab,
               onEdit: (record) => _openAccountForm(record: record),
               onManagePermissions: _openPermissionsSheet,
               onTogglePermission: (permissionId, enabled) =>
@@ -308,15 +321,17 @@ class _StaffScreenState extends State<StaffScreen> {
       final factor = _sortAscending ? 1 : -1;
       final result = switch (_sortBy) {
         'role' => '${left.role}${left.roleTypeLabel}'.compareTo(
-            '${right.role}${right.roleTypeLabel}',
-          ),
+          '${right.role}${right.roleTypeLabel}',
+        ),
         'department' => left.department.compareTo(right.department),
         'attendance' => left.attendanceRate.compareTo(right.attendanceRate),
         'engagement' => left.engagementRate.compareTo(right.engagementRate),
-        'permissions' =>
-          left.permissionCoverage.compareTo(right.permissionCoverage),
-        'account' =>
-          left.accountCreationStatus.compareTo(right.accountCreationStatus),
+        'permissions' => left.permissionCoverage.compareTo(
+          right.permissionCoverage,
+        ),
+        'account' => left.accountCreationStatus.compareTo(
+          right.accountCreationStatus,
+        ),
         _ => left.fullName.compareTo(right.fullName),
       };
       return result * factor;
@@ -354,7 +369,8 @@ class _StaffScreenState extends State<StaffScreen> {
     final enabledPermissions = groups.fold<int>(
       0,
       (sum, group) =>
-          sum + group.permissions.where((permission) => permission.enabled).length,
+          sum +
+          group.permissions.where((permission) => permission.enabled).length,
     );
 
     return record.copyWith(
@@ -376,10 +392,17 @@ class _StaffScreenState extends State<StaffScreen> {
     });
   }
 
-  void _handleOpenDetails(StaffAdminRecord record, bool showDetailsPanel) {
-    setState(() => _selectedId = record.id);
+  void _handleOpenDetails(
+    StaffAdminRecord record,
+    bool showDetailsPanel, {
+    String initialTab = 'Overview',
+  }) {
+    setState(() {
+      _selectedId = record.id;
+      _selectedDetailsTab = initialTab;
+    });
     if (showDetailsPanel) return;
-    _openDetailsSheet(record);
+    _openDetailsSheet(record, initialTab: initialTab);
   }
 
   void _updatePermission(String staffId, String permissionId, bool enabled) {
@@ -399,8 +422,19 @@ class _StaffScreenState extends State<StaffScreen> {
       _advancedOpen = false;
       _sortBy = 'staff';
       _sortAscending = true;
+      _selectedDetailsTab = 'Overview';
       _searchController.clear();
     });
+  }
+
+  void _handleExport() {
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Staff export UI is ready for API wiring. Connect this action to CSV or Excel generation when backend support lands.',
+        ),
+      ),
+    );
   }
 
   Future<void> _openAccountForm({
@@ -420,6 +454,7 @@ class _StaffScreenState extends State<StaffScreen> {
   }
 
   Future<void> _openPermissionsSheet(StaffAdminRecord record) {
+    final resolvedRecord = _applyPermissionOverrides(record);
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -429,9 +464,7 @@ class _StaffScreenState extends State<StaffScreen> {
         heightFactor: AppBreakpoints.isMobile(context) ? 0.92 : 0.84,
         child: Material(
           color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(30),
-          ),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
             child: Column(
@@ -443,12 +476,12 @@ class _StaffScreenState extends State<StaffScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${record.fullName} - ${record.role} - ${record.department}',
+                  '${resolvedRecord.fullName} - ${resolvedRecord.role} - ${resolvedRecord.department}',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 StaffPermissionsPanel(
-                  groups: record.permissionGroups,
+                  groups: resolvedRecord.permissionGroups,
                   editable: true,
                   onPermissionChanged: (permissionId, enabled) =>
                       _updatePermission(record.id, permissionId, enabled),
@@ -461,7 +494,10 @@ class _StaffScreenState extends State<StaffScreen> {
     );
   }
 
-  Future<void> _openDetailsSheet(StaffAdminRecord record) {
+  Future<void> _openDetailsSheet(
+    StaffAdminRecord record, {
+    String initialTab = 'Overview',
+  }) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -473,6 +509,7 @@ class _StaffScreenState extends State<StaffScreen> {
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
           child: StaffDetailsPanel(
             record: _applyPermissionOverrides(record),
+            initialTab: initialTab,
             onEdit: (value) => _openAccountForm(record: value),
             onManagePermissions: _openPermissionsSheet,
             onTogglePermission: (permissionId, enabled) =>
