@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:redux/redux.dart';
-import 'package:tolab_fci/app.dart';
-import 'package:tolab_fci/redux/app_state.dart';
-import 'package:tolab_fci/redux/reducers.dart';
+import 'package:tolab_fci/app/modules/settings/presentation/settings_screen.dart';
+import 'package:tolab_fci/app/state/app_reducer.dart';
+import 'package:tolab_fci/app/state/app_state.dart';
 
 void main() {
-  testWidgets('App builds', (WidgetTester tester) async {
+  testWidgets('settings screen exposes security section', (tester) async {
     final store = Store<AppState>(appReducer, initialState: AppState.initial());
 
-    await tester.pumpWidget(App(store: store));
+    await tester.pumpWidget(
+      StoreProvider<AppState>(
+        store: store,
+        child: const MaterialApp(home: Scaffold(body: SettingsScreen())),
+      ),
+    );
+    await tester.pumpAndSettle();
 
-    // Pump to handle any initial frames
-    await tester.pump();
-
-    expect(find.byType(MaterialApp), findsOneWidget);
-
-    // To handle the SplashScreen timer if it's still there
-    await tester.pumpAndSettle(const Duration(seconds: 3));
+    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Security'), findsOneWidget);
   });
 }

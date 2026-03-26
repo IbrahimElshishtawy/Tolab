@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:redux/redux.dart';
-import 'package:tolab_fci/features/auth/ui/login_screen.dart';
-import 'package:tolab_fci/redux/app_state.dart';
-import 'package:tolab_fci/redux/reducers.dart';
+import 'package:tolab_fci/app/modules/auth/presentation/login_screen.dart';
+import 'package:tolab_fci/app/state/app_reducer.dart';
+import 'package:tolab_fci/app/state/app_state.dart';
 
 void main() {
-  testWidgets('LoginScreen shows email and password fields', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('login screen renders seeded admin hint', (tester) async {
     final store = Store<AppState>(appReducer, initialState: AppState.initial());
 
     await tester.pumpWidget(
@@ -18,8 +16,9 @@ void main() {
         child: const MaterialApp(home: LoginScreen()),
       ),
     );
+    await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.byType(LoginScreen), findsOneWidget);
-    expect(find.byType(TextFormField), findsNWidgets(2));
+    expect(find.text('Admin Sign In'), findsOneWidget);
+    expect(find.textContaining('admin@tolab.edu'), findsWidgets);
   });
 }
