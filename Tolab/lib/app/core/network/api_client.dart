@@ -178,9 +178,12 @@ class ApiClient {
       if (data is! JsonMap) {
         return false;
       }
-      final accessToken = data['access_token']?.toString();
+      final accessToken =
+          data['access_token']?.toString() ?? data['accessToken']?.toString();
       final nextRefreshToken =
-          data['refresh_token']?.toString() ?? refreshToken;
+          data['refresh_token']?.toString() ??
+          data['refreshToken']?.toString() ??
+          refreshToken;
       if (accessToken == null || accessToken.isEmpty) {
         return false;
       }

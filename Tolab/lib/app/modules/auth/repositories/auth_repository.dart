@@ -9,6 +9,9 @@ import '../../../shared/models/auth_models.dart';
 class AuthRepository {
   AuthRepository(this._apiClient, this._demoDataService);
 
+  static const String _seededAdminEmail = 'admin@tolab.edu';
+  static const String _seededAdminPassword = 'Admin@123';
+
   final ApiClient _apiClient;
   final DemoDataService _demoDataService;
 
@@ -30,32 +33,19 @@ class AuthRepository {
       );
       return response;
     } on AppException catch (error) {
-      if (error.statusCode != null) {
+      if (error.statusCode != null &&
+          !_shouldUseDemoFallback(error.statusCode, email, password)) {
         rethrow;
       }
-      if (email == 'admin@tolab.edu' && password == 'Admin@123') {
-        return (
-          const AuthTokens(
-            accessToken:
-                'demo-access-token-demo-access-token-demo-access-token',
-            refreshToken:
-                'demo-refresh-token-demo-refresh-token-demo-refresh-token',
-          ),
-          _demoDataService.adminProfile(),
-        );
+      final demoSession = _buildDemoSession(email: email, password: password);
+      if (demoSession != null) {
+        return demoSession;
       }
       throw AppException('Invalid credentials.');
     } on DioException {
-      if (email == 'admin@tolab.edu' && password == 'Admin@123') {
-        return (
-          const AuthTokens(
-            accessToken:
-                'demo-access-token-demo-access-token-demo-access-token',
-            refreshToken:
-                'demo-refresh-token-demo-refresh-token-demo-refresh-token',
-          ),
-          _demoDataService.adminProfile(),
-        );
+      final demoSession = _buildDemoSession(email: email, password: password);
+      if (demoSession != null) {
+        return demoSession;
       }
       throw AppException('Invalid credentials.');
     }
@@ -70,5 +60,35 @@ class AuthRepository {
     } catch (_) {
       return _demoDataService.adminProfile();
     }
+  }
+
+  bool _shouldUseDemoFallback(int? statusCode, String email, String password) {
+    if (!_matchesSeededAdmin(email: email, password: password)) {
+      return false;
+    }
+
+    return statusCode == null || statusCode == 401;
+  }
+
+  bool _matchesSeededAdmin({required String email, required String password}) {
+    return email == _seededAdminEmail && password == _seededAdminPassword;
+  }
+
+  (AuthTokens, UserProfile)? _buildDemoSession({
+    required String email,
+    required String password,
+  }) {
+    if (!_matchesSeededAdmin(email: email, password: password)) {
+      return null;
+    }
+
+    return (
+      const AuthTokens(
+        accessToken: 'demo-access-token-demo-access-token-demo-access-token',
+        refreshToken:
+            'demo-refresh-token-demo-refresh-token-demo-refresh-token',
+      ),
+      _demoDataService.adminProfile(),
+    );
   }
 }

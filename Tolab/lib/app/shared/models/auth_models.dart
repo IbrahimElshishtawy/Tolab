@@ -8,8 +8,14 @@ class AuthTokens {
 
   factory AuthTokens.fromJson(JsonMap json) {
     return AuthTokens(
-      accessToken: json['access_token']?.toString() ?? '',
-      refreshToken: json['refresh_token']?.toString() ?? '',
+      accessToken:
+          json['access_token']?.toString() ??
+          json['accessToken']?.toString() ??
+          '',
+      refreshToken:
+          json['refresh_token']?.toString() ??
+          json['refreshToken']?.toString() ??
+          '',
     );
   }
 }
@@ -34,12 +40,16 @@ class UserProfile {
   final String? avatarUrl;
 
   factory UserProfile.fromJson(JsonMap json) {
+    final isActive = json['is_active'];
+
     return UserProfile(
       id: json['id']?.toString() ?? '',
-      name: json['name']?.toString() ?? '',
+      name: json['name']?.toString() ?? json['username']?.toString() ?? 'Admin',
       email: json['email']?.toString() ?? '',
       role: json['role']?.toString() ?? 'admin',
-      status: json['status']?.toString() ?? 'active',
+      status:
+          json['status']?.toString() ??
+          (isActive is bool ? (isActive ? 'active' : 'inactive') : 'active'),
       department: json['department']?.toString(),
       avatarUrl: json['avatar_url']?.toString(),
     );
