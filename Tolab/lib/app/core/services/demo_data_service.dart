@@ -10,6 +10,7 @@ import '../../shared/models/schedule_models.dart';
 import '../../shared/models/settings_models.dart';
 import '../../shared/models/staff_member.dart';
 import '../../shared/models/student.dart';
+import '../../modules/subjects/models/subject_management_models.dart';
 import '../../modules/staff/models/staff_admin_models.dart';
 import '../colors/app_colors.dart';
 
@@ -223,7 +224,8 @@ class DemoDataService {
       timeline: const [
         StaffTimelineEvent(
           title: 'Lecture package uploaded',
-          subtitle: 'Advanced Algorithms week 8 assets were synced successfully.',
+          subtitle:
+              'Advanced Algorithms week 8 assets were synced successfully.',
           timeLabel: 'Today, 09:14',
           emphasis: 'strong',
         ),
@@ -251,8 +253,10 @@ class DemoDataService {
       department: 'Information Systems',
       status: 'Active',
       accountCreationStatus: 'Provisioned',
-      roleSummary: 'Owns Enterprise Systems delivery and delegated schedule blocks.',
-      recentActivity: 'Posted case-study material and updated office-hour schedule.',
+      roleSummary:
+          'Owns Enterprise Systems delivery and delegated schedule blocks.',
+      recentActivity:
+          'Posted case-study material and updated office-hour schedule.',
       createdAtLabel: 'Feb 12, 2026',
       lastActiveLabel: '1 hour ago',
       attendanceRate: 84,
@@ -400,7 +404,8 @@ class DemoDataService {
       status: 'Active',
       accountCreationStatus: 'Invite pending',
       roleSummary: 'Delegated doctor covering AI electives and blended labs.',
-      recentActivity: 'Accepted subject assignment but has pending community permissions.',
+      recentActivity:
+          'Accepted subject assignment but has pending community permissions.',
       createdAtLabel: 'Mar 02, 2026',
       lastActiveLabel: '3 hours ago',
       attendanceRate: 77,
@@ -450,7 +455,8 @@ class DemoDataService {
         ),
         StaffTimelineEvent(
           title: 'Lecture content uploaded',
-          subtitle: 'AI elective materials were added to both assigned subjects.',
+          subtitle:
+              'AI elective materials were added to both assigned subjects.',
           timeLabel: 'Yesterday',
           emphasis: 'normal',
         ),
@@ -473,7 +479,8 @@ class DemoDataService {
       status: 'Active',
       accountCreationStatus: 'Provisioned',
       roleSummary: 'Primary section coordinator for enterprise labs.',
-      recentActivity: 'Closed student questions and uploaded lab support sheets.',
+      recentActivity:
+          'Closed student questions and uploaded lab support sheets.',
       createdAtLabel: 'Jan 18, 2026',
       lastActiveLabel: '18 minutes ago',
       attendanceRate: 93,
@@ -519,7 +526,8 @@ class DemoDataService {
       timeline: const [
         StaffTimelineEvent(
           title: 'Section resources uploaded',
-          subtitle: 'Database Systems support materials were added to the lab area.',
+          subtitle:
+              'Database Systems support materials were added to the lab area.',
           timeLabel: 'Today, 10:05',
           emphasis: 'strong',
         ),
@@ -548,7 +556,8 @@ class DemoDataService {
       status: 'Active',
       accountCreationStatus: 'Provisioned',
       roleSummary: 'Teaching assistant supporting operating systems sections.',
-      recentActivity: 'Uploaded lab notes and monitored task discussion threads.',
+      recentActivity:
+          'Uploaded lab notes and monitored task discussion threads.',
       createdAtLabel: 'Jan 24, 2026',
       lastActiveLabel: '42 minutes ago',
       attendanceRate: 86,
@@ -623,7 +632,8 @@ class DemoDataService {
       status: 'Inactive',
       accountCreationStatus: 'Suspended',
       roleSummary: 'Assistant profile with paused semester access.',
-      recentActivity: 'Temporary suspension was applied after attendance review.',
+      recentActivity:
+          'Temporary suspension was applied after attendance review.',
       createdAtLabel: 'Nov 30, 2025',
       lastActiveLabel: '6 days ago',
       attendanceRate: 68,
@@ -676,7 +686,8 @@ class DemoDataService {
         ),
         StaffTimelineEvent(
           title: 'Attendance warning raised',
-          subtitle: 'Presence score stayed below the expected line for two weeks.',
+          subtitle:
+              'Presence score stayed below the expected line for two weeks.',
           timeLabel: 'Yesterday',
           emphasis: 'critical',
         ),
@@ -698,7 +709,8 @@ class DemoDataService {
       department: 'Computer Science',
       status: 'Active',
       accountCreationStatus: 'Provisioned',
-      roleSummary: 'Assistant handling community follow-up and material uploads.',
+      roleSummary:
+          'Assistant handling community follow-up and material uploads.',
       recentActivity: 'Managed course posts and prepared this week lab sheets.',
       createdAtLabel: 'Feb 05, 2026',
       lastActiveLabel: '27 minutes ago',
@@ -751,13 +763,15 @@ class DemoDataService {
         ),
         StaffTimelineEvent(
           title: 'Task instructions uploaded',
-          subtitle: 'New testing-lab instructions were shared with both sections.',
+          subtitle:
+              'New testing-lab instructions were shared with both sections.',
           timeLabel: 'Yesterday',
           emphasis: 'normal',
         ),
         StaffTimelineEvent(
           title: 'Schedule patch approved',
-          subtitle: 'Assistant received permission to update one lab session slot.',
+          subtitle:
+              'Assistant received permission to update one lab session slot.',
           timeLabel: '2 days ago',
           emphasis: 'normal',
         ),
@@ -803,22 +817,525 @@ class DemoDataService {
     ),
   ];
 
-  List<SubjectModel> subjects() => const [
-    SubjectModel(
-      id: 'SUB-1',
+  List<SubjectRecord> subjects() => [
+    SubjectRecord(
+      id: 'SUB-401',
       code: 'CS401',
       name: 'Advanced Algorithms',
       department: 'Computer Science',
-      credits: 3,
-      status: 'active',
+      academicYear: 'Year 4',
+      creditHours: 3,
+      contactHours: 5,
+      status: 'Active',
+      doctor: const SubjectStaffMember(
+        id: 'DOC-401',
+        name: 'Dr. Hadeer Salah',
+        role: 'Doctor',
+        email: 'hadeer.salah@tolab.edu',
+        channelLabel: 'Algorithms faculty channel',
+        status: 'Live',
+        color: AppColors.primary,
+      ),
+      assistant: const SubjectStaffMember(
+        id: 'TA-512',
+        name: 'Eng. Menna Wael',
+        role: 'Assistant',
+        email: 'menna.wael@tolab.edu',
+        channelLabel: 'Section lab support',
+        status: 'Live',
+        color: AppColors.info,
+      ),
+      eligibleStudents: 160,
+      enrolledStudents: 142,
+      group: const SubjectGroupInfo(
+        enabled: true,
+        name: 'Algorithms Studio',
+        members: 151,
+        moderationLabel: 'Doctor + assistant moderators',
+        engagementLabel: 'High engagement',
+      ),
+      posts: const SubjectPostsInfo(
+        count: 36,
+        openingScope: 'Staff opens posts',
+        monitoringScope: 'Admin + doctor monitor',
+        recent: [
+          SubjectPostItem(
+            title: 'Week 8 complexity clinic',
+            author: 'Dr. Hadeer Salah',
+            timeLabel: '12 min ago',
+            status: 'Pinned',
+          ),
+          SubjectPostItem(
+            title: 'Late registration notice',
+            author: 'Admin Academic Office',
+            timeLabel: '1h ago',
+            status: 'Open',
+          ),
+          SubjectPostItem(
+            title: 'Lab guide uploaded',
+            author: 'Eng. Menna Wael',
+            timeLabel: 'Yesterday',
+            status: 'Reviewed',
+          ),
+        ],
+      ),
+      summaries: const SubjectSummariesInfo(
+        count: 12,
+        accessScope: 'Students can view summaries',
+        latest: [
+          SubjectSummaryItem(
+            title: 'Graph optimization recap',
+            versionLabel: 'v3',
+            updatedAtLabel: 'Today',
+          ),
+          SubjectSummaryItem(
+            title: 'DP pattern cheat sheet',
+            versionLabel: 'v2',
+            updatedAtLabel: 'Yesterday',
+          ),
+        ],
+      ),
+      access: const SubjectAccessInfo(
+        code: 'ALG-9X2P',
+        link: 'tolab.edu/join/cs401-alg',
+        lateJoinLabel: 'Late registration allowed through code and link',
+        regeneratedAtLabel: 'Regenerated 2 days ago',
+      ),
+      permissions: _subjectPermissions(
+        allowStudentPosts: false,
+        allowStaffPostModeration: true,
+        summariesVisibleToStudents: true,
+        studentListVisibleToDoctor: true,
+        studentListVisibleToAssistant: true,
+        staffOnlyStudentVisibility: true,
+        lateRegistrationEnabled: true,
+      ),
+      students: const [
+        SubjectStudentItem(
+          id: 'ST-1001',
+          name: 'Omar Adel',
+          section: 'CS-4A',
+          level: 'Level 4',
+          status: 'Enrolled',
+          privacyLabel: 'Hidden from peers',
+          lateJoin: false,
+        ),
+        SubjectStudentItem(
+          id: 'ST-1084',
+          name: 'Salma Emad',
+          section: 'CS-4B',
+          level: 'Level 4',
+          status: 'Enrolled',
+          privacyLabel: 'Hidden from peers',
+          lateJoin: true,
+        ),
+        SubjectStudentItem(
+          id: 'ST-1112',
+          name: 'Ziad Wael',
+          section: 'CS-4A',
+          level: 'Level 4',
+          status: 'Eligible',
+          privacyLabel: 'Visible to staff only',
+          lateJoin: false,
+        ),
+      ],
+      timeline: const [
+        SubjectTimelineEvent(
+          title: 'Late registration joined',
+          subtitle: 'Four students entered through the secure link flow.',
+          timeLabel: 'Today, 09:20',
+          tone: 'warning',
+        ),
+        SubjectTimelineEvent(
+          title: 'Pinned post updated',
+          subtitle: 'Doctor refreshed the exam preparation guidance.',
+          timeLabel: 'Today, 08:05',
+          tone: 'info',
+        ),
+        SubjectTimelineEvent(
+          title: 'Summary bundle uploaded',
+          subtitle: 'Teaching assistant added revision material set B.',
+          timeLabel: 'Yesterday',
+          tone: 'success',
+        ),
+      ],
+      activity: const [
+        SubjectActivityPoint('Mon', 58),
+        SubjectActivityPoint('Tue', 66),
+        SubjectActivityPoint('Wed', 61),
+        SubjectActivityPoint('Thu', 74),
+        SubjectActivityPoint('Fri', 81),
+        SubjectActivityPoint('Sat', 77),
+        SubjectActivityPoint('Sun', 84),
+      ],
+      updatedAtLabel: 'Updated 12 min ago',
+      lateRegistrationEnabled: true,
     ),
-    SubjectModel(
-      id: 'SUB-2',
+    SubjectRecord(
+      id: 'SUB-305',
       code: 'IS305',
       name: 'Enterprise Systems',
       department: 'Information Systems',
-      credits: 2,
-      status: 'active',
+      academicYear: 'Year 3',
+      creditHours: 3,
+      contactHours: 4,
+      status: 'Active',
+      doctor: const SubjectStaffMember(
+        id: 'DOC-412',
+        name: 'Dr. Mostafa Nader',
+        role: 'Doctor',
+        email: 'mostafa.nader@tolab.edu',
+        channelLabel: 'Enterprise strategy channel',
+        status: 'Live',
+        color: AppColors.primary,
+      ),
+      assistant: const SubjectStaffMember(
+        id: 'TA-501',
+        name: 'Eng. Ahmed Samir',
+        role: 'Assistant',
+        email: 'ahmed.samir@tolab.edu',
+        channelLabel: 'Lab and section desk',
+        status: 'Live',
+        color: AppColors.info,
+      ),
+      eligibleStudents: 120,
+      enrolledStudents: 98,
+      group: const SubjectGroupInfo(
+        enabled: true,
+        name: 'Enterprise Cohort',
+        members: 104,
+        moderationLabel: 'Assistant moderates student threads',
+        engagementLabel: 'Stable engagement',
+      ),
+      posts: const SubjectPostsInfo(
+        count: 24,
+        openingScope: 'Students request, staff publish',
+        monitoringScope: 'Doctor + assistant monitor',
+        recent: [
+          SubjectPostItem(
+            title: 'Case study discussion board',
+            author: 'Eng. Ahmed Samir',
+            timeLabel: '45 min ago',
+            status: 'Open',
+          ),
+          SubjectPostItem(
+            title: 'Project briefing pinned',
+            author: 'Dr. Mostafa Nader',
+            timeLabel: 'Today',
+            status: 'Pinned',
+          ),
+        ],
+      ),
+      summaries: const SubjectSummariesInfo(
+        count: 8,
+        accessScope: 'Students and staff',
+        latest: [
+          SubjectSummaryItem(
+            title: 'ERP implementation map',
+            versionLabel: 'v1',
+            updatedAtLabel: 'Today',
+          ),
+          SubjectSummaryItem(
+            title: 'SOA revision summary',
+            versionLabel: 'v4',
+            updatedAtLabel: '2 days ago',
+          ),
+        ],
+      ),
+      access: const SubjectAccessInfo(
+        code: 'ENT-54LM',
+        link: 'tolab.edu/join/is305-ent',
+        lateJoinLabel: 'Late join enabled for transferred students',
+        regeneratedAtLabel: 'Regenerated today',
+      ),
+      permissions: _subjectPermissions(
+        allowStudentPosts: true,
+        allowStaffPostModeration: true,
+        summariesVisibleToStudents: true,
+        studentListVisibleToDoctor: true,
+        studentListVisibleToAssistant: true,
+        staffOnlyStudentVisibility: true,
+        lateRegistrationEnabled: true,
+      ),
+      students: const [
+        SubjectStudentItem(
+          id: 'ST-1002',
+          name: 'Mariam Tarek',
+          section: 'IS-3B',
+          level: 'Level 3',
+          status: 'Enrolled',
+          privacyLabel: 'Hidden from peers',
+          lateJoin: false,
+        ),
+        SubjectStudentItem(
+          id: 'ST-1160',
+          name: 'Nada Sabry',
+          section: 'IS-3A',
+          level: 'Level 3',
+          status: 'Enrolled',
+          privacyLabel: 'Visible to staff only',
+          lateJoin: true,
+        ),
+      ],
+      timeline: const [
+        SubjectTimelineEvent(
+          title: 'Access link regenerated',
+          subtitle: 'Admin refreshed the join link after transfer intake.',
+          timeLabel: 'Today, 11:42',
+          tone: 'info',
+        ),
+        SubjectTimelineEvent(
+          title: 'Summary review published',
+          subtitle: 'Revision package shared with enrolled students.',
+          timeLabel: 'Yesterday',
+          tone: 'success',
+        ),
+      ],
+      activity: const [
+        SubjectActivityPoint('Mon', 45),
+        SubjectActivityPoint('Tue', 51),
+        SubjectActivityPoint('Wed', 57),
+        SubjectActivityPoint('Thu', 63),
+        SubjectActivityPoint('Fri', 70),
+        SubjectActivityPoint('Sat', 67),
+        SubjectActivityPoint('Sun', 72),
+      ],
+      updatedAtLabel: 'Updated 45 min ago',
+      lateRegistrationEnabled: true,
+    ),
+    SubjectRecord(
+      id: 'SUB-330',
+      code: 'CS330',
+      name: 'Operating Systems',
+      department: 'Computer Science',
+      academicYear: 'Year 3',
+      creditHours: 4,
+      contactHours: 6,
+      status: 'Monitor',
+      doctor: const SubjectStaffMember(
+        id: 'DOC-437',
+        name: 'Dr. Salma Adel',
+        role: 'Doctor',
+        email: 'salma.adel@tolab.edu',
+        channelLabel: 'Systems academic channel',
+        status: 'Pending invite',
+        color: AppColors.primary,
+      ),
+      assistant: const SubjectStaffMember(
+        id: 'TA-538',
+        name: 'Eng. Omar Adel',
+        role: 'Assistant',
+        email: 'omar.adel.staff@tolab.edu',
+        channelLabel: 'OS lab supervision',
+        status: 'Live',
+        color: AppColors.info,
+      ),
+      eligibleStudents: 140,
+      enrolledStudents: 117,
+      group: const SubjectGroupInfo(
+        enabled: true,
+        name: 'Kernel Lab Circle',
+        members: 121,
+        moderationLabel: 'Assistant-led moderation',
+        engagementLabel: 'Watch activity',
+      ),
+      posts: const SubjectPostsInfo(
+        count: 31,
+        openingScope: 'Staff only',
+        monitoringScope: 'Admin + assistant monitor',
+        recent: [
+          SubjectPostItem(
+            title: 'Thread scheduling FAQ',
+            author: 'Eng. Omar Adel',
+            timeLabel: '2h ago',
+            status: 'Reviewed',
+          ),
+          SubjectPostItem(
+            title: 'Doctor access still pending',
+            author: 'Admin Academic Office',
+            timeLabel: 'Yesterday',
+            status: 'Flagged',
+          ),
+        ],
+      ),
+      summaries: const SubjectSummariesInfo(
+        count: 6,
+        accessScope: 'Staff curated access',
+        latest: [
+          SubjectSummaryItem(
+            title: 'Memory management recap',
+            versionLabel: 'v2',
+            updatedAtLabel: 'Today',
+          ),
+        ],
+      ),
+      access: const SubjectAccessInfo(
+        code: 'OPS-71RK',
+        link: 'tolab.edu/join/cs330-ops',
+        lateJoinLabel:
+            'Late registration paused until doctor invite acceptance',
+        regeneratedAtLabel: 'Regenerated 5 days ago',
+      ),
+      permissions: _subjectPermissions(
+        allowStudentPosts: false,
+        allowStaffPostModeration: true,
+        summariesVisibleToStudents: false,
+        studentListVisibleToDoctor: true,
+        studentListVisibleToAssistant: true,
+        staffOnlyStudentVisibility: true,
+        lateRegistrationEnabled: false,
+      ),
+      students: const [
+        SubjectStudentItem(
+          id: 'ST-1201',
+          name: 'Karim Nabil',
+          section: 'CS-3C',
+          level: 'Level 3',
+          status: 'Enrolled',
+          privacyLabel: 'Hidden from peers',
+          lateJoin: false,
+        ),
+        SubjectStudentItem(
+          id: 'ST-1205',
+          name: 'Rana Adel',
+          section: 'CS-3D',
+          level: 'Level 3',
+          status: 'Eligible',
+          privacyLabel: 'Staff only',
+          lateJoin: false,
+        ),
+      ],
+      timeline: const [
+        SubjectTimelineEvent(
+          title: 'Doctor account invite pending',
+          subtitle: 'Subject remains under monitoring until invite acceptance.',
+          timeLabel: 'Today, 07:30',
+          tone: 'warning',
+        ),
+        SubjectTimelineEvent(
+          title: 'Student posts restricted',
+          subtitle: 'Community posting remains staff-led this week.',
+          timeLabel: 'Yesterday',
+          tone: 'critical',
+        ),
+      ],
+      activity: const [
+        SubjectActivityPoint('Mon', 38),
+        SubjectActivityPoint('Tue', 46),
+        SubjectActivityPoint('Wed', 40),
+        SubjectActivityPoint('Thu', 55),
+        SubjectActivityPoint('Fri', 52),
+        SubjectActivityPoint('Sat', 50),
+        SubjectActivityPoint('Sun', 60),
+      ],
+      updatedAtLabel: 'Updated 2h ago',
+      lateRegistrationEnabled: false,
+    ),
+    SubjectRecord(
+      id: 'SUB-210',
+      code: 'ENG210',
+      name: 'Thermodynamics',
+      department: 'Engineering',
+      academicYear: 'Year 2',
+      creditHours: 3,
+      contactHours: 4,
+      status: 'Draft',
+      doctor: const SubjectStaffMember(
+        id: 'DOC-425',
+        name: 'Dr. Reem Fawzy',
+        role: 'Doctor',
+        email: 'reem.fawzy@tolab.edu',
+        channelLabel: 'Engineering faculty stream',
+        status: 'Under review',
+        color: AppColors.primary,
+      ),
+      assistant: const SubjectStaffMember(
+        id: 'TA-526',
+        name: 'Eng. Nourhan Essam',
+        role: 'Assistant',
+        email: 'nourhan.essam@tolab.edu',
+        channelLabel: 'Engineering section support',
+        status: 'Suspended',
+        color: AppColors.info,
+      ),
+      eligibleStudents: 90,
+      enrolledStudents: 54,
+      group: const SubjectGroupInfo(
+        enabled: false,
+        name: 'No community yet',
+        members: 0,
+        moderationLabel: 'Community not created',
+        engagementLabel: 'No engagement',
+      ),
+      posts: const SubjectPostsInfo(
+        count: 4,
+        openingScope: 'Closed until publish',
+        monitoringScope: 'Admin only',
+        recent: [
+          SubjectPostItem(
+            title: 'Draft syllabus review',
+            author: 'Admin Academic Office',
+            timeLabel: '2 days ago',
+            status: 'Draft',
+          ),
+        ],
+      ),
+      summaries: const SubjectSummariesInfo(
+        count: 2,
+        accessScope: 'Staff only',
+        latest: [
+          SubjectSummaryItem(
+            title: 'Heat transfer intro',
+            versionLabel: 'v1',
+            updatedAtLabel: 'Yesterday',
+          ),
+        ],
+      ),
+      access: const SubjectAccessInfo(
+        code: 'THERM-00',
+        link: 'tolab.edu/join/eng210-draft',
+        lateJoinLabel: 'Access disabled until publishing',
+        regeneratedAtLabel: 'Never regenerated',
+      ),
+      permissions: _subjectPermissions(
+        allowStudentPosts: false,
+        allowStaffPostModeration: false,
+        summariesVisibleToStudents: false,
+        studentListVisibleToDoctor: false,
+        studentListVisibleToAssistant: false,
+        staffOnlyStudentVisibility: true,
+        lateRegistrationEnabled: false,
+      ),
+      students: const [
+        SubjectStudentItem(
+          id: 'ST-1301',
+          name: 'Mina Atef',
+          section: 'ENG-2A',
+          level: 'Level 2',
+          status: 'Eligible',
+          privacyLabel: 'Staff only',
+          lateJoin: false,
+        ),
+      ],
+      timeline: const [
+        SubjectTimelineEvent(
+          title: 'Publishing blocked',
+          subtitle: 'Doctor and assistant accounts need reactivation first.',
+          timeLabel: 'Today, 12:10',
+          tone: 'critical',
+        ),
+      ],
+      activity: const [
+        SubjectActivityPoint('Mon', 12),
+        SubjectActivityPoint('Tue', 16),
+        SubjectActivityPoint('Wed', 18),
+        SubjectActivityPoint('Thu', 22),
+        SubjectActivityPoint('Fri', 19),
+        SubjectActivityPoint('Sat', 17),
+        SubjectActivityPoint('Sun', 20),
+      ],
+      updatedAtLabel: 'Updated today',
+      lateRegistrationEnabled: false,
     ),
   ];
 
@@ -1122,7 +1639,8 @@ class DemoDataService {
           StaffPermission(
             id: 'create_lectures',
             title: 'Create lectures',
-            description: 'Publish lecture entries and structure class delivery.',
+            description:
+                'Publish lecture entries and structure class delivery.',
             enabled: canCreateLectures,
           ),
           StaffPermission(
@@ -1134,7 +1652,8 @@ class DemoDataService {
           StaffPermission(
             id: 'manage_sections',
             title: 'Create sections',
-            description: 'Open section sessions and keep related content updated.',
+            description:
+                'Open section sessions and keep related content updated.',
             enabled: canManageSections,
           ),
         ],
@@ -1160,7 +1679,8 @@ class DemoDataService {
           StaffPermission(
             id: 'view_student_progress',
             title: 'View student progress',
-            description: 'See progress indicators when academic review allows it.',
+            description:
+                'See progress indicators when academic review allows it.',
             enabled: canViewStudentProgress,
           ),
         ],
@@ -1168,13 +1688,15 @@ class DemoDataService {
       StaffPermissionGroup(
         id: 'community',
         title: 'Subject community and moderation',
-        subtitle: 'Posts, announcements, and academic interaction with students.',
+        subtitle:
+            'Posts, announcements, and academic interaction with students.',
         icon: Icons.forum_outlined,
         permissions: [
           StaffPermission(
             id: 'post_in_course',
             title: 'Post in course community',
-            description: 'Publish academic notices and answer course questions.',
+            description:
+                'Publish academic notices and answer course questions.',
             enabled: canPostInCommunity,
           ),
           StaffPermission(
@@ -1186,7 +1708,8 @@ class DemoDataService {
           StaffPermission(
             id: 'academic_interaction',
             title: 'Interact with students academically',
-            description: 'Respond to academic questions and follow up on feedback.',
+            description:
+                'Respond to academic questions and follow up on feedback.',
             enabled: canAcademicInteract,
           ),
         ],
@@ -1200,7 +1723,8 @@ class DemoDataService {
           StaffPermission(
             id: 'manage_subject_content',
             title: 'Manage subject content',
-            description: 'Edit published materials and subject content structure.',
+            description:
+                'Edit published materials and subject content structure.',
             enabled: canManageSubjectContent,
           ),
           StaffPermission(
@@ -1229,5 +1753,116 @@ class DemoDataService {
         value: values[index],
       ),
     );
+  }
+
+  List<SubjectPermissionCategory> _subjectPermissions({
+    required bool allowStudentPosts,
+    required bool allowStaffPostModeration,
+    required bool summariesVisibleToStudents,
+    required bool studentListVisibleToDoctor,
+    required bool studentListVisibleToAssistant,
+    required bool staffOnlyStudentVisibility,
+    required bool lateRegistrationEnabled,
+  }) {
+    return [
+      SubjectPermissionCategory(
+        id: 'posts',
+        title: 'Posts visibility',
+        subtitle: 'Define who opens posts and who monitors the stream.',
+        icon: Icons.forum_outlined,
+        permissions: [
+          SubjectPermissionRule(
+            id: 'student_posts',
+            title: 'Students can open posts',
+            description:
+                'When off, students can only read approved staff posts.',
+            enabled: allowStudentPosts,
+          ),
+          SubjectPermissionRule(
+            id: 'staff_moderation',
+            title: 'Doctor and assistant monitor posts',
+            description: 'Assigned staff can review, pin, and moderate posts.',
+            enabled: allowStaffPostModeration,
+          ),
+          const SubjectPermissionRule(
+            id: 'admin_monitoring',
+            title: 'Admin monitors all post activity',
+            description: 'Administrative oversight stays active at all times.',
+            enabled: true,
+          ),
+        ],
+      ),
+      SubjectPermissionCategory(
+        id: 'summaries',
+        title: 'Summaries and content access',
+        subtitle: 'Control who can view and manage revision material.',
+        icon: Icons.summarize_outlined,
+        permissions: [
+          SubjectPermissionRule(
+            id: 'students_view_summaries',
+            title: 'Students can access summaries',
+            description: 'Published summaries appear inside the subject space.',
+            enabled: summariesVisibleToStudents,
+          ),
+          const SubjectPermissionRule(
+            id: 'staff_manage_summaries',
+            title: 'Staff can add and manage summaries',
+            description:
+                'Doctor, assistant, and admin can update summary sets.',
+            enabled: true,
+          ),
+        ],
+      ),
+      SubjectPermissionCategory(
+        id: 'privacy',
+        title: 'Student privacy',
+        subtitle: 'Keep the enrolled student list staff-only and peer-safe.',
+        icon: Icons.lock_outline_rounded,
+        permissions: [
+          SubjectPermissionRule(
+            id: 'doctor_student_list',
+            title: 'Doctor can see subject students only',
+            description:
+                'The doctor sees only students linked to this subject.',
+            enabled: studentListVisibleToDoctor,
+          ),
+          SubjectPermissionRule(
+            id: 'assistant_student_list',
+            title: 'Assistant can see subject students only',
+            description:
+                'The assistant sees only the enrolled students for this subject.',
+            enabled: studentListVisibleToAssistant,
+          ),
+          SubjectPermissionRule(
+            id: 'staff_only_visibility',
+            title: 'Students cannot see each other accounts',
+            description:
+                'Peer account visibility is blocked and remains staff-only.',
+            enabled: staffOnlyStudentVisibility,
+          ),
+        ],
+      ),
+      SubjectPermissionCategory(
+        id: 'access',
+        title: 'Access control',
+        subtitle: 'Manage secure entry through code, link, and late joins.',
+        icon: Icons.vpn_key_outlined,
+        permissions: [
+          const SubjectPermissionRule(
+            id: 'code_and_link',
+            title: 'Access through code and link',
+            description: 'Students may enter through either access channel.',
+            enabled: true,
+          ),
+          SubjectPermissionRule(
+            id: 'late_registration',
+            title: 'Late registration entry',
+            description:
+                'Late-registered students can join safely without manual staff edits.',
+            enabled: lateRegistrationEnabled,
+          ),
+        ],
+      ),
+    ];
   }
 }

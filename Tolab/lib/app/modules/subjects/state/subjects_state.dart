@@ -2,21 +2,21 @@ import 'package:redux/redux.dart';
 
 import '../../../core/services/app_dependencies.dart';
 import '../../../shared/enums/load_status.dart';
-import '../../../shared/models/academic_models.dart';
 import '../../../shared/states/entity_collection_state.dart';
 import '../../../state/app_state.dart';
+import '../models/subject_management_models.dart';
 
-typedef SubjectsState = EntityCollectionState<SubjectModel>;
+typedef SubjectsState = EntityCollectionState<SubjectRecord>;
 
 const SubjectsState initialSubjectsState =
-    EntityCollectionState<SubjectModel>();
+    EntityCollectionState<SubjectRecord>();
 
 class LoadSubjectsAction {}
 
 class SubjectsLoadedAction {
   SubjectsLoadedAction(this.items);
 
-  final List<SubjectModel> items;
+  final List<SubjectRecord> items;
 }
 
 class SubjectsFailedAction {
