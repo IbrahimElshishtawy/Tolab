@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/premium_button.dart';
+
 class AppConfirmDialog {
   static Future<bool> show(
     BuildContext context, {
@@ -17,9 +19,10 @@ class AppConfirmDialog {
               onPressed: () => Navigator.of(context).pop(false),
               child: const Text('Cancel'),
             ),
-            FilledButton(
+            PremiumButton(
+              label: 'Confirm',
+              icon: Icons.check_rounded,
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Confirm'),
             ),
           ],
         );

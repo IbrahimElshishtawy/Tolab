@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/spacing/app_spacing.dart';
+import '../../shared/widgets/premium_button.dart';
 
 class EntityFormSheet extends StatelessWidget {
   const EntityFormSheet({
@@ -31,9 +32,10 @@ class EntityFormSheet extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
             Align(
               alignment: Alignment.centerRight,
-              child: FilledButton(
+              child: PremiumButton(
+                icon: Icons.check_rounded,
                 onPressed: onSubmit,
-                child: Text(submitLabel),
+                label: submitLabel,
               ),
             ),
           ],
