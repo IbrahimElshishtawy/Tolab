@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
-import '../../../core/colors/app_colors.dart';
-import '../../../core/constants/app_constants.dart';
+import '../../../core/responsive/app_breakpoints.dart';
 import '../../../core/spacing/app_spacing.dart';
-import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/page_header.dart';
-import '../../../shared/forms/app_dropdown_field.dart';
-import '../../../shared/forms/app_text_field.dart';
-import '../../../shared/models/staff_member.dart';
-import '../../../shared/widgets/async_state_view.dart';
-import '../../../shared/widgets/filter_bar.dart';
+import '../../../shared/enums/load_status.dart';
 import '../../../shared/widgets/premium_button.dart';
-import '../../../shared/widgets/status_badge.dart';
 import '../../../state/app_state.dart';
+import '../models/staff_admin_models.dart';
 import '../state/staff_state.dart';
+import 'forms/staff_account_form.dart';
+import 'widgets/staff_analytics_section.dart';
+import 'widgets/staff_details_panel.dart';
+import 'widgets/staff_feedback_state.dart';
+import 'widgets/staff_list_section.dart';
+import 'widgets/staff_overview_strip.dart';
+import 'widgets/staff_permissions_panel.dart';
+import 'widgets/staff_search_actions_panel.dart';
 
 class StaffScreen extends StatefulWidget {
   const StaffScreen({super.key});
@@ -25,9 +26,39 @@ class StaffScreen extends StatefulWidget {
 }
 
 class _StaffScreenState extends State<StaffScreen> {
-  String _selectedFilter = 'All roles';
-  String _selectedRole = 'Doctor';
-  String _selectedDepartment = 'Computer Science';
+  late final TextEditingController _searchController;
+
+  String _query = '';
+  String _roleFilter = 'All staff';
+  String _staffScope = 'All staff';
+  String _doctorTypeFilter = 'All doctor types';
+  String _departmentFilter = 'All departments';
+  String _statusFilter = 'All statuses';
+  bool _advancedOpen = false;
+
+  String _assistantDepartmentFilter = 'All departments';
+  String _doctorAttendanceMode = 'Bands';
+  String _doctorEngagementMode = 'Levels';
+  String _assistantAttendanceMode = 'Bands';
+  String _assistantEngagementMode = 'Levels';
+
+  String _sortBy = 'staff';
+  bool _sortAscending = true;
+  String? _selectedId;
+
+  final Map<String, bool> _permissionOverrides = <String, bool>{};
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,110 +66,47 @@ class _StaffScreenState extends State<StaffScreen> {
       onInit: (store) => store.dispatch(LoadStaffAction()),
       converter: (store) => store.state.staffState,
       builder: (context, state) {
+        final records = state.items.map(_applyPermissionOverrides).toList();
+        final departments = [
+          'All departments',
+          ...{for (final record in records) record.department},
+        ]..sort();
+        final filtered = _sortRecords(_filterRecords(records));
+        final selected = _resolveSelected(filtered);
+        final showDetailsPanel = MediaQuery.sizeOf(context).width >= 1380;
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const PageHeader(
-              title: 'Staff',
+            PageHeader(
+              title: 'Staff Management',
               subtitle:
-                  'Manage doctors, assistants, teaching load, and internal role distribution with a polished staffing workspace.',
-              breadcrumbs: ['Admin', 'People', 'Staff'],
+                  'Create doctor and teaching assistant accounts, control permissions, monitor attendance, and inspect subject engagement from one premium university operations hub.',
+              breadcrumbs: const ['Admin', 'University', 'Staff Management'],
               actions: [
                 PremiumButton(
-                  label: 'Bulk assign',
-                  icon: Icons.layers_outlined,
-                  isSecondary: true,
+                  label: 'Add doctor',
+                  icon: Icons.person_add_alt_1_rounded,
+                  onPressed: () => _openAccountForm(rolePreset: 'Doctor'),
                 ),
                 PremiumButton(
-                  label: 'Invite staff',
-                  icon: Icons.person_add_alt_1_rounded,
+                  label: 'Add assistant',
+                  icon: Icons.group_add_rounded,
+                  isSecondary: true,
+                  onPressed: () => _openAccountForm(rolePreset: 'Assistant'),
                 ),
               ],
             ),
             const SizedBox(height: AppSpacing.xl),
-            FilterBar(
-              searchHint: 'Search doctor, assistant, email, department',
-              filters: const ['All roles', 'Doctors', 'Assistants', 'Blocked'],
-              selectedFilter: _selectedFilter,
-              onFilterSelected: (value) =>
-                  setState(() => _selectedFilter = value),
-              trailing: const [
-                PremiumButton(
-                  label: 'Departments',
-                  icon: Icons.apartment_outlined,
-                  isSecondary: true,
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
             Expanded(
-              child: AsyncStateView(
-                status: state.status,
-                errorMessage: state.errorMessage,
-                onRetry: () => StoreProvider.of<AppState>(
-                  context,
-                ).dispatch(LoadStaffAction()),
-                isEmpty: state.items.isEmpty,
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final showSidePanel = constraints.maxWidth > 1180;
-
-                    return showSidePanel
-                        ? Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 7,
-                                child: _StaffGrid(items: state.items),
-                              ),
-                              const SizedBox(width: AppSpacing.md),
-                              Expanded(
-                                flex: 4,
-                                child: SingleChildScrollView(
-                                  child: _StaffDetailsPanel(
-                                    selectedRole: _selectedRole,
-                                    selectedDepartment: _selectedDepartment,
-                                    onRoleChanged: (value) => setState(
-                                      () =>
-                                          _selectedRole = value ?? _selectedRole,
-                                    ),
-                                    onDepartmentChanged: (value) => setState(
-                                      () => _selectedDepartment =
-                                          value ?? _selectedDepartment,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        : SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _StaffGrid(
-                                  items: state.items,
-                                  shrinkWrap: true,
-                                  physics:
-                                      const NeverScrollableScrollPhysics(),
-                                ),
-                                const SizedBox(height: AppSpacing.md),
-                                _StaffDetailsPanel(
-                                  selectedRole: _selectedRole,
-                                  selectedDepartment: _selectedDepartment,
-                                  onRoleChanged: (value) => setState(
-                                    () =>
-                                        _selectedRole = value ?? _selectedRole,
-                                  ),
-                                  onDepartmentChanged: (value) => setState(
-                                    () => _selectedDepartment =
-                                        value ?? _selectedDepartment,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                  },
-                ),
+              child: _buildBody(
+                context,
+                state: state,
+                records: records,
+                filtered: filtered,
+                departments: departments,
+                selected: selected,
+                showDetailsPanel: showDetailsPanel,
               ),
             ),
           ],
@@ -146,278 +114,377 @@ class _StaffScreenState extends State<StaffScreen> {
       },
     );
   }
-}
 
-class _StaffGrid extends StatelessWidget {
-  const _StaffGrid({
-    required this.items,
-    this.shrinkWrap = false,
-    this.physics,
-  });
+  Widget _buildBody(
+    BuildContext context, {
+    required StaffState state,
+    required List<StaffAdminRecord> records,
+    required List<StaffAdminRecord> filtered,
+    required List<String> departments,
+    required StaffAdminRecord? selected,
+    required bool showDetailsPanel,
+  }) {
+    if (state.status == LoadStatus.loading) {
+      return const Center(child: CircularProgressIndicator.adaptive());
+    }
 
-  final List<StaffMember> items;
-  final bool shrinkWrap;
-  final ScrollPhysics? physics;
+    if (state.status == LoadStatus.failure) {
+      return StaffFeedbackState(
+        title: 'Could not load staff module',
+        subtitle: state.errorMessage ?? 'Try refreshing the staff dashboard.',
+        icon: Icons.error_outline_rounded,
+        action: PremiumButton(
+          label: 'Retry',
+          icon: Icons.refresh_rounded,
+          onPressed: () => StoreProvider.of<AppState>(
+            context,
+          ).dispatch(LoadStaffAction()),
+        ),
+      );
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final crossAxisCount = constraints.maxWidth > 980
-            ? 3
-            : constraints.maxWidth > 640
-            ? 2
-            : 1;
-
-        return AnimationLimiter(
-          child: GridView.builder(
-            shrinkWrap: shrinkWrap,
-            primary: physics == null,
-            physics: physics,
-            itemCount: items.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisCount,
-              crossAxisSpacing: AppSpacing.md,
-              mainAxisSpacing: AppSpacing.md,
-              childAspectRatio: 1.12,
-            ),
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return AnimationConfiguration.staggeredGrid(
-                position: index,
-                columnCount: crossAxisCount,
-                duration: const Duration(milliseconds: 340),
-                child: ScaleAnimation(child: _StaffCard(item: item)),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _StaffCard extends StatelessWidget {
-  const _StaffCard({required this.item});
-
-  final StaffMember item;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      interactive: true,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundColor: AppColors.primary.withValues(alpha: 0.12),
-                child: Text(
-                  item.name.characters.first.toUpperCase(),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleMedium?.copyWith(color: AppColors.primary),
-                ),
-              ),
-              const Spacer(),
-              StatusBadge(item.status),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(item.name, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 4),
-          Text(item.email, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: AppSpacing.lg),
-          Row(
-            children: [
-              StatusBadge(item.title),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Text(
-                  item.department,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              color: AppColors.infoSoft.withValues(alpha: 0.4),
-              borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.auto_stories_rounded, color: AppColors.info),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Text(
-                    '${item.subjects} assigned subjects',
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          const Row(
-            children: [
-              Expanded(
-                child: PremiumButton(
-                  label: 'Message',
-                  icon: Icons.chat_bubble_outline_rounded,
-                  isSecondary: true,
-                ),
-              ),
-              SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: PremiumButton(label: 'Edit', icon: Icons.edit_outlined),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StaffDetailsPanel extends StatelessWidget {
-  const _StaffDetailsPanel({
-    required this.selectedRole,
-    required this.selectedDepartment,
-    required this.onRoleChanged,
-    required this.onDepartmentChanged,
-  });
-
-  final String selectedRole;
-  final String selectedDepartment;
-  final ValueChanged<String?> onRoleChanged;
-  final ValueChanged<String?> onDepartmentChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Staff action panel',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Create or update internal staff assignments with clear role and subject ownership.',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          const AppTextField(
-            label: 'Full name',
-            initialValue: 'Dr. Hadeer Salah',
-            prefixIcon: Icons.person_outline_rounded,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          const AppTextField(
-            label: 'Email',
-            initialValue: 'hadeer.salah@tolab.edu',
-            prefixIcon: Icons.alternate_email_rounded,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          AppDropdownField<String>(
-            label: 'Role',
-            value: selectedRole,
-            onChanged: onRoleChanged,
-            items: const [
-              AppDropdownItem(value: 'Doctor', label: 'Doctor'),
-              AppDropdownItem(value: 'Assistant', label: 'Assistant'),
-              AppDropdownItem(value: 'Moderator', label: 'Moderator'),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          AppDropdownField<String>(
-            label: 'Department',
-            value: selectedDepartment,
-            onChanged: onDepartmentChanged,
-            items: const [
-              AppDropdownItem(
-                value: 'Computer Science',
-                label: 'Computer Science',
-              ),
-              AppDropdownItem(
-                value: 'Information Systems',
-                label: 'Information Systems',
-              ),
-              AppDropdownItem(value: 'Engineering', label: 'Engineering'),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          const AppTextField(
-            label: 'Assigned subjects',
-            initialValue: 'Advanced Algorithms, Data Structures',
-            maxLines: 2,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              color: AppColors.secondarySoft.withValues(alpha: 0.45),
-              borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
-            ),
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _InlineKpi(label: 'Avg load', value: '3.6'),
-                SizedBox(height: AppSpacing.sm),
-                _InlineKpi(label: 'Active sections', value: '12'),
-                SizedBox(height: AppSpacing.sm),
-                _InlineKpi(label: 'Pending reviews', value: '4'),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          const Row(
-            children: [
-              Expanded(
-                child: PremiumButton(
-                  label: 'Suspend',
-                  icon: Icons.pause_circle_outline_rounded,
-                  isSecondary: true,
-                ),
-              ),
-              SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: PremiumButton(
-                  label: 'Save staff',
-                  icon: Icons.check_circle_outline_rounded,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InlineKpi extends StatelessWidget {
-  const _InlineKpi({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
+    final mainContent = ListView(
       children: [
-        Text(label, style: Theme.of(context).textTheme.bodyMedium),
-        const Spacer(),
-        Text(value, style: Theme.of(context).textTheme.titleMedium),
+        StaffOverviewStrip(records: records),
+        const SizedBox(height: AppSpacing.lg),
+        StaffAnalyticsSection(
+          records: records,
+          assistantDepartmentFilter: _assistantDepartmentFilter,
+          doctorAttendanceMode: _doctorAttendanceMode,
+          doctorEngagementMode: _doctorEngagementMode,
+          assistantAttendanceMode: _assistantAttendanceMode,
+          assistantEngagementMode: _assistantEngagementMode,
+          onAssistantDepartmentChanged: (value) =>
+              setState(() => _assistantDepartmentFilter = value),
+          onDoctorAttendanceModeChanged: (value) =>
+              setState(() => _doctorAttendanceMode = value),
+          onDoctorEngagementModeChanged: (value) =>
+              setState(() => _doctorEngagementMode = value),
+          onAssistantAttendanceModeChanged: (value) =>
+              setState(() => _assistantAttendanceMode = value),
+          onAssistantEngagementModeChanged: (value) =>
+              setState(() => _assistantEngagementMode = value),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        StaffSearchActionsPanel(
+          searchController: _searchController,
+          query: _query,
+          roleFilter: _roleFilter,
+          staffScope: _staffScope,
+          doctorTypeFilter: _doctorTypeFilter,
+          departmentFilter: _departmentFilter,
+          statusFilter: _statusFilter,
+          departments: departments,
+          resultsCount: filtered.length,
+          activeFilterCount: _activeFilterCount,
+          advancedOpen: _advancedOpen,
+          onQueryChanged: (value) => setState(() => _query = value),
+          onRoleFilterChanged: (value) => setState(() => _roleFilter = value),
+          onScopeChanged: (value) => setState(() => _staffScope = value),
+          onDoctorTypeChanged: (value) =>
+              setState(() => _doctorTypeFilter = value),
+          onDepartmentChanged: (value) =>
+              setState(() => _departmentFilter = value),
+          onStatusChanged: (value) => setState(() => _statusFilter = value),
+          onToggleAdvanced: () =>
+              setState(() => _advancedOpen = !_advancedOpen),
+          onClear: _clearFilters,
+          onAddDoctor: () => _openAccountForm(rolePreset: 'Doctor'),
+          onAddAssistant: () => _openAccountForm(rolePreset: 'Assistant'),
+          onManagePermissions: () {
+            final target = selected ?? filtered.firstOrNull;
+            if (target != null) {
+              _openPermissionsSheet(target);
+            }
+          },
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        if (filtered.isEmpty)
+          StaffFeedbackState(
+            title: 'No staff match these filters',
+            subtitle:
+                'Adjust the search terms, role type, department, or monitoring scope to bring records back into view.',
+            icon: Icons.manage_search_rounded,
+            action: PremiumButton(
+              label: 'Clear filters',
+              icon: Icons.restart_alt_rounded,
+              onPressed: _clearFilters,
+            ),
+          )
+        else
+          StaffListSection(
+            records: filtered,
+            selectedId: selected?.id,
+            sortBy: _sortBy,
+            sortAscending: _sortAscending,
+            onSort: _handleSort,
+            onOpenDetails: (record) =>
+                _handleOpenDetails(record, showDetailsPanel),
+            onEdit: (record) => _openAccountForm(record: record),
+            onManagePermissions: _openPermissionsSheet,
+          ),
+      ],
+    );
+
+    if (!showDetailsPanel || selected == null) {
+      return mainContent;
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(flex: 7, child: mainContent),
+        const SizedBox(width: AppSpacing.lg),
+        SizedBox(
+          width: 430,
+          child: SingleChildScrollView(
+            child: StaffDetailsPanel(
+              record: selected,
+              onEdit: (record) => _openAccountForm(record: record),
+              onManagePermissions: _openPermissionsSheet,
+              onTogglePermission: (permissionId, enabled) =>
+                  _updatePermission(selected.id, permissionId, enabled),
+            ),
+          ),
+        ),
       ],
     );
   }
+
+  int get _activeFilterCount {
+    var count = 0;
+    if (_query.isNotEmpty) count++;
+    if (_roleFilter != 'All staff') count++;
+    if (_staffScope != 'All staff') count++;
+    if (_doctorTypeFilter != 'All doctor types') count++;
+    if (_departmentFilter != 'All departments') count++;
+    if (_statusFilter != 'All statuses') count++;
+    return count;
+  }
+
+  List<StaffAdminRecord> _filterRecords(List<StaffAdminRecord> records) {
+    return records.where((record) {
+      final queryLower = _query.toLowerCase();
+      final matchesQuery =
+          _query.isEmpty ||
+          record.fullName.toLowerCase().contains(queryLower) ||
+          record.email.toLowerCase().contains(queryLower) ||
+          record.employeeId.toLowerCase().contains(queryLower) ||
+          record.role.toLowerCase().contains(queryLower) ||
+          record.roleTypeLabel.toLowerCase().contains(queryLower) ||
+          record.department.toLowerCase().contains(queryLower);
+      final matchesRole = switch (_roleFilter) {
+        'Doctors' => record.isDoctor,
+        'Assistants' => record.isAssistant,
+        _ => true,
+      };
+      final matchesDoctorType =
+          _doctorTypeFilter == 'All doctor types' ||
+          record.doctorType == _doctorTypeFilter ||
+          record.isAssistant;
+      final matchesDepartment =
+          _departmentFilter == 'All departments' ||
+          record.department == _departmentFilter;
+      final matchesStatus =
+          _statusFilter == 'All statuses' || record.status == _statusFilter;
+      final matchesScope = switch (_staffScope) {
+        'Needs attention' => record.needsAttention,
+        'High engagement' => record.engagementRate >= 80,
+        'Permissions gaps' => record.permissionCoverage < 75,
+        _ => true,
+      };
+      return matchesQuery &&
+          matchesRole &&
+          matchesDoctorType &&
+          matchesDepartment &&
+          matchesStatus &&
+          matchesScope;
+    }).toList();
+  }
+
+  List<StaffAdminRecord> _sortRecords(List<StaffAdminRecord> records) {
+    final sorted = [...records];
+    sorted.sort((left, right) {
+      final factor = _sortAscending ? 1 : -1;
+      final result = switch (_sortBy) {
+        'role' => '${left.role}${left.roleTypeLabel}'.compareTo(
+            '${right.role}${right.roleTypeLabel}',
+          ),
+        'department' => left.department.compareTo(right.department),
+        'attendance' => left.attendanceRate.compareTo(right.attendanceRate),
+        'engagement' => left.engagementRate.compareTo(right.engagementRate),
+        'permissions' =>
+          left.permissionCoverage.compareTo(right.permissionCoverage),
+        'account' =>
+          left.accountCreationStatus.compareTo(right.accountCreationStatus),
+        _ => left.fullName.compareTo(right.fullName),
+      };
+      return result * factor;
+    });
+    return sorted;
+  }
+
+  StaffAdminRecord? _resolveSelected(List<StaffAdminRecord> records) {
+    if (records.isEmpty) return null;
+    for (final record in records) {
+      if (record.id == _selectedId) return record;
+    }
+    return records.first;
+  }
+
+  StaffAdminRecord _applyPermissionOverrides(StaffAdminRecord record) {
+    final groups = [
+      for (final group in record.permissionGroups)
+        group.copyWith(
+          permissions: [
+            for (final permission in group.permissions)
+              permission.copyWith(
+                enabled:
+                    _permissionOverrides['${record.id}:${permission.id}'] ??
+                    permission.enabled,
+              ),
+          ],
+        ),
+    ];
+
+    final totalPermissions = groups.fold<int>(
+      0,
+      (sum, group) => sum + group.permissions.length,
+    );
+    final enabledPermissions = groups.fold<int>(
+      0,
+      (sum, group) =>
+          sum + group.permissions.where((permission) => permission.enabled).length,
+    );
+
+    return record.copyWith(
+      permissionGroups: groups,
+      permissionCoverage: totalPermissions == 0
+          ? 0
+          : (enabledPermissions / totalPermissions) * 100,
+    );
+  }
+
+  void _handleSort(String column) {
+    setState(() {
+      if (_sortBy == column) {
+        _sortAscending = !_sortAscending;
+      } else {
+        _sortBy = column;
+        _sortAscending = column == 'staff' || column == 'department';
+      }
+    });
+  }
+
+  void _handleOpenDetails(StaffAdminRecord record, bool showDetailsPanel) {
+    setState(() => _selectedId = record.id);
+    if (showDetailsPanel) return;
+    _openDetailsSheet(record);
+  }
+
+  void _updatePermission(String staffId, String permissionId, bool enabled) {
+    setState(() {
+      _permissionOverrides['$staffId:$permissionId'] = enabled;
+    });
+  }
+
+  void _clearFilters() {
+    setState(() {
+      _query = '';
+      _roleFilter = 'All staff';
+      _staffScope = 'All staff';
+      _doctorTypeFilter = 'All doctor types';
+      _departmentFilter = 'All departments';
+      _statusFilter = 'All statuses';
+      _advancedOpen = false;
+      _sortBy = 'staff';
+      _sortAscending = true;
+      _searchController.clear();
+    });
+  }
+
+  Future<void> _openAccountForm({
+    StaffAdminRecord? record,
+    String? rolePreset,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => FractionallySizedBox(
+        heightFactor: AppBreakpoints.isMobile(context) ? 0.96 : 0.92,
+        child: StaffAccountFormSheet(record: record, rolePreset: rolePreset),
+      ),
+    );
+  }
+
+  Future<void> _openPermissionsSheet(StaffAdminRecord record) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => FractionallySizedBox(
+        heightFactor: AppBreakpoints.isMobile(context) ? 0.92 : 0.84,
+        child: Material(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(30),
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Permissions management',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${record.fullName} - ${record.role} - ${record.department}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                StaffPermissionsPanel(
+                  groups: record.permissionGroups,
+                  editable: true,
+                  onPermissionChanged: (permissionId, enabled) =>
+                      _updatePermission(record.id, permissionId, enabled),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openDetailsSheet(StaffAdminRecord record) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => FractionallySizedBox(
+        heightFactor: AppBreakpoints.isMobile(context) ? 0.96 : 0.90,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+          child: StaffDetailsPanel(
+            record: _applyPermissionOverrides(record),
+            onEdit: (value) => _openAccountForm(record: value),
+            onManagePermissions: _openPermissionsSheet,
+            onTogglePermission: (permissionId, enabled) =>
+                _updatePermission(record.id, permissionId, enabled),
+            onClose: () => Navigator.of(context).pop(),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+extension _ListFirstOrNull<T> on List<T> {
+  T? get firstOrNull => isEmpty ? null : first;
 }

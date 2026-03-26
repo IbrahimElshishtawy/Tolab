@@ -2,20 +2,20 @@ import 'package:redux/redux.dart';
 
 import '../../../core/services/app_dependencies.dart';
 import '../../../shared/enums/load_status.dart';
-import '../../../shared/models/staff_member.dart';
 import '../../../shared/states/entity_collection_state.dart';
 import '../../../state/app_state.dart';
+import '../models/staff_admin_models.dart';
 
-typedef StaffState = EntityCollectionState<StaffMember>;
+typedef StaffState = EntityCollectionState<StaffAdminRecord>;
 
-const StaffState initialStaffState = EntityCollectionState<StaffMember>();
+const StaffState initialStaffState = EntityCollectionState<StaffAdminRecord>();
 
 class LoadStaffAction {}
 
 class StaffLoadedAction {
   StaffLoadedAction(this.items);
 
-  final List<StaffMember> items;
+  final List<StaffAdminRecord> items;
 }
 
 class StaffFailedAction {
