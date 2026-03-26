@@ -31,6 +31,7 @@ import 'route_paths.dart';
 class AppRouter {
   AppRouter(this._store) {
     router = GoRouter(
+      navigatorKey: _rootNavigatorKey,
       initialLocation: RoutePaths.splash,
       refreshListenable: _StoreRefreshListenable(_store),
       redirect: (context, state) {
@@ -61,30 +62,12 @@ class AppRouter {
           builder: (context, state) => const LoginScreen(),
         ),
         ShellRoute(
-          builder: (context, state, child) {
-            return StoreConnector<AppState, _ShellViewModel>(
-              converter: (store) => _ShellViewModel(
-                userName: store.state.authState.currentUser?.name ?? 'Admin',
-                userRole:
-                    store.state.authState.currentUser?.role ?? 'Administrator',
-              ),
-              builder: (context, vm) {
-                return AdaptiveScaffold(
-                  location: state.uri.path,
-                  destinations: _destinations,
-                  userName: vm.userName,
-                  userRole: vm.userRole,
-                  onToggleTheme: () => StoreProvider.of<AppState>(
-                    context,
-                  ).dispatch(ToggleThemeModeAction()),
-                  onLogout: () => StoreProvider.of<AppState>(
-                    context,
-                  ).dispatch(LogoutRequestedAction()),
-                  child: child,
-                );
-              },
-            );
-          },
+          navigatorKey: _shellNavigatorKey,
+          pageBuilder: (context, state, child) => NoTransitionPage<void>(
+            key: ValueKey<String>('shell:${state.uri.path}'),
+            restorationId: 'shell:${state.uri.path}',
+            child: _buildShell(context, state, child),
+          ),
           routes: [
             GoRoute(
               path: RoutePaths.dashboard,
@@ -153,7 +136,35 @@ class AppRouter {
   }
 
   final Store<AppState> _store;
+  final GlobalKey<NavigatorState> _rootNavigatorKey =
+      GlobalKey<NavigatorState>(debugLabel: 'rootNavigator');
+  final GlobalKey<NavigatorState> _shellNavigatorKey =
+      GlobalKey<NavigatorState>(debugLabel: 'shellNavigator');
   late final GoRouter router;
+
+  Widget _buildShell(BuildContext context, GoRouterState state, Widget child) {
+    return StoreConnector<AppState, _ShellViewModel>(
+      converter: (store) => _ShellViewModel(
+        userName: store.state.authState.currentUser?.name ?? 'Admin',
+        userRole: store.state.authState.currentUser?.role ?? 'Administrator',
+      ),
+      builder: (context, vm) {
+        return AdaptiveScaffold(
+          location: state.uri.path,
+          destinations: _destinations,
+          userName: vm.userName,
+          userRole: vm.userRole,
+          onToggleTheme: () => StoreProvider.of<AppState>(
+            context,
+          ).dispatch(ToggleThemeModeAction()),
+          onLogout: () => StoreProvider.of<AppState>(
+            context,
+          ).dispatch(LogoutRequestedAction()),
+          child: child,
+        );
+      },
+    );
+  }
 
   static const List<NavigationDestinationItem> _destinations = [
     NavigationDestinationItem(

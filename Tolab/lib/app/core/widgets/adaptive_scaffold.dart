@@ -172,27 +172,21 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
                                 constraints: const BoxConstraints(
                                   maxWidth: AppConstants.shellMaxContentWidth,
                                 ),
-                                child: AnimatedSwitcher(
+                                child: TweenAnimationBuilder<double>(
+                                  key: ValueKey(widget.location),
+                                  tween: Tween(begin: 0, end: 1),
                                   duration: AppMotion.medium,
-                                  switchInCurve: AppMotion.entrance,
-                                  switchOutCurve: AppMotion.emphasized,
-                                  transitionBuilder: (child, animation) {
-                                    final offsetAnimation = Tween<Offset>(
-                                      begin: const Offset(0.03, 0),
-                                      end: Offset.zero,
-                                    ).animate(animation);
-                                    return FadeTransition(
-                                      opacity: animation,
-                                      child: SlideTransition(
-                                        position: offsetAnimation,
+                                  curve: AppMotion.entrance,
+                                  builder: (context, value, child) {
+                                    return Opacity(
+                                      opacity: value,
+                                      child: Transform.translate(
+                                        offset: Offset((1 - value) * 24, 0),
                                         child: child,
                                       ),
                                     );
                                   },
-                                  child: KeyedSubtree(
-                                    key: ValueKey(widget.location),
-                                    child: widget.child,
-                                  ),
+                                  child: widget.child,
                                 ),
                               ),
                             ),

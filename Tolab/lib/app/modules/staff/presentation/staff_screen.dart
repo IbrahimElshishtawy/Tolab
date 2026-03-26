@@ -186,8 +186,10 @@ class _StaffCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.lg),
       interactive: true,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -244,7 +246,7 @@ class _StaffCard extends StatelessWidget {
               ],
             ),
           ),
-          const Spacer(),
+          const SizedBox(height: AppSpacing.lg),
           const Row(
             children: [
               Expanded(
