@@ -8,15 +8,22 @@ import '../design/subjects_management_tokens.dart';
 import '../responsive/subjects_layout.dart';
 
 class SubjectToneBadge extends StatelessWidget {
-  const SubjectToneBadge(this.label, {super.key, this.icon});
+  const SubjectToneBadge(
+    this.label, {
+    super.key,
+    this.icon,
+    this.maxWidth = 140,
+  });
 
   final String label;
   final IconData? icon;
+  final double maxWidth;
 
   @override
   Widget build(BuildContext context) {
     final tone = SubjectsManagementBadges.toneFor(label);
     return Container(
+      constraints: BoxConstraints(maxWidth: maxWidth),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: tone.background,
@@ -24,17 +31,22 @@ class SubjectToneBadge extends StatelessWidget {
         border: Border.all(color: tone.foreground.withValues(alpha: 0.12)),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.max,
         children: [
           if (icon != null) ...[
             Icon(icon, size: 13, color: tone.foreground),
             const SizedBox(width: 6),
           ],
-          Text(
-            label,
-            style: Theme.of(
-              context,
-            ).textTheme.labelMedium?.copyWith(color: tone.foreground),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              softWrap: false,
+              style: Theme.of(
+                context,
+              ).textTheme.labelMedium?.copyWith(color: tone.foreground),
+            ),
           ),
         ],
       ),
@@ -58,6 +70,7 @@ class SubjectInfoPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = tint ?? SubjectsManagementPalette.accent;
     return Container(
+      constraints: const BoxConstraints(maxWidth: 190),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: SubjectsManagementDecorations.tintedPanel(
         context,
@@ -68,9 +81,19 @@ class SubjectInfoPill extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(label, style: Theme.of(context).textTheme.labelMedium),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.labelMedium,
+          ),
           const SizedBox(height: 4),
-          Text(value, style: Theme.of(context).textTheme.titleSmall),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
         ],
       ),
     );
@@ -96,9 +119,11 @@ class SubjectMetricTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
+      height: 208,
       padding: const EdgeInsets.all(AppSpacing.lg),
       interactive: true,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
@@ -110,12 +135,27 @@ class SubjectMetricTile extends StatelessWidget {
             ),
             child: Icon(icon, color: color),
           ),
-          const Spacer(),
-          Text(label, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: AppSpacing.xl),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
           const SizedBox(height: 8),
-          Text(value, style: Theme.of(context).textTheme.headlineSmall),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
           const SizedBox(height: 6),
-          Text(caption, style: Theme.of(context).textTheme.labelMedium),
+          Text(
+            caption,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.labelMedium,
+          ),
         ],
       ),
     );
@@ -253,6 +293,8 @@ class SubjectSectionFrame extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],

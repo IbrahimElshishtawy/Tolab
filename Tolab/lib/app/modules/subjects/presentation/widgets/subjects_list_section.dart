@@ -110,6 +110,7 @@ class _SubjectsDataTable extends StatelessWidget {
         smRatio: 0.72,
         lmRatio: 1.35,
         minWidth: SubjectsManagementSpacing.tableMinWidth,
+        dataRowHeight: 84,
         columns: const [
           DataColumn2(label: Text('Subject'), size: ColumnSize.L),
           DataColumn2(label: Text('Department'), size: ColumnSize.M),
@@ -131,10 +132,15 @@ class _SubjectsDataTable extends StatelessWidget {
                 DataCell(_SubjectTitleCell(subject: subject)),
                 DataCell(
                   Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(subject.department),
+                      Text(
+                        subject.department,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       const SizedBox(height: 4),
                       SubjectToneBadge(subject.status),
                     ],
@@ -142,13 +148,20 @@ class _SubjectsDataTable extends StatelessWidget {
                 ),
                 DataCell(
                   Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(subject.doctor.name),
+                      Text(
+                        subject.doctor.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         subject.assistant.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -160,6 +173,7 @@ class _SubjectsDataTable extends StatelessWidget {
                 ),
                 DataCell(
                   Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -169,6 +183,8 @@ class _SubjectsDataTable extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         'Eligible / enrolled',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -176,6 +192,7 @@ class _SubjectsDataTable extends StatelessWidget {
                 ),
                 DataCell(
                   Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -187,6 +204,8 @@ class _SubjectsDataTable extends StatelessWidget {
                         subject.group.enabled
                             ? subject.group.name
                             : 'Create group',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -194,6 +213,7 @@ class _SubjectsDataTable extends StatelessWidget {
                 ),
                 DataCell(
                   Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -203,6 +223,8 @@ class _SubjectsDataTable extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         'Posts / summaries',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -210,6 +232,7 @@ class _SubjectsDataTable extends StatelessWidget {
                 ),
                 DataCell(
                   Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -219,6 +242,8 @@ class _SubjectsDataTable extends StatelessWidget {
                         subject.lateRegistrationEnabled
                             ? 'Late join ready'
                             : 'Late join closed',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -410,11 +435,22 @@ class _SubjectTitleCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(subject.name, style: Theme.of(context).textTheme.titleSmall),
-        const SizedBox(height: 4),
-        Text(subject.code, style: Theme.of(context).textTheme.bodySmall),
+        Text(
+          subject.name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+        const SizedBox(height: 2),
+        Text(
+          subject.code,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
       ],
     );
   }

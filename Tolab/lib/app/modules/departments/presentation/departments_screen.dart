@@ -222,85 +222,87 @@ class _DepartmentFormCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Department editor',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Simple CRUD panel for structure, ownership, and visibility.',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          const AppTextField(
-            label: 'Department name',
-            initialValue: 'Computer Science',
-          ),
-          const SizedBox(height: AppSpacing.md),
-          const AppTextField(label: 'Department code', initialValue: 'CS'),
-          const SizedBox(height: AppSpacing.md),
-          const AppTextField(
-            label: 'Department head',
-            initialValue: 'Dr. Eman Adel',
-          ),
-          const SizedBox(height: AppSpacing.md),
-          AppDropdownField<String>(
-            label: 'Status',
-            value: selectedStatus,
-            onChanged: onStatusChanged,
-            items: const [
-              AppDropdownItem(value: 'Active', label: 'Active'),
-              AppDropdownItem(value: 'Pending', label: 'Pending'),
-              AppDropdownItem(value: 'Inactive', label: 'Inactive'),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          const AppTextField(
-            label: 'Internal description',
-            initialValue:
-                'Research-led department focused on advanced software systems and applied computing.',
-            maxLines: 4,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              color: AppColors.primarySoft.withValues(alpha: 0.55),
-              borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Department editor',
+              style: Theme.of(context).textTheme.titleLarge,
             ),
-            child: const Row(
+            const SizedBox(height: 6),
+            Text(
+              'Simple CRUD panel for structure, ownership, and visibility.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            const AppTextField(
+              label: 'Department name',
+              initialValue: 'Computer Science',
+            ),
+            const SizedBox(height: AppSpacing.md),
+            const AppTextField(label: 'Department code', initialValue: 'CS'),
+            const SizedBox(height: AppSpacing.md),
+            const AppTextField(
+              label: 'Department head',
+              initialValue: 'Dr. Eman Adel',
+            ),
+            const SizedBox(height: AppSpacing.md),
+            AppDropdownField<String>(
+              label: 'Status',
+              value: selectedStatus,
+              onChanged: onStatusChanged,
+              items: const [
+                AppDropdownItem(value: 'Active', label: 'Active'),
+                AppDropdownItem(value: 'Pending', label: 'Pending'),
+                AppDropdownItem(value: 'Inactive', label: 'Inactive'),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.md),
+            const AppTextField(
+              label: 'Internal description',
+              initialValue:
+                  'Research-led department focused on advanced software systems and applied computing.',
+              maxLines: 4,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              decoration: BoxDecoration(
+                color: AppColors.primarySoft.withValues(alpha: 0.55),
+                borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.groups_rounded, color: AppColors.primary),
+                  SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text('3 sections and 42 staff assignments linked'),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            const Row(
               children: [
-                Icon(Icons.groups_rounded, color: AppColors.primary),
+                Expanded(
+                  child: PremiumButton(
+                    label: 'Delete',
+                    icon: Icons.delete_outline_rounded,
+                    isSecondary: true,
+                  ),
+                ),
                 SizedBox(width: AppSpacing.sm),
                 Expanded(
-                  child: Text('3 sections and 42 staff assignments linked'),
+                  child: PremiumButton(
+                    label: 'Save department',
+                    icon: Icons.check_circle_outline_rounded,
+                  ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          const Row(
-            children: [
-              Expanded(
-                child: PremiumButton(
-                  label: 'Delete',
-                  icon: Icons.delete_outline_rounded,
-                  isSecondary: true,
-                ),
-              ),
-              SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: PremiumButton(
-                  label: 'Save department',
-                  icon: Icons.check_circle_outline_rounded,
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

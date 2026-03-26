@@ -26,11 +26,16 @@ class StaffStatusBadge extends StatelessWidget {
             Icon(icon, size: 13, color: tone.foreground),
             const SizedBox(width: 6),
           ],
-          Text(
-            label,
-            style: Theme.of(
-              context,
-            ).textTheme.labelMedium?.copyWith(color: tone.foreground),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              softWrap: false,
+              style: Theme.of(
+                context,
+              ).textTheme.labelMedium?.copyWith(color: tone.foreground),
+            ),
           ),
         ],
       ),

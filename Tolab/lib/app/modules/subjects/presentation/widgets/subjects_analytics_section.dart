@@ -193,14 +193,15 @@ class SubjectsAnalyticsSection extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
+                        Wrap(
+                          spacing: AppSpacing.sm,
+                          runSpacing: AppSpacing.sm,
                           children: [
                             SubjectInfoPill(
                               label: 'Total subjects',
                               value: '${subjects.length}',
                               tint: SubjectsManagementPalette.accent,
                             ),
-                            const SizedBox(width: AppSpacing.sm),
                             SubjectInfoPill(
                               label: 'Enrolled',
                               value: '$totalEnrollment',

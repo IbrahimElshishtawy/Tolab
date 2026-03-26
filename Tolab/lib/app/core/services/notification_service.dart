@@ -11,6 +11,11 @@ class NotificationService {
       android: AndroidInitializationSettings('@mipmap/ic_launcher'),
       iOS: DarwinInitializationSettings(),
       macOS: DarwinInitializationSettings(),
+      windows: WindowsInitializationSettings(
+        appName: 'Tolab Admin',
+        appUserModelId: 'com.tolab.admin.desktop',
+        guid: '7f3880aa-d713-4d31-bc7d-d48eb0ed7d57',
+      ),
     );
     await plugin.initialize(settings);
     return NotificationService(plugin);
@@ -35,6 +40,7 @@ class NotificationService {
         ),
         iOS: DarwinNotificationDetails(),
         macOS: DarwinNotificationDetails(),
+        windows: WindowsNotificationDetails(),
       ),
     );
   }
