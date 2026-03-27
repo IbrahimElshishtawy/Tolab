@@ -1,57 +1,67 @@
-import 'package:redux/redux.dart';
-
-import '../../../core/services/app_dependencies.dart';
 import '../../../shared/enums/load_status.dart';
-import '../../../shared/models/schedule_models.dart';
-import '../../../shared/states/entity_collection_state.dart';
-import '../../../state/app_state.dart';
+import '../models/schedule_models.dart';
 
-typedef ScheduleState = EntityCollectionState<ScheduleEventModel>;
+class ScheduleState {
+  const ScheduleState({
+    this.status = LoadStatus.initial,
+    this.mutationStatus = LoadStatus.initial,
+    this.events = const <ScheduleEventItem>[],
+    this.lookups = const ScheduleLookupBundle(),
+    this.filters = const ScheduleFilters(),
+    this.view = ScheduleCalendarView.month,
+    this.focusedDay,
+    this.selectedDay,
+    this.errorMessage,
+    this.feedbackMessage,
+    this.highlightedEventId,
+  });
 
-const ScheduleState initialScheduleState =
-    EntityCollectionState<ScheduleEventModel>();
+  final LoadStatus status;
+  final LoadStatus mutationStatus;
+  final List<ScheduleEventItem> events;
+  final ScheduleLookupBundle lookups;
+  final ScheduleFilters filters;
+  final ScheduleCalendarView view;
+  final DateTime? focusedDay;
+  final DateTime? selectedDay;
+  final String? errorMessage;
+  final String? feedbackMessage;
+  final String? highlightedEventId;
 
-class LoadScheduleAction {}
-
-class ScheduleLoadedAction {
-  ScheduleLoadedAction(this.items);
-
-  final List<ScheduleEventModel> items;
-}
-
-class ScheduleFailedAction {
-  ScheduleFailedAction(this.message);
-
-  final String message;
-}
-
-ScheduleState scheduleReducer(ScheduleState state, dynamic action) {
-  switch (action) {
-    case LoadScheduleAction():
-      return state.copyWith(status: LoadStatus.loading, clearError: true);
-    case ScheduleLoadedAction():
-      return state.copyWith(status: LoadStatus.success, items: action.items);
-    case ScheduleFailedAction():
-      return state.copyWith(
-        status: LoadStatus.failure,
-        errorMessage: action.message,
-      );
-    default:
-      return state;
+  ScheduleState copyWith({
+    LoadStatus? status,
+    LoadStatus? mutationStatus,
+    List<ScheduleEventItem>? events,
+    ScheduleLookupBundle? lookups,
+    ScheduleFilters? filters,
+    ScheduleCalendarView? view,
+    DateTime? focusedDay,
+    DateTime? selectedDay,
+    String? errorMessage,
+    String? feedbackMessage,
+    String? highlightedEventId,
+    bool clearError = false,
+    bool clearFeedback = false,
+    bool clearHighlight = false,
+  }) {
+    return ScheduleState(
+      status: status ?? this.status,
+      mutationStatus: mutationStatus ?? this.mutationStatus,
+      events: events ?? this.events,
+      lookups: lookups ?? this.lookups,
+      filters: filters ?? this.filters,
+      view: view ?? this.view,
+      focusedDay: focusedDay ?? this.focusedDay,
+      selectedDay: selectedDay ?? this.selectedDay,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      feedbackMessage: clearFeedback
+          ? null
+          : (feedbackMessage ?? this.feedbackMessage),
+      highlightedEventId: clearHighlight
+          ? null
+          : (highlightedEventId ?? this.highlightedEventId),
+    );
   }
 }
 
-List<Middleware<AppState>> createScheduleMiddleware(AppDependencies deps) {
-  return [
-    TypedMiddleware<AppState, LoadScheduleAction>((store, action, next) async {
-      next(action);
-      try {
-        store.dispatch(
-          ScheduleLoadedAction(await deps.scheduleRepository.fetchSchedule()),
-        );
-      } catch (error) {
-        store.dispatch(ScheduleFailedAction(error.toString()));
-      }
-    }).call,
-  ];
-}
+const ScheduleState initialScheduleState = ScheduleState();

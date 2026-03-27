@@ -56,7 +56,7 @@ class AppState {
   final RolesState rolesState;
 
   factory AppState.initial() {
-    return const AppState(
+    return AppState(
       bootstrapState: BootstrapState(),
       authState: AuthState(),
       settingsState: SettingsState(),

@@ -13,6 +13,7 @@ import '../../modules/moderation/repositories/moderation_repository.dart';
 import '../../modules/notifications/repositories/notifications_repository.dart';
 import '../../modules/roles_permissions/repositories/roles_repository.dart';
 import '../../modules/schedule/repositories/schedule_repository.dart';
+import '../../modules/schedule/services/schedule_api_service.dart';
 import '../../modules/sections/repositories/sections_repository.dart';
 import '../../modules/settings/repositories/settings_repository.dart';
 import '../../modules/staff/repositories/staff_repository.dart';
@@ -108,7 +109,10 @@ class AppDependencies {
         const ContentSeedService(),
       ),
       uploadsRepository: UploadsRepository(demoDataService),
-      scheduleRepository: ScheduleRepository(demoDataService),
+      scheduleRepository: ScheduleRepository(
+        ScheduleApiService(apiClient),
+        demoDataService,
+      ),
       notificationsRepository: NotificationsRepository(demoDataService),
       moderationRepository: ModerationRepository(demoDataService),
       rolesRepository: RolesRepository(demoDataService),
