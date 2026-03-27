@@ -3,7 +3,7 @@ import 'package:redux/redux.dart';
 import '../core/services/app_dependencies.dart';
 import '../modules/auth/state/auth_state.dart';
 import '../modules/content_management/state/content_middleware.dart';
-import '../modules/course_offerings/state/course_offerings_state.dart';
+import '../modules/course_offerings/state/course_offerings_middleware.dart';
 import '../modules/dashboard/state/dashboard_state.dart';
 import '../modules/departments/state/departments_state.dart';
 import '../modules/enrollments/state/enrollments_state.dart';

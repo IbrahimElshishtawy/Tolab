@@ -4,6 +4,7 @@ import '../../modules/content_management/repositories/content_repository.dart';
 import '../../modules/content_management/services/content_api_service.dart';
 import '../../modules/content_management/services/content_seed_service.dart';
 import '../../modules/course_offerings/repositories/course_offerings_repository.dart';
+import '../../modules/course_offerings/services/course_offerings_api.dart';
 import '../../modules/dashboard/repositories/dashboard_repository.dart';
 import '../../modules/departments/repositories/departments_repository.dart';
 import '../../modules/enrollments/repositories/enrollments_repository.dart';
@@ -93,7 +94,10 @@ class AppDependencies {
       departmentsRepository: DepartmentsRepository(apiClient, demoDataService),
       sectionsRepository: SectionsRepository(demoDataService),
       subjectsRepository: SubjectsRepository(demoDataService),
-      courseOfferingsRepository: CourseOfferingsRepository(demoDataService),
+      courseOfferingsRepository: CourseOfferingsRepository(
+        CourseOfferingsApi(apiClient),
+        demoDataService,
+      ),
       enrollmentsRepository: EnrollmentsRepository(demoDataService),
       contentRepository: ContentRepository(
         ContentApiService(apiClient),

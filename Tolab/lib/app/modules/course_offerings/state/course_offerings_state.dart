@@ -1,68 +1,99 @@
-import 'package:redux/redux.dart';
-
-import '../../../core/services/app_dependencies.dart';
 import '../../../shared/enums/load_status.dart';
-import '../../../shared/models/academic_models.dart';
-import '../../../shared/states/entity_collection_state.dart';
-import '../../../state/app_state.dart';
+import '../models/course_offering_model.dart';
 
-typedef CourseOfferingsState = EntityCollectionState<CourseOfferingModel>;
+class CourseOfferingsState {
+  const CourseOfferingsState({
+    this.status = LoadStatus.initial,
+    this.detailsStatus = LoadStatus.initial,
+    this.mutationStatus = LoadStatus.initial,
+    this.entities = const <String, CourseOfferingModel>{},
+    this.orderedIds = const <String>[],
+    this.filters = const CourseOfferingsFilters(),
+    this.pagination = const CourseOfferingsPagination(),
+    this.subjects = const <CourseOfferingLookupOption>[],
+    this.doctors = const <CourseOfferingLookupOption>[],
+    this.assistants = const <CourseOfferingLookupOption>[],
+    this.departments = const <CourseOfferingLookupOption>[],
+    this.sections = const <CourseOfferingLookupOption>[],
+    this.activeTab = CourseOfferingDetailsTab.overview,
+    this.selectedOfferingId,
+    this.errorMessage,
+    this.feedbackMessage,
+  });
 
-const CourseOfferingsState initialCourseOfferingsState =
-    EntityCollectionState<CourseOfferingModel>();
+  final LoadStatus status;
+  final LoadStatus detailsStatus;
+  final LoadStatus mutationStatus;
+  final Map<String, CourseOfferingModel> entities;
+  final List<String> orderedIds;
+  final CourseOfferingsFilters filters;
+  final CourseOfferingsPagination pagination;
+  final List<CourseOfferingLookupOption> subjects;
+  final List<CourseOfferingLookupOption> doctors;
+  final List<CourseOfferingLookupOption> assistants;
+  final List<CourseOfferingLookupOption> departments;
+  final List<CourseOfferingLookupOption> sections;
+  final CourseOfferingDetailsTab activeTab;
+  final String? selectedOfferingId;
+  final String? errorMessage;
+  final String? feedbackMessage;
 
-class LoadCourseOfferingsAction {}
-
-class CourseOfferingsLoadedAction {
-  CourseOfferingsLoadedAction(this.items);
-
-  final List<CourseOfferingModel> items;
-}
-
-class CourseOfferingsFailedAction {
-  CourseOfferingsFailedAction(this.message);
-
-  final String message;
-}
-
-CourseOfferingsState courseOfferingsReducer(
-  CourseOfferingsState state,
-  dynamic action,
-) {
-  switch (action) {
-    case LoadCourseOfferingsAction():
-      return state.copyWith(status: LoadStatus.loading, clearError: true);
-    case CourseOfferingsLoadedAction():
-      return state.copyWith(status: LoadStatus.success, items: action.items);
-    case CourseOfferingsFailedAction():
-      return state.copyWith(
-        status: LoadStatus.failure,
-        errorMessage: action.message,
-      );
-    default:
-      return state;
+  CourseOfferingsState copyWith({
+    LoadStatus? status,
+    LoadStatus? detailsStatus,
+    LoadStatus? mutationStatus,
+    Map<String, CourseOfferingModel>? entities,
+    List<String>? orderedIds,
+    CourseOfferingsFilters? filters,
+    CourseOfferingsPagination? pagination,
+    List<CourseOfferingLookupOption>? subjects,
+    List<CourseOfferingLookupOption>? doctors,
+    List<CourseOfferingLookupOption>? assistants,
+    List<CourseOfferingLookupOption>? departments,
+    List<CourseOfferingLookupOption>? sections,
+    CourseOfferingDetailsTab? activeTab,
+    String? selectedOfferingId,
+    bool clearSelectedOfferingId = false,
+    String? errorMessage,
+    bool clearError = false,
+    String? feedbackMessage,
+    bool clearFeedback = false,
+  }) {
+    return CourseOfferingsState(
+      status: status ?? this.status,
+      detailsStatus: detailsStatus ?? this.detailsStatus,
+      mutationStatus: mutationStatus ?? this.mutationStatus,
+      entities: Map<String, CourseOfferingModel>.unmodifiable(
+        entities ?? this.entities,
+      ),
+      orderedIds: List<String>.unmodifiable(orderedIds ?? this.orderedIds),
+      filters: filters ?? this.filters,
+      pagination: pagination ?? this.pagination,
+      subjects: List<CourseOfferingLookupOption>.unmodifiable(
+        subjects ?? this.subjects,
+      ),
+      doctors: List<CourseOfferingLookupOption>.unmodifiable(
+        doctors ?? this.doctors,
+      ),
+      assistants: List<CourseOfferingLookupOption>.unmodifiable(
+        assistants ?? this.assistants,
+      ),
+      departments: List<CourseOfferingLookupOption>.unmodifiable(
+        departments ?? this.departments,
+      ),
+      sections: List<CourseOfferingLookupOption>.unmodifiable(
+        sections ?? this.sections,
+      ),
+      activeTab: activeTab ?? this.activeTab,
+      selectedOfferingId: clearSelectedOfferingId
+          ? null
+          : selectedOfferingId ?? this.selectedOfferingId,
+      errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
+      feedbackMessage: clearFeedback
+          ? null
+          : feedbackMessage ?? this.feedbackMessage,
+    );
   }
 }
 
-List<Middleware<AppState>> createCourseOfferingsMiddleware(
-  AppDependencies deps,
-) {
-  return [
-    TypedMiddleware<AppState, LoadCourseOfferingsAction>((
-      store,
-      action,
-      next,
-    ) async {
-      next(action);
-      try {
-        store.dispatch(
-          CourseOfferingsLoadedAction(
-            await deps.courseOfferingsRepository.fetchCourseOfferings(),
-          ),
-        );
-      } catch (error) {
-        store.dispatch(CourseOfferingsFailedAction(error.toString()));
-      }
-    }).call,
-  ];
-}
+const initialCourseOfferingsState = CourseOfferingsState();

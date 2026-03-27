@@ -11,6 +11,7 @@ class RoutePaths {
   static const sections = '/sections';
   static const subjects = '/subjects';
   static const courseOfferings = '/course-offerings';
+  static const courseOfferingDetailsPattern = '/course-offerings/:offeringId';
   static const enrollments = '/enrollments';
   static const content = '/content';
   static const schedule = '/schedule';
@@ -22,4 +23,7 @@ class RoutePaths {
 
   static String departmentDetails(String departmentId) =>
       '$departments/$departmentId';
+
+  static String courseOfferingDetails(String offeringId) =>
+      '$courseOfferings/$offeringId';
 }

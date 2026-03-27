@@ -8,6 +8,7 @@ import 'package:redux/redux.dart';
 import '../../modules/auth/presentation/login_screen.dart';
 import '../../modules/auth/state/auth_state.dart';
 import '../../modules/content_management/presentation/content_screen.dart';
+import '../../modules/course_offerings/presentation/pages/course_offering_details_page.dart';
 import '../../modules/course_offerings/presentation/course_offerings_screen.dart';
 import '../../modules/dashboard/presentation/dashboard_screen.dart';
 import '../../modules/departments/presentation/department_details_screen.dart';
@@ -88,6 +89,12 @@ class AppRouter {
         _shellPageRoute(
           path: RoutePaths.subjects,
           child: const SubjectsScreen(),
+        ),
+        _shellPageRoute(
+          path: RoutePaths.courseOfferingDetailsPattern,
+          builder: (state) => CourseOfferingDetailsPage(
+            offeringId: state.pathParameters['offeringId'] ?? '',
+          ),
         ),
         _shellPageRoute(
           path: RoutePaths.courseOfferings,
