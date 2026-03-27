@@ -6,7 +6,7 @@ import '../modules/content_management/state/content_middleware.dart';
 import '../modules/course_offerings/state/course_offerings_middleware.dart';
 import '../modules/dashboard/state/dashboard_state.dart';
 import '../modules/departments/state/departments_state.dart';
-import '../modules/enrollments/state/enrollments_state.dart';
+import '../modules/enrollments/state/enrollments_middleware.dart';
 import '../modules/moderation/state/moderation_state.dart';
 import '../modules/notifications/state/notifications_state.dart';
 import '../modules/roles_permissions/state/roles_state.dart';

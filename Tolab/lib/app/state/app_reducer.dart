@@ -4,7 +4,7 @@ import '../modules/content_management/state/content_reducer.dart';
 import '../modules/course_offerings/state/course_offerings_reducer.dart';
 import '../modules/dashboard/state/dashboard_state.dart';
 import '../modules/departments/state/departments_state.dart';
-import '../modules/enrollments/state/enrollments_state.dart';
+import '../modules/enrollments/state/enrollments_reducer.dart';
 import '../modules/moderation/state/moderation_state.dart';
 import '../modules/notifications/state/notifications_state.dart';
 import '../modules/roles_permissions/state/roles_state.dart';

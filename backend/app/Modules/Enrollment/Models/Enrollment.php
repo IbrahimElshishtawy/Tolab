@@ -15,6 +15,7 @@ class Enrollment extends Model
     protected $fillable = [
         'student_user_id',
         'course_offering_id',
+        'status',
     ];
 
     public function student(): BelongsTo

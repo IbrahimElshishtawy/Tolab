@@ -17,6 +17,7 @@ class BulkEnrollmentRequest extends FormRequest
             'enrollments' => ['required', 'array', 'min:1'],
             'enrollments.*.student_user_id' => ['required', 'integer', 'exists:users,id'],
             'enrollments.*.course_offering_id' => ['required', 'integer', 'exists:course_offerings,id'],
+            'enrollments.*.status' => ['nullable', 'string', 'in:enrolled,pending,rejected'],
         ];
     }
 }
