@@ -88,7 +88,7 @@ class AppDependencies {
       dashboardRepository: DashboardRepository(demoDataService),
       studentsRepository: StudentsRepository(),
       staffRepository: StaffRepository(demoDataService),
-      departmentsRepository: DepartmentsRepository(demoDataService),
+      departmentsRepository: DepartmentsRepository(apiClient, demoDataService),
       sectionsRepository: SectionsRepository(demoDataService),
       subjectsRepository: SubjectsRepository(demoDataService),
       courseOfferingsRepository: CourseOfferingsRepository(demoDataService),

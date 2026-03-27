@@ -13,6 +13,7 @@ class ApiClient {
         BaseOptions(
           baseUrl: AppConfig.apiBaseUrl,
           connectTimeout: AppConfig.connectTimeout,
+          sendTimeout: AppConfig.connectTimeout,
           receiveTimeout: AppConfig.receiveTimeout,
           headers: {'Accept': 'application/json'},
         ),
@@ -64,6 +65,7 @@ class ApiClient {
 
   final Dio _dio;
   final SecureStorageService _secureStorage;
+  static const int _maxRetryAttempts = 2;
 
   Future<T> get<T>(
     String path, {
@@ -137,26 +139,32 @@ class ApiClient {
     Future<Response<dynamic>> Function() request, {
     required T Function(dynamic json) decoder,
   }) async {
-    try {
-      final response = await request();
-      final payload = response.data;
-      if (payload is JsonMap && payload['success'] == false) {
+    for (var attempt = 0; attempt <= _maxRetryAttempts; attempt++) {
+      try {
+        final response = await request();
+        final payload = response.data;
+        if (payload is JsonMap && payload['success'] == false) {
+          throw AppException(
+            payload['message']?.toString() ??
+                'The request failed unexpectedly.',
+            statusCode: response.statusCode,
+          );
+        }
+        final dynamic data = payload is JsonMap && payload.containsKey('data')
+            ? payload['data']
+            : payload;
+        return decoder(data);
+      } on DioException catch (error) {
+        if (attempt < _maxRetryAttempts && _shouldRetry(error)) {
+          continue;
+        }
         throw AppException(
-          payload['message']?.toString() ?? 'The request failed unexpectedly.',
-          statusCode: response.statusCode,
+          _mapDioError(error),
+          statusCode: error.response?.statusCode,
         );
       }
-      final dynamic data = payload is JsonMap && payload.containsKey('data')
-          ? payload['data']
-          : payload;
-      return decoder(data);
-    } on DioException catch (error) {
-      final message = error.response?.data is JsonMap
-          ? (error.response?.data['message']?.toString() ??
-                'Unable to complete your request.')
-          : error.message ?? 'Network request failed.';
-      throw AppException(message, statusCode: error.response?.statusCode);
     }
+    throw AppException('Unable to complete your request.');
   }
 
   Future<bool> _refreshToken() async {
@@ -194,5 +202,37 @@ class ApiClient {
       await _secureStorage.clearSession();
       return false;
     }
+  }
+
+  bool _shouldRetry(DioException error) {
+    final statusCode = error.response?.statusCode ?? 0;
+    return error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.receiveTimeout ||
+        error.type == DioExceptionType.sendTimeout ||
+        error.type == DioExceptionType.connectionError ||
+        statusCode >= 500;
+  }
+
+  String _mapDioError(DioException error) {
+    final responseData = error.response?.data;
+    if (responseData is JsonMap) {
+      final message = responseData['message']?.toString();
+      if (message != null && message.isNotEmpty) {
+        return message;
+      }
+    }
+
+    return switch (error.type) {
+      DioExceptionType.connectionTimeout ||
+      DioExceptionType.sendTimeout ||
+      DioExceptionType.receiveTimeout =>
+        'The server took too long to respond. Please try again.',
+      DioExceptionType.connectionError =>
+        'Unable to reach the server. Check your connection and try again.',
+      DioExceptionType.cancel => 'The request was cancelled.',
+      DioExceptionType.badResponse =>
+        error.message ?? 'The server could not complete the request.',
+      _ => error.message ?? 'Network request failed.',
+    };
   }
 }

@@ -10,6 +10,7 @@ import '../../modules/auth/state/auth_state.dart';
 import '../../modules/content_management/presentation/content_screen.dart';
 import '../../modules/course_offerings/presentation/course_offerings_screen.dart';
 import '../../modules/dashboard/presentation/dashboard_screen.dart';
+import '../../modules/departments/presentation/department_details_screen.dart';
 import '../../modules/departments/presentation/departments_screen.dart';
 import '../../modules/enrollments/presentation/enrollments_screen.dart';
 import '../../modules/moderation/presentation/moderation_screen.dart';
@@ -69,9 +70,12 @@ class AppRouter {
           path: RoutePaths.students,
           child: const StudentsScreen(),
         ),
+        _shellPageRoute(path: RoutePaths.staff, child: const StaffScreen()),
         _shellPageRoute(
-          path: RoutePaths.staff,
-          child: const StaffScreen(),
+          path: RoutePaths.departmentDetailsPattern,
+          builder: (state) => DepartmentDetailsScreen(
+            departmentId: state.pathParameters['departmentId'] ?? '',
+          ),
         ),
         _shellPageRoute(
           path: RoutePaths.departments,
@@ -93,18 +97,12 @@ class AppRouter {
           path: RoutePaths.enrollments,
           child: const EnrollmentsScreen(),
         ),
-        _shellPageRoute(
-          path: RoutePaths.content,
-          child: const ContentScreen(),
-        ),
+        _shellPageRoute(path: RoutePaths.content, child: const ContentScreen()),
         _shellPageRoute(
           path: RoutePaths.schedule,
           child: const ScheduleScreen(),
         ),
-        _shellPageRoute(
-          path: RoutePaths.uploads,
-          child: const UploadsScreen(),
-        ),
+        _shellPageRoute(path: RoutePaths.uploads, child: const UploadsScreen()),
         _shellPageRoute(
           path: RoutePaths.notifications,
           child: const NotificationsScreen(),
@@ -113,10 +111,7 @@ class AppRouter {
           path: RoutePaths.moderation,
           child: const ModerationScreen(),
         ),
-        _shellPageRoute(
-          path: RoutePaths.roles,
-          child: const RolesScreen(),
-        ),
+        _shellPageRoute(path: RoutePaths.roles, child: const RolesScreen()),
         _shellPageRoute(
           path: RoutePaths.settings,
           child: const SettingsScreen(),
@@ -126,17 +121,22 @@ class AppRouter {
   }
 
   final Store<AppState> _store;
-  final GlobalKey<NavigatorState> _rootNavigatorKey =
-      GlobalKey<NavigatorState>(debugLabel: 'rootNavigator');
+  final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
+    debugLabel: 'rootNavigator',
+  );
   late final GoRouter router;
 
-  GoRoute _shellPageRoute({required String path, required Widget child}) {
+  GoRoute _shellPageRoute({
+    required String path,
+    Widget? child,
+    Widget Function(GoRouterState state)? builder,
+  }) {
     return GoRoute(
       path: path,
       pageBuilder: (context, state) => NoTransitionPage<void>(
         key: state.pageKey,
         restorationId: state.pageKey.value,
-        child: _buildShell(context, state, child),
+        child: _buildShell(context, state, builder?.call(state) ?? child!),
       ),
     );
   }
