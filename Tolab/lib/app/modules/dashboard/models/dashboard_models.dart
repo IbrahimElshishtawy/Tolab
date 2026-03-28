@@ -103,9 +103,7 @@ class DashboardFilters {
       semesterId: clearSemester ? null : semesterId ?? this.semesterId,
       departmentId: clearDepartment ? null : departmentId ?? this.departmentId,
       courseId: clearCourse ? null : courseId ?? this.courseId,
-      instructorId: clearInstructor
-          ? null
-          : instructorId ?? this.instructorId,
+      instructorId: clearInstructor ? null : instructorId ?? this.instructorId,
     );
   }
 
@@ -126,8 +124,7 @@ class DashboardFilters {
       semesterId: _stringOrNull(json['semester']) ?? fallback.semesterId,
       departmentId: _stringOrNull(json['department']) ?? fallback.departmentId,
       courseId: _stringOrNull(json['course']) ?? fallback.courseId,
-      instructorId:
-          _stringOrNull(json['instructor']) ?? fallback.instructorId,
+      instructorId: _stringOrNull(json['instructor']) ?? fallback.instructorId,
     );
   }
 }
@@ -226,10 +223,7 @@ class DashboardKpiMetric {
 }
 
 class DashboardLinePoint {
-  const DashboardLinePoint({
-    required this.label,
-    required this.value,
-  });
+  const DashboardLinePoint({required this.label, required this.value});
 
   final String label;
   final double value;
@@ -494,8 +488,7 @@ class DashboardBundle {
       ),
       isFallback: json['is_fallback'] == true,
       sourceLabel: _stringOrNull(json['source_label']) ?? 'Campus API',
-      refreshedAt:
-          _dateTimeOrNull(json['refreshed_at']) ?? DateTime.now(),
+      refreshedAt: _dateTimeOrNull(json['refreshed_at']) ?? DateTime.now(),
     );
   }
 

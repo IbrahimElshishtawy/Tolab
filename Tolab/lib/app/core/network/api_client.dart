@@ -70,10 +70,15 @@ class ApiClient {
   Future<T> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
     required T Function(dynamic json) decoder,
   }) async {
     return _request(
-      () => _dio.get<dynamic>(path, queryParameters: queryParameters),
+      () => _dio.get<dynamic>(
+        path,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+      ),
       decoder: decoder,
     );
   }
@@ -81,10 +86,11 @@ class ApiClient {
   Future<T> post<T>(
     String path, {
     dynamic data,
+    CancelToken? cancelToken,
     required T Function(dynamic json) decoder,
   }) async {
     return _request(
-      () => _dio.post<dynamic>(path, data: data),
+      () => _dio.post<dynamic>(path, data: data, cancelToken: cancelToken),
       decoder: decoder,
     );
   }
@@ -92,10 +98,11 @@ class ApiClient {
   Future<T> put<T>(
     String path, {
     dynamic data,
+    CancelToken? cancelToken,
     required T Function(dynamic json) decoder,
   }) async {
     return _request(
-      () => _dio.put<dynamic>(path, data: data),
+      () => _dio.put<dynamic>(path, data: data, cancelToken: cancelToken),
       decoder: decoder,
     );
   }
@@ -103,10 +110,11 @@ class ApiClient {
   Future<T> patch<T>(
     String path, {
     dynamic data,
+    CancelToken? cancelToken,
     required T Function(dynamic json) decoder,
   }) async {
     return _request(
-      () => _dio.patch<dynamic>(path, data: data),
+      () => _dio.patch<dynamic>(path, data: data, cancelToken: cancelToken),
       decoder: decoder,
     );
   }
@@ -114,10 +122,11 @@ class ApiClient {
   Future<T> delete<T>(
     String path, {
     dynamic data,
+    CancelToken? cancelToken,
     required T Function(dynamic json) decoder,
   }) async {
     return _request(
-      () => _dio.delete<dynamic>(path, data: data),
+      () => _dio.delete<dynamic>(path, data: data, cancelToken: cancelToken),
       decoder: decoder,
     );
   }
@@ -127,10 +136,15 @@ class ApiClient {
     required FormData data,
     required T Function(dynamic json) decoder,
     ProgressCallback? onSendProgress,
+    CancelToken? cancelToken,
   }) async {
     return _request(
-      () =>
-          _dio.post<dynamic>(path, data: data, onSendProgress: onSendProgress),
+      () => _dio.post<dynamic>(
+        path,
+        data: data,
+        onSendProgress: onSendProgress,
+        cancelToken: cancelToken,
+      ),
       decoder: decoder,
     );
   }

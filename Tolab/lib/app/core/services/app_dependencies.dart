@@ -6,6 +6,8 @@ import '../../modules/content_management/services/content_seed_service.dart';
 import '../../modules/course_offerings/repositories/course_offerings_repository.dart';
 import '../../modules/course_offerings/services/course_offerings_api.dart';
 import '../../modules/dashboard/repositories/dashboard_repository.dart';
+import '../../modules/dashboard/services/dashboard_api_service.dart';
+import '../../modules/dashboard/services/dashboard_seed_service.dart';
 import '../../modules/departments/repositories/departments_repository.dart';
 import '../../modules/enrollments/repositories/enrollments_repository.dart';
 import '../../modules/enrollments/services/enrollments_api.dart';
@@ -93,7 +95,10 @@ class AppDependencies {
       demoDataService: demoDataService,
       authRepository: AuthRepository(apiClient, demoDataService),
       authService: AuthService(secureStorage),
-      dashboardRepository: DashboardRepository(demoDataService),
+      dashboardRepository: DashboardRepository(
+        DashboardApiService(apiClient),
+        const DashboardSeedService(),
+      ),
       studentsRepository: StudentsRepository(),
       staffRepository: StaffRepository(demoDataService),
       departmentsRepository: DepartmentsRepository(apiClient, demoDataService),

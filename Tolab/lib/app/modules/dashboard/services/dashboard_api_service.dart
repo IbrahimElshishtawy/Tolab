@@ -19,10 +19,7 @@ class DashboardApiService {
       cancelToken: cancelToken,
       decoder: (json) {
         final payload = json is JsonMap ? json : <String, dynamic>{};
-        return DashboardBundle.fromJson(
-          payload,
-          fallbackFilters: filters,
-        );
+        return DashboardBundle.fromJson(payload, fallbackFilters: filters);
       },
     );
   }

@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../core/colors/app_colors.dart';
-import '../../../core/constants/app_constants.dart';
 import '../../../core/spacing/app_spacing.dart';
-import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/page_header.dart';
+import '../../../shared/enums/load_status.dart';
 import '../../../shared/widgets/async_state_view.dart';
-import '../../../shared/widgets/metric_card.dart';
-import '../../../shared/widgets/premium_button.dart';
-import '../../../shared/widgets/status_badge.dart';
 import '../../../state/app_state.dart';
+import '../models/dashboard_models.dart';
 import '../state/dashboard_state.dart';
-import '../widgets/analytics_widgets.dart';
+import '../widgets/dashboard_chart_cards.dart';
+import '../widgets/dashboard_filter_bar.dart';
+import '../widgets/dashboard_kpi_card.dart';
+import '../widgets/dashboard_panels.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -21,8 +21,25 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, DashboardState>(
-      onInit: (store) => store.dispatch(LoadDashboardAction()),
+      onInit: (store) => store.dispatch(const LoadDashboardRequestedAction()),
+      distinct: true,
       converter: (store) => store.state.dashboardState,
+      onDidChange: (previous, current) {
+        final feedbackMessage = current.feedbackMessage;
+        if (feedbackMessage == null ||
+            feedbackMessage == previous?.feedbackMessage) {
+          return;
+        }
+
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(feedbackMessage)));
+
+        StoreProvider.of<AppState>(
+          context,
+          listen: false,
+        ).dispatch(const DashboardFeedbackDismissedAction());
+      },
       builder: (context, state) {
         final bundle = state.bundle;
 
@@ -32,19 +49,22 @@ class DashboardScreen extends StatelessWidget {
             const PageHeader(
               title: 'University Overview',
               subtitle:
-                  'Track enrollment health, staffing, schedule movement, and moderation pressure from a single premium workspace.',
+                  'A polished command surface for enrollment health, staff delivery, moderation risk, and upcoming academic workload.',
               breadcrumbs: ['Admin', 'Dashboard'],
-              actions: [
-                PremiumButton(
-                  label: 'Export report',
-                  icon: Icons.ios_share_rounded,
-                  isSecondary: true,
-                ),
-                PremiumButton(
-                  label: 'Create campaign',
-                  icon: Icons.auto_awesome_rounded,
-                ),
-              ],
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            DashboardFilterBar(
+              filters: state.filters,
+              lookups: bundle?.lookups ?? const DashboardLookups(),
+              onFilterChanged: (field, value) =>
+                  StoreProvider.of<AppState>(context, listen: false).dispatch(
+                    DashboardFilterChangedAction(field: field, value: value),
+                  ),
+              onReset: () => StoreProvider.of<AppState>(
+                context,
+                listen: false,
+              ).dispatch(const DashboardFiltersResetAction()),
+              isRefreshing: state.refreshStatus == LoadStatus.loading,
             ),
             const SizedBox(height: AppSpacing.xl),
             Expanded(
@@ -53,124 +73,15 @@ class DashboardScreen extends StatelessWidget {
                 errorMessage: state.errorMessage,
                 onRetry: () => StoreProvider.of<AppState>(
                   context,
-                ).dispatch(LoadDashboardAction()),
+                  listen: false,
+                ).dispatch(const LoadDashboardRequestedAction()),
+                isEmpty: bundle?.isEmpty ?? false,
+                emptyTitle: 'No dashboard data for this filter set',
+                emptySubtitle:
+                    'Try widening the semester or department scope to surface academic activity again.',
                 child: bundle == null
                     ? const SizedBox.shrink()
-                    : LayoutBuilder(
-                        builder: (context, constraints) {
-                          final isDesktop = constraints.maxWidth >= 1240;
-                          final isWide = constraints.maxWidth >= 980;
-                          final cardWidth = isDesktop
-                              ? (constraints.maxWidth - (AppSpacing.md * 3)) / 4
-                              : isWide
-                              ? (constraints.maxWidth - AppSpacing.md) / 2
-                              : constraints.maxWidth;
-
-                          return SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                AnimationLimiter(
-                                  child: Wrap(
-                                    spacing: AppSpacing.md,
-                                    runSpacing: AppSpacing.md,
-                                    children: [
-                                      for (
-                                        var index = 0;
-                                        index < bundle.metrics.length;
-                                        index++
-                                      )
-                                        AnimationConfiguration.staggeredGrid(
-                                          position: index,
-                                          columnCount: isDesktop
-                                              ? 4
-                                              : isWide
-                                              ? 2
-                                              : 1,
-                                          duration: const Duration(
-                                            milliseconds: 360,
-                                          ),
-                                          child: ScaleAnimation(
-                                            child: SizedBox(
-                                              width: cardWidth,
-                                              child: MetricCard(
-                                                metric: bundle.metrics[index],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: AppSpacing.xl),
-                                if (isWide)
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        flex: 7,
-                                        child: Column(
-                                          children: [
-                                            TrendChartCard(
-                                              points: bundle.trends,
-                                            ),
-                                            const SizedBox(
-                                              height: AppSpacing.md,
-                                            ),
-                                            ActivityFeedCard(
-                                              activities: bundle.activities,
-                                              alerts: bundle.alerts,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(width: AppSpacing.md),
-                                      Expanded(
-                                        flex: 5,
-                                        child: Column(
-                                          children: [
-                                            DistributionChartCard(
-                                              slices: bundle.distribution,
-                                            ),
-                                            const SizedBox(
-                                              height: AppSpacing.md,
-                                            ),
-                                            const _QuickActionsCard(),
-                                            const SizedBox(
-                                              height: AppSpacing.md,
-                                            ),
-                                            _OperationalHighlightsCard(
-                                              alerts: bundle.alerts,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                else ...[
-                                  TrendChartCard(points: bundle.trends),
-                                  const SizedBox(height: AppSpacing.md),
-                                  DistributionChartCard(
-                                    slices: bundle.distribution,
-                                  ),
-                                  const SizedBox(height: AppSpacing.md),
-                                  const _QuickActionsCard(),
-                                  const SizedBox(height: AppSpacing.md),
-                                  _OperationalHighlightsCard(
-                                    alerts: bundle.alerts,
-                                  ),
-                                  const SizedBox(height: AppSpacing.md),
-                                  ActivityFeedCard(
-                                    activities: bundle.activities,
-                                    alerts: bundle.alerts,
-                                  ),
-                                ],
-                              ],
-                            ),
-                          );
-                        },
-                      ),
+                    : _DashboardContent(bundle: bundle),
               ),
             ),
           ],
@@ -180,188 +91,162 @@ class DashboardScreen extends StatelessWidget {
   }
 }
 
-class _QuickActionsCard extends StatelessWidget {
-  const _QuickActionsCard();
+class _DashboardContent extends StatelessWidget {
+  const _DashboardContent({required this.bundle});
+
+  final DashboardBundle bundle;
 
   @override
   Widget build(BuildContext context) {
-    const actions = [
-      (
-        'New intake',
-        'Open a student onboarding batch',
-        Icons.person_add_alt_1_rounded,
-      ),
-      (
-        'Staff invite',
-        'Provision a doctor or assistant profile',
-        Icons.badge_rounded,
-      ),
-      (
-        'Schedule exam',
-        'Create an assessment event block',
-        Icons.event_note_rounded,
-      ),
-      (
-        'Moderation sweep',
-        'Review high-risk reported threads',
-        Icons.shield_rounded,
-      ),
-    ];
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final isDesktop = width >= 1280;
+        final isTablet = width >= 760;
+        final kpiWidth = isDesktop
+            ? (width - (AppSpacing.md * 3)) / 4
+            : isTablet
+            ? (width - AppSpacing.md) / 2
+            : width;
 
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Quick actions', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 6),
-          Text(
-            'Most-used administrative actions for the daily control loop.',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          for (final action in actions) ...[
-            _ActionTile(title: action.$1, subtitle: action.$2, icon: action.$3),
-            if (action != actions.last) const SizedBox(height: AppSpacing.sm),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _ActionTile extends StatelessWidget {
-  const _ActionTile({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-  });
-
-  final String title;
-  final String subtitle;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
-      ),
-      child: Row(
-        children: [
-          Container(
-            height: 44,
-            width: 44,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(AppConstants.smallRadius),
-            ),
-            child: Icon(icon, color: AppColors.primary),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: Theme.of(context).textTheme.titleSmall),
-                const SizedBox(height: 4),
-                Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
-              ],
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          const Icon(Icons.arrow_outward_rounded, size: 18),
-        ],
-      ),
-    );
-  }
-}
-
-class _OperationalHighlightsCard extends StatelessWidget {
-  const _OperationalHighlightsCard({required this.alerts});
-
-  final List<String> alerts;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+        return SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text(
-                  'Operations snapshot',
-                  style: Theme.of(context).textTheme.titleLarge,
+              AnimationLimiter(
+                child: Wrap(
+                  spacing: AppSpacing.md,
+                  runSpacing: AppSpacing.md,
+                  children: [
+                    for (var index = 0; index < bundle.kpis.length; index++)
+                      AnimationConfiguration.staggeredGrid(
+                        position: index,
+                        duration: const Duration(milliseconds: 320),
+                        columnCount: isDesktop
+                            ? 4
+                            : isTablet
+                            ? 2
+                            : 1,
+                        child: FadeInAnimation(
+                          child: SizedBox(
+                            width: kpiWidth,
+                            child: DashboardKpiCard(metric: bundle.kpis[index]),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
-              const StatusBadge('Stable', icon: Icons.verified_rounded),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: const [
-              _MiniStat(label: 'Attendance sync', value: '98.2%'),
-              _MiniStat(label: 'Open tickets', value: '12'),
-              _MiniStat(label: 'Pending reviews', value: '24'),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Text('Watchlist', style: Theme.of(context).textTheme.titleSmall),
-          const SizedBox(height: AppSpacing.sm),
-          for (final alert in alerts)
-            Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 3),
-                    child: Icon(
-                      Icons.brightness_1_rounded,
-                      size: 10,
-                      color: AppColors.info,
+              const SizedBox(height: AppSpacing.xl),
+              if (isDesktop)
+                Column(
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 7,
+                          child: EnrollmentTrendCard(
+                            points: bundle.enrollmentTrend,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          flex: 5,
+                          child: StudentDistributionCard(
+                            slices: bundle.studentDistribution,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(child: Text(alert)),
-                ],
-              ),
-            ),
-        ],
-      ),
+                    const SizedBox(height: AppSpacing.md),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: AttendanceOverviewCard(
+                            points: bundle.attendanceOverview,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: StaffPerformanceCard(
+                            points: bundle.staffPerformance,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 6,
+                          child: RecentActivityPanel(
+                            items: bundle.recentActivity,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          flex: 4,
+                          child: Column(
+                            children: [
+                              QuickActionsPanel(
+                                actions: bundle.quickActions,
+                                onActionSelected: (action) =>
+                                    _handleQuickAction(context, action),
+                              ),
+                              const SizedBox(height: AppSpacing.md),
+                              ModerationAlertsPanel(
+                                items: bundle.moderationAlerts,
+                              ),
+                              const SizedBox(height: AppSpacing.md),
+                              ScheduleSummaryPanel(
+                                items: bundle.scheduleSummary,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+              else ...[
+                EnrollmentTrendCard(points: bundle.enrollmentTrend),
+                const SizedBox(height: AppSpacing.md),
+                StudentDistributionCard(slices: bundle.studentDistribution),
+                const SizedBox(height: AppSpacing.md),
+                AttendanceOverviewCard(points: bundle.attendanceOverview),
+                const SizedBox(height: AppSpacing.md),
+                StaffPerformanceCard(points: bundle.staffPerformance),
+                const SizedBox(height: AppSpacing.md),
+                QuickActionsPanel(
+                  actions: bundle.quickActions,
+                  onActionSelected: (action) =>
+                      _handleQuickAction(context, action),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                ModerationAlertsPanel(items: bundle.moderationAlerts),
+                const SizedBox(height: AppSpacing.md),
+                ScheduleSummaryPanel(items: bundle.scheduleSummary),
+                const SizedBox(height: AppSpacing.md),
+                RecentActivityPanel(items: bundle.recentActivity),
+              ],
+            ],
+          ),
+        );
+      },
     );
   }
-}
 
-class _MiniStat extends StatelessWidget {
-  const _MiniStat({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 154,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
-        border: Border.all(color: Theme.of(context).dividerColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(value, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 6),
-          Text(label, style: Theme.of(context).textTheme.bodySmall),
-        ],
-      ),
+  void _handleQuickAction(BuildContext context, DashboardQuickAction action) {
+    if (action.route.isNotEmpty) {
+      context.go(action.route);
+      return;
+    }
+    StoreProvider.of<AppState>(context, listen: false).dispatch(
+      DashboardFeedbackShownAction('${action.label} is ready to be wired.'),
     );
   }
 }
