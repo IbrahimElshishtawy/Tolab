@@ -25,6 +25,7 @@ import '../../modules/staff/repositories/staff_repository.dart';
 import '../../modules/students/repositories/students_repository.dart';
 import '../../modules/subjects/repositories/subjects_repository.dart';
 import '../../modules/uploads/repositories/uploads_repository.dart';
+import '../../modules/uploads/services/uploads_service.dart';
 import '../network/api_client.dart';
 import '../storage/local_storage_service.dart';
 import '../storage/secure_storage_service.dart';
@@ -116,7 +117,7 @@ class AppDependencies {
         ContentApiService(apiClient),
         const ContentSeedService(),
       ),
-      uploadsRepository: UploadsRepository(demoDataService),
+      uploadsRepository: UploadsRepository(UploadsService(apiClient)),
       scheduleRepository: ScheduleRepository(
         ScheduleApiService(apiClient),
         demoDataService,

@@ -140,7 +140,9 @@ class _FilterDropdown extends StatelessWidget {
     return SizedBox(
       width: 220,
       child: DropdownButtonFormField<String?>(
-        value: options.any((option) => option.id == value) ? value : null,
+        initialValue: options.any((option) => option.id == value)
+            ? value
+            : null,
         items: [
           DropdownMenuItem<String?>(value: null, child: Text('All $label')),
           ...options.map(

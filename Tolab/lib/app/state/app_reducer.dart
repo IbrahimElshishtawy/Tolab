@@ -15,7 +15,7 @@ import '../modules/splash/state/bootstrap_state.dart';
 import '../modules/staff/state/staff_state.dart';
 import '../modules/students/state/students_state.dart';
 import '../modules/subjects/state/subjects_state.dart';
-import '../modules/uploads/state/uploads_state.dart';
+import '../modules/uploads/state/uploads_reducer.dart';
 
 AppState appReducer(AppState state, dynamic action) {
   return AppState(

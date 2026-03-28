@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import '../../../core/helpers/json_types.dart';
 
 enum DashboardMetricTone { primary, secondary, info, success, warning, danger }
@@ -497,7 +495,7 @@ class DashboardBundle {
     T Function(JsonMap json) decoder,
   ) {
     if (value is! List) {
-      return const <T>[];
+      return <T>[];
     }
     return value.whereType<JsonMap>().map(decoder).toList(growable: false);
   }

@@ -104,7 +104,7 @@ class EnrollmentTrendCard extends StatelessWidget {
                     ],
                     dotData: FlDotData(
                       show: true,
-                      getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(
+                      getDotPainter: (_, _, _, _) => FlDotCirclePainter(
                         radius: 3.8,
                         color: AppColors.primary,
                         strokeWidth: 2,
@@ -261,7 +261,7 @@ class _DashboardBarCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final maxY = points.isEmpty
-        ? 100
+        ? 100.0
         : points
               .map((point) => point.target ?? point.value)
               .reduce((a, b) => a > b ? a : b);

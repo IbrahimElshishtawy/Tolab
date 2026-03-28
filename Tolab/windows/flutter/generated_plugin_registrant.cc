@@ -10,6 +10,8 @@
 #include <desktop_drop/desktop_drop_plugin.h>
 #include <file_selector_windows/file_selector_windows.h>
 #include <flutter_secure_storage_windows/flutter_secure_storage_windows_plugin.h>
+#include <pdfx/pdfx_plugin.h>
+#include <url_launcher_windows/url_launcher_windows.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
   ConnectivityPlusWindowsPluginRegisterWithRegistrar(
@@ -20,4 +22,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("FileSelectorWindows"));
   FlutterSecureStorageWindowsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("FlutterSecureStorageWindowsPlugin"));
+  PdfxPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("PdfxPlugin"));
+  UrlLauncherWindowsRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("UrlLauncherWindows"));
 }

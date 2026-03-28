@@ -16,7 +16,7 @@ import '../modules/splash/state/bootstrap_state.dart';
 import '../modules/staff/state/staff_state.dart';
 import '../modules/students/state/students_state.dart';
 import '../modules/subjects/state/subjects_state.dart';
-import '../modules/uploads/state/uploads_state.dart';
+import '../modules/uploads/state/uploads_middleware.dart';
 import 'app_reducer.dart';
 import 'app_state.dart';
 
