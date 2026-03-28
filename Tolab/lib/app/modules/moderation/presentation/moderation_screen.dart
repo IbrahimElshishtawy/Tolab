@@ -1,133 +1,108 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
-import '../../../core/colors/app_colors.dart';
-import '../../../core/constants/app_constants.dart';
 import '../../../core/spacing/app_spacing.dart';
-import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/page_header.dart';
-import '../../../shared/models/moderation_models.dart';
-import '../../../shared/tables/admin_data_table.dart';
 import '../../../shared/widgets/async_state_view.dart';
-import '../../../shared/widgets/filter_bar.dart';
 import '../../../shared/widgets/premium_button.dart';
-import '../../../shared/widgets/status_badge.dart';
 import '../../../state/app_state.dart';
+import '../models/moderation_models.dart';
 import '../state/moderation_state.dart';
+import 'screens/analytics_screen.dart';
+import 'screens/comments_screen.dart';
+import 'screens/groups_screen.dart';
+import 'screens/messages_screen.dart';
+import 'screens/permissions_screen.dart';
+import 'screens/posts_screen.dart';
+import 'screens/reports_screen.dart';
+import 'widgets/moderation_overview_strip.dart';
+import 'widgets/moderation_preview_dialog.dart';
 
-class ModerationScreen extends StatefulWidget {
+class ModerationScreen extends StatelessWidget {
   const ModerationScreen({super.key});
 
   @override
-  State<ModerationScreen> createState() => _ModerationScreenState();
-}
-
-class _ModerationScreenState extends State<ModerationScreen> {
-  String _selectedFilter = 'All reports';
-
-  @override
   Widget build(BuildContext context) {
-    return StoreConnector<AppState, ModerationState>(
-      onInit: (store) => store.dispatch(LoadModerationAction()),
-      converter: (store) => store.state.moderationState,
-      builder: (context, state) {
+    return StoreConnector<AppState, _ModerationShellViewModel>(
+      onInit: (store) {
+        store.dispatch(const LoadModerationDashboardRequestedAction());
+        store.dispatch(const StartModerationNotificationsPollingAction());
+      },
+      onDispose: (store) =>
+          store.dispatch(const StopModerationNotificationsPollingAction()),
+      converter: (store) {
+        final state = store.state.moderationState;
+        return _ModerationShellViewModel(
+          state: state,
+          metrics: selectModerationMetrics(store.state),
+          unreadNotifications: selectUnreadNotifications(store.state),
+        );
+      },
+      builder: (context, vm) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const PageHeader(
+            PageHeader(
               title: 'Moderation',
               subtitle:
-                  'Review posts, comments, and messages with a clean action-oriented moderation queue and contextual review panel.',
-              breadcrumbs: ['Admin', 'Safety', 'Moderation'],
+                  'University-wide safety operations for groups, posts, comments, reports, messaging, and moderator permissions.',
+              breadcrumbs: const ['Admin', 'Safety', 'Moderation'],
               actions: [
                 PremiumButton(
-                  label: 'Policy center',
-                  icon: Icons.rule_folder_outlined,
+                  label: 'Refresh',
+                  icon: Icons.refresh_rounded,
                   isSecondary: true,
+                  onPressed: () => StoreProvider.of<AppState>(context).dispatch(
+                    const LoadModerationDashboardRequestedAction(silent: true),
+                  ),
                 ),
                 PremiumButton(
-                  label: 'Assign moderator',
-                  icon: Icons.admin_panel_settings_rounded,
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            Wrap(
-              spacing: AppSpacing.md,
-              runSpacing: AppSpacing.md,
-              children: const [
-                _ModerationMetric(
-                  label: 'Open reports',
-                  value: '18',
-                  color: AppColors.warning,
-                ),
-                _ModerationMetric(
-                  label: 'Auto-hidden',
-                  value: '7',
-                  color: AppColors.info,
-                ),
-                _ModerationMetric(
-                  label: 'Escalated',
-                  value: '3',
-                  color: AppColors.danger,
+                  label: 'Assign moderators',
+                  icon: Icons.admin_panel_settings_outlined,
+                  onPressed: () => StoreProvider.of<AppState>(context).dispatch(
+                    const ModerationTabChangedAction(
+                      ModerationWorkspaceTab.permissions,
+                    ),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
-            FilterBar(
-              searchHint: 'Search author, group, content, report ID',
-              filters: const ['All reports', 'Pending', 'Flagged', 'Messages'],
-              selectedFilter: _selectedFilter,
-              onFilterSelected: (value) =>
-                  setState(() => _selectedFilter = value),
+            if (vm.state.feedbackMessage != null &&
+                vm.state.feedbackMessage!.isNotEmpty) ...[
+              ModerationNoticeBanner(
+                message: vm.state.feedbackMessage!,
+                isFallback: vm.state.isUsingFallbackData,
+              ),
+              const SizedBox(height: AppSpacing.md),
+            ],
+            ModerationOverviewStrip(
+              metrics: vm.metrics,
+              notifications: vm.unreadNotifications,
             ),
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: AppSpacing.md),
+            _TabBarStrip(activeTab: vm.state.activeTab),
+            const SizedBox(height: AppSpacing.md),
             Expanded(
               child: AsyncStateView(
-                status: state.status,
-                errorMessage: state.errorMessage,
-                onRetry: () => StoreProvider.of<AppState>(
-                  context,
-                ).dispatch(LoadModerationAction()),
-                isEmpty: state.items.isEmpty,
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final showSidePanel = constraints.maxWidth > 1160;
-
-                    return showSidePanel
-                        ? Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 7,
-                                child: _ModerationTable(items: state.items),
-                              ),
-                              const SizedBox(width: AppSpacing.md),
-                              Expanded(
-                                flex: 4,
-                                child: _ReviewPanel(
-                                  item: state.items.isNotEmpty
-                                      ? state.items.first
-                                      : null,
-                                ),
-                              ),
-                            ],
-                          )
-                        : ListView(
-                            children: [
-                              SizedBox(
-                                height: 520,
-                                child: _ModerationTable(items: state.items),
-                              ),
-                              const SizedBox(height: AppSpacing.md),
-                              _ReviewPanel(
-                                item: state.items.isNotEmpty
-                                    ? state.items.first
-                                    : null,
-                              ),
-                            ],
-                          );
-                  },
+                status: vm.state.status,
+                errorMessage: vm.state.errorMessage,
+                onRetry: () => StoreProvider.of<AppState>(context).dispatch(
+                  const LoadModerationDashboardRequestedAction(),
+                ),
+                isEmpty: vm.state.groups.isEmpty &&
+                    vm.state.posts.isEmpty &&
+                    vm.state.comments.isEmpty &&
+                    vm.state.reports.isEmpty,
+                emptyTitle: 'No moderation data yet',
+                emptySubtitle:
+                    'Connect the Laravel moderation endpoints or wait for new reports to arrive.',
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 260),
+                  child: KeyedSubtree(
+                    key: ValueKey(vm.state.activeTab),
+                    child: _screenFor(vm.state.activeTab),
+                  ),
                 ),
               ),
             ),
@@ -136,237 +111,59 @@ class _ModerationScreenState extends State<ModerationScreen> {
       },
     );
   }
-}
 
-class _ModerationTable extends StatelessWidget {
-  const _ModerationTable({required this.items});
-
-  final List<ModerationItem> items;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Review queue', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: AppSpacing.lg),
-          Expanded(
-            child: AdminDataTable<ModerationItem>(
-              items: items,
-              columns: [
-                AdminTableColumn<ModerationItem>(
-                  label: 'Content',
-                  cellBuilder: (item) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        item.type,
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        item.preview,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-                AdminTableColumn<ModerationItem>(
-                  label: 'Author',
-                  cellBuilder: (item) => Text(item.author),
-                ),
-                AdminTableColumn<ModerationItem>(
-                  label: 'Context',
-                  cellBuilder: (item) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(item.groupName),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${item.reportsCount} reports  ${item.createdAtLabel}',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-                AdminTableColumn<ModerationItem>(
-                  label: 'Actions',
-                  cellBuilder: (item) => Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      StatusBadge(item.status),
-                      const SizedBox(width: AppSpacing.sm),
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.visibility_outlined, size: 18),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+  Widget _screenFor(ModerationWorkspaceTab tab) {
+    return switch (tab) {
+      ModerationWorkspaceTab.groups => const ModerationGroupsScreen(),
+      ModerationWorkspaceTab.posts => const ModerationPostsScreen(),
+      ModerationWorkspaceTab.comments => const ModerationCommentsScreen(),
+      ModerationWorkspaceTab.messages => const ModerationMessagesScreen(),
+      ModerationWorkspaceTab.reports => const ModerationReportsScreen(),
+      ModerationWorkspaceTab.analytics => const ModerationAnalyticsScreen(),
+      ModerationWorkspaceTab.permissions =>
+        const ModerationPermissionsScreen(),
+    };
   }
 }
 
-class _ReviewPanel extends StatelessWidget {
-  const _ReviewPanel({required this.item});
+class _TabBarStrip extends StatelessWidget {
+  const _TabBarStrip({required this.activeTab});
 
-  final ModerationItem? item;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      child: item == null
-          ? const Center(child: Text('No moderation item selected'))
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Review details',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ),
-                    StatusBadge(item!.status),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                _InfoLine(label: 'Type', value: item!.type),
-                _InfoLine(label: 'Author', value: item!.author),
-                _InfoLine(label: 'Group', value: item!.groupName),
-                _InfoLine(
-                  label: 'Reports',
-                  value: item!.reportsCount.toString(),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  decoration: BoxDecoration(
-                    color: AppColors.dangerSoft.withValues(alpha: 0.35),
-                    borderRadius: BorderRadius.circular(
-                      AppConstants.mediumRadius,
-                    ),
-                  ),
-                  child: Text(item!.preview),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                Container(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  decoration: BoxDecoration(
-                    color: AppColors.warningSoft.withValues(alpha: 0.45),
-                    borderRadius: BorderRadius.circular(
-                      AppConstants.mediumRadius,
-                    ),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(
-                        Icons.psychology_alt_outlined,
-                        color: AppColors.warning,
-                      ),
-                      SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Text(
-                          'AI policy signal: tone escalation with repeated external-link pattern.',
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Spacer(),
-                const Row(
-                  children: [
-                    Expanded(
-                      child: PremiumButton(
-                        label: 'Hide',
-                        icon: Icons.visibility_off_outlined,
-                        isSecondary: true,
-                      ),
-                    ),
-                    SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: PremiumButton(
-                        label: 'Delete',
-                        icon: Icons.delete_outline_rounded,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-    );
-  }
-}
-
-class _InfoLine extends StatelessWidget {
-  const _InfoLine({required this.label, required this.value});
-
-  final String label;
-  final String value;
+  final ModerationWorkspaceTab activeTab;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
       child: Row(
-        children: [
-          Text(label, style: Theme.of(context).textTheme.bodySmall),
-          const Spacer(),
-          Text(value, style: Theme.of(context).textTheme.titleSmall),
-        ],
+        children: ModerationWorkspaceTab.values
+            .map(
+              (tab) => Padding(
+                padding: const EdgeInsets.only(right: AppSpacing.sm),
+                child: ChoiceChip(
+                  avatar: Icon(tab.icon, size: 18),
+                  label: Text(tab.label),
+                  selected: tab == activeTab,
+                  onSelected: (_) => StoreProvider.of<AppState>(context).dispatch(
+                    ModerationTabChangedAction(tab),
+                  ),
+                ),
+              ),
+            )
+            .toList(growable: false),
       ),
     );
   }
 }
 
-class _ModerationMetric extends StatelessWidget {
-  const _ModerationMetric({
-    required this.label,
-    required this.value,
-    required this.color,
+class _ModerationShellViewModel {
+  const _ModerationShellViewModel({
+    required this.state,
+    required this.metrics,
+    required this.unreadNotifications,
   });
 
-  final String label;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 210,
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(AppConstants.cardRadius),
-        border: Border.all(color: Theme.of(context).dividerColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: AppSpacing.sm),
-          Text(value, style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: 6),
-          Container(
-            height: 6,
-            width: 120,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.22),
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  final ModerationState state;
+  final ModerationMetrics metrics;
+  final List<ModerationNotificationItem> unreadNotifications;
 }

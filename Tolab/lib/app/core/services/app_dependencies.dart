@@ -10,6 +10,8 @@ import '../../modules/departments/repositories/departments_repository.dart';
 import '../../modules/enrollments/repositories/enrollments_repository.dart';
 import '../../modules/enrollments/services/enrollments_api.dart';
 import '../../modules/moderation/repositories/moderation_repository.dart';
+import '../../modules/moderation/services/moderation_api_service.dart';
+import '../../modules/moderation/services/moderation_seed_service.dart';
 import '../../modules/notifications/repositories/notifications_repository.dart';
 import '../../modules/roles_permissions/repositories/roles_repository.dart';
 import '../../modules/roles_permissions/services/roles_service.dart';
@@ -115,7 +117,10 @@ class AppDependencies {
         demoDataService,
       ),
       notificationsRepository: NotificationsRepository(demoDataService),
-      moderationRepository: ModerationRepository(demoDataService),
+      moderationRepository: ModerationRepository(
+        ModerationApiService(apiClient),
+        const ModerationSeedService(),
+      ),
       rolesRepository: RolesRepository(RolesService(apiClient)),
       settingsRepository: SettingsRepository(demoDataService),
     );

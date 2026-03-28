@@ -1,13 +1,37 @@
-import '../../../core/services/demo_data_service.dart';
-import '../../../shared/models/dashboard_models.dart';
+import 'package:dio/dio.dart';
+
+import '../../../core/errors/app_exception.dart';
+import '../models/dashboard_models.dart';
+import '../services/dashboard_api_service.dart';
+import '../services/dashboard_seed_service.dart';
 
 class DashboardRepository {
-  DashboardRepository(this._demoDataService);
+  DashboardRepository(this._apiService, this._seedService);
 
-  final DemoDataService _demoDataService;
+  final DashboardApiService _apiService;
+  final DashboardSeedService _seedService;
 
-  Future<DashboardBundle> fetchDashboard() async {
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    return _demoDataService.dashboardBundle();
+  Future<DashboardBundle> fetchDashboard({
+    required DashboardFilters filters,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      return await _apiService.fetchDashboard(
+        filters: filters,
+        cancelToken: cancelToken,
+      );
+    } on DioException catch (error) {
+      if (error.type == DioExceptionType.cancel) {
+        rethrow;
+      }
+      return _seedService.buildBundle(filters: filters);
+    } on AppException catch (error) {
+      if (error.statusCode == 401 || error.statusCode == 403) {
+        rethrow;
+      }
+      return _seedService.buildBundle(filters: filters);
+    } catch (_) {
+      return _seedService.buildBundle(filters: filters);
+    }
   }
 }
