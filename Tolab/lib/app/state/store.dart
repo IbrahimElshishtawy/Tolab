@@ -9,7 +9,7 @@ import '../modules/departments/state/departments_state.dart';
 import '../modules/enrollments/state/enrollments_middleware.dart';
 import '../modules/moderation/state/moderation_state.dart';
 import '../modules/notifications/state/notifications_state.dart';
-import '../modules/roles_permissions/state/roles_state.dart';
+import '../modules/roles_permissions/state/roles_middleware.dart';
 import '../modules/schedule/state/schedule_middleware.dart';
 import '../modules/sections/state/sections_state.dart';
 import '../modules/splash/state/bootstrap_state.dart';

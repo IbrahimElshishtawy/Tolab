@@ -15,6 +15,8 @@ class AppTextField extends StatelessWidget {
     this.obscureText = false,
     this.helperText,
     this.enabled = true,
+    this.validator,
+    this.onChanged,
   }) : assert(
          controller == null || initialValue == null,
          'Use either controller or initialValue, not both.',
@@ -32,6 +34,8 @@ class AppTextField extends StatelessWidget {
   final bool obscureText;
   final String? helperText;
   final bool enabled;
+  final String? Function(String?)? validator;
+  final ValueChanged<String>? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +47,8 @@ class AppTextField extends StatelessWidget {
       keyboardType: keyboardType,
       obscureText: obscureText,
       enabled: enabled,
+      validator: validator,
+      onChanged: onChanged,
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
