@@ -24,6 +24,7 @@ import '../../modules/settings/repositories/settings_repository.dart';
 import '../../modules/settings/services/settings_api_service.dart';
 import '../../modules/staff/repositories/staff_repository.dart';
 import '../../modules/students/repositories/students_repository.dart';
+import '../../modules/students/services/students_api_service.dart';
 import '../../modules/subjects/repositories/subjects_repository.dart';
 import '../../modules/uploads/repositories/uploads_repository.dart';
 import '../../modules/uploads/services/uploads_service.dart';
@@ -101,7 +102,7 @@ class AppDependencies {
         DashboardApiService(apiClient),
         const DashboardSeedService(),
       ),
-      studentsRepository: StudentsRepository(),
+      studentsRepository: StudentsRepository(StudentsApiService(apiClient)),
       staffRepository: StaffRepository(demoDataService),
       departmentsRepository: DepartmentsRepository(apiClient, demoDataService),
       sectionsRepository: SectionsRepository(demoDataService),
