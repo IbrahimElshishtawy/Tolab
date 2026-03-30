@@ -83,9 +83,9 @@ class SettingsSectionButton extends StatelessWidget {
         leading: Icon(section.icon, color: selected ? color : null),
         title: Text(
           section.label,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            color: selected ? color : null,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(color: selected ? color : null),
         ),
         subtitle: Text(
           section.subtitle,
@@ -126,10 +126,7 @@ class SettingsStatChip extends StatelessWidget {
         children: [
           Icon(icon, size: 18, color: accent),
           const SizedBox(width: AppSpacing.sm),
-          Text(
-            '$label: $value',
-            style: Theme.of(context).textTheme.labelLarge,
-          ),
+          Text('$label: $value', style: Theme.of(context).textTheme.labelLarge),
         ],
       ),
     );
@@ -334,13 +331,10 @@ class SettingsDropdownField<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<T>(
-      value: value,
+      initialValue: value,
       items: [
         for (final item in items)
-          DropdownMenuItem<T>(
-            value: item,
-            child: Text(labelBuilder(item)),
-          ),
+          DropdownMenuItem<T>(value: item, child: Text(labelBuilder(item))),
       ],
       onChanged: (next) {
         if (next != null) onChanged(next);
@@ -397,7 +391,7 @@ class SettingsColorField extends StatelessWidget {
   }
 
   String _hex(Color color) =>
-      '#${color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
+      '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
 }
 
 class SettingsEmptyStateCard extends StatelessWidget {
@@ -431,11 +425,7 @@ class SettingsEmptyStateCard extends StatelessWidget {
 }
 
 class SettingsDateChip extends StatelessWidget {
-  const SettingsDateChip({
-    super.key,
-    required this.date,
-    required this.onTap,
-  });
+  const SettingsDateChip({super.key, required this.date, required this.onTap});
 
   final DateTime date;
   final VoidCallback onTap;
@@ -517,7 +507,7 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
                         color: color,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: _selected.value == color.value
+                          color: _selected.toARGB32() == color.toARGB32()
                               ? Colors.white
                               : Colors.transparent,
                           width: 2,
@@ -574,5 +564,5 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
   }
 
   String _hex(Color color) =>
-      '#${color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
+      '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
 }

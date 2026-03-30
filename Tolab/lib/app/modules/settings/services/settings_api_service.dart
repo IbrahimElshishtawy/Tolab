@@ -47,7 +47,8 @@ class SettingsApiService {
         json['settings'] as Map<String, dynamic>,
       JsonMap() when json['bundle'] is JsonMap =>
         json['bundle'] as Map<String, dynamic>,
-      JsonMap() when json['data'] is JsonMap => json['data'] as Map<String, dynamic>,
+      JsonMap() when json['data'] is JsonMap =>
+        json['data'] as Map<String, dynamic>,
       JsonMap() => json,
       _ => <String, dynamic>{},
     };
@@ -58,7 +59,8 @@ class SettingsApiService {
     final resolved = switch (json) {
       JsonMap() when json['backup'] is JsonMap =>
         json['backup'] as Map<String, dynamic>,
-      JsonMap() when json['data'] is JsonMap => json['data'] as Map<String, dynamic>,
+      JsonMap() when json['data'] is JsonMap =>
+        json['data'] as Map<String, dynamic>,
       JsonMap() => json,
       _ => <String, dynamic>{},
     };

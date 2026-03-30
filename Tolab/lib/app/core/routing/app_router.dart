@@ -20,7 +20,7 @@ import '../../modules/roles_permissions/presentation/roles_screen.dart';
 import '../../modules/schedule/presentation/schedule_screen.dart';
 import '../../modules/sections/presentation/sections_screen.dart';
 import '../../modules/settings/presentation/settings_screen.dart';
-import '../../modules/settings/state/settings_state.dart';
+import '../../modules/settings/state/settings_actions.dart';
 import '../../modules/splash/presentation/splash_screen.dart';
 import '../../modules/staff/presentation/staff_screen.dart';
 import '../../modules/students/presentation/students_screen.dart';

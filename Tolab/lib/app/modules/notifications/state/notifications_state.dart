@@ -283,7 +283,8 @@ List<Middleware<AppState>> createNotificationsMiddleware(AppDependencies deps) {
           store.dispatch(
             IncomingNotificationAction(
               item,
-              showToast: preferences.toastEnabled &&
+              showToast:
+                  preferences.toastEnabled &&
                   preferences.isEnabledFor(item.category),
               showLocalAlert: false,
             ),
@@ -326,7 +327,8 @@ List<Middleware<AppState>> createNotificationsMiddleware(AppDependencies deps) {
           store.dispatch(
             IncomingNotificationAction(
               notification,
-              showToast: preferences.toastEnabled &&
+              showToast:
+                  preferences.toastEnabled &&
                   preferences.isEnabledFor(notification.category),
               showLocalAlert:
                   preferences.localAlertsEnabled &&

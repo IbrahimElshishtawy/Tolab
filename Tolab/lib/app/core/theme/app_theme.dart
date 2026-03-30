@@ -118,7 +118,11 @@ class AppTheme {
           primaryColor: primaryColor,
           focused: true,
         ),
-        errorBorder: _inputBorder(isDark, primaryColor: primaryColor, error: true),
+        errorBorder: _inputBorder(
+          isDark,
+          primaryColor: primaryColor,
+          error: true,
+        ),
         focusedErrorBorder: _inputBorder(
           isDark,
           primaryColor: primaryColor,

@@ -3,7 +3,7 @@ import 'package:redux/redux.dart';
 import '../../../core/services/app_dependencies.dart';
 import '../../../shared/enums/load_status.dart';
 import '../../auth/state/auth_state.dart';
-import '../../settings/state/settings_state.dart';
+import '../../settings/state/settings_actions.dart';
 import '../../../state/app_state.dart';
 
 class BootstrapState {

@@ -8,11 +8,7 @@ import '../models/settings_models.dart';
 import '../services/settings_api_service.dart';
 
 class SettingsRepository {
-  SettingsRepository(
-    this._api,
-    this._localStorage,
-    this._demoDataService,
-  );
+  SettingsRepository(this._api, this._localStorage, this._demoDataService);
 
   final SettingsApiService _api;
   final LocalStorageService _localStorage;
@@ -139,7 +135,8 @@ class SettingsRepository {
   }) async {
     final currentSnapshot = currentBundle.backupRestore.history.firstWhere(
       (item) => item.id == backupId,
-      orElse: () => throw AppException('The selected backup could not be found.'),
+      orElse: () =>
+          throw AppException('The selected backup could not be found.'),
     );
 
     try {
@@ -168,7 +165,9 @@ class SettingsRepository {
     } catch (_) {
       final payload = currentSnapshot.snapshotPayload;
       if (payload == null || payload.isEmpty) {
-        throw AppException('This backup does not include a local restore payload.');
+        throw AppException(
+          'This backup does not include a local restore payload.',
+        );
       }
       final restored = SettingsBundle.fromJson(payload).copyWith(
         backupRestore: currentBundle.backupRestore,
@@ -210,9 +209,10 @@ class SettingsRepository {
   }
 
   SettingsBundle _insertBackup(SettingsBundle bundle, BackupSnapshot snapshot) {
-    final nextHistory = [snapshot, ...bundle.backupRestore.history]
-        .take(bundle.backupRestore.retentionCount)
-        .toList(growable: false);
+    final nextHistory = [
+      snapshot,
+      ...bundle.backupRestore.history,
+    ].take(bundle.backupRestore.retentionCount).toList(growable: false);
     return bundle.copyWith(
       backupRestore: bundle.backupRestore.copyWith(
         history: nextHistory,
@@ -231,7 +231,9 @@ class SettingsRepository {
     SettingsBundle bundle,
     BackupSnapshot snapshot,
   ) {
-    if (bundle.backupRestore.history.isEmpty) return _insertBackup(bundle, snapshot);
+    if (bundle.backupRestore.history.isEmpty) {
+      return _insertBackup(bundle, snapshot);
+    }
     final nextHistory = [
       snapshot,
       ...bundle.backupRestore.history.skip(1),

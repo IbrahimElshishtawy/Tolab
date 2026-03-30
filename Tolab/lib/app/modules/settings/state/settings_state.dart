@@ -6,15 +6,16 @@ import '../models/settings_models.dart';
 import 'settings_actions.dart';
 
 class SettingsState {
-  const SettingsState({
+  SettingsState({
     this.loadStatus = LoadStatus.initial,
     this.saveStatus = LoadStatus.initial,
-    this.bundle = _defaultBundle,
-    this.persistedBundle = _defaultBundle,
+    SettingsBundle? bundle,
+    SettingsBundle? persistedBundle,
     this.selectedSection = SettingsSection.general,
     this.errorMessage,
     this.successMessage,
-  });
+  }) : bundle = bundle ?? _createDefaultBundle(),
+       persistedBundle = persistedBundle ?? bundle ?? _createDefaultBundle();
 
   final LoadStatus loadStatus;
   final LoadStatus saveStatus;
@@ -44,27 +45,29 @@ class SettingsState {
       persistedBundle: persistedBundle ?? this.persistedBundle,
       selectedSection: selectedSection ?? this.selectedSection,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
-      successMessage: clearSuccess ? null : successMessage ?? this.successMessage,
+      successMessage: clearSuccess
+          ? null
+          : successMessage ?? this.successMessage,
     );
   }
 }
 
-final SettingsBundle _defaultBundle = SettingsBundle(
-  general: GeneralSettings(
+SettingsBundle _createDefaultBundle() => SettingsBundle(
+  general: const GeneralSettings(
     appName: 'Tolab Admin',
     academyName: 'Tolab Academy',
     logoUrl: '',
     timezone: 'Africa/Cairo',
     languageCode: 'en',
   ),
-  theme: ThemeSettings(
+  theme: const ThemeSettings(
     themeMode: ThemeMode.light,
     primaryColor: Color(0xFF2563EB),
     secondaryColor: Color(0xFF0EA5E9),
     glassmorphismEnabled: true,
     cardBlurSigma: 16,
   ),
-  notifications: NotificationPreferences(
+  notifications: const NotificationPreferences(
     pushEnabled: true,
     desktopAlertsEnabled: true,
     localAlertsEnabled: true,
@@ -78,7 +81,7 @@ final SettingsBundle _defaultBundle = SettingsBundle(
       AdminNotificationCategory.announcements: true,
     },
   ),
-  security: SecuritySettings(
+  security: const SecuritySettings(
     passwordPolicy: PasswordPolicy(
       minLength: 10,
       passwordExpiryDays: 90,
@@ -92,14 +95,14 @@ final SettingsBundle _defaultBundle = SettingsBundle(
     lockOnSuspiciousActivity: true,
     blockedAccounts: [],
   ),
-  userManagement: UserManagementSettings(
+  userManagement: const UserManagementSettings(
     defaultRole: 'Manager',
     allowStaffAdminAccess: true,
     requireApprovalForAdminAccess: true,
     allowRoleCloning: true,
     roleTemplates: [],
   ),
-  uploadRules: UploadRulesSettings(
+  uploadRules: const UploadRulesSettings(
     maxFileSizeMb: 250,
     allowedFileTypes: ['pdf', 'docx', 'xlsx', 'jpg', 'png', 'zip'],
     storageLocation: StorageLocation.s3,
@@ -108,7 +111,7 @@ final SettingsBundle _defaultBundle = SettingsBundle(
     runVirusScan: true,
     renameOnUpload: false,
   ),
-  calendar: CalendarSettings(
+  calendar: const CalendarSettings(
     defaultView: CalendarViewOption.month,
     typeColors: {
       'Lecture': Color(0xFF2563EB),
@@ -118,7 +121,7 @@ final SettingsBundle _defaultBundle = SettingsBundle(
     },
     holidays: [],
   ),
-  system: SystemSettings(
+  system: const SystemSettings(
     apiBaseUrl: 'http://127.0.0.1:8000/api',
     websocketUrl: 'ws://127.0.0.1:8000/ws/admin/notifications',
     apiKeys: [],
@@ -128,7 +131,7 @@ final SettingsBundle _defaultBundle = SettingsBundle(
     enableLaravelBroadcasting: true,
     integrationStatus: 'Connected',
   ),
-  backupRestore: BackupRestoreSettings(
+  backupRestore: const BackupRestoreSettings(
     autoBackupEnabled: true,
     frequency: BackupFrequency.daily,
     nextBackupAt: null,

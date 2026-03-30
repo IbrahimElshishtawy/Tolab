@@ -51,8 +51,7 @@ extension SettingsSectionX on SettingsSection {
       'Default roles, access scopes, and administrative permissions.',
     SettingsSection.uploadRules =>
       'Validation rules, allowed formats, storage, and size limits.',
-    SettingsSection.calendar =>
-      'Views, event colors, and academic holidays.',
+    SettingsSection.calendar => 'Views, event colors, and academic holidays.',
     SettingsSection.system =>
       'Laravel integration, API credentials, logs, and maintenance mode.',
     SettingsSection.backupRestore =>
@@ -151,23 +150,24 @@ class GeneralSettings {
 
   static GeneralSettings fromJson(Map<String, dynamic> json) {
     return GeneralSettings(
-      appName: _readString(json, ['app_name', 'appName'], fallback: 'Tolab Admin'),
-      academyName: _readString(
-        json,
-        ['academy_name', 'academyName'],
-        fallback: 'Tolab Academy',
-      ),
+      appName: _readString(json, [
+        'app_name',
+        'appName',
+      ], fallback: 'Tolab Admin'),
+      academyName: _readString(json, [
+        'academy_name',
+        'academyName',
+      ], fallback: 'Tolab Academy'),
       logoUrl: _readString(json, ['logo_url', 'logoUrl']),
-      timezone: _readString(
-        json,
-        ['timezone', 'time_zone'],
-        fallback: 'Africa/Cairo',
-      ),
-      languageCode: _readString(
-        json,
-        ['language_code', 'language', 'locale'],
-        fallback: 'en',
-      ),
+      timezone: _readString(json, [
+        'timezone',
+        'time_zone',
+      ], fallback: 'Africa/Cairo'),
+      languageCode: _readString(json, [
+        'language_code',
+        'language',
+        'locale',
+      ], fallback: 'en'),
     );
   }
 
@@ -182,13 +182,8 @@ class GeneralSettings {
   }
 
   @override
-  int get hashCode => Object.hash(
-    appName,
-    academyName,
-    logoUrl,
-    timezone,
-    languageCode,
-  );
+  int get hashCode =>
+      Object.hash(appName, academyName, logoUrl, timezone, languageCode);
 }
 
 class ThemeSettings {
@@ -243,16 +238,14 @@ class ThemeSettings {
         json['secondary_color'] ?? json['secondaryColor'],
         fallback: const Color(0xFF0EA5E9),
       ),
-      glassmorphismEnabled: _readBool(
-        json,
-        ['glassmorphism_enabled', 'glassmorphismEnabled'],
-        fallback: true,
-      ),
-      cardBlurSigma: _readDouble(
-        json,
-        ['card_blur_sigma', 'cardBlurSigma'],
-        fallback: 16,
-      ),
+      glassmorphismEnabled: _readBool(json, [
+        'glassmorphism_enabled',
+        'glassmorphismEnabled',
+      ], fallback: true),
+      cardBlurSigma: _readDouble(json, [
+        'card_blur_sigma',
+        'cardBlurSigma',
+      ], fallback: 16),
     );
   }
 
@@ -260,8 +253,8 @@ class ThemeSettings {
   bool operator ==(Object other) {
     return other is ThemeSettings &&
         other.themeMode == themeMode &&
-        other.primaryColor.value == primaryColor.value &&
-        other.secondaryColor.value == secondaryColor.value &&
+        other.primaryColor.toARGB32() == primaryColor.toARGB32() &&
+        other.secondaryColor.toARGB32() == secondaryColor.toARGB32() &&
         other.glassmorphismEnabled == glassmorphismEnabled &&
         other.cardBlurSigma == cardBlurSigma;
   }
@@ -269,8 +262,8 @@ class ThemeSettings {
   @override
   int get hashCode => Object.hash(
     themeMode,
-    primaryColor.value,
-    secondaryColor.value,
+    primaryColor.toARGB32(),
+    secondaryColor.toARGB32(),
     glassmorphismEnabled,
     cardBlurSigma,
   );
@@ -342,32 +335,33 @@ class NotificationPreferences {
     }
 
     return NotificationPreferences(
-      pushEnabled: _readBool(json, ['push_enabled', 'pushEnabled'], fallback: true),
-      desktopAlertsEnabled: _readBool(
-        json,
-        ['desktop_alerts_enabled', 'desktopAlertsEnabled'],
-        fallback: true,
+      pushEnabled: _readBool(json, [
+        'push_enabled',
+        'pushEnabled',
+      ], fallback: true),
+      desktopAlertsEnabled: _readBool(json, [
+        'desktop_alerts_enabled',
+        'desktopAlertsEnabled',
+      ], fallback: true),
+      localAlertsEnabled: _readBool(json, [
+        'local_alerts_enabled',
+        'localAlertsEnabled',
+      ], fallback: true),
+      emailDigestEnabled: _readBool(json, [
+        'email_digest_enabled',
+        'emailDigestEnabled',
+      ]),
+      toastEnabled: _readBool(json, [
+        'toast_enabled',
+        'toastEnabled',
+      ], fallback: true),
+      soundEnabled: _readBool(json, [
+        'sound_enabled',
+        'soundEnabled',
+      ], fallback: true),
+      categories: Map<AdminNotificationCategory, bool>.unmodifiable(
+        categoryMap,
       ),
-      localAlertsEnabled: _readBool(
-        json,
-        ['local_alerts_enabled', 'localAlertsEnabled'],
-        fallback: true,
-      ),
-      emailDigestEnabled: _readBool(
-        json,
-        ['email_digest_enabled', 'emailDigestEnabled'],
-      ),
-      toastEnabled: _readBool(
-        json,
-        ['toast_enabled', 'toastEnabled'],
-        fallback: true,
-      ),
-      soundEnabled: _readBool(
-        json,
-        ['sound_enabled', 'soundEnabled'],
-        fallback: true,
-      ),
-      categories: Map<AdminNotificationCategory, bool>.unmodifiable(categoryMap),
     );
   }
 
@@ -443,31 +437,26 @@ class PasswordPolicy {
   static PasswordPolicy fromJson(Map<String, dynamic> json) {
     return PasswordPolicy(
       minLength: _readInt(json, ['min_length', 'minLength'], fallback: 10),
-      passwordExpiryDays: _readInt(
-        json,
-        ['password_expiry_days', 'passwordExpiryDays'],
-        fallback: 90,
-      ),
-      requireUppercase: _readBool(
-        json,
-        ['require_uppercase', 'requireUppercase'],
-        fallback: true,
-      ),
-      requireLowercase: _readBool(
-        json,
-        ['require_lowercase', 'requireLowercase'],
-        fallback: true,
-      ),
-      requireNumbers: _readBool(
-        json,
-        ['require_numbers', 'requireNumbers'],
-        fallback: true,
-      ),
-      requireSpecialCharacters: _readBool(
-        json,
-        ['require_special_characters', 'requireSpecialCharacters'],
-        fallback: true,
-      ),
+      passwordExpiryDays: _readInt(json, [
+        'password_expiry_days',
+        'passwordExpiryDays',
+      ], fallback: 90),
+      requireUppercase: _readBool(json, [
+        'require_uppercase',
+        'requireUppercase',
+      ], fallback: true),
+      requireLowercase: _readBool(json, [
+        'require_lowercase',
+        'requireLowercase',
+      ], fallback: true),
+      requireNumbers: _readBool(json, [
+        'require_numbers',
+        'requireNumbers',
+      ], fallback: true),
+      requireSpecialCharacters: _readBool(json, [
+        'require_special_characters',
+        'requireSpecialCharacters',
+      ], fallback: true),
     );
   }
 
@@ -544,11 +533,10 @@ class BlockedAccount {
       email: _readString(json, ['email'], fallback: 'user@tolab.edu'),
       reason: _readString(json, ['reason'], fallback: 'Manual block'),
       blockedAt: _parseDateTime(json['blocked_at'] ?? json['blockedAt']),
-      isTemporary: _readBool(
-        json,
-        ['is_temporary', 'isTemporary'],
-        fallback: false,
-      ),
+      isTemporary: _readBool(json, [
+        'is_temporary',
+        'isTemporary',
+      ], fallback: false),
     );
   }
 
@@ -564,14 +552,8 @@ class BlockedAccount {
   }
 
   @override
-  int get hashCode => Object.hash(
-    id,
-    name,
-    email,
-    reason,
-    blockedAt,
-    isTemporary,
-  );
+  int get hashCode =>
+      Object.hash(id, name, email, reason, blockedAt, isTemporary);
 }
 
 class SecuritySettings {
@@ -622,23 +604,22 @@ class SecuritySettings {
       passwordPolicy: PasswordPolicy.fromJson(
         _asMap(json['password_policy'] ?? json['passwordPolicy']),
       ),
-      sessionTimeoutMinutes: _readInt(
-        json,
-        ['session_timeout_minutes', 'sessionTimeoutMinutes'],
-        fallback: 30,
-      ),
-      twoFactorRequired: _readBool(
-        json,
-        ['two_factor_required', 'twoFactorRequired'],
-      ),
-      lockOnSuspiciousActivity: _readBool(
-        json,
-        ['lock_on_suspicious_activity', 'lockOnSuspiciousActivity'],
-        fallback: true,
-      ),
-      blockedAccounts: _asList(json['blocked_accounts'] ?? json['blockedAccounts'])
-          .map((item) => BlockedAccount.fromJson(_asMap(item)))
-          .toList(growable: false),
+      sessionTimeoutMinutes: _readInt(json, [
+        'session_timeout_minutes',
+        'sessionTimeoutMinutes',
+      ], fallback: 30),
+      twoFactorRequired: _readBool(json, [
+        'two_factor_required',
+        'twoFactorRequired',
+      ]),
+      lockOnSuspiciousActivity: _readBool(json, [
+        'lock_on_suspicious_activity',
+        'lockOnSuspiciousActivity',
+      ], fallback: true),
+      blockedAccounts:
+          _asList(json['blocked_accounts'] ?? json['blockedAccounts'])
+              .map((item) => BlockedAccount.fromJson(_asMap(item)))
+              .toList(growable: false),
     );
   }
 
@@ -711,16 +692,14 @@ class RolePermissionTemplate {
     return RolePermissionTemplate(
       id: _readString(json, ['id'], fallback: 'role-template'),
       name: _readString(json, ['name'], fallback: 'Role'),
-      adminAccess: _readBool(
-        json,
-        ['admin_access', 'adminAccess'],
-        fallback: true,
-      ),
-      staffAccess: _readBool(
-        json,
-        ['staff_access', 'staffAccess'],
-        fallback: true,
-      ),
+      adminAccess: _readBool(json, [
+        'admin_access',
+        'adminAccess',
+      ], fallback: true),
+      staffAccess: _readBool(json, [
+        'staff_access',
+        'staffAccess',
+      ], fallback: true),
       permissions: Map<String, bool>.unmodifiable(permissions),
     );
   }
@@ -769,7 +748,8 @@ class UserManagementSettings {
   }) {
     return UserManagementSettings(
       defaultRole: defaultRole ?? this.defaultRole,
-      allowStaffAdminAccess: allowStaffAdminAccess ?? this.allowStaffAdminAccess,
+      allowStaffAdminAccess:
+          allowStaffAdminAccess ?? this.allowStaffAdminAccess,
       requireApprovalForAdminAccess:
           requireApprovalForAdminAccess ?? this.requireApprovalForAdminAccess,
       allowRoleCloning: allowRoleCloning ?? this.allowRoleCloning,
@@ -782,29 +762,27 @@ class UserManagementSettings {
     'allow_staff_admin_access': allowStaffAdminAccess,
     'require_approval_for_admin_access': requireApprovalForAdminAccess,
     'allow_role_cloning': allowRoleCloning,
-    'role_templates': [
-      for (final template in roleTemplates) template.toJson(),
-    ],
+    'role_templates': [for (final template in roleTemplates) template.toJson()],
   };
 
   static UserManagementSettings fromJson(Map<String, dynamic> json) {
     return UserManagementSettings(
-      defaultRole: _readString(json, ['default_role', 'defaultRole'], fallback: 'Manager'),
-      allowStaffAdminAccess: _readBool(
-        json,
-        ['allow_staff_admin_access', 'allowStaffAdminAccess'],
-        fallback: true,
-      ),
-      requireApprovalForAdminAccess: _readBool(
-        json,
-        ['require_approval_for_admin_access', 'requireApprovalForAdminAccess'],
-        fallback: true,
-      ),
-      allowRoleCloning: _readBool(
-        json,
-        ['allow_role_cloning', 'allowRoleCloning'],
-        fallback: true,
-      ),
+      defaultRole: _readString(json, [
+        'default_role',
+        'defaultRole',
+      ], fallback: 'Manager'),
+      allowStaffAdminAccess: _readBool(json, [
+        'allow_staff_admin_access',
+        'allowStaffAdminAccess',
+      ], fallback: true),
+      requireApprovalForAdminAccess: _readBool(json, [
+        'require_approval_for_admin_access',
+        'requireApprovalForAdminAccess',
+      ], fallback: true),
+      allowRoleCloning: _readBool(json, [
+        'allow_role_cloning',
+        'allowRoleCloning',
+      ], fallback: true),
       roleTemplates: _asList(json['role_templates'] ?? json['roleTemplates'])
           .map((item) => RolePermissionTemplate.fromJson(_asMap(item)))
           .toList(growable: false),
@@ -816,8 +794,7 @@ class UserManagementSettings {
     return other is UserManagementSettings &&
         other.defaultRole == defaultRole &&
         other.allowStaffAdminAccess == allowStaffAdminAccess &&
-        other.requireApprovalForAdminAccess ==
-            requireApprovalForAdminAccess &&
+        other.requireApprovalForAdminAccess == requireApprovalForAdminAccess &&
         other.allowRoleCloning == allowRoleCloning &&
         _deepEquality.equals(other.roleTemplates, roleTemplates);
   }
@@ -883,40 +860,33 @@ class UploadRulesSettings {
 
   static UploadRulesSettings fromJson(Map<String, dynamic> json) {
     return UploadRulesSettings(
-      maxFileSizeMb: _readInt(
-        json,
-        ['max_file_size_mb', 'maxFileSizeMb', 'upload_limit_mb'],
-        fallback: 250,
-      ),
+      maxFileSizeMb: _readInt(json, [
+        'max_file_size_mb',
+        'maxFileSizeMb',
+        'upload_limit_mb',
+      ], fallback: 250),
       allowedFileTypes: _asList(
         json['allowed_file_types'] ?? json['allowedFileTypes'],
       ).map((item) => item.toString()).toList(growable: false),
       storageLocation: _parseStorageLocation(
-        _readString(
-          json,
-          ['storage_location', 'storageLocation'],
-          fallback: 's3',
-        ),
+        _readString(json, [
+          'storage_location',
+          'storageLocation',
+        ], fallback: 's3'),
       ),
-      basePath: _readString(
-        json,
-        ['base_path', 'basePath'],
-        fallback: 'academy/uploads',
-      ),
-      validateMimeType: _readBool(
-        json,
-        ['validate_mime_type', 'validateMimeType'],
-        fallback: true,
-      ),
-      runVirusScan: _readBool(
-        json,
-        ['run_virus_scan', 'runVirusScan'],
-        fallback: true,
-      ),
-      renameOnUpload: _readBool(
-        json,
-        ['rename_on_upload', 'renameOnUpload'],
-      ),
+      basePath: _readString(json, [
+        'base_path',
+        'basePath',
+      ], fallback: 'academy/uploads'),
+      validateMimeType: _readBool(json, [
+        'validate_mime_type',
+        'validateMimeType',
+      ], fallback: true),
+      runVirusScan: _readBool(json, [
+        'run_virus_scan',
+        'runVirusScan',
+      ], fallback: true),
+      renameOnUpload: _readBool(json, ['rename_on_upload', 'renameOnUpload']),
     );
   }
 
@@ -1026,7 +996,8 @@ class CalendarSettings {
   Map<String, dynamic> toJson() => {
     'default_view': defaultView.name,
     'type_colors': {
-      for (final entry in typeColors.entries) entry.key: _colorToHex(entry.value),
+      for (final entry in typeColors.entries)
+        entry.key: _colorToHex(entry.value),
     },
     'holidays': [for (final holiday in holidays) holiday.toJson()],
   };
@@ -1040,7 +1011,10 @@ class CalendarSettings {
     };
     final rawColors = _asMap(json['type_colors'] ?? json['typeColors']);
     for (final entry in rawColors.entries) {
-      colors[entry.key] = _parseColor(entry.value, fallback: colors[entry.key]!);
+      colors[entry.key] = _parseColor(
+        entry.value,
+        fallback: colors[entry.key]!,
+      );
     }
 
     return CalendarSettings(
@@ -1059,8 +1033,8 @@ class CalendarSettings {
     return other is CalendarSettings &&
         other.defaultView == defaultView &&
         _deepEquality.equals(
-          other.typeColors.map((key, value) => MapEntry(key, value.value)),
-          typeColors.map((key, value) => MapEntry(key, value.value)),
+          other.typeColors.map((key, value) => MapEntry(key, value.toARGB32())),
+          typeColors.map((key, value) => MapEntry(key, value.toARGB32())),
         ) &&
         _deepEquality.equals(other.holidays, holidays);
   }
@@ -1068,7 +1042,9 @@ class CalendarSettings {
   @override
   int get hashCode => Object.hash(
     defaultView,
-    _deepEquality.hash(typeColors.map((key, value) => MapEntry(key, value.value))),
+    _deepEquality.hash(
+      typeColors.map((key, value) => MapEntry(key, value.toARGB32())),
+    ),
     _deepEquality.hash(holidays),
   );
 }
@@ -1121,20 +1097,16 @@ class ApiCredential {
     return ApiCredential(
       id: _readString(json, ['id'], fallback: 'credential'),
       label: _readString(json, ['label', 'name'], fallback: 'API key'),
-      valueMasked: _readString(
-        json,
-        ['value_masked', 'valueMasked', 'token'],
-        fallback: 'sk-live-****',
-      ),
+      valueMasked: _readString(json, [
+        'value_masked',
+        'valueMasked',
+        'token',
+      ], fallback: 'sk-live-****'),
       scope: _readString(json, ['scope'], fallback: 'system'),
       lastRotatedAt: _parseDateTime(
         json['last_rotated_at'] ?? json['lastRotatedAt'],
       ),
-      isEnabled: _readBool(
-        json,
-        ['is_enabled', 'isEnabled'],
-        fallback: true,
-      ),
+      isEnabled: _readBool(json, ['is_enabled', 'isEnabled'], fallback: true),
     );
   }
 
@@ -1150,14 +1122,8 @@ class ApiCredential {
   }
 
   @override
-  int get hashCode => Object.hash(
-    id,
-    label,
-    valueMasked,
-    scope,
-    lastRotatedAt,
-    isEnabled,
-  );
+  int get hashCode =>
+      Object.hash(id, label, valueMasked, scope, lastRotatedAt, isEnabled);
 }
 
 class SystemSettings {
@@ -1217,43 +1183,34 @@ class SystemSettings {
 
   static SystemSettings fromJson(Map<String, dynamic> json) {
     return SystemSettings(
-      apiBaseUrl: _readString(
-        json,
-        ['api_base_url', 'apiBaseUrl'],
-        fallback: 'http://127.0.0.1:8000/api',
-      ),
-      websocketUrl: _readString(
-        json,
-        ['websocket_url', 'websocketUrl'],
-        fallback: 'ws://127.0.0.1:8000/ws/admin/notifications',
-      ),
+      apiBaseUrl: _readString(json, [
+        'api_base_url',
+        'apiBaseUrl',
+      ], fallback: 'http://127.0.0.1:8000/api'),
+      websocketUrl: _readString(json, [
+        'websocket_url',
+        'websocketUrl',
+      ], fallback: 'ws://127.0.0.1:8000/ws/admin/notifications'),
       apiKeys: _asList(json['api_keys'] ?? json['apiKeys'])
           .map((item) => ApiCredential.fromJson(_asMap(item)))
           .toList(growable: false),
-      maintenanceMode: _readBool(
-        json,
-        ['maintenance_mode', 'maintenanceMode'],
-      ),
-      auditLoggingEnabled: _readBool(
-        json,
-        ['audit_logging_enabled', 'auditLoggingEnabled'],
-        fallback: true,
-      ),
-      logRetentionDays: _readInt(
-        json,
-        ['log_retention_days', 'logRetentionDays'],
-        fallback: 30,
-      ),
-      enableLaravelBroadcasting: _readBool(
-        json,
-        ['enable_laravel_broadcasting', 'enableLaravelBroadcasting'],
-        fallback: true,
-      ),
-      integrationStatus: _readString(
-        json,
-        ['integration_status', 'integrationStatus'],
-        fallback: 'Connected',
-      ),
+      maintenanceMode: _readBool(json, ['maintenance_mode', 'maintenanceMode']),
+      auditLoggingEnabled: _readBool(json, [
+        'audit_logging_enabled',
+        'auditLoggingEnabled',
+      ], fallback: true),
+      logRetentionDays: _readInt(json, [
+        'log_retention_days',
+        'logRetentionDays',
+      ], fallback: 30),
+      enableLaravelBroadcasting: _readBool(json, [
+        'enable_laravel_broadcasting',
+        'enableLaravelBroadcasting',
+      ], fallback: true),
+      integrationStatus: _readString(json, [
+        'integration_status',
+        'integrationStatus',
+      ], fallback: 'Connected'),
     );
   }
 
@@ -1337,7 +1294,8 @@ class BackupSnapshot {
     'status': status,
     'source': source,
     'restorable': restorable,
-    if (includePayload && snapshotPayload != null) 'snapshot_payload': snapshotPayload,
+    if (includePayload && snapshotPayload != null)
+      'snapshot_payload': snapshotPayload,
   };
 
   static BackupSnapshot fromJson(Map<String, dynamic> json) {
@@ -1345,11 +1303,10 @@ class BackupSnapshot {
       id: _readString(json, ['id'], fallback: 'backup'),
       label: _readString(json, ['label', 'name'], fallback: 'Backup'),
       createdAt: _parseDateTime(json['created_at'] ?? json['createdAt']),
-      sizeLabel: _readString(
-        json,
-        ['size_label', 'sizeLabel'],
-        fallback: '0 MB',
-      ),
+      sizeLabel: _readString(json, [
+        'size_label',
+        'sizeLabel',
+      ], fallback: '0 MB'),
       status: _readString(json, ['status'], fallback: 'Ready'),
       source: _readString(json, ['source'], fallback: 'local'),
       restorable: _readBool(json, ['restorable'], fallback: true),
@@ -1417,7 +1374,9 @@ class BackupRestoreSettings {
     return BackupRestoreSettings(
       autoBackupEnabled: autoBackupEnabled ?? this.autoBackupEnabled,
       frequency: frequency ?? this.frequency,
-      nextBackupAt: clearNextBackupAt ? null : nextBackupAt ?? this.nextBackupAt,
+      nextBackupAt: clearNextBackupAt
+          ? null
+          : nextBackupAt ?? this.nextBackupAt,
       storageTarget: storageTarget ?? this.storageTarget,
       retentionCount: retentionCount ?? this.retentionCount,
       encryptBackups: encryptBackups ?? this.encryptBackups,
@@ -1440,32 +1399,28 @@ class BackupRestoreSettings {
 
   static BackupRestoreSettings fromJson(Map<String, dynamic> json) {
     return BackupRestoreSettings(
-      autoBackupEnabled: _readBool(
-        json,
-        ['auto_backup_enabled', 'autoBackupEnabled'],
-        fallback: true,
-      ),
+      autoBackupEnabled: _readBool(json, [
+        'auto_backup_enabled',
+        'autoBackupEnabled',
+      ], fallback: true),
       frequency: _parseBackupFrequency(
         _readString(json, ['frequency'], fallback: 'daily'),
       ),
       nextBackupAt: _parseNullableDateTime(
         json['next_backup_at'] ?? json['nextBackupAt'],
       ),
-      storageTarget: _readString(
-        json,
-        ['storage_target', 'storageTarget'],
-        fallback: 's3://tolab-backups/admin',
-      ),
-      retentionCount: _readInt(
-        json,
-        ['retention_count', 'retentionCount'],
-        fallback: 12,
-      ),
-      encryptBackups: _readBool(
-        json,
-        ['encrypt_backups', 'encryptBackups'],
-        fallback: true,
-      ),
+      storageTarget: _readString(json, [
+        'storage_target',
+        'storageTarget',
+      ], fallback: 's3://tolab-backups/admin'),
+      retentionCount: _readInt(json, [
+        'retention_count',
+        'retentionCount',
+      ], fallback: 12),
+      encryptBackups: _readBool(json, [
+        'encrypt_backups',
+        'encryptBackups',
+      ], fallback: true),
       history: _asList(json['history'])
           .map((item) => BackupSnapshot.fromJson(_asMap(item)))
           .toList(growable: false),
@@ -1580,7 +1535,8 @@ class SettingsBundle {
     'is_synced': isSynced,
   };
 
-  Map<String, dynamic> toBackupPayload() => toJson(includeBackupPayloads: false);
+  Map<String, dynamic> toBackupPayload() =>
+      toJson(includeBackupPayloads: false);
 
   static SettingsBundle fromJson(Map<String, dynamic> json) {
     return SettingsBundle(
@@ -1669,8 +1625,9 @@ StorageLocation _parseStorageLocation(String value) {
   return switch (normalized) {
     'local' => StorageLocation.local,
     'cloudinary' => StorageLocation.cloudinary,
-    'private_server' || 'private-server' || 'private server' =>
-      StorageLocation.privateServer,
+    'private_server' ||
+    'private-server' ||
+    'private server' => StorageLocation.privateServer,
     _ => StorageLocation.s3,
   };
 }
@@ -1698,8 +1655,8 @@ AdminNotificationCategory? _notificationCategoryFromString(String value) {
   return switch (normalized) {
     'academic' => AdminNotificationCategory.academic,
     'messages' || 'message' => AdminNotificationCategory.messages,
-    'announcements' || 'announcement' =>
-      AdminNotificationCategory.announcements,
+    'announcements' ||
+    'announcement' => AdminNotificationCategory.announcements,
     'system' => AdminNotificationCategory.system,
     _ => null,
   };
@@ -1750,11 +1707,7 @@ bool _readBool(
   return fallback;
 }
 
-int _readInt(
-  Map<String, dynamic> json,
-  List<String> keys, {
-  int fallback = 0,
-}) {
+int _readInt(Map<String, dynamic> json, List<String> keys, {int fallback = 0}) {
   for (final key in keys) {
     final value = json[key];
     if (value is int) return value;
@@ -1828,4 +1781,4 @@ Color _parseColor(dynamic value, {required Color fallback}) {
 }
 
 String _colorToHex(Color color) =>
-    '#${color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
+    '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';

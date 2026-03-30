@@ -33,7 +33,8 @@ List<Middleware<AppState>> createSettingsMiddleware(AppDependencies deps) {
             IncomingNotificationAction(
               result.notification!,
               showLocalAlert: false,
-              showToast: store.state.settingsState.bundle.notifications.toastEnabled,
+              showToast:
+                  store.state.settingsState.bundle.notifications.toastEnabled,
             ),
           );
         }
@@ -57,7 +58,8 @@ List<Middleware<AppState>> createSettingsMiddleware(AppDependencies deps) {
             IncomingNotificationAction(
               result.notification!,
               showLocalAlert: false,
-              showToast: store.state.settingsState.bundle.notifications.toastEnabled,
+              showToast:
+                  store.state.settingsState.bundle.notifications.toastEnabled,
             ),
           );
         }
@@ -82,7 +84,8 @@ List<Middleware<AppState>> createSettingsMiddleware(AppDependencies deps) {
             IncomingNotificationAction(
               result.notification!,
               showLocalAlert: false,
-              showToast: store.state.settingsState.bundle.notifications.toastEnabled,
+              showToast:
+                  store.state.settingsState.bundle.notifications.toastEnabled,
             ),
           );
         }
