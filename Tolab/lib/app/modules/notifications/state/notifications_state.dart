@@ -279,10 +279,12 @@ List<Middleware<AppState>> createNotificationsMiddleware(AppDependencies deps) {
 
       for (final item in items) {
         if (!previousIds.contains(item.id) && !item.isRead) {
+          final preferences = store.state.settingsState.bundle.notifications;
           store.dispatch(
             IncomingNotificationAction(
               item,
-              showToast: true,
+              showToast: preferences.toastEnabled &&
+                  preferences.isEnabledFor(item.category),
               showLocalAlert: false,
             ),
           );
@@ -314,13 +316,23 @@ List<Middleware<AppState>> createNotificationsMiddleware(AppDependencies deps) {
 
     incomingSubscription = deps.notificationService.incomingNotifications
         .listen((notification) {
+          final preferences = store.state.settingsState.bundle.notifications;
           deps.notificationsRepository.cacheIncoming(notification);
           store.dispatch(
             const NotificationsConnectionChangedAction(
               NotificationRealtimeStatus.live,
             ),
           );
-          store.dispatch(IncomingNotificationAction(notification));
+          store.dispatch(
+            IncomingNotificationAction(
+              notification,
+              showToast: preferences.toastEnabled &&
+                  preferences.isEnabledFor(notification.category),
+              showLocalAlert:
+                  preferences.localAlertsEnabled &&
+                  preferences.isEnabledFor(notification.category),
+            ),
+          );
         });
 
     statusSubscription = deps.notificationService.statusChanges.listen((
@@ -389,8 +401,14 @@ List<Middleware<AppState>> createNotificationsMiddleware(AppDependencies deps) {
     ) async {
       next(action);
       final settings = store.state.settingsState.bundle;
+      final preferences = settings.notifications;
       if (!action.showLocalAlert) return;
-      if (!settings.pushEnabled && !settings.desktopAlertsEnabled) return;
+      if (!preferences.isEnabledFor(action.notification.category)) return;
+      if (!preferences.localAlertsEnabled &&
+          !preferences.pushEnabled &&
+          !preferences.desktopAlertsEnabled) {
+        return;
+      }
 
       try {
         await deps.notificationService.showLocalNotification(

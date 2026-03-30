@@ -21,6 +21,7 @@ import '../../modules/schedule/repositories/schedule_repository.dart';
 import '../../modules/schedule/services/schedule_api_service.dart';
 import '../../modules/sections/repositories/sections_repository.dart';
 import '../../modules/settings/repositories/settings_repository.dart';
+import '../../modules/settings/services/settings_api_service.dart';
 import '../../modules/staff/repositories/staff_repository.dart';
 import '../../modules/students/repositories/students_repository.dart';
 import '../../modules/subjects/repositories/subjects_repository.dart';
@@ -131,7 +132,11 @@ class AppDependencies {
         const ModerationSeedService(),
       ),
       rolesRepository: RolesRepository(RolesService(apiClient)),
-      settingsRepository: SettingsRepository(demoDataService),
+      settingsRepository: SettingsRepository(
+        SettingsApiService(apiClient),
+        localStorage,
+        demoDataService,
+      ),
     );
   }
 }

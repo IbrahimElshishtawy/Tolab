@@ -7,21 +7,40 @@ import '../typography/app_typography.dart';
 class AppTheme {
   const AppTheme._();
 
-  static ThemeData get lightTheme => _buildTheme(Brightness.light);
-  static ThemeData get darkTheme => _buildTheme(Brightness.dark);
+  static ThemeData lightTheme({
+    Color primaryColor = AppColors.primary,
+    Color secondaryColor = AppColors.info,
+  }) => _buildTheme(
+    Brightness.light,
+    primaryColor: primaryColor,
+    secondaryColor: secondaryColor,
+  );
 
-  static ThemeData _buildTheme(Brightness brightness) {
+  static ThemeData darkTheme({
+    Color primaryColor = AppColors.primary,
+    Color secondaryColor = AppColors.info,
+  }) => _buildTheme(
+    Brightness.dark,
+    primaryColor: primaryColor,
+    secondaryColor: secondaryColor,
+  );
+
+  static ThemeData _buildTheme(
+    Brightness brightness, {
+    required Color primaryColor,
+    required Color secondaryColor,
+  }) {
     final isDark = brightness == Brightness.dark;
     final scheme =
         ColorScheme.fromSeed(
           brightness: brightness,
-          seedColor: AppColors.primary,
+          seedColor: primaryColor,
         ).copyWith(
-          primary: AppColors.primary,
+          primary: primaryColor,
           onPrimary: Colors.white,
-          secondary: AppColors.info,
+          secondary: secondaryColor,
           onSecondary: Colors.white,
-          tertiary: AppColors.secondary,
+          tertiary: secondaryColor,
           error: AppColors.danger,
           onError: Colors.white,
           surface: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
@@ -59,7 +78,7 @@ class AppTheme {
       shadowColor: shadow,
       splashFactory: NoSplash.splashFactory,
       highlightColor: Colors.transparent,
-      hoverColor: AppColors.primary.withValues(alpha: 0.06),
+      hoverColor: primaryColor.withValues(alpha: 0.06),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
           TargetPlatform.android: CupertinoPageTransitionsBuilder(),
@@ -92,11 +111,20 @@ class AppTheme {
         filled: true,
         isDense: true,
         fillColor: mutedSurface,
-        border: _inputBorder(isDark),
-        enabledBorder: _inputBorder(isDark),
-        focusedBorder: _inputBorder(isDark, focused: true),
-        errorBorder: _inputBorder(isDark, error: true),
-        focusedErrorBorder: _inputBorder(isDark, focused: true, error: true),
+        border: _inputBorder(isDark, primaryColor: primaryColor),
+        enabledBorder: _inputBorder(isDark, primaryColor: primaryColor),
+        focusedBorder: _inputBorder(
+          isDark,
+          primaryColor: primaryColor,
+          focused: true,
+        ),
+        errorBorder: _inputBorder(isDark, primaryColor: primaryColor, error: true),
+        focusedErrorBorder: _inputBorder(
+          isDark,
+          primaryColor: primaryColor,
+          focused: true,
+          error: true,
+        ),
         labelStyle: textTheme.bodySmall,
         hintStyle: textTheme.bodyMedium?.copyWith(
           color: isDark
@@ -118,8 +146,8 @@ class AppTheme {
         backgroundColor: isDark
             ? AppColors.surfaceMutedDark
             : AppColors.surfaceMutedLight,
-        selectedColor: AppColors.primarySoft,
-        secondarySelectedColor: AppColors.primarySoft,
+        selectedColor: primaryColor.withValues(alpha: 0.16),
+        secondarySelectedColor: primaryColor.withValues(alpha: 0.16),
         disabledColor: mutedSurface,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         shape: RoundedRectangleBorder(
@@ -145,12 +173,12 @@ class AppTheme {
           textStyle: WidgetStatePropertyAll(textTheme.labelLarge),
           backgroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.disabled)) {
-              return AppColors.primary.withValues(alpha: 0.42);
+              return primaryColor.withValues(alpha: 0.42);
             }
             if (states.contains(WidgetState.pressed)) {
-              return AppColors.primary.withValues(alpha: 0.92);
+              return primaryColor.withValues(alpha: 0.92);
             }
-            return AppColors.primary;
+            return primaryColor;
           }),
           foregroundColor: const WidgetStatePropertyAll(Colors.white),
           overlayColor: WidgetStatePropertyAll(
@@ -177,7 +205,7 @@ class AppTheme {
           foregroundColor: WidgetStatePropertyAll(scheme.onSurface),
           backgroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.pressed)) {
-              return AppColors.primary.withValues(alpha: 0.05);
+              return primaryColor.withValues(alpha: 0.05);
             }
             return surfaceColor;
           }),
@@ -200,7 +228,7 @@ class AppTheme {
           padding: const WidgetStatePropertyAll(EdgeInsets.zero),
           backgroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.pressed)) {
-              return AppColors.primary.withValues(alpha: 0.10);
+              return primaryColor.withValues(alpha: 0.10);
             }
             return elevatedSurface;
           }),
@@ -246,7 +274,7 @@ class AppTheme {
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return AppColors.primary;
+            return primaryColor;
           }
           return isDark ? AppColors.surfaceElevatedDark : AppColors.slateSoft;
         }),
@@ -299,6 +327,7 @@ class AppTheme {
 
   static OutlineInputBorder _inputBorder(
     bool isDark, {
+    required Color primaryColor,
     bool focused = false,
     bool error = false,
   }) {
@@ -309,7 +338,7 @@ class AppTheme {
         color: error
             ? AppColors.danger
             : focused
-            ? AppColors.primary
+            ? primaryColor
             : isDark
             ? AppColors.strokeDark
             : AppColors.strokeLight,

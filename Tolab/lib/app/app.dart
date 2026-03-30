@@ -5,6 +5,7 @@ import 'package:redux/redux.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'modules/notifications/presentation/widgets/notification_toast_host.dart';
+import 'shared/models/settings_models.dart';
 import 'state/app_state.dart';
 
 class TolabAdminApp extends StatefulWidget {
@@ -29,16 +30,22 @@ class _TolabAdminAppState extends State<TolabAdminApp> {
   Widget build(BuildContext context) {
     return StoreProvider<AppState>(
       store: widget.store,
-      child: StoreConnector<AppState, ThemeMode>(
+      child: StoreConnector<AppState, SettingsBundle>(
         distinct: true,
-        converter: (store) => store.state.settingsState.bundle.themeMode,
-        builder: (context, themeMode) {
+        converter: (store) => store.state.settingsState.bundle,
+        builder: (context, bundle) {
           return MaterialApp.router(
             title: 'Tolab Admin',
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: themeMode,
+            theme: AppTheme.lightTheme(
+              primaryColor: bundle.theme.primaryColor,
+              secondaryColor: bundle.theme.secondaryColor,
+            ),
+            darkTheme: AppTheme.darkTheme(
+              primaryColor: bundle.theme.primaryColor,
+              secondaryColor: bundle.theme.secondaryColor,
+            ),
+            themeMode: bundle.themeMode,
             routerConfig: _router.router,
             builder: (context, child) {
               return Stack(

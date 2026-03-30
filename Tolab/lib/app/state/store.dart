@@ -12,6 +12,7 @@ import '../modules/notifications/state/notifications_state.dart';
 import '../modules/roles_permissions/state/roles_middleware.dart';
 import '../modules/schedule/state/schedule_middleware.dart';
 import '../modules/sections/state/sections_state.dart';
+import '../modules/settings/state/settings_middleware.dart';
 import '../modules/splash/state/bootstrap_state.dart';
 import '../modules/staff/state/staff_state.dart';
 import '../modules/students/state/students_state.dart';
@@ -38,6 +39,7 @@ Store<AppState> createAppStore(AppDependencies deps) {
       ...createContentMiddleware(deps),
       ...createUploadsMiddleware(deps),
       ...createScheduleMiddleware(deps),
+      ...createSettingsMiddleware(deps),
       ...createNotificationsMiddleware(deps),
       ...createModerationMiddleware(deps),
       ...createRolesMiddleware(deps),

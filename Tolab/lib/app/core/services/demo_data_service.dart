@@ -1633,15 +1633,204 @@ class DemoDataService {
     ),
   ];
 
-  SettingsBundle settings() => const SettingsBundle(
-    themeMode: ThemeMode.light,
-    localeCode: 'en',
-    pushEnabled: true,
-    desktopAlertsEnabled: true,
-    auditLoggingEnabled: true,
-    sessionTimeoutMinutes: 30,
-    uploadLimitMb: 250,
-  );
+  SettingsBundle settings() {
+    final now = DateTime.now();
+    return SettingsBundle(
+      general: const GeneralSettings(
+        appName: 'Tolab Admin',
+        academyName: 'Tolab Academy',
+        logoUrl: 'assets/icons/iconapp.png',
+        timezone: 'Africa/Cairo',
+        languageCode: 'en',
+      ),
+      theme: const ThemeSettings(
+        themeMode: ThemeMode.light,
+        primaryColor: AppColors.primary,
+        secondaryColor: AppColors.info,
+        glassmorphismEnabled: true,
+        cardBlurSigma: 18,
+      ),
+      notifications: const NotificationPreferences(
+        pushEnabled: true,
+        desktopAlertsEnabled: true,
+        localAlertsEnabled: true,
+        emailDigestEnabled: false,
+        toastEnabled: true,
+        soundEnabled: true,
+        categories: {
+          AdminNotificationCategory.academic: true,
+          AdminNotificationCategory.messages: true,
+          AdminNotificationCategory.system: true,
+          AdminNotificationCategory.announcements: true,
+        },
+      ),
+      security: SecuritySettings(
+        passwordPolicy: const PasswordPolicy(
+          minLength: 10,
+          passwordExpiryDays: 90,
+          requireUppercase: true,
+          requireLowercase: true,
+          requireNumbers: true,
+          requireSpecialCharacters: true,
+        ),
+        sessionTimeoutMinutes: 45,
+        twoFactorRequired: true,
+        lockOnSuspiciousActivity: true,
+        blockedAccounts: [
+          BlockedAccount(
+            id: 'blocked-1',
+            name: 'Reem Fawzy',
+            email: 'reem.fawzy@tolab.edu',
+            reason: 'Repeated failed admin sign-ins',
+            blockedAt: now.subtract(const Duration(days: 3)),
+            isTemporary: true,
+          ),
+          BlockedAccount(
+            id: 'blocked-2',
+            name: 'Guest Account 04',
+            email: 'guest04@tolab.edu',
+            reason: 'Role misuse review',
+            blockedAt: now.subtract(const Duration(days: 11)),
+            isTemporary: false,
+          ),
+        ],
+      ),
+      userManagement: const UserManagementSettings(
+        defaultRole: 'Academic Admin',
+        allowStaffAdminAccess: true,
+        requireApprovalForAdminAccess: true,
+        allowRoleCloning: true,
+        roleTemplates: [
+          RolePermissionTemplate(
+            id: 'role-1',
+            name: 'Academic Admin',
+            adminAccess: true,
+            staffAccess: true,
+            permissions: {
+              'manage_users': true,
+              'manage_schedule': true,
+              'approve_uploads': true,
+              'view_logs': true,
+            },
+          ),
+          RolePermissionTemplate(
+            id: 'role-2',
+            name: 'Operations Lead',
+            adminAccess: true,
+            staffAccess: true,
+            permissions: {
+              'manage_users': false,
+              'manage_schedule': true,
+              'approve_uploads': true,
+              'view_logs': true,
+            },
+          ),
+          RolePermissionTemplate(
+            id: 'role-3',
+            name: 'Support Admin',
+            adminAccess: false,
+            staffAccess: true,
+            permissions: {
+              'manage_users': false,
+              'manage_schedule': false,
+              'approve_uploads': true,
+              'view_logs': false,
+            },
+          ),
+        ],
+      ),
+      uploadRules: const UploadRulesSettings(
+        maxFileSizeMb: 250,
+        allowedFileTypes: ['pdf', 'docx', 'xlsx', 'jpg', 'png', 'zip'],
+        storageLocation: StorageLocation.s3,
+        basePath: 'academy/uploads',
+        validateMimeType: true,
+        runVirusScan: true,
+        renameOnUpload: false,
+      ),
+      calendar: CalendarSettings(
+        defaultView: CalendarViewOption.week,
+        typeColors: const {
+          'Lecture': AppColors.primary,
+          'Section': AppColors.secondary,
+          'Exam': AppColors.warning,
+          'Holiday': AppColors.danger,
+        },
+        holidays: [
+          HolidayItem(
+            id: 'holiday-1',
+            name: 'Eid Holiday',
+            date: now.add(const Duration(days: 14)),
+            type: 'National',
+          ),
+          HolidayItem(
+            id: 'holiday-2',
+            name: 'Midterm Break',
+            date: now.add(const Duration(days: 41)),
+            type: 'Academic',
+          ),
+        ],
+      ),
+      system: SystemSettings(
+        apiBaseUrl: 'http://127.0.0.1:8000/api',
+        websocketUrl: 'ws://127.0.0.1:8000/ws/admin/notifications',
+        apiKeys: [
+          ApiCredential(
+            id: 'cred-1',
+            label: 'Laravel Sanctum',
+            valueMasked: 'sk-live-9F2A****',
+            scope: 'auth',
+            lastRotatedAt: now.subtract(const Duration(days: 21)),
+            isEnabled: true,
+          ),
+          ApiCredential(
+            id: 'cred-2',
+            label: 'Firebase Messaging',
+            valueMasked: 'fcm-prod-C84****',
+            scope: 'notifications',
+            lastRotatedAt: now.subtract(const Duration(days: 8)),
+            isEnabled: true,
+          ),
+        ],
+        maintenanceMode: false,
+        auditLoggingEnabled: true,
+        logRetentionDays: 30,
+        enableLaravelBroadcasting: true,
+        integrationStatus: 'Connected',
+      ),
+      backupRestore: BackupRestoreSettings(
+        autoBackupEnabled: true,
+        frequency: BackupFrequency.daily,
+        nextBackupAt: now.add(const Duration(days: 1, hours: 2)),
+        storageTarget: 's3://tolab-backups/admin',
+        retentionCount: 12,
+        encryptBackups: true,
+        history: [
+          BackupSnapshot(
+            id: 'backup-1',
+            label: 'Nightly backup',
+            createdAt: now.subtract(const Duration(hours: 10)),
+            sizeLabel: '2.1 MB',
+            status: 'Ready',
+            source: 'laravel',
+            restorable: true,
+          ),
+          BackupSnapshot(
+            id: 'backup-2',
+            label: 'Pre-release snapshot',
+            createdAt: now.subtract(const Duration(days: 2)),
+            sizeLabel: '2.0 MB',
+            status: 'Ready',
+            source: 'laravel',
+            restorable: true,
+          ),
+        ],
+      ),
+      updatedAt: now.subtract(const Duration(minutes: 38)),
+      source: 'seed',
+      isSynced: true,
+    );
+  }
 
   StaffAdminRecord _staffRecord({
     required String id,
