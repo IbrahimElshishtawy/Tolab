@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'academy_panel_app.dart';
-import 'app/core/services/app_dependencies.dart';
-import 'app/modules/academy_panel/state/academy_store.dart';
+import 'app_admin/core/services/app_dependencies.dart';
+import 'app_admin/modules/academy_panel/state/academy_store.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

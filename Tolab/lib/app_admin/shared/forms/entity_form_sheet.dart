@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/spacing/app_spacing.dart';
-import '../../shared/widgets/premium_button.dart';
+import '../widgets/premium_button.dart';
 
 class EntityFormSheet extends StatelessWidget {
   const EntityFormSheet({
