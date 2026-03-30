@@ -1467,24 +1467,123 @@ class DemoDataService {
     ];
   }
 
-  List<AdminNotification> notifications() => const [
-    AdminNotification(
-      id: 'NT-1',
-      title: 'Semester registration deadline',
-      body: 'Broadcast scheduled for all level 3 students.',
-      category: 'broadcast',
-      createdAtLabel: 'Today, 09:20',
-      isRead: false,
-    ),
-    AdminNotification(
-      id: 'NT-2',
-      title: 'Upload policy updated',
-      body: 'Maximum file size raised to 250 MB for administrators.',
-      category: 'system',
-      createdAtLabel: 'Yesterday',
-      isRead: true,
-    ),
-  ];
+  List<AdminNotification> notifications() {
+    final now = DateTime.now();
+    return [
+      AdminNotification(
+        id: 'NT-1',
+        title: 'New student registration requires approval',
+        body:
+            'Maha El-Sayed submitted a late enrollment request for CS-4A and is waiting for an admin approval slot.',
+        category: AdminNotificationCategory.academic,
+        createdAt: now.subtract(const Duration(minutes: 4)),
+        isRead: false,
+        rawType: 'GRADE',
+        refType: 'enrollment',
+        refId: 'ENR-921',
+        source: 'seed',
+        audienceLabel: 'Admissions desk',
+      ),
+      AdminNotification(
+        id: 'NT-2',
+        title: 'Department schedule changed',
+        body:
+            'Operating Systems lecture moved from Hall C2 to Hall A4 after a room conflict was resolved.',
+        category: AdminNotificationCategory.academic,
+        createdAt: now.subtract(const Duration(minutes: 18)),
+        isRead: false,
+        rawType: 'SCHEDULE',
+        refType: 'schedule',
+        refId: 'SCH-CONFLICT-2',
+        source: 'seed',
+        audienceLabel: 'Computer Science',
+      ),
+      AdminNotification(
+        id: 'NT-3',
+        title: 'Unread staff message escalation',
+        body:
+            'Two students reported an unanswered thread inside Enterprise Systems section B1.',
+        category: AdminNotificationCategory.messages,
+        createdAt: now.subtract(const Duration(minutes: 46)),
+        isRead: false,
+        rawType: 'MODERATION',
+        refType: 'message',
+        refId: 'MSG-441',
+        source: 'seed',
+        audienceLabel: 'Staff moderation',
+      ),
+      AdminNotification(
+        id: 'NT-4',
+        title: 'Campus-wide announcement queued',
+        body:
+            'Spring midterm seat allocation announcement is scheduled for delivery to all undergraduate cohorts.',
+        category: AdminNotificationCategory.announcements,
+        createdAt: now.subtract(const Duration(hours: 2, minutes: 15)),
+        isRead: false,
+        rawType: 'CONTENT',
+        refType: 'announcement',
+        refId: 'ANN-302',
+        source: 'seed',
+        audienceLabel: 'All students',
+      ),
+      AdminNotification(
+        id: 'NT-5',
+        title: 'Security policy updated',
+        body:
+            'A new two-step verification recommendation is now available for admin accounts.',
+        category: AdminNotificationCategory.system,
+        createdAt: now.subtract(const Duration(hours: 6)),
+        isRead: true,
+        rawType: 'SYSTEM',
+        refType: 'settings',
+        refId: 'SEC-11',
+        source: 'seed',
+        audienceLabel: 'Administrators',
+      ),
+      AdminNotification(
+        id: 'NT-6',
+        title: 'Task submission spike detected',
+        body:
+            'Advanced Algorithms crossed the expected upload rate and generated 87 submissions in the last hour.',
+        category: AdminNotificationCategory.academic,
+        createdAt: now.subtract(const Duration(days: 1, hours: 1)),
+        isRead: true,
+        rawType: 'GRADE',
+        refType: 'content',
+        refId: 'TASK-81',
+        source: 'seed',
+        audienceLabel: 'Faculty analytics',
+      ),
+      AdminNotification(
+        id: 'NT-7',
+        title: 'Broadcast delivery completed',
+        body:
+            'The registration deadline alert was delivered successfully to 4,218 recipients with no failures.',
+        category: AdminNotificationCategory.announcements,
+        createdAt: now.subtract(const Duration(days: 2, hours: 4)),
+        isRead: true,
+        rawType: 'BROADCAST',
+        refType: 'campaign',
+        refId: 'CMP-77',
+        source: 'seed',
+        audienceLabel: 'Level 3 students',
+      ),
+      AdminNotification(
+        id: 'NT-8',
+        title: 'Moderator response sent',
+        body:
+            'A flagged chat message was reviewed and the student received an official reply from moderation.',
+        category: AdminNotificationCategory.messages,
+        createdAt: now.subtract(const Duration(days: 5, hours: 3)),
+        isRead: true,
+        rawType: 'MODERATION',
+        refType: 'message',
+        refId: 'MSG-144',
+        source: 'seed',
+        audienceLabel: 'Moderation hub',
+      ),
+    ];
+  }
 
   List<ModerationItem> moderationItems() => const [
     ModerationItem(

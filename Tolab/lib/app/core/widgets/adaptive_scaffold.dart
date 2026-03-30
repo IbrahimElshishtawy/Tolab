@@ -6,6 +6,7 @@ import '../../shared/widgets/status_badge.dart';
 import '../animations/app_motion.dart';
 import '../colors/app_colors.dart';
 import '../constants/app_constants.dart';
+import '../routing/route_paths.dart';
 import '../responsive/app_breakpoints.dart';
 import '../spacing/app_spacing.dart';
 import 'app_card.dart';
@@ -30,6 +31,8 @@ class AdaptiveScaffold extends StatefulWidget {
     required this.destinations,
     required this.userName,
     required this.userRole,
+    required this.unreadNotifications,
+    required this.notificationStatus,
     required this.onToggleTheme,
     required this.onLogout,
   });
@@ -39,6 +42,8 @@ class AdaptiveScaffold extends StatefulWidget {
   final List<NavigationDestinationItem> destinations;
   final String userName;
   final String userRole;
+  final int unreadNotifications;
+  final String notificationStatus;
   final VoidCallback onToggleTheme;
   final VoidCallback onLogout;
 
@@ -93,6 +98,8 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
                     destinations: widget.destinations,
                     selectedIndex: selectedIndex,
                     isCollapsed: false,
+                    unreadNotifications: widget.unreadNotifications,
+                    notificationStatus: widget.notificationStatus,
                     onSelected: (route) {
                       Navigator.of(context).pop();
                       context.go(route);
@@ -146,6 +153,8 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
                           destinations: widget.destinations,
                           selectedIndex: selectedIndex,
                           isCollapsed: _isSidebarCollapsed,
+                          unreadNotifications: widget.unreadNotifications,
+                          notificationStatus: widget.notificationStatus,
                           onSelected: (route) => context.go(route),
                         ),
                       ),
@@ -158,6 +167,8 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
                             subtitle: _subtitleFor(selected.label),
                             userName: widget.userName,
                             userRole: widget.userRole,
+                            unreadNotifications: widget.unreadNotifications,
+                            notificationStatus: widget.notificationStatus,
                             isMobile: isMobile,
                             onMenuPressed: () => setState(
                               () => _isSidebarCollapsed = !_isSidebarCollapsed,
@@ -223,12 +234,16 @@ class _Sidebar extends StatelessWidget {
     required this.destinations,
     required this.selectedIndex,
     required this.isCollapsed,
+    required this.unreadNotifications,
+    required this.notificationStatus,
     required this.onSelected,
   });
 
   final List<NavigationDestinationItem> destinations;
   final int selectedIndex;
   final bool isCollapsed;
+  final int unreadNotifications;
+  final String notificationStatus;
   final ValueChanged<String> onSelected;
 
   @override
@@ -294,7 +309,7 @@ class _Sidebar extends StatelessWidget {
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
-                      'Campus sync healthy',
+                      notificationStatus,
                       style: Theme.of(context).textTheme.labelMedium,
                     ),
                   ),
@@ -312,6 +327,9 @@ class _Sidebar extends StatelessWidget {
                   item: item,
                   selected: index == selectedIndex,
                   collapsed: isCollapsed,
+                  badgeCount: item.route == RoutePaths.notifications
+                      ? unreadNotifications
+                      : 0,
                   onTap: () => onSelected(item.route),
                 );
               },
@@ -356,12 +374,14 @@ class _SidebarNavTile extends StatefulWidget {
     required this.item,
     required this.selected,
     required this.collapsed,
+    required this.badgeCount,
     required this.onTap,
   });
 
   final NavigationDestinationItem item;
   final bool selected;
   final bool collapsed;
+  final int badgeCount;
   final VoidCallback onTap;
 
   @override
@@ -410,12 +430,20 @@ class _SidebarNavTileState extends State<_SidebarNavTile> {
           title: widget.collapsed ? null : Text(widget.item.label),
           trailing: widget.collapsed
               ? null
-              : Icon(
-                  Icons.chevron_right_rounded,
-                  size: 18,
-                  color: isSelected
-                      ? AppColors.primary
-                      : Theme.of(context).textTheme.bodySmall?.color,
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.badgeCount > 0)
+                      _NotificationCountBadge(count: widget.badgeCount),
+                    const SizedBox(width: AppSpacing.xs),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 18,
+                      color: isSelected
+                          ? AppColors.primary
+                          : Theme.of(context).textTheme.bodySmall?.color,
+                    ),
+                  ],
                 ),
         ),
       ),
@@ -429,6 +457,8 @@ class _TopBar extends StatelessWidget {
     required this.subtitle,
     required this.userName,
     required this.userRole,
+    required this.unreadNotifications,
+    required this.notificationStatus,
     required this.isMobile,
     required this.onMenuPressed,
     required this.onToggleTheme,
@@ -439,6 +469,8 @@ class _TopBar extends StatelessWidget {
   final String subtitle;
   final String userName;
   final String userRole;
+  final int unreadNotifications;
+  final String notificationStatus;
   final bool isMobile;
   final VoidCallback onMenuPressed;
   final VoidCallback onToggleTheme;
@@ -491,7 +523,10 @@ class _TopBar extends StatelessWidget {
                     ),
                   ),
                   if (!isMobile) ...[
-                    const StatusBadge('Live', icon: Icons.radio_button_checked),
+                    StatusBadge(
+                      notificationStatus,
+                      icon: Icons.radio_button_checked,
+                    ),
                     const SizedBox(width: AppSpacing.sm),
                   ],
                   IconButton(
@@ -499,9 +534,9 @@ class _TopBar extends StatelessWidget {
                     icon: const Icon(Icons.contrast_rounded),
                   ),
                   const SizedBox(width: AppSpacing.xs),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.notifications_none_rounded),
+                  _NotificationBellButton(
+                    count: unreadNotifications,
+                    onPressed: () => context.go(RoutePaths.notifications),
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   PopupMenuButton<String>(
@@ -602,6 +637,56 @@ class _BackdropOrb extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: RadialGradient(colors: [color, color.withValues(alpha: 0)]),
+        ),
+      ),
+    );
+  }
+}
+
+class _NotificationBellButton extends StatelessWidget {
+  const _NotificationBellButton({required this.count, required this.onPressed});
+
+  final int count;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        IconButton(
+          onPressed: onPressed,
+          icon: const Icon(Icons.notifications_none_rounded),
+        ),
+        if (count > 0)
+          Positioned(
+            top: -2,
+            right: -2,
+            child: _NotificationCountBadge(count: count),
+          ),
+      ],
+    );
+  }
+}
+
+class _NotificationCountBadge extends StatelessWidget {
+  const _NotificationCountBadge({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: AppColors.danger,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        count > 99 ? '99+' : '$count',
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );

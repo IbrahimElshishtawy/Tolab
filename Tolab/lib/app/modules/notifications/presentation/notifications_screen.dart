@@ -1,121 +1,1095 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../core/colors/app_colors.dart';
+import '../../../core/routing/route_paths.dart';
 import '../../../core/spacing/app_spacing.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/page_header.dart';
+import '../../../shared/models/notification_models.dart';
 import '../../../shared/widgets/async_state_view.dart';
 import '../../../shared/widgets/premium_button.dart';
 import '../../../shared/widgets/status_badge.dart';
 import '../../../state/app_state.dart';
 import '../state/notifications_state.dart';
 
-class NotificationsScreen extends StatelessWidget {
-  const NotificationsScreen({super.key});
+class NotificationsScreen extends StatefulWidget {
+  const NotificationsScreen({super.key, this.initialTabIndex = 0});
+
+  final int initialTabIndex;
+
+  @override
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  late final TextEditingController _broadcastTitleController;
+  late final TextEditingController _broadcastBodyController;
+  late final TextEditingController _broadcastRefTypeController;
+  late final TextEditingController _broadcastRefIdController;
+  late final TextEditingController _historySearchController;
+
+  AdminNotificationCategory? _centerCategory;
+  AdminNotificationCategory? _historyCategory;
+  NotificationHistoryDateFilter _historyDateFilter =
+      NotificationHistoryDateFilter.all;
+  bool _historyUnreadOnly = false;
+  String? _selectedNotificationId;
+  AdminNotificationCategory _broadcastCategory =
+      AdminNotificationCategory.announcements;
+
+  @override
+  void initState() {
+    super.initState();
+    _broadcastTitleController = TextEditingController();
+    _broadcastBodyController = TextEditingController();
+    _broadcastRefTypeController = TextEditingController();
+    _broadcastRefIdController = TextEditingController();
+    _historySearchController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _broadcastTitleController.dispose();
+    _broadcastBodyController.dispose();
+    _broadcastRefTypeController.dispose();
+    _broadcastRefIdController.dispose();
+    _historySearchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, NotificationsState>(
-      onInit: (store) => store.dispatch(LoadNotificationsAction()),
+      onInit: (store) => store.dispatch(const LoadNotificationsAction()),
       converter: (store) => store.state.notificationsState,
       builder: (context, state) {
-        return Column(
+        final centerItems = _applyCenterFilter(state.items);
+        final selectedNotification = centerItems.firstWhereOrNull(
+          (item) => item.id == _selectedNotificationId,
+        );
+        final resolvedSelected =
+            selectedNotification ?? centerItems.firstOrNull;
+        final historyItems = _applyHistoryFilters(state.items);
+
+        return DefaultTabController(
+          initialIndex: widget.initialTabIndex,
+          length: 2,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              PageHeader(
+                title: 'Notification Center',
+                subtitle:
+                    'Realtime operational updates, delivery history, and quick actions for academic, system, and message events.',
+                breadcrumbs: const ['Admin', 'Notifications'],
+                actions: [
+                  PremiumButton(
+                    label: 'Refresh',
+                    icon: Icons.refresh_rounded,
+                    onPressed: () => StoreProvider.of<AppState>(
+                      context,
+                      listen: false,
+                    ).dispatch(const LoadNotificationsAction()),
+                  ),
+                  PremiumButton(
+                    label: 'Mark all read',
+                    icon: Icons.done_all_rounded,
+                    onPressed: state.unreadCount == 0
+                        ? null
+                        : () =>
+                              StoreProvider.of<AppState>(
+                                context,
+                                listen: false,
+                              ).dispatch(
+                                const MarkAllNotificationsReadRequestedAction(),
+                              ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              _NotificationOverviewStrip(state: state),
+              const SizedBox(height: AppSpacing.lg),
+              AppCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.sm,
+                ),
+                child: const TabBar(
+                  isScrollable: true,
+                  tabAlignment: TabAlignment.start,
+                  tabs: [
+                    Tab(text: 'Center'),
+                    Tab(text: 'History'),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Expanded(
+                child: AsyncStateView(
+                  status: state.status,
+                  errorMessage: state.errorMessage,
+                  onRetry: () => StoreProvider.of<AppState>(
+                    context,
+                    listen: false,
+                  ).dispatch(const LoadNotificationsAction()),
+                  child: TabBarView(
+                    children: [
+                      _buildCenterTab(
+                        context,
+                        state: state,
+                        items: centerItems,
+                        selected: resolvedSelected,
+                      ),
+                      _buildHistoryTab(
+                        context,
+                        state: state,
+                        items: historyItems,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCenterTab(
+    BuildContext context, {
+    required NotificationsState state,
+    required List<AdminNotification> items,
+    required AdminNotification? selected,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= 1120;
+        final listPanel = Column(
+          children: [
+            AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Live inbox',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                      ),
+                      StatusBadge(
+                        state.connectionStatus.label,
+                        icon: Icons.wifi_tethering_rounded,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.sm,
+                    children: [
+                      FilterChip(
+                        label: Text('All (${state.items.length})'),
+                        selected: _centerCategory == null,
+                        onSelected: (_) =>
+                            setState(() => _centerCategory = null),
+                      ),
+                      for (final category in AdminNotificationCategory.values)
+                        FilterChip(
+                          label: Text(
+                            '${category.label} (${state.unreadByCategory[category] ?? 0})',
+                          ),
+                          selected: _centerCategory == category,
+                          onSelected: (_) =>
+                              setState(() => _centerCategory = category),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Expanded(
+              child: items.isEmpty
+                  ? const _NotificationsEmptyState(
+                      title: 'No notifications match this filter',
+                      subtitle:
+                          'Try switching categories or wait for the next realtime event.',
+                    )
+                  : ListView.separated(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                      itemCount: items.length,
+                      separatorBuilder: (_, _) =>
+                          const SizedBox(height: AppSpacing.md),
+                      itemBuilder: (context, index) {
+                        final item = items[index];
+                        return _NotificationListCard(
+                          notification: item,
+                          selected: item.id == selected?.id,
+                          onTap: () => setState(() {
+                            _selectedNotificationId = item.id;
+                          }),
+                          onAction: (action) =>
+                              _handleQuickAction(context, item, action),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        );
+
+        final detailPanel = SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+          child: Column(
+            children: [
+              _NotificationDetailCard(
+                notification: selected,
+                onAction: selected == null
+                    ? null
+                    : (action) => _handleQuickAction(context, selected, action),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _BroadcastComposerCard(
+                titleController: _broadcastTitleController,
+                bodyController: _broadcastBodyController,
+                refTypeController: _broadcastRefTypeController,
+                refIdController: _broadcastRefIdController,
+                selectedCategory: _broadcastCategory,
+                isSubmitting: state.isBroadcasting,
+                onCategoryChanged: (value) {
+                  if (value == null) return;
+                  setState(() => _broadcastCategory = value);
+                },
+                onSubmit: () => _submitBroadcast(context),
+              ),
+            ],
+          ),
+        );
+
+        if (!isWide) {
+          return Column(
+            children: [
+              Expanded(flex: 7, child: listPanel),
+              const SizedBox(height: AppSpacing.md),
+              Expanded(flex: 6, child: detailPanel),
+            ],
+          );
+        }
+
+        return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const PageHeader(
-              title: 'Notifications',
-              subtitle:
-                  'Compose broadcasts, inspect history, and keep read-state visibility across admin operations.',
-              breadcrumbs: ['Admin', 'Notifications'],
-              actions: [
-                PremiumButton(label: 'Broadcast', icon: Icons.campaign_rounded),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            Expanded(
-              child: AsyncStateView(
-                status: state.status,
-                errorMessage: state.errorMessage,
-                onRetry: () => StoreProvider.of<AppState>(
-                  context,
-                ).dispatch(LoadNotificationsAction()),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: AppCard(
-                        child: ListView.separated(
-                          itemCount: state.items.length,
-                          separatorBuilder: (context, index) => const Divider(),
-                          itemBuilder: (context, index) {
-                            final item = state.items[index];
-                            return ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: CircleAvatar(
-                                child: Icon(
-                                  item.isRead
-                                      ? Icons.notifications_none_rounded
-                                      : Icons.notifications_active_rounded,
-                                ),
-                              ),
-                              title: Text(item.title),
-                              subtitle: Text(
-                                '${item.body}\n${item.createdAtLabel}',
-                              ),
-                              trailing: StatusBadge(
-                                item.isRead ? 'Read' : item.category,
-                              ),
-                            );
-                          },
-                        ),
+            Expanded(flex: 6, child: listPanel),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(flex: 5, child: detailPanel),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildHistoryTab(
+    BuildContext context, {
+    required NotificationsState state,
+    required List<AdminNotification> items,
+  }) {
+    return Column(
+      children: [
+        AppCard(
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: TextField(
+                      controller: _historySearchController,
+                      onChanged: (_) => setState(() {}),
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.search_rounded),
+                        hintText: 'Search title, body, category, or audience',
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: AppCard(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Broadcast studio',
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: AppSpacing.lg),
-                            const TextField(
-                              decoration: InputDecoration(
-                                labelText: 'Audience',
-                                hintText:
-                                    'All students / a section / a department',
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child:
+                        DropdownButtonFormField<NotificationHistoryDateFilter>(
+                          key: ValueKey(_historyDateFilter),
+                          initialValue: _historyDateFilter,
+                          items: [
+                            for (final filter
+                                in NotificationHistoryDateFilter.values)
+                              DropdownMenuItem(
+                                value: filter,
+                                child: Text(filter.label),
                               ),
-                            ),
-                            const SizedBox(height: AppSpacing.md),
-                            const TextField(
-                              decoration: InputDecoration(labelText: 'Title'),
-                            ),
-                            const SizedBox(height: AppSpacing.md),
-                            const TextField(
-                              maxLines: 5,
-                              decoration: InputDecoration(labelText: 'Message'),
-                            ),
-                            const Spacer(),
-                            SizedBox(
-                              width: double.infinity,
-                              child: FilledButton(
-                                onPressed: () {},
-                                child: const Text('Queue notification'),
-                              ),
-                            ),
                           ],
+                          onChanged: (value) {
+                            if (value == null) return;
+                            setState(() => _historyDateFilter = value);
+                          },
+                          decoration: const InputDecoration(
+                            labelText: 'Date range',
+                          ),
                         ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                children: [
+                  FilterChip(
+                    label: const Text('Unread only'),
+                    selected: _historyUnreadOnly,
+                    onSelected: (value) =>
+                        setState(() => _historyUnreadOnly = value),
+                  ),
+                  FilterChip(
+                    label: const Text('All categories'),
+                    selected: _historyCategory == null,
+                    onSelected: (_) => setState(() => _historyCategory = null),
+                  ),
+                  for (final category in AdminNotificationCategory.values)
+                    FilterChip(
+                      label: Text(category.label),
+                      selected: _historyCategory == category,
+                      onSelected: (_) =>
+                          setState(() => _historyCategory = category),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Expanded(
+          child: items.isEmpty
+              ? const _NotificationsEmptyState(
+                  title: 'No notifications in this history window',
+                  subtitle:
+                      'Widen the date range or remove filters to inspect older activity.',
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                  itemCount: items.length,
+                  separatorBuilder: (_, _) =>
+                      const SizedBox(height: AppSpacing.md),
+                  itemBuilder: (context, index) {
+                    final item = items[index];
+                    return AppCard(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _NotificationIcon(category: item.category),
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Wrap(
+                                  spacing: AppSpacing.sm,
+                                  runSpacing: AppSpacing.sm,
+                                  children: [
+                                    Text(
+                                      item.title,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium,
+                                    ),
+                                    StatusBadge(
+                                      item.isRead ? 'Read' : 'Unread',
+                                      icon: item.isRead
+                                          ? Icons.drafts_outlined
+                                          : Icons.mark_email_unread_rounded,
+                                    ),
+                                    StatusBadge(item.category.label),
+                                  ],
+                                ),
+                                const SizedBox(height: AppSpacing.sm),
+                                Text(
+                                  item.body,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                                const SizedBox(height: AppSpacing.sm),
+                                Text(
+                                  '${item.createdAtLabel}${item.audienceLabel == null ? '' : ' • ${item.audienceLabel}'}',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.md),
+                          Column(
+                            children: [
+                              OutlinedButton(
+                                onPressed: () => _handleQuickAction(
+                                  context,
+                                  item,
+                                  NotificationQuickActionType.open,
+                                ),
+                                child: const Text('Open'),
+                              ),
+                              if (!item.isRead) ...[
+                                const SizedBox(height: AppSpacing.sm),
+                                TextButton(
+                                  onPressed: () =>
+                                      StoreProvider.of<AppState>(
+                                        context,
+                                        listen: false,
+                                      ).dispatch(
+                                        MarkNotificationReadRequestedAction(
+                                          item.id,
+                                        ),
+                                      ),
+                                  child: const Text('Mark read'),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ],
                       ),
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+
+  List<AdminNotification> _applyCenterFilter(List<AdminNotification> items) {
+    return items
+        .where(
+          (item) => _centerCategory == null || item.category == _centerCategory,
+        )
+        .toList(growable: false);
+  }
+
+  List<AdminNotification> _applyHistoryFilters(List<AdminNotification> items) {
+    final query = _historySearchController.text;
+    final now = DateTime.now();
+    return items
+        .where((item) {
+          final categoryMatch =
+              _historyCategory == null || item.category == _historyCategory;
+          final unreadMatch = !_historyUnreadOnly || !item.isRead;
+          final dateMatch = _historyDateFilter.matches(item.createdAt, now);
+          final queryMatch = item.matchesQuery(query);
+          return categoryMatch && unreadMatch && dateMatch && queryMatch;
+        })
+        .toList(growable: false);
+  }
+
+  Future<void> _submitBroadcast(BuildContext context) async {
+    final title = _broadcastTitleController.text.trim();
+    final body = _broadcastBodyController.text.trim();
+    if (title.isEmpty || body.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Title and message are required.')),
+      );
+      return;
+    }
+
+    StoreProvider.of<AppState>(context, listen: false).dispatch(
+      NotificationBroadcastRequestedAction(
+        title: title,
+        body: body,
+        category: _broadcastCategory,
+        refType: _broadcastRefTypeController.text.trim().isEmpty
+            ? null
+            : _broadcastRefTypeController.text.trim(),
+        refId: _broadcastRefIdController.text.trim().isEmpty
+            ? null
+            : _broadcastRefIdController.text.trim(),
+        onSuccess: () {
+          _broadcastTitleController.clear();
+          _broadcastBodyController.clear();
+          _broadcastRefTypeController.clear();
+          _broadcastRefIdController.clear();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Broadcast queued successfully.')),
+          );
+        },
+        onError: (message) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
+        },
+      ),
+    );
+  }
+
+  Future<void> _handleQuickAction(
+    BuildContext context,
+    AdminNotification notification,
+    NotificationQuickActionType action,
+  ) async {
+    StoreProvider.of<AppState>(
+      context,
+      listen: false,
+    ).dispatch(MarkNotificationReadRequestedAction(notification.id));
+
+    switch (action) {
+      case NotificationQuickActionType.open:
+        context.go(_routeFor(notification));
+        return;
+      case NotificationQuickActionType.approve:
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Approved: ${notification.title}')),
+        );
+        return;
+      case NotificationQuickActionType.reply:
+        await _openReplySheet(context, notification);
+        return;
+    }
+  }
+
+  Future<void> _openReplySheet(
+    BuildContext context,
+    AdminNotification notification,
+  ) async {
+    final controller = TextEditingController();
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: AppSpacing.lg,
+            right: AppSpacing.lg,
+            top: AppSpacing.lg,
+            bottom: MediaQuery.viewInsetsOf(context).bottom + AppSpacing.lg,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Reply to ${notification.category.label}',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                notification.title,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              TextField(
+                controller: controller,
+                maxLines: 5,
+                decoration: const InputDecoration(
+                  labelText: 'Reply',
+                  hintText: 'Write a response for the selected alert',
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        ScaffoldMessenger.of(this.context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              controller.text.trim().isEmpty
+                                  ? 'Reply draft saved.'
+                                  : 'Reply sent for ${notification.title}.',
+                            ),
+                          ),
+                        );
+                      },
+                      child: const Text('Send reply'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    controller.dispose();
+  }
+
+  String _routeFor(AdminNotification notification) {
+    final refType = (notification.refType ?? '').toLowerCase();
+    if (refType.contains('schedule')) return RoutePaths.schedule;
+    if (refType.contains('message')) return RoutePaths.moderation;
+    if (refType.contains('content') ||
+        refType.contains('campaign') ||
+        refType.contains('announcement')) {
+      return RoutePaths.content;
+    }
+    if (refType.contains('setting') ||
+        notification.category == AdminNotificationCategory.system) {
+      return RoutePaths.settings;
+    }
+    if (refType.contains('enrollment') || refType.contains('student')) {
+      return RoutePaths.enrollments;
+    }
+    return switch (notification.category) {
+      AdminNotificationCategory.academic => RoutePaths.students,
+      AdminNotificationCategory.messages => RoutePaths.moderation,
+      AdminNotificationCategory.system => RoutePaths.settings,
+      AdminNotificationCategory.announcements => RoutePaths.content,
+    };
+  }
+}
+
+class _NotificationOverviewStrip extends StatelessWidget {
+  const _NotificationOverviewStrip({required this.state});
+
+  final NotificationsState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final metrics = [
+      (
+        label: 'Unread alerts',
+        value: '${state.unreadCount}',
+        icon: Icons.mark_email_unread_rounded,
+        color: AppColors.primary,
+      ),
+      (
+        label: 'Academic queue',
+        value:
+            '${state.unreadByCategory[AdminNotificationCategory.academic] ?? 0}',
+        icon: Icons.school_rounded,
+        color: AppColors.secondary,
+      ),
+      (
+        label: 'Message reviews',
+        value:
+            '${state.unreadByCategory[AdminNotificationCategory.messages] ?? 0}',
+        icon: Icons.chat_bubble_rounded,
+        color: AppColors.info,
+      ),
+      (
+        label: 'Realtime state',
+        value: state.connectionStatus.label,
+        icon: Icons.bolt_rounded,
+        color: AppColors.warning,
+      ),
+    ];
+
+    return Wrap(
+      spacing: AppSpacing.md,
+      runSpacing: AppSpacing.md,
+      children: [
+        for (final metric in metrics)
+          SizedBox(
+            width: 260,
+            child: AppCard(
+              child: Row(
+                children: [
+                  Container(
+                    height: 46,
+                    width: 46,
+                    decoration: BoxDecoration(
+                      color: metric.color.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(metric.icon, color: metric.color),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          metric.label,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          metric.value,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _NotificationListCard extends StatelessWidget {
+  const _NotificationListCard({
+    required this.notification,
+    required this.selected,
+    required this.onTap,
+    required this.onAction,
+  });
+
+  final AdminNotification notification;
+  final bool selected;
+  final VoidCallback onTap;
+  final ValueChanged<NotificationQuickActionType> onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      interactive: true,
+      onTap: onTap,
+      borderColor: selected
+          ? _accent(notification.category).withValues(alpha: 0.28)
+          : null,
+      backgroundColor: selected
+          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.04)
+          : null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _NotificationIcon(category: notification.category),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.sm,
+                      children: [
+                        Text(
+                          notification.title,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        if (!notification.isRead)
+                          const StatusBadge(
+                            'Unread',
+                            icon: Icons.fiber_manual_record_rounded,
+                          ),
+                        StatusBadge(notification.category.label),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      notification.body,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      '${notification.createdAtLabel}${notification.audienceLabel == null ? '' : ' • ${notification.audienceLabel}'}',
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
                 ),
               ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              for (final action in notification.quickActions)
+                action.type == NotificationQuickActionType.open
+                    ? FilledButton.tonal(
+                        onPressed: () => onAction(action.type),
+                        child: Text(action.type.label),
+                      )
+                    : OutlinedButton(
+                        onPressed: () => onAction(action.type),
+                        child: Text(action.type.label),
+                      ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _accent(AdminNotificationCategory category) => switch (category) {
+    AdminNotificationCategory.academic => AppColors.primary,
+    AdminNotificationCategory.messages => AppColors.info,
+    AdminNotificationCategory.system => AppColors.warning,
+    AdminNotificationCategory.announcements => AppColors.secondary,
+  };
+}
+
+class _NotificationDetailCard extends StatelessWidget {
+  const _NotificationDetailCard({
+    required this.notification,
+    required this.onAction,
+  });
+
+  final AdminNotification? notification;
+  final ValueChanged<NotificationQuickActionType>? onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    if (notification == null) {
+      return const _NotificationsEmptyState(
+        title: 'Select an alert',
+        subtitle:
+            'Choose a notification from the inbox to inspect metadata and trigger quick actions.',
+      );
+    }
+
+    final item = notification!;
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              StatusBadge(item.category.label),
+              StatusBadge(item.isRead ? 'Read' : 'Unread'),
+              if (item.source.isNotEmpty)
+                StatusBadge(item.source.toUpperCase()),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(item.title, style: Theme.of(context).textTheme.headlineSmall),
+          const SizedBox(height: AppSpacing.sm),
+          Text(item.body, style: Theme.of(context).textTheme.bodyLarge),
+          const SizedBox(height: AppSpacing.lg),
+          _DetailRow(label: 'Received', value: item.createdAtLabel),
+          _DetailRow(label: 'Reference type', value: item.refType ?? 'None'),
+          _DetailRow(label: 'Reference ID', value: item.refId ?? 'None'),
+          _DetailRow(label: 'Audience', value: item.audienceLabel ?? 'General'),
+          const SizedBox(height: AppSpacing.lg),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              for (final action in item.quickActions)
+                action.type == NotificationQuickActionType.open
+                    ? FilledButton(
+                        onPressed: onAction == null
+                            ? null
+                            : () => onAction!(action.type),
+                        child: Text(action.type.label),
+                      )
+                    : OutlinedButton(
+                        onPressed: onAction == null
+                            ? null
+                            : () => onAction!(action.type),
+                        child: Text(action.type.label),
+                      ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BroadcastComposerCard extends StatelessWidget {
+  const _BroadcastComposerCard({
+    required this.titleController,
+    required this.bodyController,
+    required this.refTypeController,
+    required this.refIdController,
+    required this.selectedCategory,
+    required this.isSubmitting,
+    required this.onCategoryChanged,
+    required this.onSubmit,
+  });
+
+  final TextEditingController titleController;
+  final TextEditingController bodyController;
+  final TextEditingController refTypeController;
+  final TextEditingController refIdController;
+  final AdminNotificationCategory selectedCategory;
+  final bool isSubmitting;
+  final ValueChanged<AdminNotificationCategory?> onCategoryChanged;
+  final VoidCallback onSubmit;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Broadcast studio',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'Queue backend-ready announcement payloads for Laravel broadcast delivery and keep the notification center in sync.',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          DropdownButtonFormField<AdminNotificationCategory>(
+            key: ValueKey(selectedCategory),
+            initialValue: selectedCategory,
+            items: [
+              for (final category in AdminNotificationCategory.values)
+                DropdownMenuItem(value: category, child: Text(category.label)),
+            ],
+            onChanged: onCategoryChanged,
+            decoration: const InputDecoration(labelText: 'Category'),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          TextField(
+            controller: titleController,
+            decoration: const InputDecoration(labelText: 'Title'),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          TextField(
+            controller: bodyController,
+            maxLines: 5,
+            decoration: const InputDecoration(
+              labelText: 'Message',
+              hintText: 'Describe the operational event or announcement',
             ),
-          ],
-        );
-      },
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: refTypeController,
+                  decoration: const InputDecoration(
+                    labelText: 'Reference type',
+                    hintText: 'schedule / enrollment / message',
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: TextField(
+                  controller: refIdController,
+                  decoration: const InputDecoration(
+                    labelText: 'Reference ID',
+                    hintText: 'Optional',
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: isSubmitting ? null : onSubmit,
+              child: Text(isSubmitting ? 'Queueing...' : 'Queue notification'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NotificationIcon extends StatelessWidget {
+  const _NotificationIcon({required this.category});
+
+  final AdminNotificationCategory category;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = switch (category) {
+      AdminNotificationCategory.academic => AppColors.primary,
+      AdminNotificationCategory.messages => AppColors.info,
+      AdminNotificationCategory.system => AppColors.warning,
+      AdminNotificationCategory.announcements => AppColors.secondary,
+    };
+    final icon = switch (category) {
+      AdminNotificationCategory.academic => Icons.school_rounded,
+      AdminNotificationCategory.messages => Icons.mark_chat_unread_rounded,
+      AdminNotificationCategory.system => Icons.settings_suggest_rounded,
+      AdminNotificationCategory.announcements => Icons.campaign_rounded,
+    };
+
+    return Container(
+      height: 52,
+      width: 52,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Icon(icon, color: color),
+    );
+  }
+}
+
+class _NotificationsEmptyState extends StatelessWidget {
+  const _NotificationsEmptyState({required this.title, required this.subtitle});
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                height: 68,
+                width: 68,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: const Icon(
+                  Icons.notifications_none_rounded,
+                  color: AppColors.primary,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Text(title, style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                subtitle,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  const _DetailRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 118,
+            child: Text(label, style: Theme.of(context).textTheme.bodySmall),
+          ),
+          Expanded(
+            child: Text(value, style: Theme.of(context).textTheme.bodyMedium),
+          ),
+        ],
+      ),
     );
   }
 }

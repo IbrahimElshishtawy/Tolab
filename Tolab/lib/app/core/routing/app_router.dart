@@ -26,6 +26,7 @@ import '../../modules/staff/presentation/staff_screen.dart';
 import '../../modules/students/presentation/students_screen.dart';
 import '../../modules/subjects/presentation/subjects_screen.dart';
 import '../../modules/uploads/presentation/uploads_screen.dart';
+import '../../shared/models/notification_models.dart';
 import '../../state/app_state.dart';
 import '../widgets/adaptive_scaffold.dart';
 import 'route_paths.dart';
@@ -115,6 +116,10 @@ class AppRouter {
           child: const NotificationsScreen(),
         ),
         _shellPageRoute(
+          path: RoutePaths.notificationsHistory,
+          child: const NotificationsScreen(initialTabIndex: 1),
+        ),
+        _shellPageRoute(
           path: RoutePaths.moderation,
           child: const ModerationScreen(),
         ),
@@ -153,6 +158,9 @@ class AppRouter {
       converter: (store) => _ShellViewModel(
         userName: store.state.authState.currentUser?.name ?? 'Admin',
         userRole: store.state.authState.currentUser?.role ?? 'Administrator',
+        unreadNotifications: store.state.notificationsState.unreadCount,
+        notificationStatus:
+            store.state.notificationsState.connectionStatus.label,
       ),
       builder: (context, vm) {
         return AdaptiveScaffold(
@@ -160,6 +168,8 @@ class AppRouter {
           destinations: _destinations,
           userName: vm.userName,
           userRole: vm.userRole,
+          unreadNotifications: vm.unreadNotifications,
+          notificationStatus: vm.notificationStatus,
           onToggleTheme: () => StoreProvider.of<AppState>(
             context,
           ).dispatch(ToggleThemeModeAction()),
@@ -281,8 +291,15 @@ class _StoreRefreshListenable extends ChangeNotifier {
 }
 
 class _ShellViewModel {
-  const _ShellViewModel({required this.userName, required this.userRole});
+  const _ShellViewModel({
+    required this.userName,
+    required this.userRole,
+    required this.unreadNotifications,
+    required this.notificationStatus,
+  });
 
   final String userName;
   final String userRole;
+  final int unreadNotifications;
+  final String notificationStatus;
 }

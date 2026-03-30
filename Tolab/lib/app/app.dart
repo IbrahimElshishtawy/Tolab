@@ -4,6 +4,7 @@ import 'package:redux/redux.dart';
 
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'modules/notifications/presentation/widgets/notification_toast_host.dart';
 import 'state/app_state.dart';
 
 class TolabAdminApp extends StatefulWidget {
@@ -39,6 +40,14 @@ class _TolabAdminAppState extends State<TolabAdminApp> {
             darkTheme: AppTheme.darkTheme,
             themeMode: themeMode,
             routerConfig: _router.router,
+            builder: (context, child) {
+              return Stack(
+                children: [
+                  if (child != null) child,
+                  const NotificationToastHost(),
+                ],
+              );
+            },
           );
         },
       ),

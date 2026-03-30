@@ -122,7 +122,10 @@ class AppDependencies {
         ScheduleApiService(apiClient),
         demoDataService,
       ),
-      notificationsRepository: NotificationsRepository(demoDataService),
+      notificationsRepository: NotificationsRepository(
+        apiClient,
+        demoDataService,
+      ),
       moderationRepository: ModerationRepository(
         ModerationApiService(apiClient),
         const ModerationSeedService(),

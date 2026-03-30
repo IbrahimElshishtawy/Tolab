@@ -17,6 +17,7 @@ class RoutePaths {
   static const schedule = '/schedule';
   static const uploads = '/uploads';
   static const notifications = '/notifications';
+  static const notificationsHistory = '/notifications/history';
   static const moderation = '/moderation';
   static const roles = '/roles';
   static const settings = '/settings';
