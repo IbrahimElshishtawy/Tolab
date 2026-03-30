@@ -103,7 +103,7 @@ class NotificationService {
 
     await _initializeFirebaseMessagingIfSupported();
     _listenToForegroundMessages();
-    _connectWebSocket(accessToken: accessToken, userId: userId);
+    await _connectWebSocket(accessToken: accessToken, userId: userId);
   }
 
   Future<void> stopRealtime() async {
@@ -188,7 +188,7 @@ class NotificationService {
     });
   }
 
-  void _connectWebSocket({String? accessToken, String? userId}) {
+  Future<void> _connectWebSocket({String? accessToken, String? userId}) async {
     final url = AppConfig.notificationSocketUrl.trim();
     if (url.isEmpty) {
       _statusController.add(NotificationRealtimeStatus.polling);
@@ -205,6 +205,7 @@ class NotificationService {
       final uri = baseUri.replace(queryParameters: queryParameters);
 
       _socketChannel = WebSocketChannel.connect(uri);
+      await _socketChannel!.ready;
       _socketSubscription = _socketChannel!.stream.listen(
         (event) {
           final payload = _decodeSocketPayload(event);
@@ -227,6 +228,10 @@ class NotificationService {
         cancelOnError: true,
       );
     } catch (_) {
+      await _socketSubscription?.cancel();
+      _socketSubscription = null;
+      await _socketChannel?.sink.close();
+      _socketChannel = null;
       _statusController.add(NotificationRealtimeStatus.polling);
     }
   }

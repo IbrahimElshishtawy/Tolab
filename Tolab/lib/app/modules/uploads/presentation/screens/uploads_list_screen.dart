@@ -78,8 +78,8 @@ class _UploadsListScreenState extends State<UploadsListScreen> {
         final isDesktop = AppBreakpoints.isDesktop(context);
         final store = StoreProvider.of<AppState>(context);
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        return ListView(
+          padding: const EdgeInsets.only(bottom: AppSpacing.md),
           children: [
             PageHeader(
               title: 'Uploads',
@@ -215,11 +215,9 @@ class _UploadsListScreenState extends State<UploadsListScreen> {
               ),
             ],
             const SizedBox(height: AppSpacing.lg),
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: AppMotion.medium,
-                child: _buildContent(vm, isMobile: isMobile),
-              ),
+            AnimatedSwitcher(
+              duration: AppMotion.medium,
+              child: _buildContent(vm, isMobile: isMobile),
             ),
             const SizedBox(height: AppSpacing.md),
             _PaginationBar(
@@ -285,7 +283,7 @@ class _UploadsListScreenState extends State<UploadsListScreen> {
             crossAxisCount: columns,
             crossAxisSpacing: AppSpacing.md,
             mainAxisSpacing: AppSpacing.md,
-            childAspectRatio: columns == 1 ? 2.5 : 1.8,
+            childAspectRatio: columns == 1 ? 2.5 : 1.55,
           ),
           itemBuilder: (context, index) => _StatCard(data: stats[index]),
         );
@@ -346,6 +344,8 @@ class _UploadsListScreenState extends State<UploadsListScreen> {
     if (isMobile || vm.viewMode == UploadViewMode.grid) {
       return ListView.separated(
         key: const ValueKey('uploads-grid'),
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
         itemCount: vm.items.length,
         separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
         itemBuilder: (context, index) {
@@ -954,6 +954,8 @@ class _UploadsSkeleton extends StatelessWidget {
       baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
       highlightColor: Theme.of(context).colorScheme.surface,
       child: ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
         itemCount: 4,
         separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
         itemBuilder: (context, index) => AppCard(
@@ -1027,6 +1029,7 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.lg),
       interactive: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1049,9 +1052,19 @@ class _StatCard extends StatelessWidget {
           const Spacer(),
           Text(data.value, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: AppSpacing.xs),
-          Text(data.label, style: Theme.of(context).textTheme.titleSmall),
+          Text(
+            data.label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
           const SizedBox(height: AppSpacing.xs),
-          Text(data.subtitle, style: Theme.of(context).textTheme.bodySmall),
+          Text(
+            data.subtitle,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         ],
       ),
     );

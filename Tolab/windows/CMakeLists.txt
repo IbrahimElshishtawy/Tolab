@@ -14,6 +14,16 @@ cmake_policy(VERSION 3.14...3.25)
 # machine-wide Visual Studio CMake installation.
 list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+# Reuse a previously extracted Firebase C++ SDK cache when available. This
+# avoids relying on CMake's ZIP extraction path, which can produce incomplete
+# Firebase SDK folders on some Windows setups.
+set(FIREBASE_CPP_SDK_FALLBACK_DIR
+  "$ENV{LOCALAPPDATA}/firebase_cpp_sdk_windows_13.5.0")
+if(NOT DEFINED ENV{FIREBASE_CPP_SDK_DIR}
+   AND EXISTS "${FIREBASE_CPP_SDK_FALLBACK_DIR}/include/firebase/version.h")
+  set(ENV{FIREBASE_CPP_SDK_DIR} "${FIREBASE_CPP_SDK_FALLBACK_DIR}")
+endif()
+
 # Define build configuration option.
 get_property(IS_MULTICONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(IS_MULTICONFIG)

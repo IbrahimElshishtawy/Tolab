@@ -223,7 +223,6 @@ class ApiClient {
     return error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout ||
         error.type == DioExceptionType.sendTimeout ||
-        error.type == DioExceptionType.connectionError ||
         statusCode >= 500;
   }
 
