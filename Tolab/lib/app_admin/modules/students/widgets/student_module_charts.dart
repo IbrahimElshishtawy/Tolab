@@ -5,10 +5,7 @@ import '../../../core/colors/app_colors.dart';
 import '../models/student_management_models.dart';
 
 class StudentLineTrendChart extends StatelessWidget {
-  const StudentLineTrendChart({
-    super.key,
-    required this.points,
-  });
+  const StudentLineTrendChart({super.key, required this.points});
 
   final List<StudentEnrollmentPoint> points;
 
@@ -90,10 +87,7 @@ class StudentLineTrendChart extends StatelessWidget {
 }
 
 class StudentDepartmentBarChart extends StatelessWidget {
-  const StudentDepartmentBarChart({
-    super.key,
-    required this.distribution,
-  });
+  const StudentDepartmentBarChart({super.key, required this.distribution});
 
   final Map<String, int> distribution;
 
@@ -104,9 +98,13 @@ class StudentDepartmentBarChart extends StatelessWidget {
     return BarChart(
       BarChartData(
         alignment: BarChartAlignment.spaceAround,
-        maxY: entries
+        maxY:
+            entries
                 .map((entry) => entry.value)
-                .fold<int>(0, (maxValue, value) => value > maxValue ? value : maxValue)
+                .fold<int>(
+                  0,
+                  (maxValue, value) => value > maxValue ? value : maxValue,
+                )
                 .toDouble() +
             1,
         barTouchData: BarTouchData(enabled: true),
@@ -218,10 +216,7 @@ class StudentDonutChart extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('$total', style: Theme.of(context).textTheme.headlineSmall),
-            Text(
-              'students',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+            Text('students', style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
       ],

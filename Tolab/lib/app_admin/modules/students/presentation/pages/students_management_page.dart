@@ -98,7 +98,8 @@ class _StudentsManagementPageState extends State<StudentsManagementPage> {
                 StudentEmptyState(
                   title: 'Unable to load students',
                   subtitle:
-                      vm.state.errorMessage ?? 'Try refreshing the module again.',
+                      vm.state.errorMessage ??
+                      'Try refreshing the module again.',
                   icon: Icons.error_outline_rounded,
                 ),
               ],
@@ -120,7 +121,11 @@ class _StudentsManagementPageState extends State<StudentsManagementPage> {
           students,
           vm.state.selectedStudentId,
         );
-        final activities = _filterActivities(snapshot, vm.state.filters, students);
+        final activities = _filterActivities(
+          snapshot,
+          vm.state.filters,
+          students,
+        );
 
         return Padding(
           padding: const EdgeInsets.all(AppSpacing.md),
@@ -148,11 +153,8 @@ class _StudentsManagementPageState extends State<StudentsManagementPage> {
                   PremiumButton(
                     label: 'Add student',
                     icon: Icons.person_add_alt_1_rounded,
-                    onPressed: () => _openStudentEditor(
-                      context,
-                      store,
-                      existing: null,
-                    ),
+                    onPressed: () =>
+                        _openStudentEditor(context, store, existing: null),
                   ),
                 ],
               ),
@@ -163,122 +165,128 @@ class _StudentsManagementPageState extends State<StudentsManagementPage> {
                     _buildHero(store, vm, students),
                     if (vm.state.importPreview != null) ...[
                       const SizedBox(height: AppSpacing.lg),
-                      _buildImportReview(store, vm.state.importPreview!, vm.state),
+                      _buildImportReview(
+                        store,
+                        vm.state.importPreview!,
+                        vm.state,
+                      ),
                     ],
                     const SizedBox(height: AppSpacing.lg),
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 260),
                       child: switch (vm.state.activeTab) {
                         StudentWorkspaceTab.overview => _OverviewSection(
-                            key: const ValueKey('overview'),
-                            snapshot: snapshot,
-                            selectedStudent: selectedStudent,
-                            notificationStatus: vm.notificationStatus,
-                            onExportCsv: () => _exportRegistryCsv(students),
-                            onOpenStudent: (student) => store.dispatch(
-                              StudentsSelectedStudentChangedAction(student.id),
-                            ),
-                            onEditStudent: () => _openStudentEditor(
-                              context,
-                              store,
-                              existing: selectedStudent,
-                            ),
-                            onUploadDocuments: () =>
-                                _pickStudentDocuments(store, selectedStudent),
-                            onExportTranscript: () =>
-                                _handleTranscriptExport(store, selectedStudent),
-                            onDownloadBundle: () =>
-                                _handleDocumentBundle(store, selectedStudent),
-                            onApproveDocument: (document) => _reviewDocument(
-                              store,
-                              selectedStudent,
-                              document,
-                              StudentDocumentStatus.approved,
-                            ),
-                            onRejectDocument: (document) => _reviewDocument(
-                              store,
-                              selectedStudent,
-                              document,
-                              StudentDocumentStatus.rejected,
-                            ),
+                          key: const ValueKey('overview'),
+                          snapshot: snapshot,
+                          selectedStudent: selectedStudent,
+                          notificationStatus: vm.notificationStatus,
+                          onExportCsv: () => _exportRegistryCsv(students),
+                          onOpenStudent: (student) => store.dispatch(
+                            StudentsSelectedStudentChangedAction(student.id),
                           ),
+                          onEditStudent: () => _openStudentEditor(
+                            context,
+                            store,
+                            existing: selectedStudent,
+                          ),
+                          onUploadDocuments: () =>
+                              _pickStudentDocuments(store, selectedStudent),
+                          onExportTranscript: () =>
+                              _handleTranscriptExport(store, selectedStudent),
+                          onDownloadBundle: () =>
+                              _handleDocumentBundle(store, selectedStudent),
+                          onApproveDocument: (document) => _reviewDocument(
+                            store,
+                            selectedStudent,
+                            document,
+                            StudentDocumentStatus.approved,
+                          ),
+                          onRejectDocument: (document) => _reviewDocument(
+                            store,
+                            selectedStudent,
+                            document,
+                            StudentDocumentStatus.rejected,
+                          ),
+                        ),
                         StudentWorkspaceTab.registry => _RegistrySection(
-                            key: const ValueKey('registry'),
-                            state: vm.state,
-                            students: students,
-                            selectedStudent: selectedStudent,
-                            onSelectStudent: (studentId) => store.dispatch(
-                              StudentsSelectedStudentChangedAction(studentId),
-                            ),
-                            onToggleSelection: (studentId) => store.dispatch(
-                              StudentsToggleSelectionAction(studentId),
-                            ),
-                            onSelectAll: () => store.dispatch(
-                              StudentsSetSelectionAction(
-                                students.map((item) => item.id).toSet(),
-                              ),
-                            ),
-                            onClearSelection: () => store.dispatch(
-                              const StudentsClearSelectionAction(),
-                            ),
-                            onSort: (column) => store.dispatch(
-                              StudentsSortChangedAction(column),
-                            ),
-                            onApproveSelected: () => _runBulkAction(
-                              store,
-                              StudentBulkActionType.approveRegistrations,
-                            ),
-                            onRejectSelected: () => _runBulkAction(
-                              store,
-                              StudentBulkActionType.rejectRegistrations,
-                              needsTwoFactor: true,
-                            ),
-                            onAssignCourse: () =>
-                                _showAssignCourseDialog(context, store),
-                            onEditStudent: () => _openStudentEditor(
-                              context,
-                              store,
-                              existing: selectedStudent,
-                            ),
-                            onUploadDocuments: () =>
-                                _pickStudentDocuments(store, selectedStudent),
-                            onExportTranscript: () =>
-                                _handleTranscriptExport(store, selectedStudent),
-                            onDownloadBundle: () =>
-                                _handleDocumentBundle(store, selectedStudent),
-                            showSidePanel: isDesktop,
-                            onApproveDocument: (document) => _reviewDocument(
-                              store,
-                              selectedStudent,
-                              document,
-                              StudentDocumentStatus.approved,
-                            ),
-                            onRejectDocument: (document) => _reviewDocument(
-                              store,
-                              selectedStudent,
-                              document,
-                              StudentDocumentStatus.rejected,
+                          key: const ValueKey('registry'),
+                          state: vm.state,
+                          students: students,
+                          selectedStudent: selectedStudent,
+                          onSelectStudent: (studentId) => store.dispatch(
+                            StudentsSelectedStudentChangedAction(studentId),
+                          ),
+                          onToggleSelection: (studentId) => store.dispatch(
+                            StudentsToggleSelectionAction(studentId),
+                          ),
+                          onSelectAll: () => store.dispatch(
+                            StudentsSetSelectionAction(
+                              students.map((item) => item.id).toSet(),
                             ),
                           ),
+                          onClearSelection: () => store.dispatch(
+                            const StudentsClearSelectionAction(),
+                          ),
+                          onSort: (column) =>
+                              store.dispatch(StudentsSortChangedAction(column)),
+                          onApproveSelected: () => _runBulkAction(
+                            store,
+                            StudentBulkActionType.approveRegistrations,
+                          ),
+                          onRejectSelected: () => _runBulkAction(
+                            store,
+                            StudentBulkActionType.rejectRegistrations,
+                            needsTwoFactor: true,
+                          ),
+                          onAssignCourse: () =>
+                              _showAssignCourseDialog(context, store),
+                          onEditStudent: () => _openStudentEditor(
+                            context,
+                            store,
+                            existing: selectedStudent,
+                          ),
+                          onUploadDocuments: () =>
+                              _pickStudentDocuments(store, selectedStudent),
+                          onExportTranscript: () =>
+                              _handleTranscriptExport(store, selectedStudent),
+                          onDownloadBundle: () =>
+                              _handleDocumentBundle(store, selectedStudent),
+                          showSidePanel: isDesktop,
+                          onApproveDocument: (document) => _reviewDocument(
+                            store,
+                            selectedStudent,
+                            document,
+                            StudentDocumentStatus.approved,
+                          ),
+                          onRejectDocument: (document) => _reviewDocument(
+                            store,
+                            selectedStudent,
+                            document,
+                            StudentDocumentStatus.rejected,
+                          ),
+                        ),
                         StudentWorkspaceTab.activity => _ActivitySection(
-                            key: const ValueKey('activity'),
-                            activities: activities,
-                            studentsById: {
-                              for (final student in snapshot?.students ?? const [])
-                                student.id: student,
-                            },
-                          ),
+                          key: const ValueKey('activity'),
+                          activities: activities,
+                          studentsById: {
+                            for (final student
+                                in snapshot?.students ?? const [])
+                              student.id: student,
+                          },
+                        ),
                         StudentWorkspaceTab.groups => _GroupsSection(
-                            key: const ValueKey('groups'),
-                            snapshot: snapshot,
-                            onNotifyGroup: (group) =>
-                                _showCampaignDialog(context, store, group: group),
-                          ),
-                        StudentWorkspaceTab.communication => _CommunicationSection(
+                          key: const ValueKey('groups'),
+                          snapshot: snapshot,
+                          onNotifyGroup: (group) =>
+                              _showCampaignDialog(context, store, group: group),
+                        ),
+                        StudentWorkspaceTab.communication =>
+                          _CommunicationSection(
                             key: const ValueKey('communication'),
                             snapshot: snapshot,
                             selectedStudentIds: vm.state.selectedStudentIds,
-                            onCompose: () => _showCampaignDialog(context, store),
+                            onCompose: () =>
+                                _showCampaignDialog(context, store),
                           ),
                       },
                     ),
@@ -341,11 +349,15 @@ class _StudentsManagementPageState extends State<StudentsManagementPage> {
             runSpacing: AppSpacing.md,
             children: [
               SizedBox(
-                width: MediaQuery.sizeOf(context).width < 900 ? double.infinity : 360,
+                width: MediaQuery.sizeOf(context).width < 900
+                    ? double.infinity
+                    : 360,
                 child: TextField(
                   controller: _searchController,
                   onChanged: (value) => store.dispatch(
-                    StudentsFiltersChangedAction(filters.copyWith(query: value)),
+                    StudentsFiltersChangedAction(
+                      filters.copyWith(query: value),
+                    ),
                   ),
                   decoration: const InputDecoration(
                     hintText: 'Search name, ID, email, department, course',
@@ -371,14 +383,7 @@ class _StudentsManagementPageState extends State<StudentsManagementPage> {
               _FilterDropdown(
                 label: 'Year',
                 value: filters.year,
-                items: const [
-                  'All years',
-                  '1',
-                  '2',
-                  '3',
-                  '4',
-                  '5',
-                ],
+                items: const ['All years', '1', '2', '3', '4', '5'],
                 onChanged: (value) => store.dispatch(
                   StudentsFiltersChangedAction(filters.copyWith(year: value)),
                 ),
@@ -410,7 +415,9 @@ class _StudentsManagementPageState extends State<StudentsManagementPage> {
                   'Low (<2.5)',
                 ],
                 onChanged: (value) => store.dispatch(
-                  StudentsFiltersChangedAction(filters.copyWith(gpaBand: value)),
+                  StudentsFiltersChangedAction(
+                    filters.copyWith(gpaBand: value),
+                  ),
                 ),
               ),
               _FilterDropdown(
@@ -503,7 +510,9 @@ class _StudentsManagementPageState extends State<StudentsManagementPage> {
             children: [
               for (final alert in snapshot.alerts.take(3))
                 SizedBox(
-                  width: MediaQuery.sizeOf(context).width < 900 ? double.infinity : 280,
+                  width: MediaQuery.sizeOf(context).width < 900
+                      ? double.infinity
+                      : 280,
                   child: _AlertTile(alert: alert),
                 ),
             ],
@@ -579,7 +588,8 @@ class _StudentsManagementPageState extends State<StudentsManagementPage> {
               FilledButton.icon(
                 onPressed: state.isWorking
                     ? null
-                    : () => store.dispatch(const StudentsImportRequestedAction()),
+                    : () =>
+                          store.dispatch(const StudentsImportRequestedAction()),
                 icon: const Icon(Icons.play_arrow_rounded),
                 label: const Text('Import students'),
               ),
@@ -774,10 +784,7 @@ class _StudentsManagementPageState extends State<StudentsManagementPage> {
       if (code == null) return;
     }
     store.dispatch(
-      StudentsBulkActionRequestedAction(
-        type: type,
-        verificationCode: code,
-      ),
+      StudentsBulkActionRequestedAction(type: type, verificationCode: code),
     );
   }
 
@@ -912,9 +919,7 @@ class _OverviewSection extends StatelessWidget {
         : width > 980
         ? (width - 160) / 2
         : width - 48;
-    final watchlist = snapshot.students
-        .where((item) => item.isAtRisk)
-        .length;
+    final watchlist = snapshot.students.where((item) => item.isAtRisk).length;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -967,7 +972,8 @@ class _OverviewSection extends StatelessWidget {
               child: StudentKpiCard(
                 label: 'Attendance',
                 value: '${snapshot.averageAttendance.toStringAsFixed(0)}%',
-                caption: 'Average attendance health tracked from course records.',
+                caption:
+                    'Average attendance health tracked from course records.',
                 icon: Icons.co_present_rounded,
                 color: AppColors.secondary,
               ),
@@ -1000,7 +1006,9 @@ class _OverviewSection extends StatelessWidget {
                 ),
                 child: SizedBox(
                   height: 260,
-                  child: StudentLineTrendChart(points: snapshot.enrollmentTrend),
+                  child: StudentLineTrendChart(
+                    points: snapshot.enrollmentTrend,
+                  ),
                 ),
               ),
             ),
@@ -1044,11 +1052,15 @@ class _OverviewSection extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         LayoutBuilder(
           builder: (context, constraints) {
-            final showSide = constraints.maxWidth > 1200 && selectedStudent != null;
+            final showSide =
+                constraints.maxWidth > 1200 && selectedStudent != null;
             if (!showSide) {
               return Column(
                 children: [
-                  _PendingQueuesCard(snapshot: snapshot, onOpenStudent: onOpenStudent),
+                  _PendingQueuesCard(
+                    snapshot: snapshot,
+                    onOpenStudent: onOpenStudent,
+                  ),
                   if (selectedStudent != null) ...[
                     const SizedBox(height: AppSpacing.lg),
                     _StudentProfilePanel(
@@ -1110,7 +1122,8 @@ class _PendingQueuesCard extends StatelessWidget {
     final pending = snapshot.students
         .where(
           (item) =>
-              item.enrollmentStatus == StudentEnrollmentStatus.pendingApproval ||
+              item.enrollmentStatus ==
+                  StudentEnrollmentStatus.pendingApproval ||
               item.pendingDocumentCount > 0,
         )
         .toList(growable: false);
@@ -1141,7 +1154,8 @@ class _PendingQueuesCard extends StatelessWidget {
                   DataCell(
                     StudentStatusPill(
                       label: student.enrollmentStatus.label,
-                      color: student.enrollmentStatus ==
+                      color:
+                          student.enrollmentStatus ==
                               StudentEnrollmentStatus.pendingApproval
                           ? AppColors.warning
                           : AppColors.info,
@@ -1311,12 +1325,16 @@ class _RegistrySection extends StatelessWidget {
                     ),
                   ),
                   DataCell(Text('${student.department} • Y${student.year}')),
-                  DataCell(Text('${student.attendanceRate.toStringAsFixed(0)}%')),
+                  DataCell(
+                    Text('${student.attendanceRate.toStringAsFixed(0)}%'),
+                  ),
                   DataCell(Text(student.gpa.toStringAsFixed(2))),
                   DataCell(
                     StudentStatusPill(
                       label: student.enrollmentStatus.label,
-                      color: student.isAtRisk ? AppColors.danger : AppColors.success,
+                      color: student.isAtRisk
+                          ? AppColors.danger
+                          : AppColors.success,
                     ),
                   ),
                   DataCell(
@@ -1406,12 +1424,18 @@ class _ActivitySection extends StatelessWidget {
             for (final activity in activities)
               DataRow2(
                 cells: [
-                  DataCell(Text(studentsById[activity.studentId]?.fullName ?? 'Unknown')),
+                  DataCell(
+                    Text(
+                      studentsById[activity.studentId]?.fullName ?? 'Unknown',
+                    ),
+                  ),
                   DataCell(Text(activity.type.label)),
                   DataCell(Text(activity.courseTitle ?? 'General')),
                   DataCell(Text(activity.description)),
                   DataCell(
-                    Text(DateFormat('MMM d, HH:mm').format(activity.occurredAt)),
+                    Text(
+                      DateFormat('MMM d, HH:mm').format(activity.occurredAt),
+                    ),
                   ),
                 ],
               ),
@@ -1550,10 +1574,16 @@ class _CommunicationSection extends StatelessWidget {
                       DataCell(Text(campaign.title)),
                       DataCell(Text(campaign.audienceLabel)),
                       DataCell(Text(campaign.channel.label)),
-                      DataCell(Text('${campaign.delivered}/${campaign.recipients}')),
-                      DataCell(Text('${campaign.opened}/${campaign.recipients}')),
                       DataCell(
-                        Text(DateFormat('MMM d, HH:mm').format(campaign.sentAt)),
+                        Text('${campaign.delivered}/${campaign.recipients}'),
+                      ),
+                      DataCell(
+                        Text('${campaign.opened}/${campaign.recipients}'),
+                      ),
+                      DataCell(
+                        Text(
+                          DateFormat('MMM d, HH:mm').format(campaign.sentAt),
+                        ),
                       ),
                     ],
                   ),
@@ -1672,7 +1702,8 @@ class _StudentProfilePanel extends StatelessWidget {
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: StudentStatusPill(
-                  label: 'Attendance ${student.attendanceRate.toStringAsFixed(0)}%',
+                  label:
+                      'Attendance ${student.attendanceRate.toStringAsFixed(0)}%',
                   color: AppColors.info,
                 ),
               ),
@@ -1726,7 +1757,9 @@ class _StudentProfilePanel extends StatelessWidget {
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.insert_drive_file_outlined),
                     title: Text(document.name),
-                    subtitle: Text('${document.category} • ${document.sizeLabel}'),
+                    subtitle: Text(
+                      '${document.category} • ${document.sizeLabel}',
+                    ),
                   ),
                 ),
                 StudentStatusPill(
@@ -1750,22 +1783,24 @@ class _StudentProfilePanel extends StatelessWidget {
             ),
           ],
           const SizedBox(height: AppSpacing.lg),
-          Text('Recent activity', style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            'Recent activity',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: AppSpacing.sm),
           for (final activity in student.activities.take(4)) ...[
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(
-                switch (activity.type) {
-                  StudentActivityType.login => Icons.login_rounded,
-                  StudentActivityType.assignment => Icons.assignment_rounded,
-                  StudentActivityType.forumPost => Icons.forum_rounded,
-                  StudentActivityType.message => Icons.chat_bubble_outline_rounded,
-                  StudentActivityType.submission => Icons.upload_rounded,
-                  StudentActivityType.document => Icons.folder_rounded,
-                  StudentActivityType.approval => Icons.verified_rounded,
-                },
-              ),
+              leading: Icon(switch (activity.type) {
+                StudentActivityType.login => Icons.login_rounded,
+                StudentActivityType.assignment => Icons.assignment_rounded,
+                StudentActivityType.forumPost => Icons.forum_rounded,
+                StudentActivityType.message =>
+                  Icons.chat_bubble_outline_rounded,
+                StudentActivityType.submission => Icons.upload_rounded,
+                StudentActivityType.document => Icons.folder_rounded,
+                StudentActivityType.approval => Icons.verified_rounded,
+              }),
               title: Text(activity.title),
               subtitle: Text(activity.description),
               trailing: Text(
@@ -1839,10 +1874,7 @@ class _SecurityPanel extends StatelessWidget {
           builder: (context, snapshot) {
             final now = snapshot.data ?? DateTime.now();
             final reference = lastUpdatedAt ?? now;
-            final remaining = Duration(
-              minutes: 14,
-            ) -
-                now.difference(reference);
+            final remaining = Duration(minutes: 14) - now.difference(reference);
             final safeRemaining = remaining.isNegative
                 ? Duration.zero
                 : remaining;
@@ -1967,8 +1999,12 @@ class _StudentEditorDialogState extends State<_StudentEditorDialog> {
     _studentIdController = TextEditingController(
       text: existing?.studentNumber ?? '',
     );
-    _emailController = TextEditingController(text: existing?.contact.email ?? '');
-    _phoneController = TextEditingController(text: existing?.contact.phone ?? '');
+    _emailController = TextEditingController(
+      text: existing?.contact.email ?? '',
+    );
+    _phoneController = TextEditingController(
+      text: existing?.contact.phone ?? '',
+    );
     _addressController = TextEditingController(
       text: existing?.contact.address ?? '',
     );
@@ -1982,8 +2018,7 @@ class _StudentEditorDialogState extends State<_StudentEditorDialog> {
       text: existing == null ? '0.00' : existing.gpa.toStringAsFixed(2),
     );
     _attendanceController = TextEditingController(
-      text:
-          existing == null ? '0' : existing.attendanceRate.toStringAsFixed(0),
+      text: existing == null ? '0' : existing.attendanceRate.toStringAsFixed(0),
     );
     _notesController = TextEditingController(text: existing?.notes ?? '');
     _year = existing?.year ?? 1;
@@ -2044,7 +2079,8 @@ class _StudentEditorDialogState extends State<_StudentEditorDialog> {
                       DropdownMenuItem(value: 4, child: Text('Year 4')),
                       DropdownMenuItem(value: 5, child: Text('Year 5')),
                     ],
-                    onChanged: (value) => setState(() => _year = value ?? _year),
+                    onChanged: (value) =>
+                        setState(() => _year = value ?? _year),
                   ),
                 ),
                 SizedBox(
@@ -2066,9 +2102,8 @@ class _StudentEditorDialogState extends State<_StudentEditorDialog> {
                         child: Text('Engineering'),
                       ),
                     ],
-                    onChanged: (value) => setState(
-                      () => _department = value ?? _department,
-                    ),
+                    onChanged: (value) =>
+                        setState(() => _department = value ?? _department),
                   ),
                 ),
                 SizedBox(
@@ -2144,7 +2179,8 @@ class _StudentEditorDialogState extends State<_StudentEditorDialog> {
                     department: _department,
                     className:
                         '${_department.split(' ').first.toUpperCase()}-${_year}A',
-                    contact: widget.existing?.contact.copyWith(
+                    contact:
+                        widget.existing?.contact.copyWith(
                           email: _emailController.text.trim(),
                           phone: _phoneController.text.trim(),
                           address: _addressController.text.trim(),
@@ -2154,7 +2190,8 @@ class _StudentEditorDialogState extends State<_StudentEditorDialog> {
                           phone: _phoneController.text.trim(),
                           address: _addressController.text.trim(),
                         ),
-                    emergencyContact: widget.existing?.emergencyContact.copyWith(
+                    emergencyContact:
+                        widget.existing?.emergencyContact.copyWith(
                           name: _emergencyNameController.text.trim(),
                           phone: _emergencyPhoneController.text.trim(),
                         ) ??
@@ -2192,10 +2229,10 @@ class _StudentEditorDialogState extends State<_StudentEditorDialog> {
       child: TextFormField(
         controller: controller,
         decoration: InputDecoration(labelText: label),
-        validator: validator ??
-            (value) => (value == null || value.trim().isEmpty)
-                ? 'Required'
-                : null,
+        validator:
+            validator ??
+            (value) =>
+                (value == null || value.trim().isEmpty) ? 'Required' : null,
       ),
     );
   }
@@ -2282,10 +2319,7 @@ class _CampaignDialogState extends State<_CampaignDialog> {
               decoration: const InputDecoration(labelText: 'Channel'),
               items: [
                 for (final channel in StudentCommunicationChannel.values)
-                  DropdownMenuItem(
-                    value: channel,
-                    child: Text(channel.label),
-                  ),
+                  DropdownMenuItem(value: channel, child: Text(channel.label)),
               ],
               onChanged: (value) =>
                   setState(() => _channel = value ?? _channel),
@@ -2305,7 +2339,8 @@ class _CampaignDialogState extends State<_CampaignDialog> {
                     child: Text('All students'),
                   ),
               ],
-              onChanged: (value) => setState(() => _audience = value ?? _audience),
+              onChanged: (value) =>
+                  setState(() => _audience = value ?? _audience),
             ),
           ],
         ),
@@ -2410,48 +2445,53 @@ List<StudentProfile> _filterStudents(
   List<StudentProfile> students,
   StudentFilters filters,
 ) {
-  return students.where((student) {
-    final query = filters.query.trim().toLowerCase();
-    final matchesQuery =
-        query.isEmpty ||
-        student.fullName.toLowerCase().contains(query) ||
-        student.studentNumber.toLowerCase().contains(query) ||
-        student.contact.email.toLowerCase().contains(query) ||
-        student.department.toLowerCase().contains(query) ||
-        student.courses.any((course) => course.title.toLowerCase().contains(query));
+  return students
+      .where((student) {
+        final query = filters.query.trim().toLowerCase();
+        final matchesQuery =
+            query.isEmpty ||
+            student.fullName.toLowerCase().contains(query) ||
+            student.studentNumber.toLowerCase().contains(query) ||
+            student.contact.email.toLowerCase().contains(query) ||
+            student.department.toLowerCase().contains(query) ||
+            student.courses.any(
+              (course) => course.title.toLowerCase().contains(query),
+            );
 
-    final matchesDepartment =
-        filters.department == 'All departments' ||
-        student.department == filters.department;
-    final matchesYear =
-        filters.year == 'All years' || student.year.toString() == filters.year;
-    final matchesStatus =
-        filters.enrollmentStatus == 'All statuses' ||
-        student.enrollmentStatus.label == filters.enrollmentStatus;
-    final matchesGpa = switch (filters.gpaBand) {
-      'High (3.5+)' => student.gpa >= 3.5,
-      'Stable (2.5-3.49)' => student.gpa >= 2.5 && student.gpa < 3.5,
-      'Low (<2.5)' => student.gpa < 2.5,
-      _ => true,
-    };
-    final matchesAttendance = switch (filters.attendanceBand) {
-      'Excellent (90%+)' => student.attendanceRate >= 90,
-      'Stable (80-89%)' =>
-        student.attendanceRate >= 80 && student.attendanceRate < 90,
-      'At risk (<80%)' => student.attendanceRate < 80,
-      _ => true,
-    };
-    final matchesCourse =
-        filters.course == 'All courses' ||
-        student.courses.any((course) => course.title == filters.course);
-    return matchesQuery &&
-        matchesDepartment &&
-        matchesYear &&
-        matchesStatus &&
-        matchesGpa &&
-        matchesAttendance &&
-        matchesCourse;
-  }).toList(growable: false);
+        final matchesDepartment =
+            filters.department == 'All departments' ||
+            student.department == filters.department;
+        final matchesYear =
+            filters.year == 'All years' ||
+            student.year.toString() == filters.year;
+        final matchesStatus =
+            filters.enrollmentStatus == 'All statuses' ||
+            student.enrollmentStatus.label == filters.enrollmentStatus;
+        final matchesGpa = switch (filters.gpaBand) {
+          'High (3.5+)' => student.gpa >= 3.5,
+          'Stable (2.5-3.49)' => student.gpa >= 2.5 && student.gpa < 3.5,
+          'Low (<2.5)' => student.gpa < 2.5,
+          _ => true,
+        };
+        final matchesAttendance = switch (filters.attendanceBand) {
+          'Excellent (90%+)' => student.attendanceRate >= 90,
+          'Stable (80-89%)' =>
+            student.attendanceRate >= 80 && student.attendanceRate < 90,
+          'At risk (<80%)' => student.attendanceRate < 80,
+          _ => true,
+        };
+        final matchesCourse =
+            filters.course == 'All courses' ||
+            student.courses.any((course) => course.title == filters.course);
+        return matchesQuery &&
+            matchesDepartment &&
+            matchesYear &&
+            matchesStatus &&
+            matchesGpa &&
+            matchesAttendance &&
+            matchesCourse;
+      })
+      .toList(growable: false);
 }
 
 List<StudentActivityRecord> _filterActivities(
@@ -2460,17 +2500,19 @@ List<StudentActivityRecord> _filterActivities(
   List<StudentProfile> visibleStudents,
 ) {
   final visibleIds = visibleStudents.map((item) => item.id).toSet();
-  return (snapshot?.allActivities ?? const []).where((activity) {
-    final matchesVisibleStudent = visibleIds.contains(activity.studentId);
-    final matchesType =
-        filters.activityType == 'All activity' ||
-        activity.type.label == filters.activityType;
-    final matchesCourse =
-        filters.course == 'All courses' ||
-        activity.courseTitle == null ||
-        activity.courseTitle == filters.course;
-    return matchesVisibleStudent && matchesType && matchesCourse;
-  }).toList(growable: false);
+  return (snapshot?.allActivities ?? const [])
+      .where((activity) {
+        final matchesVisibleStudent = visibleIds.contains(activity.studentId);
+        final matchesType =
+            filters.activityType == 'All activity' ||
+            activity.type.label == filters.activityType;
+        final matchesCourse =
+            filters.course == 'All courses' ||
+            activity.courseTitle == null ||
+            activity.courseTitle == filters.course;
+        return matchesVisibleStudent && matchesType && matchesCourse;
+      })
+      .toList(growable: false);
 }
 
 List<StudentProfile> _sortStudents(
@@ -2485,7 +2527,9 @@ List<StudentProfile> _sortStudents(
       'department' => left.department.compareTo(right.department),
       'attendance' => left.attendanceRate.compareTo(right.attendanceRate),
       'gpa' => left.gpa.compareTo(right.gpa),
-      'status' => left.enrollmentStatus.label.compareTo(right.enrollmentStatus.label),
+      'status' => left.enrollmentStatus.label.compareTo(
+        right.enrollmentStatus.label,
+      ),
       _ => left.fullName.compareTo(right.fullName),
     };
     return result * factor;
@@ -2499,7 +2543,9 @@ StudentProfile? _resolveSelectedStudent(
   String? selectedStudentId,
 ) {
   if (visibleStudents.isEmpty) return null;
-  final selected = visibleStudents.where((item) => item.id == selectedStudentId);
+  final selected = visibleStudents.where(
+    (item) => item.id == selectedStudentId,
+  );
   if (selected.isNotEmpty) return selected.first;
   return snapshot?.findStudent(selectedStudentId) ?? visibleStudents.first;
 }

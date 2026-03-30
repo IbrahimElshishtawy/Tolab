@@ -251,11 +251,7 @@ class StudentContactInfo {
   final String phone;
   final String address;
 
-  StudentContactInfo copyWith({
-    String? email,
-    String? phone,
-    String? address,
-  }) {
+  StudentContactInfo copyWith({String? email, String? phone, String? address}) {
     return StudentContactInfo(
       email: email ?? this.email,
       phone: phone ?? this.phone,
@@ -271,11 +267,7 @@ class StudentContactInfo {
     );
   }
 
-  JsonMap toJson() => {
-    'email': email,
-    'phone': phone,
-    'address': address,
-  };
+  JsonMap toJson() => {'email': email, 'phone': phone, 'address': address};
 }
 
 class StudentEmergencyContact {
@@ -670,15 +662,11 @@ class StudentProfile {
           json['studentNumber']?.toString() ??
           '',
       fullName:
-          json['full_name']?.toString() ??
-          json['fullName']?.toString() ??
-          '',
+          json['full_name']?.toString() ?? json['fullName']?.toString() ?? '',
       year: _asInt(json['year']),
       department: json['department']?.toString() ?? '',
       className:
-          json['class_name']?.toString() ??
-          json['className']?.toString() ??
-          '',
+          json['class_name']?.toString() ?? json['className']?.toString() ?? '',
       contact: StudentContactInfo.fromJson(_asMap(json['contact'])),
       emergencyContact: StudentEmergencyContact.fromJson(
         _asMap(json['emergency_contact'] ?? json['emergencyContact']),
@@ -708,11 +696,8 @@ class StudentProfile {
           .map((item) => StudentGroupMembership.fromJson(_asMap(item)))
           .toList(growable: false),
       createdAt: _parseDateTime(json['created_at'] ?? json['createdAt']),
-      lastLoginAt: _parseDateTime(
-        json['last_login_at'] ?? json['lastLoginAt'],
-      ),
-      photoUrl:
-          json['photo_url']?.toString() ?? json['photoUrl']?.toString(),
+      lastLoginAt: _parseDateTime(json['last_login_at'] ?? json['lastLoginAt']),
+      photoUrl: json['photo_url']?.toString() ?? json['photoUrl']?.toString(),
       notes: json['notes']?.toString() ?? '',
     );
   }
@@ -732,9 +717,7 @@ class StudentProfile {
     'average_grade': averageGrade,
     'registration_approved': registrationApproved,
     'courses': courses.map((item) => item.toJson()).toList(growable: false),
-    'documents': documents
-        .map((item) => item.toJson())
-        .toList(growable: false),
+    'documents': documents.map((item) => item.toJson()).toList(growable: false),
     'activities': activities
         .map((item) => item.toJson())
         .toList(growable: false),
@@ -806,9 +789,9 @@ class StudentGroupRecord {
       department: json['department']?.toString() ?? '',
       year: _asInt(json['year']),
       className: json['class_name']?.toString() ?? '',
-      memberIds: _asList(json['member_ids'])
-          .map((item) => item.toString())
-          .toList(growable: false),
+      memberIds: _asList(
+        json['member_ids'],
+      ).map((item) => item.toString()).toList(growable: false),
       leaderId: json['leader_id']?.toString() ?? '',
       representativeId: json['representative_id']?.toString() ?? '',
       courseTitle: json['course_title']?.toString() ?? '',
@@ -872,9 +855,9 @@ class StudentMessageCampaign {
       recipients: _asInt(json['recipients']),
       delivered: _asInt(json['delivered']),
       opened: _asInt(json['opened']),
-      recipientStudentIds: _asList(json['recipient_student_ids'])
-          .map((item) => item.toString())
-          .toList(growable: false),
+      recipientStudentIds: _asList(
+        json['recipient_student_ids'],
+      ).map((item) => item.toString()).toList(growable: false),
       groupId: json['group_id']?.toString(),
     );
   }
@@ -1100,18 +1083,12 @@ class StudentModuleSnapshot {
 
   double get averageAttendance => students.isEmpty
       ? 0
-      : students.fold<double>(
-              0,
-              (sum, item) => sum + item.attendanceRate,
-            ) /
+      : students.fold<double>(0, (sum, item) => sum + item.attendanceRate) /
             students.length;
 
   double get averageGrade => students.isEmpty
       ? 0
-      : students.fold<double>(
-              0,
-              (sum, item) => sum + item.averageGrade,
-            ) /
+      : students.fold<double>(0, (sum, item) => sum + item.averageGrade) /
             students.length;
 
   List<StudentActivityRecord> get allActivities {
@@ -1173,11 +1150,10 @@ class StudentModuleSnapshot {
       alerts: _asList(json['alerts'])
           .map((item) => StudentModuleAlert.fromJson(_asMap(item)))
           .toList(growable: false),
-      enrollmentTrend: _asList(
-        json['enrollment_trend'] ?? json['enrollmentTrend'],
-      )
-          .map((item) => StudentEnrollmentPoint.fromJson(_asMap(item)))
-          .toList(growable: false),
+      enrollmentTrend:
+          _asList(json['enrollment_trend'] ?? json['enrollmentTrend'])
+              .map((item) => StudentEnrollmentPoint.fromJson(_asMap(item)))
+              .toList(growable: false),
       generatedAt: _parseDateTime(json['generated_at'] ?? json['generatedAt']),
     );
   }
@@ -1185,9 +1161,7 @@ class StudentModuleSnapshot {
   JsonMap toJson() => {
     'students': students.map((item) => item.toJson()).toList(growable: false),
     'groups': groups.map((item) => item.toJson()).toList(growable: false),
-    'campaigns': campaigns
-        .map((item) => item.toJson())
-        .toList(growable: false),
+    'campaigns': campaigns.map((item) => item.toJson()).toList(growable: false),
     'alerts': alerts.map((item) => item.toJson()).toList(growable: false),
     'enrollment_trend': enrollmentTrend
         .map((item) => item.toJson())

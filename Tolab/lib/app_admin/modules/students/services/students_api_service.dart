@@ -17,10 +17,7 @@ class StudentsApiService {
     );
   }
 
-  Future<void> saveStudent(
-    StudentProfile student, {
-    String? verificationCode,
-  }) {
+  Future<void> saveStudent(StudentProfile student, {String? verificationCode}) {
     final payload = {
       ...student.toJson(),
       if (verificationCode != null && verificationCode.isNotEmpty)
@@ -30,16 +27,8 @@ class StudentsApiService {
         ? '/admin/students'
         : '/admin/students/${student.id}';
     final request = student.id.isEmpty
-        ? _apiClient.post<void>(
-            path,
-            data: payload,
-            decoder: (_) => null,
-          )
-        : _apiClient.put<void>(
-            path,
-            data: payload,
-            decoder: (_) => null,
-          );
+        ? _apiClient.post<void>(path, data: payload, decoder: (_) => null)
+        : _apiClient.put<void>(path, data: payload, decoder: (_) => null);
     return request;
   }
 
@@ -72,10 +61,7 @@ class StudentsApiService {
     final formData = FormData.fromMap({
       'documents': [
         for (final file in files)
-          MultipartFile.fromBytes(
-            file.bytes,
-            filename: file.name,
-          ),
+          MultipartFile.fromBytes(file.bytes, filename: file.name),
       ],
     });
     return _apiClient.multipart<void>(

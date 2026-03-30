@@ -56,7 +56,9 @@ class StudentsRepository {
       students: _sortStudents(students),
       alerts: [
         _alert(
-          title: isNew ? 'New student profile added' : 'Student profile updated',
+          title: isNew
+              ? 'New student profile added'
+              : 'Student profile updated',
           body: '${nextStudent.fullName} is synced with the admin registry.',
           severity: StudentAlertSeverity.success,
           badgeLabel: 'Profile',
@@ -150,8 +152,7 @@ class StudentsRepository {
             ],
             activities: [
               _activity(
-                id:
-                    '${student.id}-course-${timestamp.microsecondsSinceEpoch}',
+                id: '${student.id}-course-${timestamp.microsecondsSinceEpoch}',
                 studentId: student.id,
                 type: StudentActivityType.approval,
                 title: 'Course assigned',
@@ -287,7 +288,10 @@ class StudentsRepository {
         ...student.activities,
       ],
     );
-    _snapshot = _snapshot.copyWith(students: students, generatedAt: DateTime.now());
+    _snapshot = _snapshot.copyWith(
+      students: students,
+      generatedAt: DateTime.now(),
+    );
 
     try {
       await _apiService.updateDocumentStatus(
@@ -442,11 +446,14 @@ class StudentsRepository {
 
       final studentNumber = row.studentNumber.trim();
       final email = row.contact.email.trim();
-      if (studentNumber.isEmpty || email.isEmpty || row.fullName.trim().isEmpty) {
+      if (studentNumber.isEmpty ||
+          email.isEmpty ||
+          row.fullName.trim().isEmpty) {
         failed++;
         continue;
       }
-      if (existingIds.contains(studentNumber) || existingEmails.contains(email)) {
+      if (existingIds.contains(studentNumber) ||
+          existingEmails.contains(email)) {
         duplicateCount++;
         continue;
       }
@@ -461,7 +468,8 @@ class StudentsRepository {
       alerts: [
         _alert(
           title: 'Bulk upload completed',
-          body: '$imported students imported, $duplicateCount duplicates skipped.',
+          body:
+              '$imported students imported, $duplicateCount duplicates skipped.',
           severity: StudentAlertSeverity.success,
           badgeLabel: 'Import',
         ),
@@ -493,15 +501,14 @@ class StudentsRepository {
         build: (context) => [
           pw.Text(
             'Tolab Academy Transcript',
-            style: pw.TextStyle(
-              fontSize: 22,
-              fontWeight: pw.FontWeight.bold,
-            ),
+            style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold),
           ),
           pw.SizedBox(height: 10),
           pw.Text('${student.fullName}  •  ${student.studentNumber}'),
           pw.Text('${student.department}  •  Year ${student.year}'),
-          pw.Text('GPA ${student.gpa.toStringAsFixed(2)}  •  Attendance ${student.attendanceRate.toStringAsFixed(0)}%'),
+          pw.Text(
+            'GPA ${student.gpa.toStringAsFixed(2)}  •  Attendance ${student.attendanceRate.toStringAsFixed(0)}%',
+          ),
           pw.SizedBox(height: 18),
           pw.Table.fromTextArray(
             headers: const [
@@ -544,10 +551,7 @@ class StudentsRepository {
         build: (context) => [
           pw.Text(
             'Student Management Analytics',
-            style: pw.TextStyle(
-              fontSize: 22,
-              fontWeight: pw.FontWeight.bold,
-            ),
+            style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold),
           ),
           pw.SizedBox(height: 16),
           pw.Wrap(
@@ -578,7 +582,8 @@ class StudentsRepository {
           pw.Table.fromTextArray(
             headers: const ['Department', 'Students'],
             data: [
-              for (final item in distribution) [item.key, item.value.toString()],
+              for (final item in distribution)
+                [item.key, item.value.toString()],
             ],
           ),
           pw.SizedBox(height: 18),
@@ -619,13 +624,7 @@ class StudentsRepository {
               ].join('\n'),
             ),
           );
-      archive.addFile(
-        ArchiveFile(
-          document.name,
-          bytes.length,
-          bytes,
-        ),
-      );
+      archive.addFile(ArchiveFile(document.name, bytes.length, bytes));
     }
 
     try {
@@ -1019,7 +1018,8 @@ StudentProfile _studentSeed({
       studentId: id,
       type: StudentActivityType.login,
       title: 'Latest login',
-      description: 'Student accessed the academy portal from the web dashboard.',
+      description:
+          'Student accessed the academy portal from the web dashboard.',
       occurredAt: lastLoginAt,
     ),
     _activity(
@@ -1088,11 +1088,7 @@ StudentProfile _studentSeed({
     year: year,
     department: department,
     className: className,
-    contact: StudentContactInfo(
-      email: email,
-      phone: phone,
-      address: address,
-    ),
+    contact: StudentContactInfo(email: email, phone: phone, address: address),
     emergencyContact: StudentEmergencyContact(
       name: emergencyName,
       relationship: emergencyRelationship,
@@ -1136,10 +1132,9 @@ StudentProfile _studentSeed({
       for (final groupId in groupIds)
         StudentGroupMembership(
           groupId: groupId,
-          roleLabel:
-              enrollmentStatus == StudentEnrollmentStatus.active
-                  ? 'Leader'
-                  : 'Representative',
+          roleLabel: enrollmentStatus == StudentEnrollmentStatus.active
+              ? 'Leader'
+              : 'Representative',
         ),
     ],
     createdAt: now.subtract(const Duration(days: 120)),
@@ -1264,9 +1259,8 @@ String _formatFileSize(int bytes) {
 }
 
 List<StudentProfile> _sortStudents(List<StudentProfile> students) {
-  final items = [...students]..sort(
-    (left, right) => left.fullName.compareTo(right.fullName),
-  );
+  final items = [...students]
+    ..sort((left, right) => left.fullName.compareTo(right.fullName));
   return List<StudentProfile>.unmodifiable(items);
 }
 
@@ -1331,7 +1325,8 @@ List<List<String>> _parseCsv(String content) {
   for (var index = 0; index < content.length; index++) {
     final char = content[index];
     if (char == '"') {
-      final nextIsQuote = index + 1 < content.length && content[index + 1] == '"';
+      final nextIsQuote =
+          index + 1 < content.length && content[index + 1] == '"';
       if (insideQuotes && nextIsQuote) {
         buffer.write('"');
         index++;
@@ -1378,9 +1373,8 @@ List<StudentProfile> _rowsFromPreview(StudentImportPreview preview) {
         id: '',
         studentNumber: row[mapping[StudentImportField.studentId] ?? ''] ?? '',
         fullName: row[mapping[StudentImportField.fullName] ?? ''] ?? '',
-        year: int.tryParse(
-              row[mapping[StudentImportField.year] ?? ''] ?? '',
-            ) ??
+        year:
+            int.tryParse(row[mapping[StudentImportField.year] ?? ''] ?? '') ??
             1,
         department:
             row[mapping[StudentImportField.department] ?? ''] ??
@@ -1400,9 +1394,11 @@ List<StudentProfile> _rowsFromPreview(StudentImportPreview preview) {
         enrollmentStatus: StudentEnrollmentStatusX.fromValue(
           row[mapping[StudentImportField.status] ?? ''],
         ),
-        gpa: double.tryParse(row[mapping[StudentImportField.gpa] ?? ''] ?? '') ??
+        gpa:
+            double.tryParse(row[mapping[StudentImportField.gpa] ?? ''] ?? '') ??
             0,
-        attendanceRate: double.tryParse(
+        attendanceRate:
+            double.tryParse(
               row[mapping[StudentImportField.attendance] ?? ''] ?? '',
             ) ??
             0,
@@ -1416,8 +1412,11 @@ List<StudentProfile> _rowsFromPreview(StudentImportPreview preview) {
         courses: [
           StudentCourseGrade(
             id: 'import-${row.hashCode}',
-            code: _courseCode(row[mapping[StudentImportField.course] ?? ''] ?? 'Orientation'),
-            title: row[mapping[StudentImportField.course] ?? ''] ?? 'Orientation',
+            code: _courseCode(
+              row[mapping[StudentImportField.course] ?? ''] ?? 'Orientation',
+            ),
+            title:
+                row[mapping[StudentImportField.course] ?? ''] ?? 'Orientation',
             instructor: 'Pending assignment',
             semester: 'Spring 2026',
             credits: 3,

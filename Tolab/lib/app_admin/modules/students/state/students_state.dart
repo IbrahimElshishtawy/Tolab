@@ -324,8 +324,7 @@ StudentsState studentsReducer(StudentsState state, dynamic action) {
         status: LoadStatus.success,
         snapshot: action.snapshot,
         selectedStudentId:
-            state.selectedStudentId ??
-            action.snapshot.students.firstOrNull?.id,
+            state.selectedStudentId ?? action.snapshot.students.firstOrNull?.id,
         lastUpdatedAt: DateTime.now(),
         clearError: true,
       );
@@ -451,12 +450,18 @@ List<Middleware<AppState>> createStudentsMiddleware(AppDependencies deps) {
         );
       }
     }).call,
-    TypedMiddleware<AppState, StudentsImportRequestedAction>((store, action, next) async {
+    TypedMiddleware<AppState, StudentsImportRequestedAction>((
+      store,
+      action,
+      next,
+    ) async {
       store.dispatch(const StudentsAsyncStartedAction());
       next(action);
       final preview = store.state.studentsState.importPreview;
       if (preview == null) {
-        store.dispatch(const StudentsFailedAction('No import preview is ready.'));
+        store.dispatch(
+          const StudentsFailedAction('No import preview is ready.'),
+        );
         return;
       }
       try {
@@ -515,7 +520,9 @@ List<Middleware<AppState>> createStudentsMiddleware(AppDependencies deps) {
     ) async {
       store.dispatch(const StudentsAsyncStartedAction());
       next(action);
-      final ids = action.studentIds ?? store.state.studentsState.selectedStudentIds.toList();
+      final ids =
+          action.studentIds ??
+          store.state.studentsState.selectedStudentIds.toList();
       if (ids.isEmpty) {
         store.dispatch(
           const StudentsFailedAction('Select at least one student first.'),
@@ -600,7 +607,8 @@ List<Middleware<AppState>> createStudentsMiddleware(AppDependencies deps) {
         _queueToast(
           store,
           title: 'Document review',
-          body: 'Student document marked as ${action.status.label.toLowerCase()}.',
+          body:
+              'Student document marked as ${action.status.label.toLowerCase()}.',
           category: AdminNotificationCategory.system,
         );
       } catch (error) {
@@ -698,7 +706,11 @@ List<Middleware<AppState>> createStudentsMiddleware(AppDependencies deps) {
         store.dispatch(StudentsFailedAction(error.toString()));
       }
     }).call,
-    TypedMiddleware<AppState, IncomingNotificationAction>((store, action, next) {
+    TypedMiddleware<AppState, IncomingNotificationAction>((
+      store,
+      action,
+      next,
+    ) {
       next(action);
       final notification = action.notification;
       final isStudentAlert =
@@ -717,8 +729,10 @@ List<Middleware<AppState>> createStudentsMiddleware(AppDependencies deps) {
             severity: switch (notification.category) {
               AdminNotificationCategory.system => StudentAlertSeverity.warning,
               AdminNotificationCategory.messages => StudentAlertSeverity.info,
-              AdminNotificationCategory.announcements => StudentAlertSeverity.success,
-              AdminNotificationCategory.academic => StudentAlertSeverity.critical,
+              AdminNotificationCategory.announcements =>
+                StudentAlertSeverity.success,
+              AdminNotificationCategory.academic =>
+                StudentAlertSeverity.critical,
             },
             createdAt: notification.createdAt,
             badgeLabel: notification.category.label,

@@ -34,12 +34,12 @@ class StudentGlassPanel extends StatelessWidget {
                 gradient ??
                 LinearGradient(
                   colors: [
-                    Theme.of(context).cardColor.withValues(
-                      alpha: isDark ? 0.80 : 0.88,
-                    ),
-                    Theme.of(context).cardColor.withValues(
-                      alpha: isDark ? 0.62 : 0.74,
-                    ),
+                    Theme.of(
+                      context,
+                    ).cardColor.withValues(alpha: isDark ? 0.80 : 0.88),
+                    Theme.of(
+                      context,
+                    ).cardColor.withValues(alpha: isDark ? 0.62 : 0.74),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -228,11 +228,7 @@ class StudentEmptyState extends StatelessWidget {
 }
 
 class StudentAvatar extends StatelessWidget {
-  const StudentAvatar({
-    super.key,
-    required this.name,
-    this.radius = 22,
-  });
+  const StudentAvatar({super.key, required this.name, this.radius = 22});
 
   final String name;
   final double radius;
