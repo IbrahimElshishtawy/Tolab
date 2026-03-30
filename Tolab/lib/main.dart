@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-import 'app/app.dart';
+import 'academy_panel_app.dart';
 import 'app/core/services/app_dependencies.dart';
-import 'app/state/store.dart';
+import 'academy_panel/state/academy_store.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final dependencies = await AppDependencies.initialize();
-  final store = createAppStore(dependencies);
-  runApp(TolabAdminApp(store: store));
+  final store = createAcademyStore(dependencies);
+  runApp(AcademyPanelApp(store: store));
 }
