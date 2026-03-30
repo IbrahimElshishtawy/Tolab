@@ -69,142 +69,214 @@ class _SettingsScreenState extends State<SettingsScreen> {
         final bundle = state.bundle;
         final isBusy = state.saveStatus == LoadStatus.loading;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            PageHeader(
-              title: 'Settings',
-              subtitle:
-                  'Production-ready academy configuration for branding, security, realtime operations, backend integrations, and backup control.',
-              breadcrumbs: const ['Admin', 'Preferences', 'Settings'],
-              actions: [
-                FilledButton.icon(
-                  onPressed: isBusy
-                      ? null
-                      : () => _dispatch(
-                          context,
-                          const CreateSettingsBackupRequestedAction(),
-                        ),
-                  icon: const Icon(Icons.backup_rounded),
-                  label: Text(
-                    state.saveStatus == LoadStatus.loading
-                        ? 'Working...'
-                        : 'Create Backup',
-                  ),
-                ),
-                OutlinedButton.icon(
-                  onPressed: state.hasPendingChanges && !isBusy
-                      ? () => _dispatch(
-                          context,
-                          const RevertSettingsChangesAction(),
-                        )
-                      : null,
-                  icon: const Icon(Icons.undo_rounded),
-                  label: const Text('Revert'),
-                ),
-                FilledButton.icon(
-                  onPressed: state.hasPendingChanges && !isBusy
-                      ? () => _dispatch(
-                          context,
-                          const SaveSettingsRequestedAction(),
-                        )
-                      : null,
-                  icon: const Icon(Icons.save_rounded),
-                  label: const Text('Save Changes'),
-                ),
-              ],
+        final header = PageHeader(
+          title: 'Settings',
+          subtitle:
+              'Production-ready academy configuration for branding, security, realtime operations, backend integrations, and backup control.',
+          breadcrumbs: const ['Admin', 'Preferences'],
+          actions: [
+            FilledButton.icon(
+              onPressed: isBusy
+                  ? null
+                  : () => _dispatch(
+                      context,
+                      const CreateSettingsBackupRequestedAction(),
+                    ),
+              icon: const Icon(Icons.backup_rounded),
+              label: Text(
+                state.saveStatus == LoadStatus.loading
+                    ? 'Working...'
+                    : 'Create Backup',
+              ),
             ),
-            const SizedBox(height: AppSpacing.lg),
-            SettingsGlassCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            OutlinedButton.icon(
+              onPressed: state.hasPendingChanges && !isBusy
+                  ? () =>
+                        _dispatch(context, const RevertSettingsChangesAction())
+                  : null,
+              icon: const Icon(Icons.undo_rounded),
+              label: const Text('Revert'),
+            ),
+            FilledButton.icon(
+              onPressed: state.hasPendingChanges && !isBusy
+                  ? () =>
+                        _dispatch(context, const SaveSettingsRequestedAction())
+                  : null,
+              icon: const Icon(Icons.save_rounded),
+              label: const Text('Save Changes'),
+            ),
+          ],
+        );
+
+        final hero = SettingsGlassCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
                 children: [
-                  Wrap(
-                    spacing: AppSpacing.sm,
-                    runSpacing: AppSpacing.sm,
-                    children: [
-                      SettingsStatChip(
-                        label: 'Workspace',
-                        value: bundle.general.academyName,
-                        icon: Icons.apartment_rounded,
-                      ),
-                      SettingsStatChip(
-                        label: 'Notifications',
-                        value: '${vm.unreadCount} unread',
-                        icon: Icons.notifications_active_rounded,
-                      ),
-                      SettingsStatChip(
-                        label: 'Connection',
-                        value: vm.notificationStatus,
-                        icon: Icons.wifi_tethering_rounded,
-                      ),
-                      SettingsStatChip(
-                        label: 'Sync',
-                        value: bundle.isSynced ? 'Synced' : 'Local only',
-                        icon: bundle.isSynced
-                            ? Icons.cloud_done_rounded
-                            : Icons.cloud_off_rounded,
-                      ),
-                    ],
+                  SettingsStatChip(
+                    label: 'Workspace',
+                    value: bundle.general.academyName,
+                    icon: Icons.apartment_rounded,
                   ),
-                  const SizedBox(height: AppSpacing.lg),
-                  Text(
-                    bundle.general.appName,
-                    style: Theme.of(context).textTheme.headlineSmall,
+                  SettingsStatChip(
+                    label: 'Notifications',
+                    value: '${vm.unreadCount} unread',
+                    icon: Icons.notifications_active_rounded,
                   ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    'Last updated ${_formatDateTime(bundle.updatedAt)} | Theme ${bundle.themeMode.name} | ${bundle.general.timezone}',
-                    style: Theme.of(context).textTheme.bodySmall,
+                  SettingsStatChip(
+                    label: 'Connection',
+                    value: vm.notificationStatus,
+                    icon: Icons.wifi_tethering_rounded,
+                  ),
+                  SettingsStatChip(
+                    label: 'Sync',
+                    value: bundle.isSynced ? 'Synced' : 'Local only',
+                    icon: bundle.isSynced
+                        ? Icons.cloud_done_rounded
+                        : Icons.cloud_off_rounded,
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final isWide = constraints.maxWidth >= 1120;
-                  final nav = _buildSectionNavigation(
-                    context,
-                    selected: state.selectedSection,
-                    wide: isWide,
-                  );
-                  final content = AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 260),
-                    child: KeyedSubtree(
-                      key: ValueKey(state.selectedSection),
-                      child: _buildSectionContent(
-                        context,
-                        vm,
-                        constraints.maxWidth - (isWide ? 340 : 0),
-                      ),
-                    ),
-                  );
-
-                  if (!isWide) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        nav,
-                        const SizedBox(height: AppSpacing.md),
-                        Expanded(child: content),
-                      ],
-                    );
-                  }
-
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(width: 320, child: nav),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(child: content),
-                    ],
-                  );
-                },
+              const SizedBox(height: AppSpacing.lg),
+              Text(
+                bundle.general.appName,
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
-            ),
-          ],
+              const SizedBox(height: AppSpacing.xs),
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                children: const [
+                  Chip(label: Text('Security')),
+                  Chip(label: Text('Notifications')),
+                  Chip(label: Text('Backup')),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                'Last updated ${_formatDateTime(bundle.updatedAt)} | Theme ${bundle.themeMode.name} | ${bundle.general.timezone}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+        );
+
+        final body = Expanded(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth >= 1120;
+              final nav = _buildSectionNavigation(
+                context,
+                selected: state.selectedSection,
+                wide: isWide,
+              );
+              final content = AnimatedSwitcher(
+                duration: const Duration(milliseconds: 260),
+                child: KeyedSubtree(
+                  key: ValueKey(state.selectedSection),
+                  child: _buildSectionContent(
+                    context,
+                    vm,
+                    constraints.maxWidth - (isWide ? 340 : 0),
+                  ),
+                ),
+              );
+
+              if (!isWide) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    nav,
+                    const SizedBox(height: AppSpacing.md),
+                    Expanded(child: content),
+                  ],
+                );
+              }
+
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(width: 320, child: nav),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(child: content),
+                ],
+              );
+            },
+          ),
+        );
+
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxHeight < 720) {
+              return ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  header,
+                  const SizedBox(height: AppSpacing.lg),
+                  hero,
+                  const SizedBox(height: AppSpacing.lg),
+                  SizedBox(
+                    height: constraints.maxHeight * 0.78,
+                    child: LayoutBuilder(
+                      builder: (context, inner) {
+                        final isWide = inner.maxWidth >= 1120;
+                        final nav = _buildSectionNavigation(
+                          context,
+                          selected: state.selectedSection,
+                          wide: isWide,
+                        );
+                        final content = AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 260),
+                          child: KeyedSubtree(
+                            key: ValueKey(state.selectedSection),
+                            child: _buildSectionContent(
+                              context,
+                              vm,
+                              inner.maxWidth - (isWide ? 340 : 0),
+                            ),
+                          ),
+                        );
+
+                        if (!isWide) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              nav,
+                              const SizedBox(height: AppSpacing.md),
+                              Expanded(child: content),
+                            ],
+                          );
+                        }
+
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(width: 320, child: nav),
+                            const SizedBox(width: AppSpacing.md),
+                            Expanded(child: content),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                header,
+                const SizedBox(height: AppSpacing.lg),
+                hero,
+                const SizedBox(height: AppSpacing.lg),
+                body,
+              ],
+            );
+          },
         );
       },
     );
@@ -259,10 +331,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     double width,
   ) {
     final state = vm.settingsState;
-    if (state.loadStatus == LoadStatus.loading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     return SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: AppSpacing.xl),
       child: switch (state.selectedSection) {
