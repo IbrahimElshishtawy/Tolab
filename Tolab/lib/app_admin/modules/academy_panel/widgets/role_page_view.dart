@@ -11,6 +11,8 @@ import '../../../core/spacing/app_spacing.dart';
 import '../../../core/widgets/app_card.dart';
 import '../models/academy_models.dart';
 
+const double _pinnedStatusHeaderExtent = 84;
+
 class RolePageView extends StatefulWidget {
   const RolePageView({
     super.key,
@@ -201,6 +203,7 @@ class _RolePageViewState extends State<RolePageView> {
             pinned: true,
             delegate: _PinnedStatusHeaderDelegate(
               child: AppCard(
+                height: _pinnedStatusHeaderExtent,
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.lg,
                   vertical: AppSpacing.md,
@@ -813,10 +816,10 @@ class _PinnedStatusHeaderDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
 
   @override
-  double get minExtent => 84;
+  double get minExtent => _pinnedStatusHeaderExtent;
 
   @override
-  double get maxExtent => 84;
+  double get maxExtent => _pinnedStatusHeaderExtent;
 
   @override
   Widget build(
