@@ -10,6 +10,10 @@ set(BINARY_NAME "tolab_fci")
 # versions of CMake.
 cmake_policy(VERSION 3.14...3.25)
 
+# Prefer project-local CMake module overrides before falling back to the
+# machine-wide Visual Studio CMake installation.
+list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 # Define build configuration option.
 get_property(IS_MULTICONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(IS_MULTICONFIG)
