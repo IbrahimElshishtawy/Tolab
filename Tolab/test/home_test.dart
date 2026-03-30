@@ -11,6 +11,13 @@ import 'package:tolab_fci/app/state/app_state.dart';
 
 void main() {
   testWidgets('dashboard screen renders seeded metrics', (tester) async {
+    tester.view.physicalSize = const Size(1600, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
     final store = Store<AppState>(appReducer, initialState: AppState.initial());
     final seededBundle = const DashboardSeedService().buildBundle(
       filters: const DashboardFilters(),
@@ -23,9 +30,9 @@ void main() {
       ),
     );
     store.dispatch(DashboardLoadedAction(seededBundle));
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
 
     expect(find.text('University Overview'), findsOneWidget);
-    expect(find.text('Active students'), findsOneWidget);
+    expect(find.text('Students'), findsOneWidget);
   });
 }

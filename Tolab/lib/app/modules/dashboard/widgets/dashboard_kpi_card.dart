@@ -29,6 +29,7 @@ class DashboardKpiCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 height: 52,
@@ -41,28 +42,39 @@ class DashboardKpiCard extends StatelessWidget {
                 ),
                 child: Icon(_metricIcon(metric.id), color: accent),
               ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm,
-                  vertical: AppSpacing.xs,
-                ),
-                decoration: BoxDecoration(
-                  color: surface,
-                  borderRadius: BorderRadius.circular(AppConstants.pillRadius),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(trendIcon, size: 16, color: accent),
-                    const SizedBox(width: 6),
-                    Text(
-                      metric.deltaLabel,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.labelMedium?.copyWith(color: accent),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                        vertical: AppSpacing.xs,
+                      ),
+                      decoration: BoxDecoration(
+                        color: surface,
+                        borderRadius: BorderRadius.circular(
+                          AppConstants.pillRadius,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(trendIcon, size: 16, color: accent),
+                          const SizedBox(width: 6),
+                          Text(
+                            metric.deltaLabel,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.labelMedium?.copyWith(color: accent),
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ],

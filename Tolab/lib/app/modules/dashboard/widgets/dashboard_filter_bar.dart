@@ -143,6 +143,7 @@ class _FilterDropdown extends StatelessWidget {
         initialValue: options.any((option) => option.id == value)
             ? value
             : null,
+        isExpanded: true,
         items: [
           DropdownMenuItem<String?>(value: null, child: Text('All $label')),
           ...options.map(
