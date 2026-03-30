@@ -41,61 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCmS5XFMERMZ6RqFFZ8_oa5Qe3YcLSZ-S0',
-    appId: '1:168050637950:web:3babe741ea3a35740aec2f',
-    messagingSenderId: '168050637950',
-    projectId: 'tolab-e1b84',
-    authDomain: 'tolab-e1b84.firebaseapp.com',
-    databaseURL: 'https://tolab-e1b84-default-rtdb.firebaseio.com',
-    storageBucket: 'tolab-e1b84.firebasestorage.app',
-    measurementId: 'G-7R397HKHWF',
+    apiKey: 'AIzaSyC47EPcE1muGpBLQGW56w8qVX3exq8TOEA',
+    appId: '1:1023201199148:web:eafa989672b383671c3d89',
+    messagingSenderId: '1023201199148',
+    projectId: 'tolab-fci',
+    authDomain: 'tolab-fci.firebaseapp.com',
+    storageBucket: 'tolab-fci.firebasestorage.app',
+    measurementId: 'G-JZ63PM4VRR',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC3Gt-paXdiUl7FR42asDauoHj5DmWr4gc',
-    appId: '1:168050637950:android:27277792b18f19680aec2f',
-    messagingSenderId: '168050637950',
-    projectId: 'tolab-e1b84',
-    databaseURL: 'https://tolab-e1b84-default-rtdb.firebaseio.com',
-    storageBucket: 'tolab-e1b84.firebasestorage.app',
+    apiKey: 'AIzaSyAv36_pKEvfOaDGzzXteZvwMUagZYDPa_Q',
+    appId: '1:1023201199148:android:886cd34d3c86cf1d1c3d89',
+    messagingSenderId: '1023201199148',
+    projectId: 'tolab-fci',
+    storageBucket: 'tolab-fci.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAh26MjDkS9ovjsatkRR3RItAqwZQOjpNE',
-    appId: '1:168050637950:ios:d306b318502e15310aec2f',
-    messagingSenderId: '168050637950',
-    projectId: 'tolab-e1b84',
-    databaseURL: 'https://tolab-e1b84-default-rtdb.firebaseio.com',
-    storageBucket: 'tolab-e1b84.firebasestorage.app',
-    androidClientId:
-        '168050637950-vt629lofge2cscbd4m3mtql3nic64fft.apps.googleusercontent.com',
-    iosClientId:
-        '168050637950-1jlle7e7qu8fjqqr5f8i98gm28ca34pr.apps.googleusercontent.com',
+    apiKey: 'AIzaSyBUIfAYziseqxZFLuHIJxj-1s78my-g0ss',
+    appId: '1:1023201199148:ios:52a037936f4a09551c3d89',
+    messagingSenderId: '1023201199148',
+    projectId: 'tolab-fci',
+    storageBucket: 'tolab-fci.firebasestorage.app',
     iosBundleId: 'com.example.tolabFci',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAh26MjDkS9ovjsatkRR3RItAqwZQOjpNE',
-    appId: '1:168050637950:ios:d306b318502e15310aec2f',
-    messagingSenderId: '168050637950',
-    projectId: 'tolab-e1b84',
-    databaseURL: 'https://tolab-e1b84-default-rtdb.firebaseio.com',
-    storageBucket: 'tolab-e1b84.firebasestorage.app',
-    androidClientId:
-        '168050637950-vt629lofge2cscbd4m3mtql3nic64fft.apps.googleusercontent.com',
-    iosClientId:
-        '168050637950-1jlle7e7qu8fjqqr5f8i98gm28ca34pr.apps.googleusercontent.com',
+    apiKey: 'AIzaSyBUIfAYziseqxZFLuHIJxj-1s78my-g0ss',
+    appId: '1:1023201199148:ios:52a037936f4a09551c3d89',
+    messagingSenderId: '1023201199148',
+    projectId: 'tolab-fci',
+    storageBucket: 'tolab-fci.firebasestorage.app',
     iosBundleId: 'com.example.tolabFci',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCmS5XFMERMZ6RqFFZ8_oa5Qe3YcLSZ-S0',
-    appId: '1:168050637950:web:f24d806470f264e70aec2f',
-    messagingSenderId: '168050637950',
-    projectId: 'tolab-e1b84',
-    authDomain: 'tolab-e1b84.firebaseapp.com',
-    databaseURL: 'https://tolab-e1b84-default-rtdb.firebaseio.com',
-    storageBucket: 'tolab-e1b84.firebasestorage.app',
-    measurementId: 'G-7X3WCSM3EC',
+    apiKey: 'AIzaSyC47EPcE1muGpBLQGW56w8qVX3exq8TOEA',
+    appId: '1:1023201199148:web:f3c34adf68d1fbe31c3d89',
+    messagingSenderId: '1023201199148',
+    projectId: 'tolab-fci',
+    authDomain: 'tolab-fci.firebaseapp.com',
+    storageBucket: 'tolab-fci.firebasestorage.app',
+    measurementId: 'G-3XJ17XD08P',
   );
+
 }
