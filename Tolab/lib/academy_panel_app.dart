@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 
-import 'academy_panel/routing/academy_router.dart';
-import 'academy_panel/state/academy_state.dart';
-import 'academy_panel/widgets/toast_host.dart';
+import 'app/modules/academy_panel/routing/academy_router.dart';
+import 'app/modules/academy_panel/state/academy_state.dart';
+import 'app/modules/academy_panel/widgets/toast_host.dart';
 import 'app/core/theme/app_theme.dart';
 
 class AcademyPanelApp extends StatefulWidget {
