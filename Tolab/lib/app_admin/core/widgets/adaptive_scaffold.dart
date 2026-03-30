@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
-
 import '../../shared/widgets/status_badge.dart';
 import '../animations/app_motion.dart';
 import '../colors/app_colors.dart';
@@ -485,7 +483,7 @@ class _TopBar extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final showSearch = constraints.maxWidth > 760;
+          final showContextStrip = constraints.maxWidth > 760;
 
           return Column(
             children: [
@@ -592,23 +590,90 @@ class _TopBar extends StatelessWidget {
                   ),
                 ],
               ),
-              if (showSearch) ...[
+              if (showContextStrip) ...[
                 const SizedBox(height: AppSpacing.md),
                 Row(
                   children: [
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Search students, staff, courses, alerts',
-                          prefixIcon: const Icon(Icons.search_rounded),
-                          suffixIcon: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Text(
-                              DateFormat('EEE, d MMM').format(DateTime.now()),
-                              style: Theme.of(context).textTheme.labelMedium,
-                            ),
-                          ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                        vertical: AppSpacing.sm,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(
+                          AppConstants.mediumRadius,
                         ),
+                        border: Border.all(
+                          color: Theme.of(context).dividerColor,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.auto_awesome_rounded, size: 16),
+                          const SizedBox(width: AppSpacing.xs),
+                          Text(
+                            'Premium admin workspace',
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                        vertical: AppSpacing.sm,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(
+                          AppConstants.mediumRadius,
+                        ),
+                        border: Border.all(
+                          color: Theme.of(context).dividerColor,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.schedule_rounded, size: 16),
+                          const SizedBox(width: AppSpacing.xs),
+                          Text(
+                            notificationStatus,
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                        vertical: AppSpacing.sm,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(
+                          AppConstants.mediumRadius,
+                        ),
+                        border: Border.all(
+                          color: Theme.of(context).dividerColor,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.calendar_today_rounded, size: 16),
+                          const SizedBox(width: AppSpacing.xs),
+                          Text(
+                            '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                        ],
                       ),
                     ),
                   ],

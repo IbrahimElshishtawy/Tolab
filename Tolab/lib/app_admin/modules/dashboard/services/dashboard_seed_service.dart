@@ -5,744 +5,406 @@ class DashboardSeedService {
   const DashboardSeedService();
 
   DashboardBundle buildBundle({required DashboardFilters filters}) {
-    final records = _records
-        .where((record) {
-          final matchesSemester =
-              filters.semesterId == null ||
-              record.semesterId == filters.semesterId;
-          final matchesDepartment =
-              filters.departmentId == null ||
-              record.departmentId == filters.departmentId;
-          final matchesCourse =
-              filters.courseId == null || record.courseId == filters.courseId;
-          final matchesInstructor =
-              filters.instructorId == null ||
-              record.instructorId == filters.instructorId;
-          return matchesSemester &&
-              matchesDepartment &&
-              matchesCourse &&
-              matchesInstructor;
-        })
-        .toList(growable: false);
-
-    final lookups = DashboardLookups(
-      semesters: _semesters,
-      departments: _departments,
-      courses: _coursesFor(filters.departmentId),
-      instructors: _instructorsFor(
-        departmentId: filters.departmentId,
-        courseId: filters.courseId,
-      ),
-    );
-
-    if (records.isEmpty) {
-      return DashboardBundle(
-        filters: filters,
-        lookups: lookups,
-        kpis: const <DashboardKpiMetric>[],
-        enrollmentTrend: const <DashboardLinePoint>[],
-        studentDistribution: const <DashboardPieSlice>[],
-        attendanceOverview: const <DashboardBarPoint>[],
-        staffPerformance: const <DashboardBarPoint>[],
-        recentActivity: const <DashboardActivityItem>[],
-        moderationAlerts: const <DashboardModerationAlert>[],
-        scheduleSummary: const <DashboardScheduleItem>[],
-        quickActions: _quickActions,
-        isFallback: true,
-        sourceLabel: 'Local dashboard seed',
-        refreshedAt: DateTime.now(),
-      );
-    }
-
-    final students = records.fold<int>(0, (sum, item) => sum + item.students);
-    final departmentsCount = records
-        .map((item) => item.departmentId)
-        .toSet()
-        .length;
-    final staffCount = records.map((item) => item.instructorId).toSet().length;
-    final tasksCount = records.fold<int>(
-      0,
-      (sum, item) => sum + item.upcomingTasks,
-    );
-    final attendanceAverage =
-        records.fold<double>(0, (sum, item) => sum + item.attendanceRate) /
-        records.length;
-    final staffAverage =
-        records.fold<double>(0, (sum, item) => sum + item.staffPerformance) /
-        records.length;
+    final trendPoints = switch (filters.timeRange) {
+      DashboardTimeRange.last7Days => _last7DaysTrend,
+      DashboardTimeRange.semester => _semesterTrend,
+      DashboardTimeRange.last30Days => _last30DaysTrend,
+    };
 
     return DashboardBundle(
       filters: filters,
-      lookups: lookups,
-      kpis: [
-        DashboardKpiMetric(
+      stats: const [
+        DashboardStatCard(
           id: 'students',
-          label: 'Students',
-          value: students,
-          deltaLabel: '+6.8% intake momentum',
-          deltaValue: 6.8,
-          progress: (students / 8000).clamp(0.18, 1),
+          label: 'Total students',
+          value: '12,480',
+          deltaLabel: '+4.8% this cycle',
+          deltaValue: 4.8,
+          caption: 'Active students synced across departments.',
           tone: DashboardMetricTone.primary,
-          direction: DashboardTrendDirection.up,
-          caption: 'Across the visible academic scope',
         ),
-        DashboardKpiMetric(
-          id: 'staff',
-          label: 'Staff',
-          value: staffCount,
-          deltaLabel: '92.4% active roster',
-          deltaValue: 2.4,
-          progress: (staffCount / 40).clamp(0.18, 1),
-          tone: DashboardMetricTone.secondary,
-          direction: DashboardTrendDirection.up,
-          caption: 'Doctors and assistants in the current filter',
-        ),
-        DashboardKpiMetric(
-          id: 'departments',
-          label: 'Departments',
-          value: departmentsCount,
-          deltaLabel: '${records.length} live course clusters',
-          deltaValue: records.length.toDouble(),
-          progress: (departmentsCount / _departments.length).clamp(0.18, 1),
+        DashboardStatCard(
+          id: 'courses',
+          label: 'Active courses',
+          value: '146',
+          deltaLabel: '+9 newly assigned',
+          deltaValue: 9,
+          caption: 'Published offerings currently visible to students.',
           tone: DashboardMetricTone.info,
-          direction: DashboardTrendDirection.neutral,
-          caption: 'Departments represented in the visible workload',
         ),
-        DashboardKpiMetric(
-          id: 'tasks',
-          label: 'Upcoming tasks',
-          value: tasksCount,
-          deltaLabel: '${attendanceAverage.toStringAsFixed(1)}% attendance',
-          deltaValue: attendanceAverage,
-          progress: (tasksCount / 50).clamp(0.18, 1),
+        DashboardStatCard(
+          id: 'approvals',
+          label: 'Pending approvals',
+          value: '27',
+          deltaLabel: '-6 vs yesterday',
+          deltaValue: -6,
+          caption: 'Enrollment, content, and moderation approvals in queue.',
           tone: DashboardMetricTone.warning,
-          direction: DashboardTrendDirection.up,
-          caption: '${staffAverage.toStringAsFixed(0)} average staff score',
+        ),
+        DashboardStatCard(
+          id: 'reviews',
+          label: 'Review queue',
+          value: '18',
+          deltaLabel: '3 urgent escalations',
+          deltaValue: 3,
+          caption: 'Messages and comments needing senior moderation review.',
+          tone: DashboardMetricTone.danger,
         ),
       ],
-      enrollmentTrend: _aggregateTrend(records),
-      studentDistribution: _aggregateDistribution(records),
-      attendanceOverview: _aggregateAttendance(records),
-      staffPerformance: _aggregateStaffPerformance(records),
-      recentActivity: _activityFor(records),
-      moderationAlerts: _alertsFor(records),
-      scheduleSummary: _scheduleFor(records),
-      quickActions: _quickActions,
-      isFallback: true,
-      sourceLabel: 'Local dashboard seed',
-      refreshedAt: DateTime.now(),
-    );
-  }
-
-  List<DashboardLinePoint> _aggregateTrend(List<_DashboardRecord> records) {
-    const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-    return List<DashboardLinePoint>.generate(labels.length, (index) {
-      final total = records.fold<double>(
-        0,
-        (sum, item) => sum + item.enrollmentTrend[index],
-      );
-      return DashboardLinePoint(label: labels[index], value: total);
-    }, growable: false);
-  }
-
-  List<DashboardPieSlice> _aggregateDistribution(
-    List<_DashboardRecord> records,
-  ) {
-    final yearOne = records.fold<double>(
-      0,
-      (sum, item) => sum + item.studentDistribution[0],
-    );
-    final yearTwo = records.fold<double>(
-      0,
-      (sum, item) => sum + item.studentDistribution[1],
-    );
-    final yearThree = records.fold<double>(
-      0,
-      (sum, item) => sum + item.studentDistribution[2],
-    );
-    final yearFour = records.fold<double>(
-      0,
-      (sum, item) => sum + item.studentDistribution[3],
-    );
-
-    return [
-      DashboardPieSlice(
-        label: 'Year 1',
-        value: yearOne,
-        tone: DashboardMetricTone.primary,
-      ),
-      DashboardPieSlice(
-        label: 'Year 2',
-        value: yearTwo,
-        tone: DashboardMetricTone.info,
-      ),
-      DashboardPieSlice(
-        label: 'Year 3',
-        value: yearThree,
-        tone: DashboardMetricTone.secondary,
-      ),
-      DashboardPieSlice(
-        label: 'Year 4',
-        value: yearFour,
-        tone: DashboardMetricTone.warning,
-      ),
-    ];
-  }
-
-  List<DashboardBarPoint> _aggregateAttendance(List<_DashboardRecord> records) {
-    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-    return List<DashboardBarPoint>.generate(labels.length, (index) {
-      final total = records.fold<double>(
-        0,
-        (sum, item) => sum + item.attendanceSeries[index],
-      );
-      return DashboardBarPoint(
-        label: labels[index],
-        value: total / records.length,
-        target: 90,
-      );
-    }, growable: false);
-  }
-
-  List<DashboardBarPoint> _aggregateStaffPerformance(
-    List<_DashboardRecord> records,
-  ) {
-    return records
-        .map(
-          (record) => DashboardBarPoint(
-            label: record.instructorShortLabel,
-            value: record.staffPerformance,
-            target: 92,
-          ),
-        )
-        .toList(growable: false);
-  }
-
-  List<DashboardActivityItem> _activityFor(List<_DashboardRecord> records) {
-    final items = records.expand((record) => record.activities).toList();
-    items.sort((a, b) => a.order.compareTo(b.order));
-    return items
-        .take(6)
-        .map(
-          (item) => DashboardActivityItem(
-            id: item.id,
-            title: item.title,
-            subtitle: item.subtitle,
-            actorName: item.actorName,
-            timeLabel: item.timeLabel,
-            type: item.type,
-            highlighted: item.highlighted,
-          ),
-        )
-        .toList(growable: false);
-  }
-
-  List<DashboardModerationAlert> _alertsFor(List<_DashboardRecord> records) {
-    final items = records.expand((record) => record.alerts).toList();
-    items.sort((a, b) => b.flaggedCount.compareTo(a.flaggedCount));
-    return items.take(4).toList(growable: false);
-  }
-
-  List<DashboardScheduleItem> _scheduleFor(List<_DashboardRecord> records) {
-    final items = records.expand((record) => record.schedule).toList();
-    items.sort((a, b) => a.dayLabel.compareTo(b.dayLabel));
-    return items.take(5).toList(growable: false);
-  }
-
-  List<DashboardLookupOption> _coursesFor(String? departmentId) {
-    final filtered = departmentId == null
-        ? _courseOptions
-        : _courseOptions
-              .where((option) => option.subtitle?.toLowerCase() == departmentId)
-              .toList(growable: false);
-    return filtered
-        .map(
-          (option) => DashboardLookupOption(
-            id: option.id,
-            label: option.label,
-            subtitle: option.subtitle == null
-                ? null
-                : _departmentLabel(option.subtitle!),
-          ),
-        )
-        .toList(growable: false);
-  }
-
-  List<DashboardLookupOption> _instructorsFor({
-    String? departmentId,
-    String? courseId,
-  }) {
-    return _instructorOptions
-        .where((option) {
-          final matchesDepartment =
-              departmentId == null || option.departmentId == departmentId;
-          final matchesCourse =
-              courseId == null || option.courseIds.contains(courseId);
-          return matchesDepartment && matchesCourse;
-        })
-        .map(
-          (option) => DashboardLookupOption(
-            id: option.id,
-            label: option.label,
-            subtitle: option.subtitle,
-          ),
-        )
-        .toList(growable: false);
-  }
-
-  String _departmentLabel(String departmentId) {
-    return _departments
-        .firstWhere(
-          (option) => option.id == departmentId,
-          orElse: () =>
-              DashboardLookupOption(id: departmentId, label: departmentId),
-        )
-        .label;
-  }
-
-  static const List<DashboardLookupOption> _semesters = [
-    DashboardLookupOption(id: 'spring_2026', label: 'Spring 2026'),
-    DashboardLookupOption(id: 'fall_2025', label: 'Fall 2025'),
-    DashboardLookupOption(id: 'summer_2025', label: 'Summer 2025'),
-  ];
-
-  static const List<DashboardLookupOption> _departments = [
-    DashboardLookupOption(id: 'computer_science', label: 'Computer Science'),
-    DashboardLookupOption(
-      id: 'information_systems',
-      label: 'Information Systems',
-    ),
-    DashboardLookupOption(id: 'engineering', label: 'Engineering'),
-  ];
-
-  static const List<DashboardLookupOption> _courseOptions = [
-    DashboardLookupOption(
-      id: 'advanced_algorithms',
-      label: 'Advanced Algorithms',
-      subtitle: 'computer_science',
-    ),
-    DashboardLookupOption(
-      id: 'applied_ai',
-      label: 'Applied AI',
-      subtitle: 'computer_science',
-    ),
-    DashboardLookupOption(
-      id: 'enterprise_systems',
-      label: 'Enterprise Systems',
-      subtitle: 'information_systems',
-    ),
-    DashboardLookupOption(
-      id: 'business_intelligence',
-      label: 'Business Intelligence',
-      subtitle: 'information_systems',
-    ),
-    DashboardLookupOption(
-      id: 'control_systems',
-      label: 'Control Systems',
-      subtitle: 'engineering',
-    ),
-  ];
-
-  static const List<_InstructorOption> _instructorOptions = [
-    _InstructorOption(
-      id: 'dr_hadeer_salah',
-      label: 'Dr. Hadeer Salah',
-      subtitle: 'Computer Science',
-      departmentId: 'computer_science',
-      courseIds: ['advanced_algorithms'],
-    ),
-    _InstructorOption(
-      id: 'dr_salma_adel',
-      label: 'Dr. Salma Adel',
-      subtitle: 'Computer Science',
-      departmentId: 'computer_science',
-      courseIds: ['applied_ai'],
-    ),
-    _InstructorOption(
-      id: 'dr_mostafa_nader',
-      label: 'Dr. Mostafa Nader',
-      subtitle: 'Information Systems',
-      departmentId: 'information_systems',
-      courseIds: ['enterprise_systems'],
-    ),
-    _InstructorOption(
-      id: 'eng_ahmed_samir',
-      label: 'Eng. Ahmed Samir',
-      subtitle: 'Information Systems',
-      departmentId: 'information_systems',
-      courseIds: ['business_intelligence', 'enterprise_systems'],
-    ),
-    _InstructorOption(
-      id: 'dr_reem_fawzy',
-      label: 'Dr. Reem Fawzy',
-      subtitle: 'Engineering',
-      departmentId: 'engineering',
-      courseIds: ['control_systems'],
-    ),
-  ];
-
-  static const List<DashboardQuickAction> _quickActions = [
-    DashboardQuickAction(
-      id: 'add_student',
-      label: 'Add student',
-      subtitle: 'Jump to the student workspace and create a new profile.',
-      route: RoutePaths.students,
-    ),
-    DashboardQuickAction(
-      id: 'add_staff',
-      label: 'Add staff',
-      subtitle: 'Open staff management for a new doctor or assistant.',
-      route: RoutePaths.staff,
-    ),
-    DashboardQuickAction(
-      id: 'add_course',
-      label: 'Add course',
-      subtitle: 'Go to course offerings and configure a fresh class.',
-      route: RoutePaths.courseOfferings,
-    ),
-    DashboardQuickAction(
-      id: 'send_notification',
-      label: 'Send notification',
-      subtitle: 'Navigate to notifications and launch a new campaign.',
-      route: RoutePaths.notifications,
-    ),
-  ];
-
-  static final List<_DashboardRecord> _records = [
-    _DashboardRecord(
-      semesterId: 'spring_2026',
-      departmentId: 'computer_science',
-      courseId: 'advanced_algorithms',
-      instructorId: 'dr_hadeer_salah',
-      instructorShortLabel: 'Hadeer',
-      students: 1380,
-      attendanceRate: 93,
-      upcomingTasks: 14,
-      staffPerformance: 96,
-      enrollmentTrend: [180, 205, 230, 255, 268, 290],
-      studentDistribution: [24, 31, 29, 16],
-      attendanceSeries: [92, 94, 95, 93, 91],
-      activities: [
-        _ActivitySeed(
-          id: 'act_algorithms_1',
-          title: 'Bulk registration batch approved',
-          subtitle: 'Advanced Algorithms added 126 students after review.',
-          actorName: 'Admissions desk',
-          timeLabel: '12 min ago',
-          type: DashboardActivityType.enrollment,
-          order: 1,
-          highlighted: true,
+      trendPoints: trendPoints,
+      departmentStats: const [
+        DashboardDepartmentStat(
+          department: 'Computer Science',
+          enrollments: 2480,
+          tone: DashboardMetricTone.primary,
         ),
-        _ActivitySeed(
-          id: 'act_algorithms_2',
-          title: 'Lecture pack refreshed',
-          subtitle: 'Week 7 materials published with lab guidance.',
-          actorName: 'Dr. Hadeer Salah',
-          timeLabel: '38 min ago',
-          type: DashboardActivityType.subject,
-          order: 4,
-          highlighted: false,
+        DashboardDepartmentStat(
+          department: 'Artificial Intelligence',
+          enrollments: 1960,
+          tone: DashboardMetricTone.info,
+        ),
+        DashboardDepartmentStat(
+          department: 'Information Systems',
+          enrollments: 1815,
+          tone: DashboardMetricTone.success,
+        ),
+        DashboardDepartmentStat(
+          department: 'Engineering',
+          enrollments: 1650,
+          tone: DashboardMetricTone.warning,
+        ),
+        DashboardDepartmentStat(
+          department: 'Business',
+          enrollments: 1420,
+          tone: DashboardMetricTone.primary,
+        ),
+        DashboardDepartmentStat(
+          department: 'Design',
+          enrollments: 970,
+          tone: DashboardMetricTone.danger,
         ),
       ],
-      alerts: [
-        DashboardModerationAlert(
-          id: 'alert_algorithms_1',
-          title: 'Flagged discussion replies',
-          subtitle: 'Three student replies need moderator validation.',
-          scopeLabel: 'Advanced Algorithms',
-          flaggedCount: 3,
-          severity: DashboardAlertSeverity.medium,
+      taskBreakdown: const [
+        DashboardTaskSlice(
+          label: 'Enrollment approvals',
+          value: 11,
+          tone: DashboardMetricTone.primary,
+        ),
+        DashboardTaskSlice(
+          label: 'Content validation',
+          value: 7,
+          tone: DashboardMetricTone.info,
+        ),
+        DashboardTaskSlice(
+          label: 'Messages to review',
+          value: 6,
+          tone: DashboardMetricTone.warning,
+        ),
+        DashboardTaskSlice(
+          label: 'System alerts',
+          value: 3,
+          tone: DashboardMetricTone.danger,
         ),
       ],
-      schedule: [
-        DashboardScheduleItem(
-          id: 'sched_algorithms_1',
-          title: 'Lecture 08',
-          dayLabel: 'Mon',
-          timeLabel: '09:00 - 11:00',
-          location: 'Hall B12',
-          owner: 'Dr. Hadeer Salah',
-          type: DashboardScheduleType.lecture,
-          statusLabel: 'Starts soon',
-        ),
-      ],
-    ),
-    _DashboardRecord(
-      semesterId: 'spring_2026',
-      departmentId: 'computer_science',
-      courseId: 'applied_ai',
-      instructorId: 'dr_salma_adel',
-      instructorShortLabel: 'Salma',
-      students: 1120,
-      attendanceRate: 88,
-      upcomingTasks: 11,
-      staffPerformance: 90,
-      enrollmentTrend: [144, 160, 184, 196, 224, 240],
-      studentDistribution: [20, 26, 34, 20],
-      attendanceSeries: [86, 88, 89, 90, 87],
-      activities: [
-        _ActivitySeed(
-          id: 'act_ai_1',
-          title: 'AI lab roster synced',
-          subtitle: 'Assistant assignments finished for blended sessions.',
-          actorName: 'Scheduling office',
-          timeLabel: '22 min ago',
-          type: DashboardActivityType.staff,
-          order: 2,
-          highlighted: true,
-        ),
-        _ActivitySeed(
-          id: 'act_ai_2',
-          title: 'Student advisory sent',
+      directoryEntries: _directoryEntries,
+      activityRows: _activityRows,
+      alerts: const [
+        DashboardAlertItem(
+          id: 'alert-1',
+          title: 'Approvals warming up',
           subtitle:
-              'Attendance watchlist notices were delivered to 42 students.',
-          actorName: 'Student affairs',
-          timeLabel: '1 h ago',
-          type: DashboardActivityType.student,
-          order: 5,
-          highlighted: false,
+              'Eight student registrations are waiting on advisor sign-off.',
+          counterLabel: '8 approvals',
+          tone: DashboardMetricTone.warning,
+        ),
+        DashboardAlertItem(
+          id: 'alert-2',
+          title: 'Content moderation',
+          subtitle:
+              'Three uploads were flagged for copyright verification.',
+          counterLabel: '3 uploads',
+          tone: DashboardMetricTone.info,
+        ),
+        DashboardAlertItem(
+          id: 'alert-3',
+          title: 'Comment escalation',
+          subtitle:
+              'Two public threads need a senior admin decision in under 1 hour.',
+          counterLabel: '2 urgent',
+          tone: DashboardMetricTone.danger,
         ),
       ],
-      alerts: [
-        DashboardModerationAlert(
-          id: 'alert_ai_1',
-          title: 'Unreviewed file attachment',
-          subtitle: 'One large media upload is waiting for manual clearance.',
-          scopeLabel: 'Applied AI',
-          flaggedCount: 1,
-          severity: DashboardAlertSeverity.low,
+      quickActions: const [
+        DashboardQuickAction(
+          id: 'add-student',
+          label: 'Add Student',
+          subtitle: 'Create a new learner account and assign a section.',
+          route: RoutePaths.students,
+          tone: DashboardMetricTone.primary,
+        ),
+        DashboardQuickAction(
+          id: 'assign-course',
+          label: 'Assign Course',
+          subtitle: 'Jump into offerings and connect staff to a course.',
+          route: RoutePaths.courseOfferings,
+          tone: DashboardMetricTone.info,
+        ),
+        DashboardQuickAction(
+          id: 'upload-content',
+          label: 'Upload Content',
+          subtitle: 'Open the upload center for lectures and rich media.',
+          route: RoutePaths.uploads,
+          tone: DashboardMetricTone.success,
         ),
       ],
-      schedule: [
-        DashboardScheduleItem(
-          id: 'sched_ai_1',
-          title: 'Project milestone review',
-          dayLabel: 'Tue',
-          timeLabel: '12:30 - 13:30',
-          location: 'Studio C4',
-          owner: 'Dr. Salma Adel',
-          type: DashboardScheduleType.review,
-          statusLabel: 'Pending confirmations',
-        ),
-      ],
+      sourceLabel: 'Local admin seed',
+      refreshedAt: DateTime.now(),
+      isFallback: true,
+    );
+  }
+
+  List<DashboardDirectoryEntry> searchDirectory({
+    required String query,
+    required DashboardSearchScope scope,
+    int limit = 8,
+  }) {
+    return _directoryEntries
+        .where((entry) => entry.matchesScope(scope) && entry.matchesQuery(query))
+        .take(limit)
+        .toList(growable: false);
+  }
+
+  static final List<DashboardTrendPoint> _last7DaysTrend = const [
+    DashboardTrendPoint(label: 'Mon', totalStudents: 11860, activeCourses: 132),
+    DashboardTrendPoint(label: 'Tue', totalStudents: 11910, activeCourses: 134),
+    DashboardTrendPoint(label: 'Wed', totalStudents: 11980, activeCourses: 137),
+    DashboardTrendPoint(label: 'Thu', totalStudents: 12035, activeCourses: 139),
+    DashboardTrendPoint(label: 'Fri', totalStudents: 12110, activeCourses: 140),
+    DashboardTrendPoint(label: 'Sat', totalStudents: 12200, activeCourses: 143),
+    DashboardTrendPoint(label: 'Sun', totalStudents: 12480, activeCourses: 146),
+  ];
+
+  static final List<DashboardTrendPoint> _last30DaysTrend = const [
+    DashboardTrendPoint(label: 'Week 1', totalStudents: 11320, activeCourses: 126),
+    DashboardTrendPoint(label: 'Week 2', totalStudents: 11510, activeCourses: 129),
+    DashboardTrendPoint(label: 'Week 3', totalStudents: 11690, activeCourses: 132),
+    DashboardTrendPoint(label: 'Week 4', totalStudents: 11840, activeCourses: 135),
+    DashboardTrendPoint(label: 'Week 5', totalStudents: 12010, activeCourses: 138),
+    DashboardTrendPoint(label: 'Week 6', totalStudents: 12160, activeCourses: 141),
+    DashboardTrendPoint(label: 'Week 7', totalStudents: 12310, activeCourses: 144),
+    DashboardTrendPoint(label: 'Week 8', totalStudents: 12480, activeCourses: 146),
+  ];
+
+  static final List<DashboardTrendPoint> _semesterTrend = const [
+    DashboardTrendPoint(label: 'Oct', totalStudents: 10450, activeCourses: 118),
+    DashboardTrendPoint(label: 'Nov', totalStudents: 10780, activeCourses: 121),
+    DashboardTrendPoint(label: 'Dec', totalStudents: 11030, activeCourses: 124),
+    DashboardTrendPoint(label: 'Jan', totalStudents: 11460, activeCourses: 129),
+    DashboardTrendPoint(label: 'Feb', totalStudents: 11980, activeCourses: 137),
+    DashboardTrendPoint(label: 'Mar', totalStudents: 12480, activeCourses: 146),
+  ];
+
+  static final List<DashboardDirectoryEntry> _directoryEntries = [
+    DashboardDirectoryEntry(
+      id: 'student-1',
+      displayName: 'Mariam Adel',
+      email: 'mariam.adel@tolab.edu',
+      role: DashboardDirectoryRole.student,
+      departmentLabel: 'Computer Science',
+      statusLabel: 'Recently enrolled',
+      lastSeenLabel: '2 min ago',
+      isActive: true,
+      createdAt: DateTime(2026, 3, 30, 10, 18),
     ),
-    _DashboardRecord(
-      semesterId: 'spring_2026',
-      departmentId: 'information_systems',
-      courseId: 'enterprise_systems',
-      instructorId: 'dr_mostafa_nader',
-      instructorShortLabel: 'Mostafa',
-      students: 980,
-      attendanceRate: 91,
-      upcomingTasks: 9,
-      staffPerformance: 87,
-      enrollmentTrend: [118, 140, 155, 176, 192, 205],
-      studentDistribution: [18, 34, 28, 20],
-      attendanceSeries: [90, 92, 91, 90, 89],
-      activities: [
-        _ActivitySeed(
-          id: 'act_enterprise_1',
-          title: 'Staff availability updated',
-          subtitle: 'Office hours moved after timetable optimization.',
-          actorName: 'Dr. Mostafa Nader',
-          timeLabel: '18 min ago',
-          type: DashboardActivityType.schedule,
-          order: 3,
-          highlighted: false,
-        ),
-      ],
-      alerts: [
-        DashboardModerationAlert(
-          id: 'alert_enterprise_1',
-          title: 'Flagged peer feedback',
-          subtitle: 'Potentially abusive wording detected in one thread.',
-          scopeLabel: 'Enterprise Systems',
-          flaggedCount: 5,
-          severity: DashboardAlertSeverity.high,
-        ),
-      ],
-      schedule: [
-        DashboardScheduleItem(
-          id: 'sched_enterprise_1',
-          title: 'Systems architecture lecture',
-          dayLabel: 'Wed',
-          timeLabel: '10:00 - 12:00',
-          location: 'Lab A3',
-          owner: 'Dr. Mostafa Nader',
-          type: DashboardScheduleType.lecture,
-          statusLabel: 'On track',
-        ),
-      ],
+    DashboardDirectoryEntry(
+      id: 'doctor-1',
+      displayName: 'Dr. Hadeer Salah',
+      email: 'hadeer.salah@tolab.edu',
+      role: DashboardDirectoryRole.doctor,
+      departmentLabel: 'Artificial Intelligence',
+      statusLabel: 'Approver online',
+      lastSeenLabel: '5 min ago',
+      isActive: true,
+      createdAt: DateTime(2026, 3, 28, 9, 45),
     ),
-    _DashboardRecord(
-      semesterId: 'spring_2026',
-      departmentId: 'information_systems',
-      courseId: 'business_intelligence',
-      instructorId: 'eng_ahmed_samir',
-      instructorShortLabel: 'Ahmed',
-      students: 760,
-      attendanceRate: 86,
-      upcomingTasks: 7,
-      staffPerformance: 84,
-      enrollmentTrend: [102, 116, 122, 135, 148, 162],
-      studentDistribution: [28, 30, 24, 18],
-      attendanceSeries: [84, 85, 87, 88, 86],
-      activities: [
-        _ActivitySeed(
-          id: 'act_bi_1',
-          title: 'Attendance follow-up triggered',
-          subtitle: 'Late students moved into the recovery workflow.',
-          actorName: 'Eng. Ahmed Samir',
-          timeLabel: '1 h ago',
-          type: DashboardActivityType.student,
-          order: 6,
-          highlighted: false,
-        ),
-      ],
-      alerts: [
-        DashboardModerationAlert(
-          id: 'alert_bi_1',
-          title: 'Escalated plagiarism review',
-          subtitle: 'Two reports need academic moderation approval.',
-          scopeLabel: 'Business Intelligence',
-          flaggedCount: 2,
-          severity: DashboardAlertSeverity.medium,
-        ),
-      ],
-      schedule: [
-        DashboardScheduleItem(
-          id: 'sched_bi_1',
-          title: 'Dashboard lab',
-          dayLabel: 'Thu',
-          timeLabel: '11:00 - 13:00',
-          location: 'Innovation Lab',
-          owner: 'Eng. Ahmed Samir',
-          type: DashboardScheduleType.task,
-          statusLabel: 'Room confirmed',
-        ),
-      ],
+    DashboardDirectoryEntry(
+      id: 'assistant-1',
+      displayName: 'Ahmed Samir',
+      email: 'ahmed.samir.ta@tolab.edu',
+      role: DashboardDirectoryRole.assistant,
+      departmentLabel: 'Information Systems',
+      statusLabel: 'Awaiting upload review',
+      lastSeenLabel: '8 min ago',
+      isActive: true,
+      createdAt: DateTime(2026, 3, 28, 11, 20),
     ),
-    _DashboardRecord(
-      semesterId: 'spring_2026',
-      departmentId: 'engineering',
-      courseId: 'control_systems',
-      instructorId: 'dr_reem_fawzy',
-      instructorShortLabel: 'Reem',
-      students: 840,
-      attendanceRate: 82,
-      upcomingTasks: 6,
-      staffPerformance: 78,
-      enrollmentTrend: [90, 104, 112, 126, 134, 150],
-      studentDistribution: [14, 26, 32, 28],
-      attendanceSeries: [80, 82, 83, 84, 81],
-      activities: [
-        _ActivitySeed(
-          id: 'act_control_1',
-          title: 'Exam venue revised',
-          subtitle: 'Midterm moved after hall conflict resolution.',
-          actorName: 'Engineering operations',
-          timeLabel: '2 h ago',
-          type: DashboardActivityType.schedule,
-          order: 7,
-          highlighted: false,
-        ),
-      ],
-      alerts: [
-        DashboardModerationAlert(
-          id: 'alert_control_1',
-          title: 'Critical review queue',
-          subtitle: 'Six reports are blocked awaiting senior approval.',
-          scopeLabel: 'Control Systems',
-          flaggedCount: 6,
-          severity: DashboardAlertSeverity.critical,
-        ),
-      ],
-      schedule: [
-        DashboardScheduleItem(
-          id: 'sched_control_1',
-          title: 'Midterm exam',
-          dayLabel: 'Fri',
-          timeLabel: '14:00 - 16:00',
-          location: 'Main Auditorium',
-          owner: 'Dr. Reem Fawzy',
-          type: DashboardScheduleType.exam,
-          statusLabel: 'Needs invigilator',
-        ),
-      ],
+    DashboardDirectoryEntry(
+      id: 'student-2',
+      displayName: 'Nouran Emad',
+      email: 'nouran.emad@tolab.edu',
+      role: DashboardDirectoryRole.student,
+      departmentLabel: 'Business',
+      statusLabel: 'Documents pending',
+      lastSeenLabel: '12 min ago',
+      isActive: true,
+      createdAt: DateTime(2026, 3, 29, 14, 8),
+    ),
+    DashboardDirectoryEntry(
+      id: 'doctor-2',
+      displayName: 'Dr. Mostafa Nader',
+      email: 'mostafa.nader@tolab.edu',
+      role: DashboardDirectoryRole.doctor,
+      departmentLabel: 'Information Systems',
+      statusLabel: 'Course owner',
+      lastSeenLabel: '18 min ago',
+      isActive: true,
+      createdAt: DateTime(2026, 3, 27, 10, 0),
+    ),
+    DashboardDirectoryEntry(
+      id: 'assistant-2',
+      displayName: 'Farah Tarek',
+      email: 'farah.tarek.ta@tolab.edu',
+      role: DashboardDirectoryRole.assistant,
+      departmentLabel: 'Computer Science',
+      statusLabel: 'Lab assistant active',
+      lastSeenLabel: '24 min ago',
+      isActive: true,
+      createdAt: DateTime(2026, 3, 27, 15, 11),
+    ),
+    DashboardDirectoryEntry(
+      id: 'student-3',
+      displayName: 'Youssef Omar',
+      email: 'youssef.omar@tolab.edu',
+      role: DashboardDirectoryRole.student,
+      departmentLabel: 'Engineering',
+      statusLabel: 'Requires advisor review',
+      lastSeenLabel: '31 min ago',
+      isActive: true,
+      createdAt: DateTime(2026, 3, 29, 8, 40),
+    ),
+    DashboardDirectoryEntry(
+      id: 'doctor-3',
+      displayName: 'Dr. Reem Fawzy',
+      email: 'reem.fawzy@tolab.edu',
+      role: DashboardDirectoryRole.doctor,
+      departmentLabel: 'Engineering',
+      statusLabel: 'Midterm approval pending',
+      lastSeenLabel: '42 min ago',
+      isActive: true,
+      createdAt: DateTime(2026, 3, 26, 12, 35),
+    ),
+    DashboardDirectoryEntry(
+      id: 'assistant-3',
+      displayName: 'Salma Ibrahim',
+      email: 'salma.ibrahim.ta@tolab.edu',
+      role: DashboardDirectoryRole.assistant,
+      departmentLabel: 'Design',
+      statusLabel: 'Comment queue owner',
+      lastSeenLabel: '1 h ago',
+      isActive: true,
+      createdAt: DateTime(2026, 3, 25, 16, 2),
     ),
   ];
-}
 
-class _InstructorOption {
-  const _InstructorOption({
-    required this.id,
-    required this.label,
-    required this.subtitle,
-    required this.departmentId,
-    required this.courseIds,
-  });
-
-  final String id;
-  final String label;
-  final String subtitle;
-  final String departmentId;
-  final List<String> courseIds;
-}
-
-class _DashboardRecord {
-  const _DashboardRecord({
-    required this.semesterId,
-    required this.departmentId,
-    required this.courseId,
-    required this.instructorId,
-    required this.instructorShortLabel,
-    required this.students,
-    required this.attendanceRate,
-    required this.upcomingTasks,
-    required this.staffPerformance,
-    required this.enrollmentTrend,
-    required this.studentDistribution,
-    required this.attendanceSeries,
-    required this.activities,
-    required this.alerts,
-    required this.schedule,
-  });
-
-  final String semesterId;
-  final String departmentId;
-  final String courseId;
-  final String instructorId;
-  final String instructorShortLabel;
-  final int students;
-  final double attendanceRate;
-  final int upcomingTasks;
-  final double staffPerformance;
-  final List<double> enrollmentTrend;
-  final List<double> studentDistribution;
-  final List<double> attendanceSeries;
-  final List<_ActivitySeed> activities;
-  final List<DashboardModerationAlert> alerts;
-  final List<DashboardScheduleItem> schedule;
-}
-
-class _ActivitySeed {
-  const _ActivitySeed({
-    required this.id,
-    required this.title,
-    required this.subtitle,
-    required this.actorName,
-    required this.timeLabel,
-    required this.type,
-    required this.order,
-    required this.highlighted,
-  });
-
-  final String id;
-  final String title;
-  final String subtitle;
-  final String actorName;
-  final String timeLabel;
-  final DashboardActivityType type;
-  final int order;
-  final bool highlighted;
+  static final List<DashboardActivityRow> _activityRows = [
+    DashboardActivityRow(
+      id: 'activity-1',
+      type: DashboardActivityType.registration,
+      title: 'New student registration approved',
+      subtitle: 'Mariam Adel was approved for Spring 2026 intake.',
+      actor: 'Admissions desk',
+      department: 'Computer Science',
+      statusLabel: 'Approved',
+      createdAt: DateTime(2026, 3, 30, 10, 18),
+      tone: DashboardMetricTone.success,
+    ),
+    DashboardActivityRow(
+      id: 'activity-2',
+      type: DashboardActivityType.upload,
+      title: 'Lecture pack uploaded',
+      subtitle: 'AI Ethics week 06 slides and notebook published.',
+      actor: 'Dr. Hadeer Salah',
+      department: 'Artificial Intelligence',
+      statusLabel: 'Ready to publish',
+      createdAt: DateTime(2026, 3, 30, 9, 55),
+      tone: DashboardMetricTone.info,
+    ),
+    DashboardActivityRow(
+      id: 'activity-3',
+      type: DashboardActivityType.review,
+      title: 'Message thread escalated',
+      subtitle: 'Three comments in Group 4 need moderator review.',
+      actor: 'Moderation bot',
+      department: 'General',
+      statusLabel: 'Urgent',
+      createdAt: DateTime(2026, 3, 30, 9, 42),
+      tone: DashboardMetricTone.danger,
+    ),
+    DashboardActivityRow(
+      id: 'activity-4',
+      type: DashboardActivityType.registration,
+      title: 'Student documents received',
+      subtitle: 'Nouran Emad uploaded identity verification files.',
+      actor: 'Registrar',
+      department: 'Business',
+      statusLabel: 'Awaiting approval',
+      createdAt: DateTime(2026, 3, 30, 8, 50),
+      tone: DashboardMetricTone.warning,
+    ),
+    DashboardActivityRow(
+      id: 'activity-5',
+      type: DashboardActivityType.upload,
+      title: 'Lab recording synced',
+      subtitle: 'Control Systems lab session exported to course storage.',
+      actor: 'Ahmed Samir',
+      department: 'Engineering',
+      statusLabel: 'Quality check',
+      createdAt: DateTime(2026, 3, 30, 8, 14),
+      tone: DashboardMetricTone.primary,
+    ),
+    DashboardActivityRow(
+      id: 'activity-6',
+      type: DashboardActivityType.review,
+      title: 'Comment flagged for policy breach',
+      subtitle: 'Potential harassment in a design critique thread.',
+      actor: 'Community filters',
+      department: 'Design',
+      statusLabel: 'Needs review',
+      createdAt: DateTime(2026, 3, 29, 17, 38),
+      tone: DashboardMetricTone.danger,
+    ),
+    DashboardActivityRow(
+      id: 'activity-7',
+      type: DashboardActivityType.registration,
+      title: 'Transfer student mapped to section',
+      subtitle: 'Youssef Omar assigned to ENG-3B cohort.',
+      actor: 'Student affairs',
+      department: 'Engineering',
+      statusLabel: 'Assigned',
+      createdAt: DateTime(2026, 3, 29, 15, 12),
+      tone: DashboardMetricTone.success,
+    ),
+    DashboardActivityRow(
+      id: 'activity-8',
+      type: DashboardActivityType.upload,
+      title: 'Case study bundle submitted',
+      subtitle: 'Business Intelligence course assets uploaded in bulk.',
+      actor: 'Farah Tarek',
+      department: 'Information Systems',
+      statusLabel: 'Pending validation',
+      createdAt: DateTime(2026, 3, 29, 13, 29),
+      tone: DashboardMetricTone.warning,
+    ),
+    DashboardActivityRow(
+      id: 'activity-9',
+      type: DashboardActivityType.review,
+      title: 'Support message reopened',
+      subtitle: 'Student requested a second review for enrollment block.',
+      actor: 'Support inbox',
+      department: 'Computer Science',
+      statusLabel: 'Open',
+      createdAt: DateTime(2026, 3, 29, 11, 3),
+      tone: DashboardMetricTone.info,
+    ),
+  ];
 }

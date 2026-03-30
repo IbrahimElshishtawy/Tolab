@@ -19,20 +19,64 @@ class DashboardFailedAction {
   final bool silent;
 }
 
-enum DashboardFilterField { semester, department, course, instructor }
-
-class DashboardFilterChangedAction {
-  const DashboardFilterChangedAction({
-    required this.field,
-    required this.value,
-  });
-
-  final DashboardFilterField field;
-  final String? value;
+class StartDashboardRealtimeAction {
+  const StartDashboardRealtimeAction();
 }
 
-class DashboardFiltersResetAction {
-  const DashboardFiltersResetAction();
+class StopDashboardRealtimeAction {
+  const StopDashboardRealtimeAction();
+}
+
+class DashboardRealtimeSignalReceivedAction {
+  const DashboardRealtimeSignalReceivedAction(this.signal);
+
+  final DashboardRealtimeSignal signal;
+}
+
+class DashboardTimeRangeChangedAction {
+  const DashboardTimeRangeChangedAction(this.range);
+
+  final DashboardTimeRange range;
+}
+
+class DashboardSearchQueryChangedAction {
+  const DashboardSearchQueryChangedAction(this.query);
+
+  final String query;
+}
+
+class DashboardSearchScopeChangedAction {
+  const DashboardSearchScopeChangedAction(this.scope);
+
+  final DashboardSearchScope scope;
+}
+
+class DashboardDirectorySearchRequestedAction {
+  const DashboardDirectorySearchRequestedAction({
+    required this.query,
+    required this.scope,
+  });
+
+  final String query;
+  final DashboardSearchScope scope;
+}
+
+class DashboardDirectorySearchLoadedAction {
+  const DashboardDirectorySearchLoadedAction({
+    required this.query,
+    required this.scope,
+    required this.results,
+  });
+
+  final String query;
+  final DashboardSearchScope scope;
+  final List<DashboardDirectoryEntry> results;
+}
+
+class DashboardDirectorySearchFailedAction {
+  const DashboardDirectorySearchFailedAction(this.message);
+
+  final String message;
 }
 
 class DashboardFeedbackShownAction {

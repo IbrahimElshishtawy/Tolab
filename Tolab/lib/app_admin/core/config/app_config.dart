@@ -18,4 +18,8 @@ class AppConfig {
     'NOTIFICATIONS_WS_URL',
     defaultValue: 'ws://127.0.0.1:8000/ws/admin/notifications',
   );
+  static const String dashboardSocketUrl = String.fromEnvironment(
+    'DASHBOARD_WS_URL',
+    defaultValue: 'ws://127.0.0.1:8000/ws/admin/dashboard',
+  );
 }

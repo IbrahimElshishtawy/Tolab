@@ -12,12 +12,21 @@ DashboardState dashboardReducer(DashboardState state, dynamic action) {
         clearError: true,
       );
     case DashboardLoadedAction():
+      final effectiveQuery = state.searchQuery.trim();
       return state.copyWith(
         status: LoadStatus.success,
         refreshStatus: LoadStatus.success,
         bundle: action.bundle,
         filters: action.bundle.filters,
+        searchResults: effectiveQuery.isEmpty
+            ? action.bundle.directoryPreview
+            : action.bundle.searchDirectory(
+                query: effectiveQuery,
+                scope: state.searchScope,
+              ),
+        searchStatus: LoadStatus.success,
         clearError: true,
+        clearSearchError: true,
       );
     case DashboardFailedAction():
       return state.copyWith(
@@ -27,31 +36,61 @@ DashboardState dashboardReducer(DashboardState state, dynamic action) {
         refreshStatus: action.silent ? LoadStatus.failure : state.refreshStatus,
         errorMessage: action.message,
       );
-    case DashboardFilterChangedAction():
+    case DashboardTimeRangeChangedAction():
       return state.copyWith(
-        filters: switch (action.field) {
-          DashboardFilterField.semester => state.filters.copyWith(
-            semesterId: action.value,
-          ),
-          DashboardFilterField.department => state.filters.copyWith(
-            departmentId: action.value,
-            clearCourse: true,
-            clearInstructor: true,
-          ),
-          DashboardFilterField.course => state.filters.copyWith(
-            courseId: action.value,
-          ),
-          DashboardFilterField.instructor => state.filters.copyWith(
-            instructorId: action.value,
-          ),
-        },
+        filters: state.filters.copyWith(timeRange: action.range),
         clearError: true,
       );
-    case DashboardFiltersResetAction():
+    case DashboardSearchQueryChangedAction():
       return state.copyWith(
-        filters: const DashboardFilters(),
-        clearError: true,
+        searchQuery: action.query,
+        searchStatus: action.query.trim().isEmpty
+            ? LoadStatus.success
+            : LoadStatus.loading,
+        searchResults: _localSearchResults(
+          bundle: state.bundle,
+          query: action.query,
+          scope: state.searchScope,
+        ),
+        clearSearchError: true,
       );
+    case DashboardSearchScopeChangedAction():
+      return state.copyWith(
+        searchScope: action.scope,
+        searchStatus: state.searchQuery.trim().isEmpty
+            ? LoadStatus.success
+            : LoadStatus.loading,
+        searchResults: _localSearchResults(
+          bundle: state.bundle,
+          query: state.searchQuery,
+          scope: action.scope,
+        ),
+        clearSearchError: true,
+      );
+    case DashboardDirectorySearchRequestedAction():
+      return state.copyWith(
+        searchStatus: action.query.trim().isEmpty
+            ? LoadStatus.success
+            : LoadStatus.loading,
+        clearSearchError: true,
+      );
+    case DashboardDirectorySearchLoadedAction():
+      if (action.query.trim() != state.searchQuery.trim() ||
+          action.scope != state.searchScope) {
+        return state;
+      }
+      return state.copyWith(
+        searchStatus: LoadStatus.success,
+        searchResults: action.results,
+        clearSearchError: true,
+      );
+    case DashboardDirectorySearchFailedAction():
+      return state.copyWith(
+        searchStatus: LoadStatus.failure,
+        searchErrorMessage: action.message,
+      );
+    case DashboardRealtimeSignalReceivedAction():
+      return state.copyWith(lastRealtimeSignalAt: action.signal.receivedAt);
     case DashboardFeedbackShownAction():
       return state.copyWith(feedbackMessage: action.message);
     case DashboardFeedbackDismissedAction():
@@ -59,4 +98,18 @@ DashboardState dashboardReducer(DashboardState state, dynamic action) {
     default:
       return state;
   }
+}
+
+List<DashboardDirectoryEntry> _localSearchResults({
+  required DashboardBundle? bundle,
+  required String query,
+  required DashboardSearchScope scope,
+}) {
+  if (bundle == null) {
+    return const <DashboardDirectoryEntry>[];
+  }
+  if (query.trim().isEmpty) {
+    return bundle.directoryPreview;
+  }
+  return bundle.searchDirectory(query: query, scope: scope);
 }

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:redux/redux.dart';
-import 'package:tolab_fci/app/modules/settings/presentation/settings_screen.dart';
-import 'package:tolab_fci/app/state/app_reducer.dart';
-import 'package:tolab_fci/app/state/app_state.dart';
+import 'package:tolab_fci/app_admin/modules/settings/presentation/settings_screen.dart';
+import 'package:tolab_fci/app_admin/state/app_reducer.dart';
+import 'package:tolab_fci/app_admin/state/app_state.dart';
 
 void main() {
   testWidgets('settings screen exposes security section', (tester) async {

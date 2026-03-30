@@ -9,8 +9,11 @@ DashboardBundle? selectDashboardBundle(AppState state) =>
 DashboardFilters selectDashboardFilters(AppState state) =>
     state.dashboardState.filters;
 
-DashboardLookups selectDashboardLookups(AppState state) =>
-    state.dashboardState.bundle?.lookups ?? const DashboardLookups();
+DashboardSearchScope selectDashboardSearchScope(AppState state) =>
+    state.dashboardState.searchScope;
+
+List<DashboardDirectoryEntry> selectDashboardSearchResults(AppState state) =>
+    state.dashboardState.searchResults;
 
 bool selectDashboardIsEmpty(AppState state) =>
-    state.dashboardState.bundle?.isEmpty ?? false;
+    state.dashboardState.bundle?.isEmpty ?? true;

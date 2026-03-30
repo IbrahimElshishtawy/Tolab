@@ -21,17 +21,46 @@ class DashboardRepository {
         cancelToken: cancelToken,
       );
     } on DioException catch (error) {
-      if (error.type == DioExceptionType.cancel) {
-        rethrow;
-      }
+      if (error.type == DioExceptionType.cancel) rethrow;
       return _seedService.buildBundle(filters: filters);
     } on AppException catch (error) {
-      if (error.statusCode == 401 || error.statusCode == 403) {
-        rethrow;
-      }
+      if (error.statusCode == 401 || error.statusCode == 403) rethrow;
       return _seedService.buildBundle(filters: filters);
     } catch (_) {
       return _seedService.buildBundle(filters: filters);
     }
+  }
+
+  Future<List<DashboardDirectoryEntry>> searchDirectory({
+    required String query,
+    required DashboardSearchScope scope,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final remote = await _apiService.searchDirectory(
+        query: query,
+        scope: scope,
+        cancelToken: cancelToken,
+      );
+      if (remote.isNotEmpty) {
+        return remote;
+      }
+    } on DioException catch (error) {
+      if (error.type == DioExceptionType.cancel) rethrow;
+    } on AppException catch (error) {
+      if (error.statusCode == 401 || error.statusCode == 403) rethrow;
+    } catch (_) {}
+
+    return _seedService.searchDirectory(query: query, scope: scope);
+  }
+
+  Stream<DashboardRealtimeSignal> watchRealtimeSignals({
+    String? accessToken,
+    String? userId,
+  }) {
+    return _apiService.watchRealtimeSignals(
+      accessToken: accessToken,
+      userId: userId,
+    );
   }
 }

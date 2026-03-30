@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:redux/redux.dart';
-import 'package:tolab_fci/app/modules/auth/presentation/login_screen.dart';
-import 'package:tolab_fci/app/shared/models/auth_models.dart';
-import 'package:tolab_fci/app/state/app_reducer.dart';
-import 'package:tolab_fci/app/state/app_state.dart';
+import 'package:tolab_fci/app_admin/modules/auth/presentation/login_screen.dart';
+import 'package:tolab_fci/app_admin/shared/models/auth_models.dart';
+import 'package:tolab_fci/app_admin/state/app_reducer.dart';
+import 'package:tolab_fci/app_admin/state/app_state.dart';
 
 void main() {
   testWidgets('login screen renders seeded admin hint', (tester) async {
@@ -30,7 +30,8 @@ void main() {
     });
     final user = UserProfile.fromJson(const {
       'id': 7,
-      'username': 'Super Admin',
+      'username': 'super-admin',
+      'name': 'Super Admin',
       'email': 'admin@tolab.edu',
       'role': 'admin',
       'is_active': true,

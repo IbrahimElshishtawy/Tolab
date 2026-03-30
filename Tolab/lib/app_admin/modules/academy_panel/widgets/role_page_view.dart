@@ -12,6 +12,10 @@ import '../../../core/widgets/app_card.dart';
 import '../models/academy_models.dart';
 
 const double _pinnedStatusHeaderExtent = 84;
+const double _tableHeadingRowHeight = 56;
+const double _tableDataRowHeight = 56;
+const double _tableViewportPadding = AppSpacing.sm;
+const int _tableMaxVisibleRows = 8;
 
 class RolePageView extends StatefulWidget {
   const RolePageView({
@@ -563,46 +567,52 @@ class _TablePanel extends StatelessWidget {
     if (table.rows.isEmpty) {
       return Center(child: Text(table.emptyLabel));
     }
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: table.columns.length * 210,
-        child: DataTable2(
-          minWidth: 920,
-          fixedTopRows: table.stickyHeader ? 1 : 0,
-          columns: [
+    final visibleRowCount = table.rows.length.clamp(1, _tableMaxVisibleRows);
+    final tableHeight =
+        _tableHeadingRowHeight +
+        (_tableDataRowHeight * visibleRowCount) +
+        _tableViewportPadding;
+    final columns = <DataColumn>[
+      ...table.columns.map(
+        (column) => DataColumn2(label: Text(column.label)),
+      ),
+      const DataColumn2(label: Text('Actions')),
+    ];
+    final rows = <DataRow>[
+      for (final row in table.rows)
+        DataRow2(
+          cells: [
             ...table.columns.map(
-              (column) => DataColumn2(label: Text(column.label)),
+              (column) => DataCell(Text('${row.cells[column.key] ?? '-'}')),
             ),
-            const DataColumn2(label: Text('Actions')),
+            DataCell(
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () => onEditRow(row.cells),
+                    icon: const Icon(Icons.edit_rounded),
+                  ),
+                  IconButton(
+                    onPressed: () => onDeleteRow(row.cells),
+                    icon: const Icon(Icons.delete_outline_rounded),
+                  ),
+                ],
+              ),
+            ),
           ],
-          rows: table.rows
-              .map(
-                (row) => DataRow2(
-                  cells: [
-                    ...table.columns.map(
-                      (column) =>
-                          DataCell(Text('${row.cells[column.key] ?? '-'}')),
-                    ),
-                    DataCell(
-                      Row(
-                        children: [
-                          IconButton(
-                            onPressed: () => onEditRow(row.cells),
-                            icon: const Icon(Icons.edit_rounded),
-                          ),
-                          IconButton(
-                            onPressed: () => onDeleteRow(row.cells),
-                            icon: const Icon(Icons.delete_outline_rounded),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              )
-              .toList(),
         ),
+    ];
+    return SizedBox(
+      height: tableHeight,
+      child: DataTable2(
+        minWidth: (table.columns.length * 210).toDouble(),
+        fixedTopRows: table.stickyHeader ? 1 : 0,
+        headingRowHeight: _tableHeadingRowHeight,
+        dataRowHeight: _tableDataRowHeight,
+        bottomMargin: _tableViewportPadding,
+        columns: columns,
+        rows: rows,
       ),
     );
   }

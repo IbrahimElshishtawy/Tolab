@@ -1,11 +1,95 @@
+import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 import '../../../core/colors/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/spacing/app_spacing.dart';
 import '../../../core/widgets/app_card.dart';
-import '../models/dashboard_models.dart';
+import '../../../shared/enums/load_status.dart';
+import '../state/dashboard_state.dart';
+
+class DashboardSearchResultsPanel extends StatelessWidget {
+  const DashboardSearchResultsPanel({
+    super.key,
+    required this.query,
+    required this.results,
+    required this.searchStatus,
+    required this.onEntrySelected,
+  });
+
+  final String query;
+  final List<DashboardDirectoryEntry> results;
+  final LoadStatus searchStatus;
+  final ValueChanged<DashboardDirectoryEntry> onEntrySelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final heading = query.trim().isEmpty ? 'Suggested people' : 'Search results';
+
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(heading, style: Theme.of(context).textTheme.titleLarge),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      query.trim().isEmpty
+                          ? 'Students, doctors, and assistants most relevant to current operations.'
+                          : 'Results update instantly from the local index while Laravel search refines them in the background.',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ),
+              if (searchStatus == LoadStatus.loading)
+                const SizedBox.square(
+                  dimension: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          if (results.isEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
+                border: Border.all(color: Theme.of(context).dividerColor),
+              ),
+              child: Text(
+                'No matching student, doctor, or assistant was found for this query.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            )
+          else
+            Wrap(
+              spacing: AppSpacing.md,
+              runSpacing: AppSpacing.md,
+              children: [
+                for (final entry in results)
+                  SizedBox(
+                    width: 280,
+                    child: _DirectoryCard(
+                      entry: entry,
+                      onTap: () => onEntrySelected(entry),
+                    ),
+                  ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}
 
 class QuickActionsPanel extends StatelessWidget {
   const QuickActionsPanel({
@@ -20,19 +104,23 @@ class QuickActionsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Quick actions', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 6),
+          const SizedBox(height: AppSpacing.xs),
           Text(
-            'Fast entry points for the highest-frequency admin operations.',
-            style: Theme.of(context).textTheme.bodySmall,
+            'High-priority shortcuts for daily academy admin work.',
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.md),
           for (final action in actions) ...[
-            _ActionTile(action: action, onTap: () => onActionSelected(action)),
-            if (action != actions.last) const SizedBox(height: AppSpacing.sm),
+            _QuickActionButton(
+              action: action,
+              onTap: () => onActionSelected(action),
+            ),
+            const SizedBox(height: AppSpacing.md),
           ],
         ],
       ),
@@ -40,398 +128,509 @@ class QuickActionsPanel extends StatelessWidget {
   }
 }
 
-class RecentActivityPanel extends StatelessWidget {
-  const RecentActivityPanel({super.key, required this.items});
+class DashboardAlertsPanel extends StatelessWidget {
+  const DashboardAlertsPanel({super.key, required this.alerts});
 
-  final List<DashboardActivityItem> items;
+  final List<DashboardAlertItem> alerts;
 
   @override
   Widget build(BuildContext context) {
     return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text('Live alerts', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: AppSpacing.xs),
           Text(
-            'Recent activity',
-            style: Theme.of(context).textTheme.titleLarge,
+            'Queues that should stay visible while notifications continue in the top shell.',
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
-          const SizedBox(height: 6),
-          Text(
-            'The latest operational movement across students, staff, and subjects.',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          AnimationLimiter(
-            child: Column(
-              children: [
-                for (var index = 0; index < items.length; index++)
-                  AnimationConfiguration.staggeredList(
-                    position: index,
-                    duration: const Duration(milliseconds: 320),
-                    child: SlideAnimation(
-                      verticalOffset: 18,
-                      child: FadeInAnimation(
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-                          padding: const EdgeInsets.all(AppSpacing.md),
-                          decoration: BoxDecoration(
-                            color: _activityTone(items[index].type).withValues(
-                              alpha: items[index].highlighted ? 0.12 : 0.06,
-                            ),
-                            borderRadius: BorderRadius.circular(
-                              AppConstants.mediumRadius,
-                            ),
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                height: 42,
-                                width: 42,
-                                decoration: BoxDecoration(
-                                  color: _activityTone(
-                                    items[index].type,
-                                  ).withValues(alpha: 0.18),
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                child: Icon(
-                                  _activityIcon(items[index].type),
-                                  color: _activityTone(items[index].type),
-                                ),
-                              ),
-                              const SizedBox(width: AppSpacing.md),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      items[index].title,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleSmall,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      items[index].subtitle,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodySmall,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      items[index].actorName,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.labelMedium,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: AppSpacing.sm),
-                              Text(
-                                items[index].timeLabel,
-                                style: Theme.of(context).textTheme.labelMedium,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
+          const SizedBox(height: AppSpacing.md),
+          for (final alert in alerts) ...[
+            _AlertTile(alert: alert),
+            const SizedBox(height: AppSpacing.md),
+          ],
         ],
       ),
     );
   }
 }
 
-class ModerationAlertsPanel extends StatelessWidget {
-  const ModerationAlertsPanel({super.key, required this.items});
+class RecentActivityTableCard extends StatefulWidget {
+  const RecentActivityTableCard({super.key, required this.rows});
 
-  final List<DashboardModerationAlert> items;
+  final List<DashboardActivityRow> rows;
+
+  @override
+  State<RecentActivityTableCard> createState() => _RecentActivityTableCardState();
+}
+
+class _RecentActivityTableCardState extends State<RecentActivityTableCard> {
+  final TextEditingController _queryController = TextEditingController();
+  DashboardActivityCategory _category = DashboardActivityCategory.all;
+  int _sortColumnIndex = 4;
+  bool _sortAscending = false;
+  int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
+
+  @override
+  void dispose() {
+    _queryController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final filteredRows = _applyFilters(widget.rows);
+    final source = _ActivityDataSource(
+      context: context,
+      rows: filteredRows,
+    );
+
     return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Recent registrations, uploads, and review queue',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            'Sortable, searchable, sticky-headed operations table with pagination for large queues.',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Wrap(
+            spacing: AppSpacing.md,
+            runSpacing: AppSpacing.md,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              SizedBox(
+                width: 340,
+                child: TextField(
+                  controller: _queryController,
+                  onChanged: (_) => setState(() {}),
+                  decoration: const InputDecoration(
+                    hintText: 'Search activity table',
+                    prefixIcon: Icon(Icons.search_rounded),
+                  ),
+                ),
+              ),
+              for (final category in DashboardActivityCategory.values)
+                ChoiceChip(
+                  selected: _category == category,
+                  label: Text(category.label),
+                  onSelected: (_) => setState(() => _category = category),
+                ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          PaginatedDataTable2(
+            columnSpacing: 18,
+            horizontalMargin: 12,
+            dataRowHeight: 72,
+            rowsPerPage: _rowsPerPage,
+            minWidth: 1100,
+            showFirstLastButtons: true,
+            fixedTopRows: 1,
+            onRowsPerPageChanged: (value) {
+              if (value == null) return;
+              setState(() => _rowsPerPage = value);
+            },
+            sortColumnIndex: _sortColumnIndex,
+            sortAscending: _sortAscending,
+            columns: [
+              DataColumn2(
+                label: const Text('Category'),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) => _sort<String>(
+                  columnIndex,
+                  ascending,
+                  filteredRows,
+                  (row) => row.type.label,
+                ),
+              ),
+              DataColumn2(
+                label: const Text('Title'),
+                size: ColumnSize.L,
+                onSort: (columnIndex, ascending) => _sort<String>(
+                  columnIndex,
+                  ascending,
+                  filteredRows,
+                  (row) => row.title,
+                ),
+              ),
+              DataColumn2(
+                label: const Text('Actor'),
+                size: ColumnSize.M,
+                onSort: (columnIndex, ascending) => _sort<String>(
+                  columnIndex,
+                  ascending,
+                  filteredRows,
+                  (row) => row.actor,
+                ),
+              ),
+              DataColumn2(
+                label: const Text('Department'),
+                size: ColumnSize.M,
+                onSort: (columnIndex, ascending) => _sort<String>(
+                  columnIndex,
+                  ascending,
+                  filteredRows,
+                  (row) => row.department,
+                ),
+              ),
+              DataColumn2(
+                label: const Text('Created'),
+                size: ColumnSize.S,
+                onSort: (columnIndex, ascending) => _sort<DateTime>(
+                  columnIndex,
+                  ascending,
+                  filteredRows,
+                  (row) => row.createdAt,
+                ),
+              ),
+              const DataColumn2(
+                label: Text('Status'),
+                size: ColumnSize.S,
+              ),
+            ],
+            source: source,
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<DashboardActivityRow> _applyFilters(List<DashboardActivityRow> rows) {
+    final filtered = rows
+        .where((row) => row.matchesCategory(_category))
+        .where((row) => row.matchesQuery(_queryController.text))
+        .toList(growable: true);
+
+    filtered.sort(_compareRows);
+    return filtered;
+  }
+
+  int _compareRows(DashboardActivityRow left, DashboardActivityRow right) {
+    final factor = _sortAscending ? 1 : -1;
+    return switch (_sortColumnIndex) {
+      0 => factor * left.type.label.compareTo(right.type.label),
+      1 => factor * left.title.compareTo(right.title),
+      2 => factor * left.actor.compareTo(right.actor),
+      3 => factor * left.department.compareTo(right.department),
+      _ => factor * left.createdAt.compareTo(right.createdAt),
+    };
+  }
+
+  void _sort<T>(
+    int columnIndex,
+    bool ascending,
+    List<DashboardActivityRow> rows,
+    Comparable<T> Function(DashboardActivityRow row) getField,
+  ) {
+    rows.sort((a, b) {
+      final left = getField(a);
+      final right = getField(b);
+      return ascending
+          ? Comparable.compare(left, right)
+          : Comparable.compare(right, left);
+    });
+    setState(() {
+      _sortColumnIndex = columnIndex;
+      _sortAscending = ascending;
+    });
+  }
+}
+
+class _DirectoryCard extends StatelessWidget {
+  const _DirectoryCard({required this.entry, required this.onTap});
+
+  final DashboardDirectoryEntry entry;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final tone = _roleColor(entry.role);
+    return AppCard(
+      interactive: true,
+      onTap: onTap,
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Expanded(
+              CircleAvatar(
+                radius: 22,
+                backgroundColor: tone.withValues(alpha: 0.14),
                 child: Text(
-                  'Pending moderation',
-                  style: Theme.of(context).textTheme.titleLarge,
+                  entry.initials,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: tone,
+                  ),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm,
-                  vertical: AppSpacing.xs,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.warningSoft.withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(AppConstants.pillRadius),
-                ),
-                child: Text(
-                  '${items.fold<int>(0, (sum, item) => sum + item.flaggedCount)} items',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelMedium?.copyWith(color: AppColors.warning),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      entry.displayName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    Text(
+                      entry.email,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: AppSpacing.md),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              _MiniChip(label: entry.role.label, color: tone),
+              _MiniChip(label: entry.departmentLabel, color: AppColors.info),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(entry.statusLabel, style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: AppSpacing.xs),
           Text(
-            'Flagged conversations and content issues waiting for intervention.',
+            'Last seen ${entry.lastSeenLabel}',
             style: Theme.of(context).textTheme.bodySmall,
           ),
-          const SizedBox(height: AppSpacing.lg),
-          for (final item in items) ...[
-            _AlertTile(item: item),
-            if (item != items.last) const SizedBox(height: AppSpacing.sm),
-          ],
         ],
       ),
     );
   }
 }
 
-class ScheduleSummaryPanel extends StatelessWidget {
-  const ScheduleSummaryPanel({super.key, required this.items});
-
-  final List<DashboardScheduleItem> items;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Schedule summary',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Upcoming lectures, exams, and tasks across the selected scope.',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          for (final item in items) ...[
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              decoration: BoxDecoration(
-                color: _scheduleColor(item.type).withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 68,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: AppSpacing.xs,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.72),
-                      borderRadius: BorderRadius.circular(
-                        AppConstants.smallRadius,
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          item.dayLabel,
-                          style: Theme.of(context).textTheme.labelLarge,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          item.timeLabel,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.labelSmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.title,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${item.location} • ${item.owner}',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Text(
-                    item.statusLabel,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: _scheduleColor(item.type),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (item != items.last) const SizedBox(height: AppSpacing.sm),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _ActionTile extends StatelessWidget {
-  const _ActionTile({required this.action, required this.onTap});
+class _QuickActionButton extends StatelessWidget {
+  const _QuickActionButton({required this.action, required this.onTap});
 
   final DashboardQuickAction action;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      interactive: true,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      backgroundColor: Theme.of(context).cardColor.withValues(alpha: 0.82),
-      onTap: action.enabled ? onTap : null,
-      child: Row(
-        children: [
-          Container(
-            height: 44,
-            width: 44,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(AppConstants.smallRadius),
-            ),
-            child: Icon(_actionIcon(action.id), color: AppColors.primary),
+    final accent = _toneColor(action.tone);
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              accent.withValues(alpha: 0.96),
+              accent.withValues(alpha: 0.72),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  action.label,
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  action.subtitle,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
+          borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
+          boxShadow: [
+            BoxShadow(
+              color: accent.withValues(alpha: 0.24),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
-          ),
-          const Icon(Icons.arrow_outward_rounded, size: 18),
-        ],
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.sm),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.18),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(_actionIcon(action.id), color: Colors.white),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    action.label,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xxs),
+                  Text(
+                    action.subtitle,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.86),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_rounded, color: Colors.white),
+          ],
+        ),
       ),
     );
   }
 }
 
 class _AlertTile extends StatelessWidget {
-  const _AlertTile({required this.item});
+  const _AlertTile({required this.alert});
 
-  final DashboardModerationAlert item;
+  final DashboardAlertItem alert;
 
   @override
   Widget build(BuildContext context) {
-    final color = switch (item.severity) {
-      DashboardAlertSeverity.low => AppColors.info,
-      DashboardAlertSeverity.medium => AppColors.warning,
-      DashboardAlertSeverity.high => AppColors.danger,
-      DashboardAlertSeverity.critical => AppColors.danger,
-    };
-
+    final accent = _toneColor(alert.tone);
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
+        color: accent.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
+        border: Border.all(color: accent.withValues(alpha: 0.18)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.flag_rounded, color: color),
-          const SizedBox(width: AppSpacing.sm),
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(Icons.notifications_active_rounded, color: accent),
+          ),
+          const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.title, style: Theme.of(context).textTheme.titleSmall),
-                const SizedBox(height: 4),
-                Text(
-                  item.subtitle,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${item.scopeLabel} • ${item.flaggedCount} flagged',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelMedium?.copyWith(color: color),
-                ),
+                Text(alert.title, style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: AppSpacing.xxs),
+                Text(alert.subtitle, style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
           ),
+          const SizedBox(width: AppSpacing.sm),
+          _MiniChip(label: alert.counterLabel, color: accent),
         ],
       ),
     );
   }
 }
 
-IconData _actionIcon(String id) {
-  return switch (id) {
-    'add_student' => Icons.person_add_alt_1_rounded,
-    'add_staff' => Icons.badge_rounded,
-    'add_course' => Icons.library_add_rounded,
-    'send_notification' => Icons.campaign_rounded,
-    _ => Icons.flash_on_rounded,
-  };
+class _MiniChip extends StatelessWidget {
+  const _MiniChip({required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: 6,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color),
+      ),
+    );
+  }
 }
 
-Color _activityTone(DashboardActivityType type) {
-  return switch (type) {
-    DashboardActivityType.student => AppColors.primary,
-    DashboardActivityType.staff => AppColors.secondary,
-    DashboardActivityType.subject => AppColors.info,
-    DashboardActivityType.enrollment => AppColors.primary,
-    DashboardActivityType.moderation => AppColors.warning,
-    DashboardActivityType.schedule => AppColors.purple,
-    DashboardActivityType.system => AppColors.slate,
-  };
+class _ActivityDataSource extends DataTableSource {
+  _ActivityDataSource({
+    required BuildContext context,
+    required List<DashboardActivityRow> rows,
+  }) : _context = context,
+       _rows = rows;
+
+  final BuildContext _context;
+  final List<DashboardActivityRow> _rows;
+
+  @override
+  DataRow? getRow(int index) {
+    if (index >= _rows.length) return null;
+    final row = _rows[index];
+    return DataRow(
+      cells: [
+        DataCell(_MiniChip(label: row.type.label, color: _toneColor(row.tone))),
+        DataCell(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(row.title, style: Theme.of(_context).textTheme.titleSmall),
+              const SizedBox(height: 4),
+              SizedBox(
+                width: 280,
+                child: Text(
+                  row.subtitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(_context).textTheme.bodySmall,
+                ),
+              ),
+            ],
+          ),
+        ),
+        DataCell(Text(row.actor)),
+        DataCell(Text(row.department)),
+        DataCell(Text(row.createdAtLabel)),
+        DataCell(_MiniChip(label: row.statusLabel, color: _toneColor(row.tone))),
+      ],
+    );
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get rowCount => _rows.length;
+
+  @override
+  int get selectedRowCount => 0;
 }
 
-IconData _activityIcon(DashboardActivityType type) {
-  return switch (type) {
-    DashboardActivityType.student => Icons.school_rounded,
-    DashboardActivityType.staff => Icons.groups_rounded,
-    DashboardActivityType.subject => Icons.menu_book_rounded,
-    DashboardActivityType.enrollment => Icons.playlist_add_check_circle_rounded,
-    DashboardActivityType.moderation => Icons.shield_rounded,
-    DashboardActivityType.schedule => Icons.event_available_rounded,
-    DashboardActivityType.system => Icons.settings_suggest_rounded,
-  };
-}
+Color _roleColor(DashboardDirectoryRole role) => switch (role) {
+  DashboardDirectoryRole.student => AppColors.primary,
+  DashboardDirectoryRole.doctor => AppColors.secondary,
+  DashboardDirectoryRole.assistant => AppColors.info,
+};
 
-Color _scheduleColor(DashboardScheduleType type) {
-  return switch (type) {
-    DashboardScheduleType.lecture => AppColors.primary,
-    DashboardScheduleType.exam => AppColors.danger,
-    DashboardScheduleType.task => AppColors.warning,
-    DashboardScheduleType.meeting => AppColors.info,
-    DashboardScheduleType.review => AppColors.secondary,
-  };
-}
+Color _toneColor(DashboardMetricTone tone) => switch (tone) {
+  DashboardMetricTone.primary => AppColors.primary,
+  DashboardMetricTone.info => AppColors.info,
+  DashboardMetricTone.success => AppColors.secondary,
+  DashboardMetricTone.warning => AppColors.warning,
+  DashboardMetricTone.danger => AppColors.danger,
+};
+
+IconData _actionIcon(String id) => switch (id) {
+  'add-student' => Icons.person_add_alt_1_rounded,
+  'assign-course' => Icons.assignment_ind_rounded,
+  'upload-content' => Icons.cloud_upload_rounded,
+  _ => Icons.flash_on_rounded,
+};

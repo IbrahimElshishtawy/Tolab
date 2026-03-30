@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:redux/redux.dart';
-import 'package:tolab_fci/app/modules/dashboard/presentation/dashboard_screen.dart';
-import 'package:tolab_fci/app/modules/dashboard/services/dashboard_seed_service.dart';
-import 'package:tolab_fci/app/modules/dashboard/models/dashboard_models.dart';
-import 'package:tolab_fci/app/modules/dashboard/state/dashboard_state.dart';
-import 'package:tolab_fci/app/state/app_reducer.dart';
-import 'package:tolab_fci/app/state/app_state.dart';
+import 'package:tolab_fci/app_admin/modules/dashboard/presentation/dashboard_screen.dart';
+import 'package:tolab_fci/app_admin/modules/dashboard/services/dashboard_seed_service.dart';
+import 'package:tolab_fci/app_admin/modules/dashboard/models/dashboard_models.dart';
+import 'package:tolab_fci/app_admin/modules/dashboard/state/dashboard_state.dart';
+import 'package:tolab_fci/app_admin/state/app_reducer.dart';
+import 'package:tolab_fci/app_admin/state/app_state.dart';
 
 void main() {
   testWidgets('dashboard screen renders seeded metrics', (tester) async {
@@ -32,7 +32,6 @@ void main() {
     store.dispatch(DashboardLoadedAction(seededBundle));
     await tester.pumpAndSettle();
 
-    expect(find.text('University Overview'), findsOneWidget);
-    expect(find.text('Students'), findsOneWidget);
+    expect(find.text('Search directory'), findsOneWidget);
   });
 }

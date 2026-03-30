@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -5,369 +7,541 @@ import '../../../core/colors/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/spacing/app_spacing.dart';
 import '../../../core/widgets/app_card.dart';
-import '../models/dashboard_models.dart';
+import '../state/dashboard_state.dart';
 
-class EnrollmentTrendCard extends StatelessWidget {
-  const EnrollmentTrendCard({super.key, required this.points});
+class StudentsCoursesTrendCard extends StatefulWidget {
+  const StudentsCoursesTrendCard({super.key, required this.points});
 
-  final List<DashboardLinePoint> points;
+  final List<DashboardTrendPoint> points;
 
   @override
-  Widget build(BuildContext context) {
-    final maxY = points.isEmpty
-        ? 100
-        : points.map((point) => point.value).reduce((a, b) => a > b ? a : b);
-
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Enrollment trend',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Application and confirmation movement across the active semester.',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          SizedBox(
-            height: 300,
-            child: LineChart(
-              duration: const Duration(milliseconds: 450),
-              curve: Curves.easeOutCubic,
-              LineChartData(
-                minX: 0,
-                maxX: (points.length - 1).toDouble(),
-                minY: 0,
-                maxY: maxY * 1.18,
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  getDrawingHorizontalLine: (_) => FlLine(
-                    color: AppColors.slateSoft.withValues(alpha: 0.45),
-                    strokeWidth: 1,
-                  ),
-                ),
-                borderData: FlBorderData(show: false),
-                lineTouchData: LineTouchData(
-                  handleBuiltInTouches: true,
-                  touchTooltipData: LineTouchTooltipData(
-                    getTooltipColor: (_) => AppColors.textPrimaryLight,
-                  ),
-                ),
-                titlesData: FlTitlesData(
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 40,
-                      getTitlesWidget: (value, _) => Text(
-                        value.toInt().toString(),
-                        style: Theme.of(context).textTheme.labelSmall,
-                      ),
-                    ),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, _) {
-                        final index = value.toInt();
-                        if (index < 0 || index >= points.length) {
-                          return const SizedBox.shrink();
-                        }
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Text(
-                            points[index].label,
-                            style: Theme.of(context).textTheme.labelMedium,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                lineBarsData: [
-                  LineChartBarData(
-                    isCurved: true,
-                    barWidth: 4,
-                    color: AppColors.primary,
-                    spots: [
-                      for (var index = 0; index < points.length; index++)
-                        FlSpot(index.toDouble(), points[index].value),
-                    ],
-                    dotData: FlDotData(
-                      show: true,
-                      getDotPainter: (_, _, _, _) => FlDotCirclePainter(
-                        radius: 3.8,
-                        color: AppColors.primary,
-                        strokeWidth: 2,
-                        strokeColor: Colors.white,
-                      ),
-                    ),
-                    belowBarData: BarAreaData(
-                      show: true,
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.primary.withValues(alpha: 0.26),
-                          AppColors.primary.withValues(alpha: 0.02),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  State<StudentsCoursesTrendCard> createState() =>
+      _StudentsCoursesTrendCardState();
 }
 
-class StudentDistributionCard extends StatelessWidget {
-  const StudentDistributionCard({super.key, required this.slices});
-
-  final List<DashboardPieSlice> slices;
+class _StudentsCoursesTrendCardState extends State<StudentsCoursesTrendCard> {
+  int? _touchedIndex;
 
   @override
   Widget build(BuildContext context) {
-    final total = slices.fold<double>(0, (sum, item) => sum + item.value);
+    final chartWidth = math.max(widget.points.length * 110.0, 680.0);
+    final maxStudents = widget.points
+        .map((point) => point.totalStudents)
+        .fold<double>(0, math.max);
+    final maxCourses = widget.points
+        .map((point) => point.activeCourses)
+        .fold<double>(0, math.max);
+    final maxY = math.max(maxStudents, maxCourses * 100) * 1.14;
 
     return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Student distribution',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Visible cohort split by academic year for the selected scope.',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          SizedBox(
-            height: 250,
-            child: PieChart(
-              duration: const Duration(milliseconds: 450),
-              curve: Curves.easeOutCubic,
-              PieChartData(
-                centerSpaceRadius: 62,
-                sectionsSpace: 3,
-                sections: [
-                  for (final slice in slices)
-                    PieChartSectionData(
-                      value: slice.value,
-                      color: _toneColor(slice.tone),
-                      radius: 24,
-                      showTitle: false,
-                    ),
-                ],
-              ),
-            ),
+          _CardHeader(
+            title: 'Students / active courses trend',
+            subtitle:
+                'Tap the chart for precise values as enrollment and teaching load move together.',
           ),
           const SizedBox(height: AppSpacing.md),
-          for (final slice in slices)
-            Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-              child: Row(
-                children: [
-                  Container(
-                    height: 10,
-                    width: 10,
-                    decoration: BoxDecoration(
-                      color: _toneColor(slice.tone),
-                      borderRadius: BorderRadius.circular(
-                        AppConstants.pillRadius,
+          const _LegendRow(
+            items: [
+              _LegendItem(label: 'Students', color: AppColors.primary),
+              _LegendItem(label: 'Active courses x100', color: AppColors.info),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          SizedBox(
+            height: 320,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: chartWidth,
+                child: LineChart(
+                  LineChartData(
+                    minY: 0,
+                    maxY: maxY,
+                    gridData: FlGridData(
+                      drawVerticalLine: false,
+                      horizontalInterval: maxY / 4,
+                      getDrawingHorizontalLine: (_) => FlLine(
+                        color: Theme.of(context).dividerColor,
+                        strokeWidth: 1,
                       ),
                     ),
+                    titlesData: FlTitlesData(
+                      topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          interval: maxY / 4,
+                          reservedSize: 52,
+                          getTitlesWidget: (value, meta) {
+                            if (value == 0) {
+                              return const SizedBox.shrink();
+                            }
+                            return Text(
+                              value >= 1000
+                                  ? '${(value / 1000).toStringAsFixed(1)}k'
+                                  : value.toStringAsFixed(0),
+                              style: Theme.of(context).textTheme.bodySmall,
+                            );
+                          },
+                        ),
+                      ),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          interval: 1,
+                          getTitlesWidget: (value, meta) {
+                            final index = value.toInt();
+                            if (index < 0 || index >= widget.points.length) {
+                              return const SizedBox.shrink();
+                            }
+                            return Padding(
+                              padding: const EdgeInsets.only(top: AppSpacing.sm),
+                              child: Text(
+                                widget.points[index].label,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    lineTouchData: LineTouchData(
+                      handleBuiltInTouches: true,
+                      touchCallback: (event, response) {
+                        if (!event.isInterestedForInteractions ||
+                            response?.lineBarSpots == null ||
+                            response!.lineBarSpots!.isEmpty) {
+                          if (_touchedIndex != null) {
+                            setState(() => _touchedIndex = null);
+                          }
+                          return;
+                        }
+                        setState(
+                          () => _touchedIndex =
+                              response.lineBarSpots!.first.x.toInt(),
+                        );
+                      },
+                      touchTooltipData: LineTouchTooltipData(
+                        getTooltipColor: (_) => Theme.of(context).cardColor,
+                        getTooltipItems: (spots) {
+                          return spots.map((spot) {
+                            final point = widget.points[spot.x.toInt()];
+                            final label = spot.barIndex == 0
+                                ? 'Students ${point.totalStudents.toStringAsFixed(0)}'
+                                : 'Courses ${point.activeCourses.toStringAsFixed(0)}';
+                            return LineTooltipItem(
+                              '$label\n${point.label}',
+                              Theme.of(context).textTheme.bodySmall!,
+                            );
+                          }).toList(growable: false);
+                        },
+                      ),
+                    ),
+                    borderData: FlBorderData(show: false),
+                    lineBarsData: [
+                      LineChartBarData(
+                        isCurved: true,
+                        color: AppColors.primary,
+                        barWidth: 4,
+                        dotData: FlDotData(
+                          show: true,
+                          getDotPainter: (spot, percent, bar, index) =>
+                              FlDotCirclePainter(
+                                radius: _touchedIndex == index ? 5 : 3,
+                                color: AppColors.primary,
+                                strokeWidth: 2,
+                                strokeColor: Colors.white,
+                              ),
+                        ),
+                        belowBarData: BarAreaData(
+                          show: true,
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColors.primary.withValues(alpha: 0.28),
+                              AppColors.primary.withValues(alpha: 0.04),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                        ),
+                        spots: [
+                          for (var i = 0; i < widget.points.length; i++)
+                            FlSpot(i.toDouble(), widget.points[i].totalStudents),
+                        ],
+                      ),
+                      LineChartBarData(
+                        isCurved: true,
+                        color: AppColors.info,
+                        barWidth: 3,
+                        dashArray: const [10, 6],
+                        dotData: const FlDotData(show: false),
+                        spots: [
+                          for (var i = 0; i < widget.points.length; i++)
+                            FlSpot(
+                              i.toDouble(),
+                              widget.points[i].activeCourses * 100,
+                            ),
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(child: Text(slice.label)),
-                  Text(
-                    '${total == 0 ? 0 : ((slice.value / total) * 100).round()}%',
-                    style: Theme.of(context).textTheme.labelLarge,
-                  ),
-                ],
+                ),
               ),
             ),
+          ),
         ],
       ),
     );
   }
 }
 
-class AttendanceOverviewCard extends StatelessWidget {
-  const AttendanceOverviewCard({super.key, required this.points});
+class EnrollmentDepartmentBarCard extends StatefulWidget {
+  const EnrollmentDepartmentBarCard({super.key, required this.points});
 
-  final List<DashboardBarPoint> points;
+  final List<DashboardDepartmentStat> points;
+
+  @override
+  State<EnrollmentDepartmentBarCard> createState() =>
+      _EnrollmentDepartmentBarCardState();
+}
+
+class _EnrollmentDepartmentBarCardState extends State<EnrollmentDepartmentBarCard> {
+  int? _touchedGroup;
 
   @override
   Widget build(BuildContext context) {
-    return _DashboardBarCard(
-      title: 'Attendance overview',
-      subtitle:
-          'Average attendance through the week, calibrated against the 90% baseline.',
-      points: points,
-      color: AppColors.info,
-      valueSuffix: '%',
+    final chartWidth = math.max(widget.points.length * 120.0, 720.0);
+    final maxY = widget.points
+        .map((point) => point.enrollments)
+        .fold<double>(0, math.max) *
+        1.2;
+
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _CardHeader(
+            title: 'Enrollment per department',
+            subtitle:
+                'Hover or tap bars to compare academic demand across departments.',
+          ),
+          const SizedBox(height: AppSpacing.md),
+          SizedBox(
+            height: 320,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: chartWidth,
+                child: BarChart(
+                  BarChartData(
+                    maxY: maxY,
+                    gridData: FlGridData(
+                      drawVerticalLine: false,
+                      horizontalInterval: maxY / 4,
+                      getDrawingHorizontalLine: (_) => FlLine(
+                        color: Theme.of(context).dividerColor,
+                        strokeWidth: 1,
+                      ),
+                    ),
+                    alignment: BarChartAlignment.spaceAround,
+                    borderData: FlBorderData(show: false),
+                    titlesData: FlTitlesData(
+                      topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          interval: maxY / 4,
+                          reservedSize: 50,
+                          getTitlesWidget: (value, meta) {
+                            if (value == 0) return const SizedBox.shrink();
+                            return Text(
+                              '${(value / 1000).toStringAsFixed(1)}k',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            );
+                          },
+                        ),
+                      ),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          getTitlesWidget: (value, meta) {
+                            final index = value.toInt();
+                            if (index < 0 || index >= widget.points.length) {
+                              return const SizedBox.shrink();
+                            }
+                            return Padding(
+                              padding: const EdgeInsets.only(top: AppSpacing.sm),
+                              child: Text(
+                                widget.points[index].department,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    barTouchData: BarTouchData(
+                      enabled: true,
+                      touchCallback: (event, response) {
+                        setState(
+                          () => _touchedGroup =
+                              response?.spot?.touchedBarGroupIndex,
+                        );
+                      },
+                      touchTooltipData: BarTouchTooltipData(
+                        getTooltipColor: (_) => Theme.of(context).cardColor,
+                        getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                          final point = widget.points[group.x.toInt()];
+                          return BarTooltipItem(
+                            '${point.department}\n${point.enrollments.toStringAsFixed(0)} enrollments',
+                            Theme.of(context).textTheme.bodySmall!,
+                          );
+                        },
+                      ),
+                    ),
+                    barGroups: [
+                      for (var i = 0; i < widget.points.length; i++)
+                        BarChartGroupData(
+                          x: i,
+                          barRods: [
+                            BarChartRodData(
+                              toY: widget.points[i].enrollments,
+                              width: _touchedGroup == i ? 32 : 26,
+                              borderRadius: BorderRadius.circular(12),
+                              gradient: LinearGradient(
+                                colors: [
+                                  _toneColor(widget.points[i].tone).withValues(alpha: 0.55),
+                                  _toneColor(widget.points[i].tone),
+                                ],
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-class StaffPerformanceCard extends StatelessWidget {
-  const StaffPerformanceCard({super.key, required this.points});
+class PendingApprovalsDonutCard extends StatefulWidget {
+  const PendingApprovalsDonutCard({super.key, required this.slices});
 
-  final List<DashboardBarPoint> points;
+  final List<DashboardTaskSlice> slices;
+
+  @override
+  State<PendingApprovalsDonutCard> createState() =>
+      _PendingApprovalsDonutCardState();
+}
+
+class _PendingApprovalsDonutCardState extends State<PendingApprovalsDonutCard> {
+  int _touchedIndex = -1;
 
   @override
   Widget build(BuildContext context) {
-    return _DashboardBarCard(
-      title: 'Staff performance',
-      subtitle:
-          'Delivery quality, responsiveness, and continuity by instructor.',
-      points: points,
-      color: AppColors.secondary,
-      valueSuffix: '',
+    final total = widget.slices.fold<double>(
+      0,
+      (sum, slice) => sum + slice.value,
+    );
+
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _CardHeader(
+            title: 'Pending approvals / tasks',
+            subtitle:
+                'Real-time workload split between approvals, content validation, and review operations.',
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 260,
+                  child: PieChart(
+                    PieChartData(
+                      centerSpaceRadius: 64,
+                      sectionsSpace: 4,
+                      pieTouchData: PieTouchData(
+                        touchCallback: (event, response) {
+                          setState(() {
+                            _touchedIndex =
+                                response?.touchedSection?.touchedSectionIndex ??
+                                -1;
+                          });
+                        },
+                      ),
+                      sections: [
+                        for (var i = 0; i < widget.slices.length; i++)
+                          PieChartSectionData(
+                            color: _toneColor(widget.slices[i].tone),
+                            value: widget.slices[i].value,
+                            title: widget.slices[i].value.toStringAsFixed(0),
+                            radius: _touchedIndex == i ? 96 : 82,
+                            titleStyle: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(color: Colors.white),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${total.toStringAsFixed(0)} open tasks',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      'Every segment feeds the notification badge and FIFO toast pipeline in the top shell.',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    for (final slice in widget.slices) ...[
+                      _LegendTile(
+                        label: slice.label,
+                        value: slice.value.toStringAsFixed(0),
+                        color: _toneColor(slice.tone),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _DashboardBarCard extends StatelessWidget {
-  const _DashboardBarCard({
-    required this.title,
-    required this.subtitle,
-    required this.points,
-    required this.color,
-    required this.valueSuffix,
-  });
+class _CardHeader extends StatelessWidget {
+  const _CardHeader({required this.title, required this.subtitle});
 
   final String title;
   final String subtitle;
-  final List<DashboardBarPoint> points;
-  final Color color;
-  final String valueSuffix;
 
   @override
   Widget build(BuildContext context) {
-    final maxY = points.isEmpty
-        ? 100.0
-        : points
-              .map((point) => point.target ?? point.value)
-              .reduce((a, b) => a > b ? a : b);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: AppSpacing.xs),
+        Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
+      ],
+    );
+  }
+}
 
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+class _LegendRow extends StatelessWidget {
+  const _LegendRow({required this.items});
+
+  final List<_LegendItem> items;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: AppSpacing.md,
+      runSpacing: AppSpacing.sm,
+      children: items,
+    );
+  }
+}
+
+class _LegendItem extends StatelessWidget {
+  const _LegendItem({required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: AppSpacing.xs),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
+      ],
+    );
+  }
+}
+
+class _LegendTile extends StatelessWidget {
+  const _LegendTile({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  final String label;
+  final String value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
+      ),
+      child: Row(
         children: [
-          Text(title, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 6),
-          Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: AppSpacing.lg),
-          SizedBox(
-            height: 260,
-            child: BarChart(
-              duration: const Duration(milliseconds: 450),
-              curve: Curves.easeOutCubic,
-              BarChartData(
-                maxY: maxY * 1.2,
-                alignment: BarChartAlignment.spaceAround,
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  getDrawingHorizontalLine: (_) => FlLine(
-                    color: AppColors.slateSoft.withValues(alpha: 0.45),
-                    strokeWidth: 1,
-                  ),
-                ),
-                borderData: FlBorderData(show: false),
-                barTouchData: BarTouchData(
-                  enabled: true,
-                  touchTooltipData: BarTouchTooltipData(
-                    getTooltipColor: (_) => AppColors.textPrimaryLight,
-                  ),
-                ),
-                titlesData: FlTitlesData(
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 36,
-                      getTitlesWidget: (value, _) => Text(
-                        '${value.toInt()}$valueSuffix',
-                        style: Theme.of(context).textTheme.labelSmall,
-                      ),
-                    ),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, _) {
-                        final index = value.toInt();
-                        if (index < 0 || index >= points.length) {
-                          return const SizedBox.shrink();
-                        }
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Text(
-                            points[index].label,
-                            style: Theme.of(context).textTheme.labelSmall,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                barGroups: [
-                  for (var index = 0; index < points.length; index++)
-                    BarChartGroupData(
-                      x: index,
-                      barRods: [
-                        BarChartRodData(
-                          toY: points[index].value,
-                          width: 18,
-                          borderRadius: BorderRadius.circular(10),
-                          color: color,
-                          backDrawRodData: BackgroundBarChartRodData(
-                            show: true,
-                            toY: points[index].target ?? maxY,
-                            color: color.withValues(alpha: 0.10),
-                          ),
-                        ),
-                      ],
-                    ),
-                ],
-              ),
-            ),
+          Container(
+            width: 14,
+            height: 14,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(child: Text(label)),
+          Text(value, style: Theme.of(context).textTheme.titleSmall),
         ],
       ),
     );
   }
 }
 
-Color _toneColor(DashboardMetricTone tone) {
-  return switch (tone) {
-    DashboardMetricTone.secondary => AppColors.secondary,
-    DashboardMetricTone.info => AppColors.info,
-    DashboardMetricTone.success => AppColors.secondary,
-    DashboardMetricTone.warning => AppColors.warning,
-    DashboardMetricTone.danger => AppColors.danger,
-    DashboardMetricTone.primary => AppColors.primary,
-  };
-}
+Color _toneColor(DashboardMetricTone tone) => switch (tone) {
+  DashboardMetricTone.primary => AppColors.primary,
+  DashboardMetricTone.info => AppColors.info,
+  DashboardMetricTone.success => AppColors.secondary,
+  DashboardMetricTone.warning => AppColors.warning,
+  DashboardMetricTone.danger => AppColors.danger,
+};
