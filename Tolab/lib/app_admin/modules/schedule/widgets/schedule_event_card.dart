@@ -112,7 +112,7 @@ class _ScheduleEventCardState extends State<ScheduleEventCard> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '${widget.event.subject} • ${widget.event.section}',
+                              '${widget.event.subject} | ${widget.event.section}',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context).textTheme.bodySmall,
@@ -145,6 +145,27 @@ class _ScheduleEventCardState extends State<ScheduleEventCard> {
                           alpha: 0.12,
                         ),
                       ),
+                      _Badge(
+                        label: '${widget.event.department} | ${widget.event.yearLabel}',
+                        foreground: AppColors.info,
+                        background: AppColors.info.withValues(alpha: 0.10),
+                      ),
+                      if (widget.event.repeatRule != ScheduleRepeatRule.none)
+                        _Badge(
+                          label: widget.event.repeatRule.shortLabel,
+                          foreground: AppColors.warning,
+                          background: AppColors.warning.withValues(alpha: 0.12),
+                        ),
+                      _Badge(
+                        label: widget.event.isSynced ? 'Synced' : 'Local',
+                        foreground: widget.event.isSynced
+                            ? AppColors.secondary
+                            : AppColors.info,
+                        background: (widget.event.isSynced
+                                ? AppColors.secondary
+                                : AppColors.info)
+                            .withValues(alpha: 0.12),
+                      ),
                       if (conflict)
                         const _Badge(
                           label: 'Conflict',
@@ -157,7 +178,7 @@ class _ScheduleEventCardState extends State<ScheduleEventCard> {
                   _MetaRow(
                     icon: Icons.schedule_rounded,
                     label:
-                        '${DateFormat('EEE, d MMM').format(widget.event.startAt)} • ${DateFormat.jm().format(widget.event.startAt)} - ${DateFormat.jm().format(widget.event.endAt)}',
+                        '${DateFormat('EEE, d MMM').format(widget.event.startAt)} | ${DateFormat.jm().format(widget.event.startAt)} - ${DateFormat.jm().format(widget.event.endAt)}',
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   _MetaRow(
@@ -189,7 +210,7 @@ class _ScheduleEventCardState extends State<ScheduleEventCard> {
                   if (conflict) ...[
                     const SizedBox(height: AppSpacing.md),
                     Text(
-                      widget.conflictReasons.join(' • '),
+                      widget.conflictReasons.join(' | '),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.danger,
                         fontWeight: FontWeight.w700,

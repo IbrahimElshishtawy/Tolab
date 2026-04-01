@@ -51,14 +51,15 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       builder: (context, vm) {
         final store = StoreProvider.of<AppState>(context);
         final isDesktop = AppBreakpoints.isDesktop(context);
+        final activeFiltersCount = vm.activeFiltersCount;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             PageHeader(
-              title: 'Schedule',
+              title: 'Academic Schedule',
               subtitle:
-                  'Coordinate lectures, quizzes, exams, and academic tasks through a responsive calendar workspace built for mobile, desktop, and web administration.',
+                  'Manage lectures, quizzes, examinations, and academic operations from one coordinated timetable workspace for university administration.',
               breadcrumbs: const ['Admin', 'Academic', 'Schedule'],
               actions: [
                 PremiumButton(
@@ -84,29 +85,41 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               spacing: AppSpacing.md,
               runSpacing: AppSpacing.md,
               children: [
+                _AcademicOverviewPanel(
+                  metrics: vm.metrics,
+                  view: vm.view,
+                  selectedDay: vm.selectedDay,
+                  nextUpcomingEvent: vm.nextUpcomingEvent,
+                  lookups: vm.lookups,
+                  activeFiltersCount: activeFiltersCount,
+                ),
                 _MetricTile(
                   label: 'Today',
                   value: '${vm.metrics.todayCount}',
+                  icon: Icons.today_rounded,
                   accent: AppColors.primary,
-                  detail: 'Events scheduled for today',
+                  detail: 'Academic items scheduled today',
                 ),
                 _MetricTile(
                   label: 'This week',
                   value: '${vm.metrics.weekCount}',
+                  icon: Icons.calendar_view_week_rounded,
                   accent: AppColors.info,
-                  detail: 'Visible sessions in current week',
+                  detail: 'Visible sessions in the current week',
                 ),
                 _MetricTile(
                   label: 'Conflicts',
                   value: '${vm.metrics.conflictCount}',
+                  icon: Icons.warning_amber_rounded,
                   accent: AppColors.danger,
-                  detail: 'Items requiring timetable action',
+                  detail: 'Items that need timetable review',
                 ),
                 _MetricTile(
-                  label: 'Completed',
-                  value: '${vm.metrics.completedCount}',
+                  label: 'Planned',
+                  value: '${vm.metrics.plannedCount}',
+                  icon: Icons.fact_check_outlined,
                   accent: AppColors.secondary,
-                  detail: 'Events already delivered',
+                  detail: 'Sessions still awaiting delivery',
                 ),
               ],
             ),
@@ -466,6 +479,8 @@ class _ScheduleViewModel {
     required this.errorMessage,
     required this.feedbackMessage,
     required this.highlightedEventId,
+    required this.nextUpcomingEvent,
+    required this.activeFiltersCount,
   });
 
   final LoadStatus status;
@@ -482,10 +497,13 @@ class _ScheduleViewModel {
   final String? errorMessage;
   final String? feedbackMessage;
   final String? highlightedEventId;
+  final ScheduleEventItem? nextUpcomingEvent;
+  final int activeFiltersCount;
 
   factory _ScheduleViewModel.fromStore(Store<AppState> store) {
     final state = store.state.scheduleState;
     final visibleEvents = selectVisibleScheduleEvents(state);
+    final now = DateTime.now();
     return _ScheduleViewModel(
       status: state.status,
       mutationStatus: state.mutationStatus,
@@ -501,6 +519,146 @@ class _ScheduleViewModel {
       errorMessage: state.errorMessage,
       feedbackMessage: state.feedbackMessage,
       highlightedEventId: state.highlightedEventId,
+      nextUpcomingEvent: visibleEvents.cast<ScheduleEventItem?>().firstWhere(
+        (event) => event!.endAt.isAfter(now),
+        orElse: () => null,
+      ),
+      activeFiltersCount: _activeFiltersCount(state.filters),
+    );
+  }
+}
+
+class _AcademicOverviewPanel extends StatelessWidget {
+  const _AcademicOverviewPanel({
+    required this.metrics,
+    required this.view,
+    required this.selectedDay,
+    required this.nextUpcomingEvent,
+    required this.lookups,
+    required this.activeFiltersCount,
+  });
+
+  final ScheduleOverviewMetrics metrics;
+  final ScheduleCalendarView view;
+  final DateTime selectedDay;
+  final ScheduleEventItem? nextUpcomingEvent;
+  final ScheduleLookupBundle lookups;
+  final int activeFiltersCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minWidth: 320, maxWidth: 520),
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: <Color>[
+            AppColors.primary.withValues(alpha: 0.14),
+            AppColors.info.withValues(alpha: 0.09),
+            Theme.of(context).cardColor,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              _InfoPill(
+                icon: Icons.school_rounded,
+                label: 'Academic timetable',
+                accent: AppColors.primary,
+              ),
+              _InfoPill(
+                icon: view.icon,
+                label: '${view.label} view',
+                accent: AppColors.info,
+              ),
+              _InfoPill(
+                icon: Icons.tune_rounded,
+                label: activeFiltersCount == 0
+                    ? 'All filters open'
+                    : '$activeFiltersCount active filters',
+                accent: activeFiltersCount == 0
+                    ? AppColors.secondary
+                    : AppColors.warning,
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            'Academic coordination overview',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'Track daily delivery, weekly load, and timetable risks while keeping departments, sections, and instructors aligned.',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              _LegendChip(
+                label: '${lookups.departments.length} departments',
+                valueColor: AppColors.primary,
+              ),
+              _LegendChip(
+                label: '${lookups.sections.length} sections',
+                valueColor: AppColors.info,
+              ),
+              _LegendChip(
+                label: '${lookups.instructors.length} instructors',
+                valueColor: AppColors.secondary,
+              ),
+              _LegendChip(
+                label: '${metrics.completedCount} completed',
+                valueColor: AppColors.secondary,
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: Theme.of(context).canvasColor.withValues(alpha: 0.84),
+              borderRadius: BorderRadius.circular(AppConstants.smallRadius),
+              border: Border.all(
+                color: Theme.of(context).dividerColor.withValues(alpha: 0.8),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Selected academic day',
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  DateFormat('EEEE, d MMMM yyyy').format(selectedDay),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  nextUpcomingEvent == null
+                      ? 'No upcoming item is visible in the current scope.'
+                      : 'Next item: ${nextUpcomingEvent!.title} at ${DateFormat.jm().format(nextUpcomingEvent!.startAt)}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -509,12 +667,14 @@ class _MetricTile extends StatelessWidget {
   const _MetricTile({
     required this.label,
     required this.value,
+    required this.icon,
     required this.accent,
     required this.detail,
   });
 
   final String label;
   final String value;
+  final IconData icon;
   final Color accent;
   final String detail;
 
@@ -538,6 +698,16 @@ class _MetricTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, color: accent),
+          ),
+          const SizedBox(height: AppSpacing.md),
           Text(label, style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: AppSpacing.sm),
           Text(value, style: Theme.of(context).textTheme.headlineSmall),
@@ -612,6 +782,19 @@ class _ScheduleSidePanel extends StatelessWidget {
     final conflictEvents = selectedEvents
         .where((event) => conflictMap.containsKey(event.id))
         .toList(growable: false);
+    final lectureCount = selectedEvents
+        .where((event) => event.type == ScheduleEventType.lecture)
+        .length;
+    final assessmentCount = selectedEvents
+        .where(
+          (event) =>
+              event.type == ScheduleEventType.quiz ||
+              event.type == ScheduleEventType.exam,
+        )
+        .length;
+    final taskCount = selectedEvents
+        .where((event) => event.type == ScheduleEventType.task)
+        .length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -627,19 +810,65 @@ class _ScheduleSidePanel extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                children: [
+                  _InfoPill(
+                    icon: Icons.event_note_rounded,
+                    label: 'Academic day brief',
+                    accent: AppColors.primary,
+                  ),
+                  if (conflictEvents.isNotEmpty)
+                    _InfoPill(
+                      icon: Icons.priority_high_rounded,
+                      label: '${conflictEvents.length} alerts',
+                      accent: AppColors.danger,
+                    ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
               Text(
                 DateFormat('EEEE, d MMMM').format(selectedDay),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                '${selectedEvents.length} events selected for this day.',
+                '${selectedEvents.length} scheduled items are mapped to this day.',
                 style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                children: [
+                  _DayStatChip(label: 'Lectures', value: lectureCount.toString()),
+                  _DayStatChip(
+                    label: 'Assessments',
+                    value: assessmentCount.toString(),
+                  ),
+                  _DayStatChip(label: 'Tasks', value: taskCount.toString()),
+                ],
               ),
             ],
           ),
         ),
         const SizedBox(height: AppSpacing.md),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Day agenda',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            Text(
+              '${selectedEvents.length} item${selectedEvents.length == 1 ? '' : 's'}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
         Expanded(
           child: selectedEvents.isEmpty
               ? Container(
@@ -653,7 +882,7 @@ class _ScheduleSidePanel extends StatelessWidget {
                     border: Border.all(color: Theme.of(context).dividerColor),
                   ),
                   child: Text(
-                    'No events are scheduled for the selected day.',
+                    'No academic items are scheduled for the selected day. Choose another date or add a new timetable entry.',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 )
@@ -696,7 +925,7 @@ class _ScheduleSidePanel extends StatelessWidget {
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
-                    '${conflictEvents.length} conflict items need review for this day.',
+                    '${conflictEvents.length} timetable conflict item${conflictEvents.length == 1 ? '' : 's'} require review for this day.',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.danger,
                       fontWeight: FontWeight.w700,
@@ -710,4 +939,121 @@ class _ScheduleSidePanel extends StatelessWidget {
       ],
     );
   }
+}
+
+class _InfoPill extends StatelessWidget {
+  const _InfoPill({
+    required this.icon,
+    required this.label,
+    required this.accent,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(AppConstants.pillRadius),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: accent),
+          const SizedBox(width: AppSpacing.xs),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: accent,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LegendChip extends StatelessWidget {
+  const _LegendChip({required this.label, required this.valueColor});
+
+  final String label;
+  final Color valueColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: Theme.of(context).canvasColor,
+        borderRadius: BorderRadius.circular(AppConstants.pillRadius),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: valueColor,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+class _DayStatChip extends StatelessWidget {
+  const _DayStatChip({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: Theme.of(context).canvasColor,
+        borderRadius: BorderRadius.circular(AppConstants.smallRadius),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: RichText(
+        text: TextSpan(
+          style: Theme.of(context).textTheme.bodySmall,
+          children: [
+            TextSpan(
+              text: '$value ',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            TextSpan(text: label),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+int _activeFiltersCount(ScheduleFilters filters) {
+  var count = 0;
+  if (filters.departmentId != null) count++;
+  if (filters.yearId != null) count++;
+  if (filters.subjectId != null) count++;
+  if (filters.instructorId != null) count++;
+  if (filters.sectionId != null) count++;
+  if (!filters.showPlanned) count++;
+  if (!filters.showCompleted) count++;
+  if (filters.conflictsOnly) count++;
+  if (filters.eventTypes.length != ScheduleEventType.values.length) count++;
+  return count;
 }
