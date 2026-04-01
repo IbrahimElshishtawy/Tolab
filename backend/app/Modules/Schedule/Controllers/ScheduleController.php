@@ -10,11 +10,22 @@ use App\Modules\Schedule\Requests\StoreScheduleEventRequest;
 use App\Modules\Schedule\Requests\UpdateScheduleEventRequest;
 use App\Modules\Schedule\Resources\ScheduleEventResource;
 use App\Modules\Schedule\Services\ScheduleService;
+use Illuminate\Http\Request;
 
 class ScheduleController extends ApiController
 {
     public function __construct(protected ScheduleService $scheduleService)
     {
+    }
+
+    public function index(Request $request)
+    {
+        $events = $this->scheduleService->index($request->all(), $request->user());
+
+        return $this->success(
+            'Schedule events retrieved successfully.',
+            ScheduleEventResource::collection($events)
+        );
     }
 
     public function store(StoreScheduleEventRequest $request, CourseOffering $courseOffering)

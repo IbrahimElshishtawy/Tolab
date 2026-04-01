@@ -21,10 +21,8 @@ class ScheduleRepository {
 
     try {
       final remote = await _api.fetchEvents(filters: filters);
-      if (remote.isNotEmpty) {
-        _cache = remote;
-        _rebuildLookups();
-      }
+      _cache = remote;
+      _rebuildLookups();
     } catch (_) {}
 
     return ScheduleBundle(

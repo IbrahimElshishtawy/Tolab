@@ -137,10 +137,11 @@ class ScheduleCalendarBoard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       toolbar,
+                      const SizedBox(height: AppSpacing.md),
+                      _CalendarLegend(view: view),
                       SizedBox(height: verticalGap),
                       Expanded(
                         child: Scrollbar(
-                          thumbVisibility: true,
                           child: SingleChildScrollView(child: calendarContent),
                         ),
                       ),
@@ -151,6 +152,8 @@ class ScheduleCalendarBoard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       toolbar,
+                      const SizedBox(height: AppSpacing.md),
+                      _CalendarLegend(view: view),
                       SizedBox(height: verticalGap),
                       calendarContent,
                     ],
@@ -167,6 +170,8 @@ class ScheduleCalendarBoard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     toolbar,
+                    const SizedBox(height: AppSpacing.md),
+                    _CalendarLegend(view: view),
                     SizedBox(height: verticalGap),
                     Expanded(child: calendarContent),
                   ],
@@ -176,6 +181,8 @@ class ScheduleCalendarBoard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     toolbar,
+                    const SizedBox(height: AppSpacing.md),
+                    _CalendarLegend(view: view),
                     SizedBox(height: verticalGap),
                     SizedBox(
                       height: fallbackTimelineHeight,
@@ -185,6 +192,91 @@ class ScheduleCalendarBoard extends StatelessWidget {
                 ),
         );
       },
+    );
+  }
+}
+
+class _CalendarLegend extends StatelessWidget {
+  const _CalendarLegend({required this.view});
+
+  final ScheduleCalendarView view;
+
+  @override
+  Widget build(BuildContext context) {
+    final hint = switch (view) {
+      ScheduleCalendarView.month =>
+        'Use the month view to inspect teaching density and daily load.',
+      ScheduleCalendarView.week =>
+        'Drag sessions between slots to rebalance the academic week.',
+      ScheduleCalendarView.day =>
+        'Double tap an empty slot to add a new item for the selected day.',
+    };
+
+    return Wrap(
+      spacing: AppSpacing.sm,
+      runSpacing: AppSpacing.sm,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        for (final type in ScheduleEventType.values)
+          _LegendToken(label: type.label, color: type.color, icon: type.icon),
+        const _LegendToken(
+          label: 'Conflict',
+          color: AppColors.danger,
+          icon: Icons.warning_amber_rounded,
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.sm,
+            vertical: AppSpacing.xs,
+          ),
+          decoration: BoxDecoration(
+            color: Theme.of(context).canvasColor,
+            borderRadius: BorderRadius.circular(AppConstants.pillRadius),
+            border: Border.all(color: Theme.of(context).dividerColor),
+          ),
+          child: Text(hint, style: Theme.of(context).textTheme.bodySmall),
+        ),
+      ],
+    );
+  }
+}
+
+class _LegendToken extends StatelessWidget {
+  const _LegendToken({
+    required this.label,
+    required this.color,
+    required this.icon,
+  });
+
+  final String label;
+  final Color color;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(AppConstants.pillRadius),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 15, color: color),
+          const SizedBox(width: AppSpacing.xs),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -536,7 +628,6 @@ class _TimelineCalendarView extends StatelessWidget {
             const SizedBox(height: AppSpacing.sm),
             Expanded(
               child: Scrollbar(
-                thumbVisibility: true,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: SizedBox(

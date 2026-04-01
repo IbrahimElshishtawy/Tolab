@@ -149,7 +149,10 @@ class ScheduleFiltersPanel extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          Text('Current academic scope', style: Theme.of(context).textTheme.titleSmall),
+          Text(
+            'Current academic scope',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
           const SizedBox(height: AppSpacing.sm),
           if (activeFilters.isEmpty)
             Container(
@@ -174,7 +177,10 @@ class ScheduleFiltersPanel extends StatelessWidget {
                   .toList(growable: false),
             ),
           const SizedBox(height: AppSpacing.lg),
-          Text('Academic hierarchy', style: Theme.of(context).textTheme.titleSmall),
+          Text(
+            'Academic hierarchy',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
           const SizedBox(height: AppSpacing.sm),
           if (isNarrow)
             Column(
@@ -194,7 +200,10 @@ class ScheduleFiltersPanel extends StatelessWidget {
                   .toList(growable: false),
             ),
           const SizedBox(height: AppSpacing.lg),
-          Text('Event categories', style: Theme.of(context).textTheme.titleSmall),
+          Text(
+            'Event categories',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
           const SizedBox(height: AppSpacing.sm),
           Wrap(
             spacing: AppSpacing.sm,
@@ -412,7 +421,12 @@ List<String> _activeFilterLabels(
   ScheduleLookupBundle lookups,
 ) {
   final labels = <String>[];
-  _addLookupLabel(labels, 'Department', filters.departmentId, lookups.departments);
+  _addLookupLabel(
+    labels,
+    'Department',
+    filters.departmentId,
+    lookups.departments,
+  );
   _addLookupLabel(labels, 'Year', filters.yearId, lookups.years);
   _addLookupLabel(labels, 'Subject', filters.subjectId, lookups.subjects);
   _addLookupLabel(
@@ -432,9 +446,7 @@ List<String> _activeFilterLabels(
     labels.add('Planned only');
   }
   if (filters.eventTypes.length != ScheduleEventType.values.length) {
-    labels.add(
-      filters.eventTypes.map((type) => type.label).join(' / '),
-    );
+    labels.add(filters.eventTypes.map((type) => type.label).join(' / '));
   }
   return labels;
 }
@@ -446,6 +458,12 @@ void _addLookupLabel(
   List<ScheduleOption> items,
 ) {
   if (value == null) return;
-  final match = items.where((item) => item.id == value).firstOrNull;
+  ScheduleOption? match;
+  for (final item in items) {
+    if (item.id == value) {
+      match = item;
+      break;
+    }
+  }
   labels.add('$prefix: ${match?.label ?? value}');
 }

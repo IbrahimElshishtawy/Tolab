@@ -19,11 +19,11 @@ class ScheduleApiService {
         if (filters.subjectId != null) 'subject_id': filters.subjectId,
         if (filters.instructorId != null) 'staff_id': filters.instructorId,
         if (filters.sectionId != null) 'section_id': filters.sectionId,
-        'statuses': <String>[
+        'statuses[]': <String>[
           if (filters.showPlanned) ScheduleEventStatus.planned.apiValue,
           if (filters.showCompleted) ScheduleEventStatus.completed.apiValue,
         ],
-        'types': filters.eventTypes.map((item) => item.apiValue).toList(),
+        'types[]': filters.eventTypes.map((item) => item.apiValue).toList(),
       },
       decoder: _decodeEvents,
     );

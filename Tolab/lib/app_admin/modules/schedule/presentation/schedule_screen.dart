@@ -842,7 +842,10 @@ class _ScheduleSidePanel extends StatelessWidget {
                 spacing: AppSpacing.sm,
                 runSpacing: AppSpacing.sm,
                 children: [
-                  _DayStatChip(label: 'Lectures', value: lectureCount.toString()),
+                  _DayStatChip(
+                    label: 'Lectures',
+                    value: lectureCount.toString(),
+                  ),
                   _DayStatChip(
                     label: 'Assessments',
                     value: assessmentCount.toString(),

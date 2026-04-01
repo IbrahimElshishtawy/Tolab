@@ -146,7 +146,8 @@ class _ScheduleEventCardState extends State<ScheduleEventCard> {
                         ),
                       ),
                       _Badge(
-                        label: '${widget.event.department} | ${widget.event.yearLabel}',
+                        label:
+                            '${widget.event.department} | ${widget.event.yearLabel}',
                         foreground: AppColors.info,
                         background: AppColors.info.withValues(alpha: 0.10),
                       ),
@@ -161,10 +162,11 @@ class _ScheduleEventCardState extends State<ScheduleEventCard> {
                         foreground: widget.event.isSynced
                             ? AppColors.secondary
                             : AppColors.info,
-                        background: (widget.event.isSynced
-                                ? AppColors.secondary
-                                : AppColors.info)
-                            .withValues(alpha: 0.12),
+                        background:
+                            (widget.event.isSynced
+                                    ? AppColors.secondary
+                                    : AppColors.info)
+                                .withValues(alpha: 0.12),
                       ),
                       if (conflict)
                         const _Badge(
