@@ -209,7 +209,7 @@ class StudentsRepository {
     final newDocuments = [
       for (final file in files)
         StudentDocumentRecord(
-          id: '${studentId}-${file.name.hashCode}-${uploadedAt.millisecondsSinceEpoch}',
+          id: '$studentId-${file.name.hashCode}-${uploadedAt.millisecondsSinceEpoch}',
           name: file.name,
           category: 'Uploaded file',
           status: StudentDocumentStatus.pending,
@@ -510,7 +510,7 @@ class StudentsRepository {
             'GPA ${student.gpa.toStringAsFixed(2)}  •  Attendance ${student.attendanceRate.toStringAsFixed(0)}%',
           ),
           pw.SizedBox(height: 18),
-          pw.Table.fromTextArray(
+          pw.TableHelper.fromTextArray(
             headers: const [
               'Course',
               'Semester',
@@ -579,7 +579,7 @@ class StudentsRepository {
             style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
           ),
           pw.SizedBox(height: 8),
-          pw.Table.fromTextArray(
+          pw.TableHelper.fromTextArray(
             headers: const ['Department', 'Students'],
             data: [
               for (final item in distribution)
@@ -592,7 +592,7 @@ class StudentsRepository {
             style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
           ),
           pw.SizedBox(height: 8),
-          pw.Table.fromTextArray(
+          pw.TableHelper.fromTextArray(
             headers: const ['Period', 'Enrollments'],
             data: [
               for (final point in _snapshot.enrollmentTrend)
@@ -1242,7 +1242,7 @@ String _courseCode(String courseTitle) {
   final tokens = courseTitle
       .split(' ')
       .where((token) => token.trim().isNotEmpty)
-      .map((token) => token.characters.first.toUpperCase())
+      .map((token) => token.substring(0, 1).toUpperCase())
       .take(3)
       .join();
   return '${tokens.padRight(3, 'X')}${100 + Random().nextInt(300)}';

@@ -7,9 +7,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:intl/intl.dart';
+import 'package:redux/redux.dart';
 
 import '../../../../core/colors/app_colors.dart';
 import '../../../../core/spacing/app_spacing.dart';
+import '../../../../shared/models/notification_models.dart';
 import '../../../../core/widgets/page_header.dart';
 import '../../../../shared/enums/load_status.dart';
 import '../../../../shared/widgets/premium_button.dart';
@@ -112,7 +114,7 @@ class _StudentsManagementPageState extends State<StudentsManagementPage> {
         }
 
         final students = _sortStudents(
-          _filterStudents(snapshot?.students ?? const [], vm.state.filters),
+          _filterStudents(snapshot.students, vm.state.filters),
           vm.state.sortColumn,
           vm.state.sortAscending,
         );
@@ -269,8 +271,7 @@ class _StudentsManagementPageState extends State<StudentsManagementPage> {
                           key: const ValueKey('activity'),
                           activities: activities,
                           studentsById: {
-                            for (final student
-                                in snapshot?.students ?? const [])
+                            for (final student in snapshot.students)
                               student.id: student,
                           },
                         ),
@@ -1217,6 +1218,7 @@ class _RegistrySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final resolvedSelectedStudent = selectedStudent;
     final table = StudentSectionCard(
       title: 'Student registry',
       subtitle:
@@ -1271,30 +1273,30 @@ class _RegistrySection extends StatelessWidget {
             DataColumn2(
               label: const Text('Student'),
               size: ColumnSize.L,
-              onSort: (_, __) => onSort('name'),
+              onSort: (_, _) => onSort('name'),
             ),
             DataColumn2(
               label: const Text('Department'),
-              onSort: (_, __) => onSort('department'),
+              onSort: (_, _) => onSort('department'),
             ),
             DataColumn2(
               label: const Text('Attendance'),
-              onSort: (_, __) => onSort('attendance'),
+              onSort: (_, _) => onSort('attendance'),
             ),
             DataColumn2(
               label: const Text('GPA'),
-              onSort: (_, __) => onSort('gpa'),
+              onSort: (_, _) => onSort('gpa'),
             ),
             DataColumn2(
               label: const Text('Status'),
-              onSort: (_, __) => onSort('status'),
+              onSort: (_, _) => onSort('status'),
             ),
             const DataColumn2(label: Text('Actions'), size: ColumnSize.S),
           ],
           rows: [
             for (final student in students)
               DataRow2(
-                selected: selectedStudent?.id == student.id,
+                selected: resolvedSelectedStudent?.id == student.id,
                 onTap: () => onSelectStudent(student.id),
                 cells: [
                   DataCell(
@@ -1350,14 +1352,14 @@ class _RegistrySection extends StatelessWidget {
       ),
     );
 
-    if (!showSidePanel || selectedStudent == null) {
+    if (!showSidePanel || resolvedSelectedStudent == null) {
       return Column(
         children: [
           table,
-          if (selectedStudent != null) ...[
+          if (resolvedSelectedStudent != null) ...[
             const SizedBox(height: AppSpacing.lg),
             _StudentProfilePanel(
-              student: selectedStudent,
+              student: resolvedSelectedStudent,
               onEditStudent: onEditStudent,
               onUploadDocuments: onUploadDocuments,
               onExportTranscript: onExportTranscript,
@@ -1378,7 +1380,7 @@ class _RegistrySection extends StatelessWidget {
         Expanded(
           flex: 4,
           child: _StudentProfilePanel(
-            student: selectedStudent,
+            student: resolvedSelectedStudent,
             onEditStudent: onEditStudent,
             onUploadDocuments: onUploadDocuments,
             onExportTranscript: onExportTranscript,

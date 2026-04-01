@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_returning_null_for_void
+
 import 'package:dio/dio.dart';
 
 import '../../../core/network/api_client.dart';
@@ -26,9 +28,16 @@ class StudentsApiService {
     final path = student.id.isEmpty
         ? '/admin/students'
         : '/admin/students/${student.id}';
-    final request = student.id.isEmpty
-        ? _apiClient.post<void>(path, data: payload, decoder: (_) => null)
-        : _apiClient.put<void>(path, data: payload, decoder: (_) => null);
+    final Future<void> request;
+    if (student.id.isEmpty) {
+      request = _apiClient.post<void>(
+        path,
+        data: payload,
+        decoder: (_) => null,
+      );
+    } else {
+      request = _apiClient.put<void>(path, data: payload, decoder: (_) => null);
+    }
     return request;
   }
 

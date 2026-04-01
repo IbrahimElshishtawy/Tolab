@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_underscores
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
