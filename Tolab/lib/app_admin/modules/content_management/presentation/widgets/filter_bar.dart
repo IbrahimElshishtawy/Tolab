@@ -41,7 +41,7 @@ class FilterBar extends StatelessWidget {
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           SizedBox(
-            width: 320,
+            width: 300,
             child: TextField(
               controller: searchController,
               onChanged: onSearchChanged,
@@ -147,10 +147,23 @@ class _Dropdown<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 180,
+      width: 200,
       child: DropdownButtonFormField<T>(
         initialValue: value,
+        isExpanded: true,
         items: items,
+        selectedItemBuilder: (context) => items
+            .map(
+              (item) => Align(
+                alignment: Alignment.centerLeft,
+                child: DefaultTextStyle.merge(
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  child: item.child,
+                ),
+              ),
+            )
+            .toList(growable: false),
         onChanged: onChanged,
         decoration: InputDecoration(labelText: hint),
       ),

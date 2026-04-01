@@ -291,18 +291,30 @@ class _InlineStatusEditor extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(14),
         color: value.color.withValues(alpha: 0.08),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<EnrollmentStatus>(
           value: value,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          isDense: true,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          selectedItemBuilder: (context) => EnrollmentStatus.values
+              .map(
+                (status) => Align(
+                  alignment: Alignment.centerLeft,
+                  child: EnrollmentBadgeWidget(status),
+                ),
+              )
+              .toList(growable: false),
           items: EnrollmentStatus.values
               .map(
                 (status) => DropdownMenuItem<EnrollmentStatus>(
                   value: status,
-                  child: Row(children: [EnrollmentBadgeWidget(status)]),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: EnrollmentBadgeWidget(status),
+                  ),
                 ),
               )
               .toList(growable: false),

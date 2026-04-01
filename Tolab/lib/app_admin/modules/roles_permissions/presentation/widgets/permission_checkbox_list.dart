@@ -176,10 +176,32 @@ class _PermissionTileState extends State<_PermissionTile> {
           color: background,
           borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AnimatedSwitcher(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isCompact = constraints.maxWidth < 430;
+            final menu = widget.onEdit != null || widget.onDelete != null
+                ? PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'edit') widget.onEdit?.call();
+                      if (value == 'delete') widget.onDelete?.call();
+                    },
+                    itemBuilder: (context) => [
+                      if (widget.onEdit != null)
+                        const PopupMenuItem<String>(
+                          value: 'edit',
+                          child: Text('Edit permission'),
+                        ),
+                      if (widget.onDelete != null)
+                        const PopupMenuItem<String>(
+                          value: 'delete',
+                          child: Text('Delete permission'),
+                        ),
+                    ],
+                    icon: const Icon(Icons.more_horiz_rounded),
+                  )
+                : null;
+
+            final toggle = AnimatedSwitcher(
               duration: AppMotion.fast,
               child: widget.isBusy
                   ? const Padding(
@@ -196,57 +218,59 @@ class _PermissionTileState extends State<_PermissionTile> {
                       value: widget.selected,
                       onChanged: (value) => widget.onChanged(value ?? false),
                     ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Column(
+            );
+
+            final details = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.permission.name,
+                  maxLines: isCompact ? 2 : 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleSmall,
+                ),
+                const SizedBox(height: 6),
+                StatusBadge(widget.permission.action.label),
+                const SizedBox(height: 6),
+                Text(
+                  widget.permission.description,
+                  maxLines: isCompact ? 3 : 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  widget.permission.key,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelMedium,
+                ),
+              ],
+            );
+
+            if (isCompact) {
+              return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.permission.name,
-                          style: theme.textTheme.titleSmall,
-                        ),
-                      ),
-                      StatusBadge(widget.permission.action.label),
-                    ],
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [toggle, const Spacer(), if (menu != null) menu],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    widget.permission.description,
-                    style: theme.textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    widget.permission.key,
-                    style: theme.textTheme.labelMedium,
-                  ),
+                  details,
                 ],
-              ),
-            ),
-            if (widget.onEdit != null || widget.onDelete != null)
-              PopupMenuButton<String>(
-                onSelected: (value) {
-                  if (value == 'edit') widget.onEdit?.call();
-                  if (value == 'delete') widget.onDelete?.call();
-                },
-                itemBuilder: (context) => [
-                  if (widget.onEdit != null)
-                    const PopupMenuItem<String>(
-                      value: 'edit',
-                      child: Text('Edit permission'),
-                    ),
-                  if (widget.onDelete != null)
-                    const PopupMenuItem<String>(
-                      value: 'delete',
-                      child: Text('Delete permission'),
-                    ),
-                ],
-                icon: const Icon(Icons.more_horiz_rounded),
-              ),
-          ],
+              );
+            }
+
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                toggle,
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(child: details),
+                if (menu != null) menu,
+              ],
+            );
+          },
         ),
       ),
     );

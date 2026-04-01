@@ -22,14 +22,15 @@ class ApiClient {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final token = await _secureStorage.readAccessToken();
-          if (token != null && token.isNotEmpty) {
+          if (_hasUsableAccessToken(token)) {
             options.headers['Authorization'] = 'Bearer $token';
           }
           handler.next(options);
         },
         onError: (error, handler) async {
           if (error.response?.statusCode == 401 &&
-              !error.requestOptions.path.contains('/auth/refresh')) {
+              !error.requestOptions.path.contains('/auth/refresh') &&
+              await _canAttemptTokenRefresh()) {
             final refreshed = await _refreshToken();
             if (refreshed) {
               final accessToken = await _secureStorage.readAccessToken();
@@ -66,6 +67,10 @@ class ApiClient {
   final Dio _dio;
   final SecureStorageService _secureStorage;
   static const int _maxRetryAttempts = 2;
+  static const String _demoAccessTokenPrefix = 'demo-access-token';
+  static const String _demoRefreshTokenPrefix = 'demo-refresh-token';
+  static const Duration _missingRouteCooldown = Duration(seconds: 30);
+  final Map<String, DateTime> _missingRoutes = <String, DateTime>{};
 
   Future<T> get<T>(
     String path, {
@@ -74,6 +79,7 @@ class ApiClient {
     required T Function(dynamic json) decoder,
   }) async {
     return _request(
+      path,
       () => _dio.get<dynamic>(
         path,
         queryParameters: queryParameters,
@@ -90,6 +96,7 @@ class ApiClient {
     required T Function(dynamic json) decoder,
   }) async {
     return _request(
+      path,
       () => _dio.post<dynamic>(path, data: data, cancelToken: cancelToken),
       decoder: decoder,
     );
@@ -102,6 +109,7 @@ class ApiClient {
     required T Function(dynamic json) decoder,
   }) async {
     return _request(
+      path,
       () => _dio.put<dynamic>(path, data: data, cancelToken: cancelToken),
       decoder: decoder,
     );
@@ -114,6 +122,7 @@ class ApiClient {
     required T Function(dynamic json) decoder,
   }) async {
     return _request(
+      path,
       () => _dio.patch<dynamic>(path, data: data, cancelToken: cancelToken),
       decoder: decoder,
     );
@@ -126,6 +135,7 @@ class ApiClient {
     required T Function(dynamic json) decoder,
   }) async {
     return _request(
+      path,
       () => _dio.delete<dynamic>(path, data: data, cancelToken: cancelToken),
       decoder: decoder,
     );
@@ -139,6 +149,7 @@ class ApiClient {
     CancelToken? cancelToken,
   }) async {
     return _request(
+      path,
       () => _dio.post<dynamic>(
         path,
         data: data,
@@ -150,9 +161,14 @@ class ApiClient {
   }
 
   Future<T> _request<T>(
+    String path,
     Future<Response<dynamic>> Function() request, {
     required T Function(dynamic json) decoder,
   }) async {
+    if (_isMissingRouteCoolingDown(path)) {
+      throw AppException('Route not found.', statusCode: 404);
+    }
+
     for (var attempt = 0; attempt <= _maxRetryAttempts; attempt++) {
       try {
         final response = await request();
@@ -169,6 +185,9 @@ class ApiClient {
             : payload;
         return decoder(data);
       } on DioException catch (error) {
+        if (_isMissingRouteError(error)) {
+          _missingRoutes[path] = DateTime.now();
+        }
         if (attempt < _maxRetryAttempts && _shouldRetry(error)) {
           continue;
         }
@@ -183,14 +202,15 @@ class ApiClient {
 
   Future<bool> _refreshToken() async {
     final refreshToken = await _secureStorage.readRefreshToken();
-    if (refreshToken == null || refreshToken.isEmpty) {
+    if (!_hasUsableRefreshToken(refreshToken)) {
       return false;
     }
+    final currentRefreshToken = refreshToken!;
 
     try {
       final response = await _dio.post<dynamic>(
         '/auth/refresh',
-        data: {'refresh_token': refreshToken},
+        data: {'refresh_token': currentRefreshToken},
       );
       final payload = response.data;
       if (payload is! JsonMap) {
@@ -205,7 +225,7 @@ class ApiClient {
       final nextRefreshToken =
           data['refresh_token']?.toString() ??
           data['refreshToken']?.toString() ??
-          refreshToken;
+          currentRefreshToken;
       if (accessToken == null || accessToken.isEmpty) {
         return false;
       }
@@ -224,6 +244,49 @@ class ApiClient {
         error.type == DioExceptionType.receiveTimeout ||
         error.type == DioExceptionType.sendTimeout ||
         statusCode >= 500;
+  }
+
+  bool _hasUsableAccessToken(String? token) {
+    return token != null &&
+        token.isNotEmpty &&
+        !token.startsWith(_demoAccessTokenPrefix);
+  }
+
+  bool _hasUsableRefreshToken(String? token) {
+    return token != null &&
+        token.isNotEmpty &&
+        !token.startsWith(_demoRefreshTokenPrefix);
+  }
+
+  Future<bool> _canAttemptTokenRefresh() async {
+    final refreshToken = await _secureStorage.readRefreshToken();
+    return _hasUsableRefreshToken(refreshToken);
+  }
+
+  bool _isMissingRouteCoolingDown(String path) {
+    final lastSeen = _missingRoutes[path];
+    if (lastSeen == null) {
+      return false;
+    }
+    if (DateTime.now().difference(lastSeen) > _missingRouteCooldown) {
+      _missingRoutes.remove(path);
+      return false;
+    }
+    return true;
+  }
+
+  bool _isMissingRouteError(DioException error) {
+    if (error.response?.statusCode != 404) {
+      return false;
+    }
+
+    final payload = error.response?.data;
+    if (payload is JsonMap) {
+      final message = payload['message']?.toString().trim().toLowerCase();
+      return message == 'route not found.';
+    }
+
+    return false;
   }
 
   String _mapDioError(DioException error) {

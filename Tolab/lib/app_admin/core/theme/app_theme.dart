@@ -67,6 +67,8 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       colorScheme: scheme,
       scaffoldBackgroundColor: isDark
           ? AppColors.backgroundDark
@@ -142,8 +144,11 @@ class AppTheme {
             ? AppColors.textSecondaryDark
             : AppColors.textSecondaryLight,
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 14,
+          horizontal: 14,
+          vertical: 10,
+        ),
+        constraints: const BoxConstraints(
+          minHeight: AppConstants.denseInputHeight,
         ),
       ),
       chipTheme: ChipThemeData(
@@ -167,7 +172,7 @@ class AppTheme {
             Size(0, AppConstants.denseInputHeight),
           ),
           padding: const WidgetStatePropertyAll(
-            EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
@@ -197,7 +202,7 @@ class AppTheme {
             Size(0, AppConstants.denseInputHeight),
           ),
           padding: const WidgetStatePropertyAll(
-            EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
@@ -217,6 +222,12 @@ class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: ButtonStyle(
+          minimumSize: const WidgetStatePropertyAll(
+            Size(0, AppConstants.denseInputHeight),
+          ),
+          padding: const WidgetStatePropertyAll(
+            EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          ),
           foregroundColor: WidgetStatePropertyAll(scheme.onSurface),
           textStyle: WidgetStatePropertyAll(textTheme.labelLarge),
           shape: WidgetStatePropertyAll(
@@ -228,7 +239,7 @@ class AppTheme {
       ),
       iconButtonTheme: IconButtonThemeData(
         style: ButtonStyle(
-          minimumSize: const WidgetStatePropertyAll(Size(42, 42)),
+          minimumSize: const WidgetStatePropertyAll(Size(36, 36)),
           padding: const WidgetStatePropertyAll(EdgeInsets.zero),
           backgroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.pressed)) {
@@ -262,8 +273,11 @@ class AppTheme {
         ),
         dataTextStyle: textTheme.bodyMedium,
         dividerThickness: 0.6,
-        horizontalMargin: 16,
-        columnSpacing: 20,
+        horizontalMargin: 12,
+        columnSpacing: 16,
+        headingRowHeight: 42,
+        dataRowMinHeight: 40,
+        dataRowMaxHeight: 52,
       ),
       checkboxTheme: CheckboxThemeData(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

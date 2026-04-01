@@ -49,70 +49,142 @@ class ScheduleCalendarBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = switch (view) {
-      ScheduleCalendarView.month => DateFormat('MMMM yyyy').format(focusedDay),
-      ScheduleCalendarView.week => _weekRangeLabel(_startOfWeek(focusedDay)),
-      ScheduleCalendarView.day => DateFormat(
-        'EEEE, d MMMM yyyy',
-      ).format(selectedDay),
-    };
-
-    return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _CalendarToolbar(
-            title: title,
-            view: view,
-            onViewChanged: onViewChanged,
-            onNavigate: onNavigate,
-            onTodayPressed: () {
-              final today = DateTime.now();
-              onFocusedDayChanged(today);
-              onSelectedDayChanged(today);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final title = switch (view) {
+          ScheduleCalendarView.month => DateFormat(
+            'MMMM yyyy',
+          ).format(focusedDay),
+          ScheduleCalendarView.week => _weekRangeLabel(
+            _startOfWeek(focusedDay),
+          ),
+          ScheduleCalendarView.day => DateFormat(
+            'EEEE, d MMMM yyyy',
+          ).format(selectedDay),
+        };
+        final hasBoundedHeight = constraints.maxHeight.isFinite;
+        final isCompact =
+            constraints.maxWidth < 1040 ||
+            (hasBoundedHeight && constraints.maxHeight < 620);
+        final cardPadding = EdgeInsets.all(
+          isCompact ? AppSpacing.md : AppSpacing.lg,
+        );
+        final verticalGap = isCompact ? AppSpacing.md : AppSpacing.lg;
+        final toolbarHeight = isCompact ? 104.0 : 120.0;
+        final calendarContent = AnimatedSwitcher(
+          duration: AppMotion.slow,
+          switchInCurve: AppMotion.entrance,
+          switchOutCurve: AppMotion.emphasized,
+          child: GestureDetector(
+            key: ValueKey<String>(view.name),
+            onHorizontalDragEnd: (details) {
+              final velocity = details.primaryVelocity ?? 0;
+              if (velocity.abs() < 150) return;
+              onNavigate(velocity < 0 ? 1 : -1);
+            },
+            child: switch (view) {
+              ScheduleCalendarView.month => _MonthCalendarView(
+                focusedDay: focusedDay,
+                selectedDay: selectedDay,
+                events: events,
+                conflictMap: conflictMap,
+                onFocusedDayChanged: onFocusedDayChanged,
+                onSelectedDayChanged: onSelectedDayChanged,
+                compact: isCompact,
+                availableHeight: hasBoundedHeight
+                    ? math.max(
+                        220,
+                        constraints.maxHeight -
+                            toolbarHeight -
+                            (cardPadding.vertical + verticalGap),
+                      )
+                    : null,
+              ),
+              ScheduleCalendarView.week ||
+              ScheduleCalendarView.day => _TimelineCalendarView(
+                events: events,
+                view: view,
+                focusedDay: focusedDay,
+                selectedDay: selectedDay,
+                conflictMap: conflictMap,
+                onSelectedDayChanged: onSelectedDayChanged,
+                onEventTap: onEventTap,
+                onEventDropped: onEventDropped,
+                onCreateAt: onCreateAt,
+                compact: isCompact,
+              ),
             },
           ),
-          const SizedBox(height: AppSpacing.lg),
-          Expanded(
-            child: AnimatedSwitcher(
-              duration: AppMotion.slow,
-              switchInCurve: AppMotion.entrance,
-              switchOutCurve: AppMotion.emphasized,
-              child: GestureDetector(
-                key: ValueKey<String>(view.name),
-                onHorizontalDragEnd: (details) {
-                  final velocity = details.primaryVelocity ?? 0;
-                  if (velocity.abs() < 150) return;
-                  onNavigate(velocity < 0 ? 1 : -1);
-                },
-                child: switch (view) {
-                  ScheduleCalendarView.month => _MonthCalendarView(
-                    focusedDay: focusedDay,
-                    selectedDay: selectedDay,
-                    events: events,
-                    conflictMap: conflictMap,
-                    onFocusedDayChanged: onFocusedDayChanged,
-                    onSelectedDayChanged: onSelectedDayChanged,
+        );
+        final toolbar = _CalendarToolbar(
+          title: title,
+          view: view,
+          onViewChanged: onViewChanged,
+          onNavigate: onNavigate,
+          onTodayPressed: () {
+            final today = DateTime.now();
+            onFocusedDayChanged(today);
+            onSelectedDayChanged(today);
+          },
+          compact: isCompact,
+        );
+
+        if (view == ScheduleCalendarView.month) {
+          return AppCard(
+            padding: cardPadding,
+            child: hasBoundedHeight
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      toolbar,
+                      SizedBox(height: verticalGap),
+                      Expanded(
+                        child: Scrollbar(
+                          thumbVisibility: true,
+                          child: SingleChildScrollView(child: calendarContent),
+                        ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      toolbar,
+                      SizedBox(height: verticalGap),
+                      calendarContent,
+                    ],
                   ),
-                  ScheduleCalendarView.week ||
-                  ScheduleCalendarView.day => _TimelineCalendarView(
-                    events: events,
-                    view: view,
-                    focusedDay: focusedDay,
-                    selectedDay: selectedDay,
-                    conflictMap: conflictMap,
-                    onSelectedDayChanged: onSelectedDayChanged,
-                    onEventTap: onEventTap,
-                    onEventDropped: onEventDropped,
-                    onCreateAt: onCreateAt,
-                  ),
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
+          );
+        }
+
+        final fallbackTimelineHeight = isCompact ? 560.0 : 680.0;
+
+        return AppCard(
+          padding: cardPadding,
+          child: hasBoundedHeight
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    toolbar,
+                    SizedBox(height: verticalGap),
+                    Expanded(child: calendarContent),
+                  ],
+                )
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    toolbar,
+                    SizedBox(height: verticalGap),
+                    SizedBox(
+                      height: fallbackTimelineHeight,
+                      child: calendarContent,
+                    ),
+                  ],
+                ),
+        );
+      },
     );
   }
 }
@@ -124,6 +196,7 @@ class _CalendarToolbar extends StatelessWidget {
     required this.onViewChanged,
     required this.onNavigate,
     required this.onTodayPressed,
+    required this.compact,
   });
 
   final String title;
@@ -131,9 +204,20 @@ class _CalendarToolbar extends StatelessWidget {
   final ValueChanged<ScheduleCalendarView> onViewChanged;
   final ValueChanged<int> onNavigate;
   final VoidCallback onTodayPressed;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
+    final titleStyle = compact
+        ? Theme.of(context).textTheme.titleMedium
+        : Theme.of(context).textTheme.titleLarge;
+    final iconButtonStyle = IconButton.styleFrom(
+      visualDensity: VisualDensity.compact,
+      padding: EdgeInsets.zero,
+      minimumSize: Size(compact ? 32 : 36, compact ? 32 : 36),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
+
     return Wrap(
       alignment: WrapAlignment.spaceBetween,
       crossAxisAlignment: WrapCrossAlignment.center,
@@ -145,22 +229,31 @@ class _CalendarToolbar extends StatelessWidget {
           children: [
             IconButton(
               tooltip: 'Previous',
+              style: iconButtonStyle,
               onPressed: () => onNavigate(-1),
               icon: const Icon(Icons.chevron_left_rounded),
             ),
             const SizedBox(width: AppSpacing.xs),
             IconButton(
               tooltip: 'Next',
+              style: iconButtonStyle,
               onPressed: () => onNavigate(1),
               icon: const Icon(Icons.chevron_right_rounded),
             ),
             const SizedBox(width: AppSpacing.sm),
             FilledButton.tonal(
+              style: FilledButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.symmetric(
+                  horizontal: compact ? 12 : 16,
+                  vertical: compact ? 10 : 12,
+                ),
+              ),
               onPressed: onTodayPressed,
               child: const Text('Today'),
             ),
             const SizedBox(width: AppSpacing.md),
-            Text(title, style: Theme.of(context).textTheme.titleLarge),
+            Text(title, style: titleStyle),
           ],
         ),
         Container(
@@ -178,7 +271,9 @@ class _CalendarToolbar extends StatelessWidget {
                   return ChoiceChip(
                     selected: selected,
                     showCheckmark: false,
-                    avatar: Icon(calendarView.icon, size: 16),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                    avatar: Icon(calendarView.icon, size: compact ? 14 : 16),
                     label: Text(calendarView.label),
                     onSelected: (_) => onViewChanged(calendarView),
                   );
@@ -199,6 +294,8 @@ class _MonthCalendarView extends StatelessWidget {
     required this.conflictMap,
     required this.onFocusedDayChanged,
     required this.onSelectedDayChanged,
+    required this.compact,
+    this.availableHeight,
   });
 
   final DateTime focusedDay;
@@ -207,10 +304,16 @@ class _MonthCalendarView extends StatelessWidget {
   final Map<String, List<String>> conflictMap;
   final ValueChanged<DateTime> onFocusedDayChanged;
   final ValueChanged<DateTime> onSelectedDayChanged;
+  final bool compact;
+  final double? availableHeight;
 
   @override
   Widget build(BuildContext context) {
     final grouped = _groupByDay(events);
+    final derivedRowHeight = availableHeight == null
+        ? (compact ? 76.0 : 92.0)
+        : ((availableHeight! - 28) / 6).clamp(42.0, compact ? 76.0 : 92.0);
+
     return TableCalendar<ScheduleEventItem>(
       firstDay: DateTime(focusedDay.year - 2),
       lastDay: DateTime(focusedDay.year + 2, 12, 31),
@@ -221,7 +324,7 @@ class _MonthCalendarView extends StatelessWidget {
           grouped[_dayKey(day)] ?? const <ScheduleEventItem>[],
       selectedDayPredicate: (day) => isSameDay(day, selectedDay),
       startingDayOfWeek: StartingDayOfWeek.monday,
-      rowHeight: 92,
+      rowHeight: derivedRowHeight,
       onDaySelected: (selected, focused) {
         onSelectedDayChanged(selected);
         onFocusedDayChanged(focused);
@@ -254,18 +357,18 @@ class _MonthCalendarView extends StatelessWidget {
               .where((event) => conflictMap.containsKey(event.id))
               .length;
           return Padding(
-            padding: const EdgeInsets.only(top: 30),
+            padding: EdgeInsets.only(top: compact ? 24 : 30),
             child: Align(
               alignment: Alignment.topCenter,
               child: Wrap(
                 alignment: WrapAlignment.center,
-                spacing: 4,
-                runSpacing: 4,
+                spacing: compact ? 3 : 4,
+                runSpacing: compact ? 3 : 4,
                 children: [
                   for (final event in dayEvents.take(3))
                     Container(
-                      width: 18,
-                      height: 6,
+                      width: compact ? 14 : 18,
+                      height: compact ? 5 : 6,
                       decoration: BoxDecoration(
                         color: event.type.color,
                         borderRadius: BorderRadius.circular(999),
@@ -315,6 +418,7 @@ class _TimelineCalendarView extends StatelessWidget {
     required this.onSelectedDayChanged,
     required this.onEventTap,
     required this.onEventDropped,
+    required this.compact,
     this.onCreateAt,
   });
 
@@ -325,6 +429,7 @@ class _TimelineCalendarView extends StatelessWidget {
   final Map<String, List<String>> conflictMap;
   final ValueChanged<DateTime> onSelectedDayChanged;
   final ValueChanged<ScheduleEventItem> onEventTap;
+  final bool compact;
   final void Function(
     ScheduleEventItem event,
     DateTime newStart,
@@ -335,9 +440,6 @@ class _TimelineCalendarView extends StatelessWidget {
 
   static const int _startHour = 7;
   static const int _endHour = 20;
-  static const double _slotHeight = 64;
-  static const double _timelineHeight =
-      (_endHour - _startHour + 1) * _slotHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -353,9 +455,15 @@ class _TimelineCalendarView extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
+        final leadColumnWidth = compact ? 64.0 : 76.0;
+        final slotHeight = compact ? 54.0 : 64.0;
+        final timelineHeight = (_endHour - _startHour + 1) * slotHeight;
         final timelineWidth = math.max<double>(
-          constraints.maxWidth - 76,
-          (visibleDays.length == 1 ? 420 : visibleDays.length * 170).toDouble(),
+          constraints.maxWidth - leadColumnWidth,
+          (visibleDays.length == 1
+                  ? 360
+                  : visibleDays.length * (compact ? 148 : 170))
+              .toDouble(),
         );
         final dayWidth = timelineWidth / visibleDays.length;
 
@@ -365,10 +473,10 @@ class _TimelineCalendarView extends StatelessWidget {
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: SizedBox(
-                width: 76 + timelineWidth,
+                width: leadColumnWidth + timelineWidth,
                 child: Row(
                   children: [
-                    const SizedBox(width: 76),
+                    SizedBox(width: leadColumnWidth),
                     for (final day in visibleDays)
                       GestureDetector(
                         onTap: () => onSelectedDayChanged(day),
@@ -388,13 +496,15 @@ class _TimelineCalendarView extends StatelessWidget {
                               const SizedBox(height: 4),
                               AnimatedContainer(
                                 duration: AppMotion.fast,
-                                width: 42,
-                                height: 42,
+                                width: compact ? 36 : 42,
+                                height: compact ? 36 : 42,
                                 decoration: BoxDecoration(
                                   color: _sameDay(day, selectedDay)
                                       ? AppColors.primary
                                       : Theme.of(context).canvasColor,
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(
+                                    compact ? 12 : 16,
+                                  ),
                                   border: Border.all(
                                     color: _sameDay(day, selectedDay)
                                         ? AppColors.primary
@@ -430,15 +540,15 @@ class _TimelineCalendarView extends StatelessWidget {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: SizedBox(
-                    width: 76 + timelineWidth,
+                    width: leadColumnWidth + timelineWidth,
                     child: SingleChildScrollView(
                       child: SizedBox(
-                        height: _timelineHeight,
+                        height: timelineHeight,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(
-                              width: 76,
+                              width: leadColumnWidth,
                               child: Column(
                                 children: [
                                   for (
@@ -447,12 +557,12 @@ class _TimelineCalendarView extends StatelessWidget {
                                     hour++
                                   )
                                     SizedBox(
-                                      height: _slotHeight,
+                                      height: slotHeight,
                                       child: Align(
                                         alignment: Alignment.topLeft,
                                         child: Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 4,
+                                          padding: EdgeInsets.only(
+                                            top: compact ? 2 : 4,
                                           ),
                                           child: Text(
                                             DateFormat.j().format(
@@ -472,7 +582,7 @@ class _TimelineCalendarView extends StatelessWidget {
                               _TimelineDayColumn(
                                 day: day,
                                 width: dayWidth,
-                                slotHeight: _slotHeight,
+                                slotHeight: slotHeight,
                                 startHour: _startHour,
                                 endHour: _endHour,
                                 events: events
@@ -668,13 +778,15 @@ class _TimelineEventContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = event.type.color;
     final hasConflict = conflictReasons.isNotEmpty;
+    final isCompact = event.duration.inMinutes <= 60;
+
     return InkWell(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(isCompact ? 14 : 18),
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.18),
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(isCompact ? 14 : 18),
           border: Border.all(
             color: hasConflict
                 ? AppColors.danger
@@ -682,7 +794,7 @@ class _TimelineEventContent extends StatelessWidget {
             width: hasConflict ? 1.4 : 1,
           ),
         ),
-        padding: const EdgeInsets.all(AppSpacing.sm),
+        padding: EdgeInsets.all(isCompact ? AppSpacing.xs : AppSpacing.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -690,7 +802,9 @@ class _TimelineEventContent extends StatelessWidget {
               event.title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.titleSmall,
+              style: isCompact
+                  ? Theme.of(context).textTheme.labelLarge
+                  : Theme.of(context).textTheme.titleSmall,
             ),
             const SizedBox(height: 4),
             Text(

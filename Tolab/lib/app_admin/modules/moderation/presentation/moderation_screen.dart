@@ -87,10 +87,11 @@ class ModerationScreen extends StatelessWidget {
               child: AsyncStateView(
                 status: vm.state.status,
                 errorMessage: vm.state.errorMessage,
-                onRetry: () => StoreProvider.of<AppState>(context).dispatch(
-                  const LoadModerationDashboardRequestedAction(),
-                ),
-                isEmpty: vm.state.groups.isEmpty &&
+                onRetry: () => StoreProvider.of<AppState>(
+                  context,
+                ).dispatch(const LoadModerationDashboardRequestedAction()),
+                isEmpty:
+                    vm.state.groups.isEmpty &&
                     vm.state.posts.isEmpty &&
                     vm.state.comments.isEmpty &&
                     vm.state.reports.isEmpty,
@@ -99,9 +100,20 @@ class ModerationScreen extends StatelessWidget {
                     'Connect the Laravel moderation endpoints or wait for new reports to arrive.',
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 260),
+                  layoutBuilder: (currentChild, previousChildren) {
+                    return Stack(
+                      fit: StackFit.expand,
+                      children: <Widget>[
+                        ...previousChildren,
+                        if (currentChild != null) currentChild,
+                      ],
+                    );
+                  },
                   child: KeyedSubtree(
                     key: ValueKey(vm.state.activeTab),
-                    child: _screenFor(vm.state.activeTab),
+                    child: SizedBox.expand(
+                      child: _screenFor(vm.state.activeTab),
+                    ),
                   ),
                 ),
               ),
@@ -120,8 +132,7 @@ class ModerationScreen extends StatelessWidget {
       ModerationWorkspaceTab.messages => const ModerationMessagesScreen(),
       ModerationWorkspaceTab.reports => const ModerationReportsScreen(),
       ModerationWorkspaceTab.analytics => const ModerationAnalyticsScreen(),
-      ModerationWorkspaceTab.permissions =>
-        const ModerationPermissionsScreen(),
+      ModerationWorkspaceTab.permissions => const ModerationPermissionsScreen(),
     };
   }
 }
@@ -144,9 +155,9 @@ class _TabBarStrip extends StatelessWidget {
                   avatar: Icon(tab.icon, size: 18),
                   label: Text(tab.label),
                   selected: tab == activeTab,
-                  onSelected: (_) => StoreProvider.of<AppState>(context).dispatch(
-                    ModerationTabChangedAction(tab),
-                  ),
+                  onSelected: (_) => StoreProvider.of<AppState>(
+                    context,
+                  ).dispatch(ModerationTabChangedAction(tab)),
                 ),
               ),
             )

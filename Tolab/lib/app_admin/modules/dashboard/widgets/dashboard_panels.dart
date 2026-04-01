@@ -24,7 +24,9 @@ class DashboardSearchResultsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final heading = query.trim().isEmpty ? 'Suggested people' : 'Search results';
+    final heading = query.trim().isEmpty
+        ? 'Suggested people'
+        : 'Search results';
 
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -37,7 +39,10 @@ class DashboardSearchResultsPanel extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(heading, style: Theme.of(context).textTheme.titleLarge),
+                    Text(
+                      heading,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       query.trim().isEmpty
@@ -163,10 +168,17 @@ class RecentActivityTableCard extends StatefulWidget {
   final List<DashboardActivityRow> rows;
 
   @override
-  State<RecentActivityTableCard> createState() => _RecentActivityTableCardState();
+  State<RecentActivityTableCard> createState() =>
+      _RecentActivityTableCardState();
 }
 
 class _RecentActivityTableCardState extends State<RecentActivityTableCard> {
+  static const double _tableHeaderHeight = 56;
+  static const double _tableFooterHeight = 64;
+  static const double _tableChromeHeight = 24;
+  static const double _tableMinHeight = 340;
+  static const double _tableMaxHeight = 680;
+
   final TextEditingController _queryController = TextEditingController();
   DashboardActivityCategory _category = DashboardActivityCategory.all;
   int _sortColumnIndex = 4;
@@ -182,10 +194,8 @@ class _RecentActivityTableCardState extends State<RecentActivityTableCard> {
   @override
   Widget build(BuildContext context) {
     final filteredRows = _applyFilters(widget.rows);
-    final source = _ActivityDataSource(
-      context: context,
-      rows: filteredRows,
-    );
+    final source = _ActivityDataSource(context: context, rows: filteredRows);
+    final tableHeight = _resolveTableHeight(filteredRows.length);
 
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -227,81 +237,94 @@ class _RecentActivityTableCardState extends State<RecentActivityTableCard> {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          PaginatedDataTable2(
-            columnSpacing: 18,
-            horizontalMargin: 12,
-            dataRowHeight: 72,
-            rowsPerPage: _rowsPerPage,
-            minWidth: 1100,
-            showFirstLastButtons: true,
-            fixedTopRows: 1,
-            onRowsPerPageChanged: (value) {
-              if (value == null) return;
-              setState(() => _rowsPerPage = value);
-            },
-            sortColumnIndex: _sortColumnIndex,
-            sortAscending: _sortAscending,
-            columns: [
-              DataColumn2(
-                label: const Text('Category'),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) => _sort<String>(
-                  columnIndex,
-                  ascending,
-                  filteredRows,
-                  (row) => row.type.label,
+          SizedBox(
+            height: tableHeight,
+            child: PaginatedDataTable2(
+              wrapInCard: false,
+              fit: FlexFit.loose,
+              columnSpacing: 18,
+              horizontalMargin: 12,
+              dataRowHeight: 72,
+              rowsPerPage: _rowsPerPage,
+              minWidth: 1100,
+              showFirstLastButtons: true,
+              renderEmptyRowsInTheEnd: false,
+              fixedTopRows: 1,
+              onRowsPerPageChanged: (value) {
+                if (value == null) return;
+                setState(() => _rowsPerPage = value);
+              },
+              sortColumnIndex: _sortColumnIndex,
+              sortAscending: _sortAscending,
+              columns: [
+                DataColumn2(
+                  label: const Text('Category'),
+                  size: ColumnSize.S,
+                  onSort: (columnIndex, ascending) => _sort<String>(
+                    columnIndex,
+                    ascending,
+                    filteredRows,
+                    (row) => row.type.label,
+                  ),
                 ),
-              ),
-              DataColumn2(
-                label: const Text('Title'),
-                size: ColumnSize.L,
-                onSort: (columnIndex, ascending) => _sort<String>(
-                  columnIndex,
-                  ascending,
-                  filteredRows,
-                  (row) => row.title,
+                DataColumn2(
+                  label: const Text('Title'),
+                  size: ColumnSize.L,
+                  onSort: (columnIndex, ascending) => _sort<String>(
+                    columnIndex,
+                    ascending,
+                    filteredRows,
+                    (row) => row.title,
+                  ),
                 ),
-              ),
-              DataColumn2(
-                label: const Text('Actor'),
-                size: ColumnSize.M,
-                onSort: (columnIndex, ascending) => _sort<String>(
-                  columnIndex,
-                  ascending,
-                  filteredRows,
-                  (row) => row.actor,
+                DataColumn2(
+                  label: const Text('Actor'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) => _sort<String>(
+                    columnIndex,
+                    ascending,
+                    filteredRows,
+                    (row) => row.actor,
+                  ),
                 ),
-              ),
-              DataColumn2(
-                label: const Text('Department'),
-                size: ColumnSize.M,
-                onSort: (columnIndex, ascending) => _sort<String>(
-                  columnIndex,
-                  ascending,
-                  filteredRows,
-                  (row) => row.department,
+                DataColumn2(
+                  label: const Text('Department'),
+                  size: ColumnSize.M,
+                  onSort: (columnIndex, ascending) => _sort<String>(
+                    columnIndex,
+                    ascending,
+                    filteredRows,
+                    (row) => row.department,
+                  ),
                 ),
-              ),
-              DataColumn2(
-                label: const Text('Created'),
-                size: ColumnSize.S,
-                onSort: (columnIndex, ascending) => _sort<DateTime>(
-                  columnIndex,
-                  ascending,
-                  filteredRows,
-                  (row) => row.createdAt,
+                DataColumn2(
+                  label: const Text('Created'),
+                  size: ColumnSize.S,
+                  onSort: (columnIndex, ascending) => _sort<DateTime>(
+                    columnIndex,
+                    ascending,
+                    filteredRows,
+                    (row) => row.createdAt,
+                  ),
                 ),
-              ),
-              const DataColumn2(
-                label: Text('Status'),
-                size: ColumnSize.S,
-              ),
-            ],
-            source: source,
+                const DataColumn2(label: Text('Status'), size: ColumnSize.S),
+              ],
+              source: source,
+            ),
           ),
         ],
       ),
     );
+  }
+
+  double _resolveTableHeight(int rowCount) {
+    final visibleRows = rowCount <= 0 ? 1 : rowCount.clamp(1, _rowsPerPage);
+    final estimatedHeight =
+        _tableHeaderHeight +
+        _tableFooterHeight +
+        _tableChromeHeight +
+        (visibleRows * 72);
+    return estimatedHeight.clamp(_tableMinHeight, _tableMaxHeight).toDouble();
   }
 
   List<DashboardActivityRow> _applyFilters(List<DashboardActivityRow> rows) {
@@ -368,9 +391,9 @@ class _DirectoryCard extends StatelessWidget {
                 backgroundColor: tone.withValues(alpha: 0.14),
                 child: Text(
                   entry.initials,
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: tone,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelLarge?.copyWith(color: tone),
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -405,7 +428,10 @@ class _DirectoryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          Text(entry.statusLabel, style: Theme.of(context).textTheme.bodyMedium),
+          Text(
+            entry.statusLabel,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             'Last seen ${entry.lastSeenLabel}',
@@ -467,9 +493,9 @@ class _QuickActionButton extends StatelessWidget {
                 children: [
                   Text(
                     action.label,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.white,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleMedium?.copyWith(color: Colors.white),
                   ),
                   const SizedBox(height: AppSpacing.xxs),
                   Text(
@@ -521,9 +547,15 @@ class _AlertTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(alert.title, style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  alert.title,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const SizedBox(height: AppSpacing.xxs),
-                Text(alert.subtitle, style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  alert.subtitle,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ],
             ),
           ),
@@ -585,10 +617,10 @@ class _ActivityDataSource extends DataTableSource {
               Text(row.title, style: Theme.of(_context).textTheme.titleSmall),
               const SizedBox(height: 4),
               SizedBox(
-                width: 280,
+                width: 240,
                 child: Text(
                   row.subtitle,
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(_context).textTheme.bodySmall,
                 ),
@@ -599,7 +631,9 @@ class _ActivityDataSource extends DataTableSource {
         DataCell(Text(row.actor)),
         DataCell(Text(row.department)),
         DataCell(Text(row.createdAtLabel)),
-        DataCell(_MiniChip(label: row.statusLabel, color: _toneColor(row.tone))),
+        DataCell(
+          _MiniChip(label: row.statusLabel, color: _toneColor(row.tone)),
+        ),
       ],
     );
   }

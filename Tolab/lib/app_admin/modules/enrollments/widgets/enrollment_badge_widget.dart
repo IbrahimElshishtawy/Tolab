@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_constants.dart';
-import '../../../core/spacing/app_spacing.dart';
 import '../models/enrollment_models.dart';
 
 class EnrollmentBadgeWidget extends StatelessWidget {
@@ -14,10 +13,7 @@ class EnrollmentBadgeWidget extends StatelessWidget {
     final color = status.color;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xs,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(AppConstants.pillRadius),

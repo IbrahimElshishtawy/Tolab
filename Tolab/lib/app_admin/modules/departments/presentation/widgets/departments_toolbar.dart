@@ -58,15 +58,23 @@ class DepartmentsToolbar extends StatelessWidget {
         width: isMobile ? double.infinity : 210,
         child: DropdownButtonFormField<String?>(
           initialValue: filters.faculty,
+          isExpanded: true,
           onChanged: onFacultyChanged,
           decoration: const InputDecoration(labelText: 'Faculty'),
+          selectedItemBuilder: (context) => [
+            _compactDropdownLabel('All faculties'),
+            for (final faculty in faculties) _compactDropdownLabel(faculty),
+          ],
           items: [
             const DropdownMenuItem<String?>(
               value: null,
-              child: Text('All faculties'),
+              child: _CompactDropdownText('All faculties'),
             ),
             for (final faculty in faculties)
-              DropdownMenuItem<String?>(value: faculty, child: Text(faculty)),
+              DropdownMenuItem<String?>(
+                value: faculty,
+                child: _CompactDropdownText(faculty),
+              ),
           ],
         ),
       ),
@@ -74,28 +82,35 @@ class DepartmentsToolbar extends StatelessWidget {
         width: isMobile ? double.infinity : 190,
         child: DropdownButtonFormField<DepartmentDensityFilter>(
           initialValue: filters.density,
+          isExpanded: true,
           onChanged: (value) {
             if (value != null) {
               onDensityChanged(value);
             }
           },
           decoration: const InputDecoration(labelText: 'Student density'),
+          selectedItemBuilder: (context) => const [
+            _CompactDropdownText('All densities'),
+            _CompactDropdownText('Light'),
+            _CompactDropdownText('Balanced'),
+            _CompactDropdownText('Dense'),
+          ],
           items: const [
             DropdownMenuItem(
               value: DepartmentDensityFilter.all,
-              child: Text('All densities'),
+              child: _CompactDropdownText('All densities'),
             ),
             DropdownMenuItem(
               value: DepartmentDensityFilter.light,
-              child: Text('Light'),
+              child: _CompactDropdownText('Light'),
             ),
             DropdownMenuItem(
               value: DepartmentDensityFilter.balanced,
-              child: Text('Balanced'),
+              child: _CompactDropdownText('Balanced'),
             ),
             DropdownMenuItem(
               value: DepartmentDensityFilter.dense,
-              child: Text('Dense'),
+              child: _CompactDropdownText('Dense'),
             ),
           ],
         ),
@@ -104,24 +119,30 @@ class DepartmentsToolbar extends StatelessWidget {
         width: isMobile ? double.infinity : 180,
         child: DropdownButtonFormField<DepartmentSortField>(
           initialValue: sort.field,
+          isExpanded: true,
           onChanged: (value) {
             if (value != null) {
               onSortFieldChanged(value);
             }
           },
           decoration: const InputDecoration(labelText: 'Sort by'),
+          selectedItemBuilder: (context) => const [
+            _CompactDropdownText('Name'),
+            _CompactDropdownText('Students'),
+            _CompactDropdownText('Subjects'),
+          ],
           items: const [
             DropdownMenuItem(
               value: DepartmentSortField.name,
-              child: Text('Name'),
+              child: _CompactDropdownText('Name'),
             ),
             DropdownMenuItem(
               value: DepartmentSortField.studentsCount,
-              child: Text('Students'),
+              child: _CompactDropdownText('Students'),
             ),
             DropdownMenuItem(
               value: DepartmentSortField.subjectsCount,
-              child: Text('Subjects'),
+              child: _CompactDropdownText('Subjects'),
             ),
           ],
         ),
@@ -184,5 +205,21 @@ class DepartmentsToolbar extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+Widget _compactDropdownLabel(String text) => Align(
+  alignment: Alignment.centerLeft,
+  child: Text(text, maxLines: 1, overflow: TextOverflow.ellipsis),
+);
+
+class _CompactDropdownText extends StatelessWidget {
+  const _CompactDropdownText(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(text, maxLines: 1, overflow: TextOverflow.ellipsis);
   }
 }

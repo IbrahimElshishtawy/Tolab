@@ -51,7 +51,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       builder: (context, vm) {
         final store = StoreProvider.of<AppState>(context);
         final isDesktop = AppBreakpoints.isDesktop(context);
-        final isMobile = AppBreakpoints.isMobile(context);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,8 +232,17 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     );
                   }
 
+                  final compactCalendarHeight = _compactCalendarHeight(
+                    context,
+                    vm.view,
+                  );
+                  final compactSidePanelHeight = _compactSidePanelHeight(
+                    context,
+                  );
+
                   return SingleChildScrollView(
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ScheduleFiltersPanel(
                           filters: vm.filters,
@@ -249,9 +257,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           ),
                         ),
                         const SizedBox(height: AppSpacing.md),
-                        SizedBox(
-                          height: isMobile ? 620 : 700,
-                          child: ScheduleCalendarBoard(
+                        if (vm.view == ScheduleCalendarView.month)
+                          ScheduleCalendarBoard(
                             events: vm.visibleEvents,
                             view: vm.view,
                             focusedDay: vm.focusedDay,
@@ -288,19 +295,64 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               vm.lookups,
                               date,
                             ),
+                          )
+                        else
+                          SizedBox(
+                            height: compactCalendarHeight,
+                            child: ScheduleCalendarBoard(
+                              events: vm.visibleEvents,
+                              view: vm.view,
+                              focusedDay: vm.focusedDay,
+                              selectedDay: vm.selectedDay,
+                              conflictMap: vm.conflictMap,
+                              onViewChanged: (view) => store.dispatch(
+                                ScheduleViewChangedAction(view),
+                              ),
+                              onFocusedDayChanged: (day) => store.dispatch(
+                                ScheduleFocusedDayChangedAction(day),
+                              ),
+                              onSelectedDayChanged: (day) => store.dispatch(
+                                ScheduleSelectedDayChangedAction(day),
+                              ),
+                              onNavigate: (direction) =>
+                                  _navigateCalendar(store, vm, direction),
+                              onEventTap: (event) => _openEditDialog(
+                                context,
+                                store,
+                                vm.lookups,
+                                event,
+                              ),
+                              onEventDropped: (event, start, end) {
+                                store.dispatch(
+                                  RescheduleScheduleEventAction(
+                                    event: event,
+                                    targetStart: start,
+                                    targetEnd: end,
+                                  ),
+                                );
+                              },
+                              onCreateAt: (date) => _openCreateDialog(
+                                context,
+                                store,
+                                vm.lookups,
+                                date,
+                              ),
+                            ),
                           ),
-                        ),
                         const SizedBox(height: AppSpacing.md),
-                        _ScheduleSidePanel(
-                          selectedDay: vm.selectedDay,
-                          selectedEvents: vm.selectedDayEvents,
-                          conflictMap: vm.conflictMap,
-                          highlightedEventId: vm.highlightedEventId,
-                          onEventTap: (event) => _openEditDialog(
-                            context,
-                            store,
-                            vm.lookups,
-                            event,
+                        SizedBox(
+                          height: compactSidePanelHeight,
+                          child: _ScheduleSidePanel(
+                            selectedDay: vm.selectedDay,
+                            selectedEvents: vm.selectedDayEvents,
+                            conflictMap: vm.conflictMap,
+                            highlightedEventId: vm.highlightedEventId,
+                            onEventTap: (event) => _openEditDialog(
+                              context,
+                              store,
+                              vm.lookups,
+                              event,
+                            ),
                           ),
                         ),
                       ],
@@ -373,6 +425,28 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         store.dispatch(DeleteScheduleEventAction(eventId: event.id));
       },
     );
+  }
+
+  double _compactCalendarHeight(
+    BuildContext context,
+    ScheduleCalendarView view,
+  ) {
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final isMobile = AppBreakpoints.isMobile(context);
+    final targetHeight = screenHeight * (isMobile ? 0.6 : 0.72);
+
+    if (view == ScheduleCalendarView.month) {
+      return targetHeight.clamp(420.0, 620.0).toDouble();
+    }
+
+    return targetHeight.clamp(520.0, 780.0).toDouble();
+  }
+
+  double _compactSidePanelHeight(BuildContext context) {
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final isMobile = AppBreakpoints.isMobile(context);
+    final targetHeight = screenHeight * (isMobile ? 0.42 : 0.48);
+    return targetHeight.clamp(280.0, 420.0).toDouble();
   }
 }
 

@@ -364,27 +364,24 @@ class _UploadsListScreenState extends State<UploadsListScreen> {
       );
     }
 
-    return SingleChildScrollView(
+    return UploadTable(
       key: const ValueKey('uploads-table'),
-      scrollDirection: Axis.horizontal,
-      child: UploadTable(
-        items: vm.items,
-        selectedIds: vm.selectedIds,
-        onToggleSelection: _toggleSelection,
-        onToggleAll: (selected) {
-          final ids = selected
-              ? vm.items.map((item) => item.id).toSet()
-              : <String>{};
-          StoreProvider.of<AppState>(
-            context,
-          ).dispatch(UploadsSelectionChangedAction(ids));
-        },
-        onPreview: _openPreview,
-        onDelete: (item) => _confirmDelete({item.id}),
-        onAssign: (item) => _assignUploads({item.id}),
-        onRetry: (item) => _retryUpload(item.id),
-        onCancel: (item) => _cancelUpload(item.id),
-      ),
+      items: vm.items,
+      selectedIds: vm.selectedIds,
+      onToggleSelection: _toggleSelection,
+      onToggleAll: (selected) {
+        final ids = selected
+            ? vm.items.map((item) => item.id).toSet()
+            : <String>{};
+        StoreProvider.of<AppState>(
+          context,
+        ).dispatch(UploadsSelectionChangedAction(ids));
+      },
+      onPreview: _openPreview,
+      onDelete: (item) => _confirmDelete({item.id}),
+      onAssign: (item) => _assignUploads({item.id}),
+      onRetry: (item) => _retryUpload(item.id),
+      onCancel: (item) => _cancelUpload(item.id),
     );
   }
 

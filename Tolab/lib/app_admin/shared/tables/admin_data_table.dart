@@ -1,6 +1,7 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'dart:math' as math;
 
 import '../../core/spacing/app_spacing.dart';
 import '../../core/widgets/app_card.dart';
@@ -84,14 +85,20 @@ class AdminDataTable<T> extends StatelessWidget {
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minWidth: constraints.maxWidth),
+          child: SizedBox(
+            width: math.max(
+              constraints.maxWidth,
+              (columns.length * 180).toDouble(),
+            ),
             child: DataTable2(
               columnSpacing: 20,
               horizontalMargin: 16,
               smRatio: 0.7,
               lmRatio: 1.4,
-              minWidth: columns.length * 180,
+              minWidth: math.max(
+                constraints.maxWidth,
+                (columns.length * 180).toDouble(),
+              ),
               headingRowHeight: 52,
               dataRowHeight: 72,
               columns: [

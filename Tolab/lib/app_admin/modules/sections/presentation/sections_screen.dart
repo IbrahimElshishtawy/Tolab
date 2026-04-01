@@ -2116,10 +2116,21 @@ class _FilterDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
       initialValue: value,
+      isExpanded: true,
       decoration: InputDecoration(labelText: label),
+      selectedItemBuilder: (context) => [
+        for (final item in items)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(item, maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
+      ],
       items: [
         for (final item in items)
-          DropdownMenuItem(value: item, child: Text(item)),
+          DropdownMenuItem(
+            value: item,
+            child: Text(item, maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
       ],
       onChanged: (selected) {
         if (selected != null) onChanged(selected);
@@ -2304,6 +2315,7 @@ class _MobileEventCard extends StatelessWidget {
       backgroundColor: color.withValues(alpha: 0.06),
       borderColor: color.withValues(alpha: 0.16),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -2515,38 +2527,48 @@ class _ScheduleEventBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = scheduleTypeColor(event.type);
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(AppConstants.smallRadius),
-        border: Border.all(color: color.withValues(alpha: 0.22)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            event.title,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(
-              context,
-            ).textTheme.titleSmall?.copyWith(color: color),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxHeight <= 72;
+        return Container(
+          padding: EdgeInsets.all(compact ? AppSpacing.xs : AppSpacing.sm),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(AppConstants.smallRadius),
+            border: Border.all(color: color.withValues(alpha: 0.22)),
           ),
-          const SizedBox(height: 4),
-          Text(
-            event.course,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodySmall,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                event.title,
+                maxLines: compact ? 1 : 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(color: color),
+              ),
+              if (!compact) ...[
+                const SizedBox(height: AppSpacing.xxs),
+                Text(
+                  event.course,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: AppSpacing.xs),
+              ] else
+                const SizedBox(height: AppSpacing.xxs),
+              Text(
+                '${DateFormat('hh:mm').format(event.start)} - ${DateFormat('hh:mm').format(event.end)}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
+            ],
           ),
-          const Spacer(),
-          Text(
-            '${DateFormat('hh:mm').format(event.start)} - ${DateFormat('hh:mm').format(event.end)}',
-            style: Theme.of(context).textTheme.labelSmall,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

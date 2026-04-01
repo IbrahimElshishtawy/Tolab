@@ -38,7 +38,7 @@ class PremiumButton extends StatelessWidget {
         Size(0, AppConstants.denseInputHeight),
       ),
       padding: const WidgetStatePropertyAll(
-        EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       ),
       side: isSecondary
           ? WidgetStatePropertyAll(BorderSide(color: borderColor))
@@ -71,7 +71,7 @@ class PremiumButton extends StatelessWidget {
     return FilledButton.icon(
       onPressed: onPressed,
       style: style,
-      icon: Icon(icon, size: 18),
+      icon: Icon(icon, size: 16),
       label: Text(label),
     );
   }

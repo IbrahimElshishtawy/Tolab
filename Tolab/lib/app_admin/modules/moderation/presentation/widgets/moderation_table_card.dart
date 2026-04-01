@@ -1,5 +1,6 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
 import '../../../../core/animations/app_motion.dart';
 import '../../../../core/colors/app_colors.dart';
@@ -57,8 +58,10 @@ class ModerationTableCard<T> extends StatelessWidget {
   final String Function(T item) idOf;
   final String Function(T item) mobileTitleBuilder;
   final String Function(T item) mobileSubtitleBuilder;
-  final List<Widget> Function(BuildContext context, T item)? mobileBadgesBuilder;
-  final List<Widget> Function(BuildContext context, T item)? mobileFooterBuilder;
+  final List<Widget> Function(BuildContext context, T item)?
+  mobileBadgesBuilder;
+  final List<Widget> Function(BuildContext context, T item)?
+  mobileFooterBuilder;
   final ModerationPageSlice<T> pageSlice;
   final Set<String> selectedIds;
   final String sortKey;
@@ -110,7 +113,10 @@ class ModerationTableCard<T> extends StatelessWidget {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 if (items.isEmpty) {
-                  return _EmptyState(title: emptyTitle, subtitle: emptySubtitle);
+                  return _EmptyState(
+                    title: emptyTitle,
+                    subtitle: emptySubtitle,
+                  );
                 }
 
                 if (constraints.maxWidth < 920) {
@@ -142,7 +148,8 @@ class ModerationTableCard<T> extends StatelessWidget {
                                   ),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         mobileTitleBuilder(item),
@@ -191,15 +198,20 @@ class ModerationTableCard<T> extends StatelessWidget {
                   (column) => column.key == sortKey,
                 );
 
+                final tableWidth = math.max(
+                  constraints.maxWidth,
+                  (columns.length * 170) + 52,
+                );
+
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: SizedBox(
+                    width: tableWidth.toDouble(),
                     child: DataTable2(
                       showCheckboxColumn: false,
                       columnSpacing: 18,
                       horizontalMargin: 8,
-                      minWidth: columns.length * 170,
+                      minWidth: tableWidth.toDouble(),
                       sortColumnIndex: sortedColumnIndex >= 0
                           ? sortedColumnIndex + 1
                           : null,
@@ -219,7 +231,8 @@ class ModerationTableCard<T> extends StatelessWidget {
                           DataColumn2(
                             size: column.size,
                             onSort: column.sortable && onSort != null
-                                ? (columnIndex, ascending) => onSort!(column.key)
+                                ? (columnIndex, ascending) =>
+                                      onSort!(column.key)
                                 : null,
                             label: Text(column.label),
                           ),
@@ -227,14 +240,20 @@ class ModerationTableCard<T> extends StatelessWidget {
                       rows: [
                         for (final item in items)
                           DataRow2(
-                            onTap: onRowTap == null ? null : () => onRowTap!(item),
+                            onTap: onRowTap == null
+                                ? null
+                                : () => onRowTap!(item),
                             color: WidgetStateProperty.resolveWith((states) {
                               final selected = selectedIds.contains(idOf(item));
                               if (selected) {
-                                return AppColors.primary.withValues(alpha: 0.08);
+                                return AppColors.primary.withValues(
+                                  alpha: 0.08,
+                                );
                               }
                               if (states.contains(WidgetState.hovered)) {
-                                return AppColors.primary.withValues(alpha: 0.04);
+                                return AppColors.primary.withValues(
+                                  alpha: 0.04,
+                                );
                               }
                               return Colors.transparent;
                             }),
@@ -245,9 +264,9 @@ class ModerationTableCard<T> extends StatelessWidget {
                                   onChanged: onToggleSelection == null
                                       ? null
                                       : (value) => onToggleSelection!(
-                                            idOf(item),
-                                            value ?? false,
-                                          ),
+                                          idOf(item),
+                                          value ?? false,
+                                        ),
                                 ),
                               ),
                               for (final column in columns)
@@ -292,8 +311,7 @@ class _PaginationBar extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final compact = constraints.maxWidth < 700;
-        final summary =
-            '$totalItems items  •  Page $page of $totalPages';
+        final summary = '$totalItems items  •  Page $page of $totalPages';
 
         if (compact) {
           return Column(

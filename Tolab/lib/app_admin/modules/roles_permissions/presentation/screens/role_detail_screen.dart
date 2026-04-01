@@ -226,20 +226,41 @@ class _AssignedUsersCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Assigned Users',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              TextButton.icon(
-                onPressed: onAssignUsers,
-                icon: const Icon(Icons.edit_rounded, size: 18),
-                label: const Text('Manage'),
-              ),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isCompact = constraints.maxWidth < 320;
+              return isCompact
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Assigned Users',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        TextButton.icon(
+                          onPressed: onAssignUsers,
+                          icon: const Icon(Icons.edit_rounded, size: 18),
+                          label: const Text('Manage'),
+                        ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Assigned Users',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: onAssignUsers,
+                          icon: const Icon(Icons.edit_rounded, size: 18),
+                          label: const Text('Manage'),
+                        ),
+                      ],
+                    );
+            },
           ),
           const SizedBox(height: AppSpacing.md),
           if (selectedUsers.isEmpty)
@@ -274,6 +295,7 @@ class _AssignedUserTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CircleAvatar(
           radius: 18,
@@ -290,10 +312,24 @@ class _AssignedUserTile extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(user.name, style: Theme.of(context).textTheme.titleSmall),
+              Text(
+                user.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
               const SizedBox(height: 2),
               Text(
-                '${user.email} - ${user.department}',
+                user.email,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                user.department,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
@@ -330,30 +366,56 @@ class _PermissionsCard extends StatelessWidget {
       children: [
         AppCard(
           padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Role Permissions',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Grant or revoke module access using grouped, animated checkboxes.',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-              ),
-              PremiumButton(
-                label: 'Add permission',
-                icon: Icons.add_rounded,
-                onPressed: onCreatePermission,
-              ),
-            ],
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isCompact = constraints.maxWidth < 380;
+              return isCompact
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Role Permissions',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Grant or revoke module access using grouped, animated checkboxes.',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        PremiumButton(
+                          label: 'Add permission',
+                          icon: Icons.add_rounded,
+                          onPressed: onCreatePermission,
+                        ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Role Permissions',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Grant or revoke module access using grouped, animated checkboxes.',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                        PremiumButton(
+                          label: 'Add permission',
+                          icon: Icons.add_rounded,
+                          onPressed: onCreatePermission,
+                        ),
+                      ],
+                    );
+            },
           ),
         ),
         const SizedBox(height: AppSpacing.md),

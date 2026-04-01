@@ -102,10 +102,12 @@ class SectionCapacityBar extends StatelessWidget {
     super.key,
     required this.value,
     required this.label,
+    this.compact = false,
   });
 
   final double value;
   final String label;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +122,12 @@ class SectionCapacityBar extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: Text(label, style: Theme.of(context).textTheme.labelMedium),
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelMedium,
+              ),
             ),
             Text(
               '${(value * 100).round()}%',
@@ -130,7 +137,7 @@ class SectionCapacityBar extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.xs),
+        SizedBox(height: compact ? AppSpacing.xxs : AppSpacing.xs),
         TweenAnimationBuilder<double>(
           tween: Tween(begin: 0, end: value.clamp(0, 1)),
           duration: AppMotion.slow,
@@ -139,7 +146,7 @@ class SectionCapacityBar extends StatelessWidget {
             return ClipRRect(
               borderRadius: BorderRadius.circular(999),
               child: LinearProgressIndicator(
-                minHeight: 10,
+                minHeight: compact ? 6 : 8,
                 value: animatedValue,
                 color: color,
                 backgroundColor: AppColors.slateSoft.withValues(alpha: 0.35),
@@ -260,36 +267,55 @@ class SectionPortfolioCard extends StatelessWidget {
       borderColor: selected
           ? bandColor.withValues(alpha: 0.24)
           : Theme.of(context).dividerColor,
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxHeight <= 140;
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: StatusBadge(record.status)),
-              if (selected)
-                const Icon(
-                  Icons.check_circle_rounded,
-                  color: AppColors.primary,
-                  size: 18,
-                ),
+              Row(
+                children: [
+                  Expanded(child: StatusBadge(record.status)),
+                  if (selected)
+                    const Icon(
+                      Icons.check_circle_rounded,
+                      color: AppColors.primary,
+                      size: 16,
+                    ),
+                ],
+              ),
+              SizedBox(height: compact ? AppSpacing.xxs : AppSpacing.xs),
+              Text(
+                record.code,
+                style: compact
+                    ? Theme.of(context).textTheme.labelMedium
+                    : Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: AppSpacing.xxs),
+              Text(
+                record.name,
+                maxLines: compact ? 1 : 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: AppSpacing.xxs),
+              Text(
+                '${record.department}  ${record.yearLabel}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              SizedBox(height: compact ? AppSpacing.xxs : AppSpacing.xs),
+              SectionCapacityBar(
+                value: record.capacityUsage,
+                label: '${record.studentsCount}/${record.capacity} seats used',
+                compact: compact,
+              ),
             ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(record.code, style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 6),
-          Text(record.name, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            '${record.department}  ${record.yearLabel}',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          SectionCapacityBar(
-            value: record.capacityUsage,
-            label: '${record.studentsCount}/${record.capacity} seats used',
-          ),
-        ],
+          );
+        },
       ),
     );
   }

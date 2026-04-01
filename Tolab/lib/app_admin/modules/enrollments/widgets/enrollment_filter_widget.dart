@@ -311,6 +311,22 @@ class _DropdownField<T> extends StatelessWidget {
       child: DropdownButtonFormField<T>(
         key: ValueKey<Object?>(value),
         initialValue: value,
+        isExpanded: true,
+        selectedItemBuilder: (context) => items
+            .map(
+              (item) => Align(
+                alignment: Alignment.centerLeft,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: DefaultTextStyle.merge(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    child: item.child,
+                  ),
+                ),
+              ),
+            )
+            .toList(growable: false),
         items: items,
         onChanged: onChanged,
         decoration: InputDecoration(labelText: label),

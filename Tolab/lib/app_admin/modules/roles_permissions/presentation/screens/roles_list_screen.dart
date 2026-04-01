@@ -393,7 +393,7 @@ class _RolesWorkspace extends StatelessWidget {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(flex: 4, child: rolesList),
+          Expanded(flex: 4, child: SingleChildScrollView(child: rolesList)),
           const SizedBox(width: AppSpacing.lg),
           Expanded(child: SingleChildScrollView(child: detail)),
         ],
@@ -432,30 +432,56 @@ class _RolesListPane extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Roles',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Compact role cards with member and coverage signals.',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-              ),
-              TextButton.icon(
-                onPressed: onCreateRole,
-                icon: const Icon(Icons.add_rounded, size: 18),
-                label: const Text('Create'),
-              ),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isCompact = constraints.maxWidth < 360;
+              return isCompact
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Roles',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Compact role cards with member and coverage signals.',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        TextButton.icon(
+                          onPressed: onCreateRole,
+                          icon: const Icon(Icons.add_rounded, size: 18),
+                          label: const Text('Create'),
+                        ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Roles',
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Compact role cards with member and coverage signals.',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: onCreateRole,
+                          icon: const Icon(Icons.add_rounded, size: 18),
+                          label: const Text('Create'),
+                        ),
+                      ],
+                    );
+            },
           ),
           const SizedBox(height: AppSpacing.lg),
           if (roles.isEmpty)

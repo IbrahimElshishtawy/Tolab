@@ -97,75 +97,114 @@ class AdminTable extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
-          DataTable2(
-            minWidth: 980,
-            columnSpacing: 18,
-            horizontalMargin: 12,
-            headingRowHeight: 52,
-            dataRowHeight: 78,
-            columns: [
-              const DataColumn2(label: SizedBox.shrink(), fixedWidth: 46),
-              _sortColumn('Title', ContentSortField.title, onSortChanged),
-              const DataColumn2(label: Text('Type'), size: ColumnSize.S),
-              const DataColumn2(label: Text('Subject'), size: ColumnSize.L),
-              const DataColumn2(label: Text('Instructor')),
-              const DataColumn2(label: Text('Status'), size: ColumnSize.S),
-              _sortColumn(
-                'Publish date',
-                ContentSortField.publishDate,
-                onSortChanged,
-              ),
-              const DataColumn2(label: Text('Actions'), fixedWidth: 190),
-            ],
-            rows: [
-              for (final item in items)
-                DataRow2(
-                  selected: selectedIds.contains(item.id),
-                  onTap: () => onView(item),
-                  cells: [
-                    DataCell(
-                      Checkbox(
-                        value: selectedIds.contains(item.id),
-                        onChanged: (value) =>
-                            onRowSelected(item.id, value ?? false),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final tableHeight = (items.length * 78 + 52)
+                  .clamp(180, 560)
+                  .toDouble();
+              final tableWidth = constraints.maxWidth < 980
+                  ? 980.0
+                  : constraints.maxWidth;
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: tableWidth,
+                  height: tableHeight,
+                  child: DataTable2(
+                    minWidth: 980,
+                    columnSpacing: 18,
+                    horizontalMargin: 12,
+                    headingRowHeight: 52,
+                    dataRowHeight: 78,
+                    columns: [
+                      const DataColumn2(
+                        label: SizedBox.shrink(),
+                        fixedWidth: 46,
                       ),
-                    ),
-                    DataCell(_TitleCell(item: item)),
-                    DataCell(Text(item.type.label)),
-                    DataCell(Text(item.subject.displayLabel)),
-                    DataCell(Text(item.instructor.name)),
-                    DataCell(StatusBadge(status: item.status)),
-                    DataCell(Text(item.publishDateLabel)),
-                    DataCell(
-                      Row(
-                        children: [
-                          IconButton(
-                            tooltip: 'Preview',
-                            onPressed: () => onView(item),
-                            icon: const Icon(
-                              Icons.visibility_rounded,
-                              size: 18,
-                            ),
-                          ),
-                          IconButton(
-                            tooltip: 'Edit',
-                            onPressed: () => onEdit(item),
-                            icon: const Icon(Icons.edit_rounded, size: 18),
-                          ),
-                          IconButton(
-                            tooltip: 'Delete',
-                            onPressed: () => onDelete(item),
-                            icon: const Icon(
-                              Icons.delete_outline_rounded,
-                              size: 18,
-                            ),
-                          ),
-                        ],
+                      _sortColumn(
+                        'Title',
+                        ContentSortField.title,
+                        onSortChanged,
                       ),
-                    ),
-                  ],
+                      const DataColumn2(
+                        label: Text('Type'),
+                        size: ColumnSize.S,
+                      ),
+                      const DataColumn2(
+                        label: Text('Subject'),
+                        size: ColumnSize.L,
+                      ),
+                      const DataColumn2(label: Text('Instructor')),
+                      const DataColumn2(
+                        label: Text('Status'),
+                        size: ColumnSize.S,
+                      ),
+                      _sortColumn(
+                        'Publish date',
+                        ContentSortField.publishDate,
+                        onSortChanged,
+                      ),
+                      const DataColumn2(
+                        label: Text('Actions'),
+                        fixedWidth: 190,
+                      ),
+                    ],
+                    rows: [
+                      for (final item in items)
+                        DataRow2(
+                          selected: selectedIds.contains(item.id),
+                          onTap: () => onView(item),
+                          cells: [
+                            DataCell(
+                              Checkbox(
+                                value: selectedIds.contains(item.id),
+                                onChanged: (value) =>
+                                    onRowSelected(item.id, value ?? false),
+                              ),
+                            ),
+                            DataCell(_TitleCell(item: item)),
+                            DataCell(Text(item.type.label)),
+                            DataCell(Text(item.subject.displayLabel)),
+                            DataCell(Text(item.instructor.name)),
+                            DataCell(StatusBadge(status: item.status)),
+                            DataCell(Text(item.publishDateLabel)),
+                            DataCell(
+                              Row(
+                                children: [
+                                  IconButton(
+                                    tooltip: 'Preview',
+                                    onPressed: () => onView(item),
+                                    icon: const Icon(
+                                      Icons.visibility_rounded,
+                                      size: 18,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    tooltip: 'Edit',
+                                    onPressed: () => onEdit(item),
+                                    icon: const Icon(
+                                      Icons.edit_rounded,
+                                      size: 18,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    tooltip: 'Delete',
+                                    onPressed: () => onDelete(item),
+                                    icon: const Icon(
+                                      Icons.delete_outline_rounded,
+                                      size: 18,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
                 ),
-            ],
+              );
+            },
           ),
           const SizedBox(height: AppSpacing.md),
           _PaginationFooter(

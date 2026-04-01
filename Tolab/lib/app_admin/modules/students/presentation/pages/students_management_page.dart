@@ -1955,10 +1955,21 @@ class _FilterDropdown extends StatelessWidget {
       width: 180,
       child: DropdownButtonFormField<String>(
         initialValue: items.contains(value) ? value : items.firstOrNull,
+        isExpanded: true,
         decoration: InputDecoration(labelText: label),
+        selectedItemBuilder: (context) => [
+          for (final item in items)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(item, maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
+        ],
         items: [
           for (final item in items)
-            DropdownMenuItem(value: item, child: Text(item)),
+            DropdownMenuItem(
+              value: item,
+              child: Text(item, maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
         ],
         onChanged: (value) {
           if (value != null) onChanged(value);
