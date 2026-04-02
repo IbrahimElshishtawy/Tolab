@@ -156,7 +156,7 @@ Future<(AcademyUser, String, String)> _login({
         'demo-student-token',
         'demo-student-refresh',
       ),
-      'doctor@tolab.edu' || 'assistant@tolab.edu' => (
+      'doctor@tolab.edu' => (
         const AcademyUser(
           id: '8',
           name: 'Dr. Karim Hassan',
@@ -168,17 +168,8 @@ Future<(AcademyUser, String, String)> _login({
         'demo-doctor-token',
         'demo-doctor-refresh',
       ),
-      _ => (
-        AcademyUser(
-          id: '0',
-          name: 'Preview User',
-          email: normalizedEmail,
-          role: preferredRole,
-          status: 'active',
-          department: 'Preview Workspace',
-        ),
-        'demo-preview-token',
-        'demo-preview-refresh',
+      _ => throw AppException(
+        'Use one of the seeded accounts: admin@tolab.edu, student@tolab.edu, or doctor@tolab.edu.',
       ),
     };
   }

@@ -79,16 +79,17 @@ SANCTUM_ACCESS_TOKEN_MINUTES=15
 AUTH_REFRESH_TOKEN_DAYS=30
 AUTH_REFRESH_TOKEN_PEPPER=change-me
 
-DEFAULT_ADMIN_EMAIL=admin@tolab.local
-DEFAULT_ADMIN_PASSWORD=ChangeThisSuperSecurePassword123!
+DEFAULT_ADMIN_EMAIL=admin@tolab.edu
+DEFAULT_ADMIN_PASSWORD=Admin@123
+DEFAULT_ACADEMY_PASSWORD=Admin@123
 ```
 
 ## Seeded Accounts
 
-- Super admin email: value of `DEFAULT_ADMIN_EMAIL`
-- Demo doctor: `doctor@tolab.local`
-- Demo TA: `ta@tolab.local`
-- Demo student: `student@tolab.local`
+- Admin: `admin@tolab.edu`
+- Student: `student@tolab.edu`
+- Doctor: `doctor@tolab.edu`
+- Shared password: value of `DEFAULT_ACADEMY_PASSWORD` or `DEFAULT_ADMIN_PASSWORD`
 
 ## Notes
 

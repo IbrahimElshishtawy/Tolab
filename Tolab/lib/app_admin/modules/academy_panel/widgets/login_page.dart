@@ -194,7 +194,7 @@ class _AcademyLoginPageState extends State<AcademyLoginPage> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text('Preview credentials'),
+                                          Text('Seeded credentials'),
                                           SizedBox(height: AppSpacing.xs),
                                           Text(
                                             '`admin@tolab.edu`, `student@tolab.edu`, `doctor@tolab.edu`',

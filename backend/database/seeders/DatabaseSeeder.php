@@ -17,14 +17,16 @@ use App\Modules\UserManagement\Models\StudentProfile;
 use App\Modules\UserManagement\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
         $this->call(SuperAdminSeeder::class);
+        $sharedPassword = (string) env('DEFAULT_ACADEMY_PASSWORD', env('DEFAULT_ADMIN_PASSWORD', 'Admin@123'));
 
-        DB::transaction(function () {
+        DB::transaction(function () use ($sharedPassword) {
             $department = Department::factory()->create(['name' => 'Computer Science']);
             $section = Section::factory()->create([
                 'department_id' => $department->id,
@@ -34,7 +36,8 @@ class DatabaseSeeder extends Seeder
 
             $doctor = User::factory()->doctor()->create([
                 'username' => 'Dr. Ahmed Hassan',
-                'email' => 'doctor@tolab.local',
+                'email' => 'doctor@tolab.edu',
+                'password_hash' => Hash::make($sharedPassword),
             ]);
 
             $ta = User::factory()->teachingAssistant()->create([
@@ -45,7 +48,8 @@ class DatabaseSeeder extends Seeder
             $student = User::factory()->create([
                 'role' => UserRole::STUDENT,
                 'username' => 'Mohamed Ibrahim',
-                'email' => 'student@tolab.local',
+                'email' => 'student@tolab.edu',
+                'password_hash' => Hash::make($sharedPassword),
                 'national_id' => '29801011234567',
             ]);
 
