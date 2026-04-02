@@ -19,16 +19,12 @@ class AuthRepository {
         'password': password,
         'device_name': 'flutter-app',
       },
-      parser: (value) => Map<String, dynamic>.from(value as Map),
+      parser: _asMap,
     );
 
-    final data = response.data ?? const <String, dynamic>{};
-    final user = SessionUser.fromJson(
-      Map<String, dynamic>.from(data['user'] as Map? ?? const {}),
-    );
-    final tokens = Map<String, dynamic>.from(
-      data['tokens'] as Map? ?? const <String, dynamic>{},
-    );
+    final data = _asMap(response.data);
+    final user = SessionUser.fromJson(_asMap(data['user']));
+    final tokens = _asMap(data['tokens']);
 
     await _tokenStorage.write({
       ...tokens,
@@ -51,12 +47,10 @@ class AuthRepository {
   Future<SessionUser> fetchCurrentUser() async {
     final response = await _apiClient.get<Map<String, dynamic>>(
       '/staff-portal/profile',
-      parser: (value) => Map<String, dynamic>.from(value as Map),
+      parser: _asMap,
     );
 
-    final user = SessionUser.fromJson(
-      Map<String, dynamic>.from(response.data ?? const {}),
-    );
+    final user = SessionUser.fromJson(_asMap(response.data));
     final session = await _tokenStorage.read() ?? <String, dynamic>{};
     await _tokenStorage.write({
       ...session,
@@ -83,5 +77,17 @@ class AuthRepository {
       data: {'university_email': email},
       parser: (_) => null,
     );
+  }
+
+  static Map<String, dynamic> _asMap(Object? value) {
+    if (value is Map<String, dynamic>) {
+      return value;
+    }
+
+    if (value is Map) {
+      return Map<String, dynamic>.from(value);
+    }
+
+    return const <String, dynamic>{};
   }
 }

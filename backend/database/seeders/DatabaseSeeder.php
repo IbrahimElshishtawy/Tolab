@@ -36,19 +36,28 @@ class DatabaseSeeder extends Seeder
 
             $doctor = User::factory()->doctor()->create([
                 'username' => 'Dr. Ahmed Hassan',
+                'full_name' => 'Dr. Ahmed Hassan',
                 'email' => 'doctor@tolab.edu',
+                'university_email' => 'doctor@tolab.edu',
+                'role_type' => 'doctor',
                 'password_hash' => Hash::make($sharedPassword),
             ]);
 
             $ta = User::factory()->teachingAssistant()->create([
                 'username' => 'TA Sara Ali',
-                'email' => 'ta@tolab.local',
+                'full_name' => 'TA Sara Ali',
+                'email' => 'assistant@tolab.edu',
+                'university_email' => 'assistant@tolab.edu',
+                'role_type' => 'assistant',
             ]);
 
             $student = User::factory()->create([
                 'role' => UserRole::STUDENT,
                 'username' => 'Mohamed Ibrahim',
+                'full_name' => 'Mohamed Ibrahim',
                 'email' => 'student@tolab.edu',
+                'university_email' => 'student@tolab.edu',
+                'role_type' => 'student',
                 'password_hash' => Hash::make($sharedPassword),
                 'national_id' => '29801011234567',
             ]);

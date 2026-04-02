@@ -17,9 +17,7 @@ class ApiException implements Exception {
       if (responseData is Map<String, dynamic>) {
         return ApiException(
           message: responseData['message']?.toString() ?? 'Request failed.',
-          errors: Map<String, dynamic>.from(
-            responseData['errors'] as Map? ?? const <String, dynamic>{},
-          ),
+          errors: _normalizeErrors(responseData['errors']),
           statusCode: error.response?.statusCode,
         );
       }
@@ -35,4 +33,22 @@ class ApiException implements Exception {
 
   @override
   String toString() => message;
+
+  static Map<String, dynamic> _normalizeErrors(Object? raw) {
+    if (raw is Map<String, dynamic>) {
+      return raw;
+    }
+
+    if (raw is Map) {
+      return Map<String, dynamic>.from(raw);
+    }
+
+    if (raw is List) {
+      return {
+        'general': raw.map((item) => item.toString()).toList(),
+      };
+    }
+
+    return const <String, dynamic>{};
+  }
 }

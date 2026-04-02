@@ -2,12 +2,15 @@
 
 namespace App\Modules\StaffPortal\Services;
 
+use App\Core\Enums\UserRole;
 use App\Core\Exceptions\ApiException;
 use App\Modules\Auth\Services\TokenService;
 use App\Modules\Shared\Services\AuditLogService;
 use App\Modules\UserManagement\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class PortalAuthService
@@ -20,15 +23,14 @@ class PortalAuthService
 
     public function login(array $payload): array
     {
-        $user = User::query()
-            ->where(function ($query) use ($payload) {
-                $query->where('university_email', $payload['university_email'])
-                    ->orWhere('email', $payload['university_email']);
-            })
-            ->first();
+        $user = $this->findUserByLoginIdentifier($payload['university_email']);
 
         if (! $user || ! Hash::check($payload['password'], $user->password_hash)) {
             throw new ApiException('Invalid credentials.', [], Response::HTTP_UNAUTHORIZED);
+        }
+
+        if (! $this->canAccessPortal($user)) {
+            throw new ApiException('Only admin, doctor, and assistant accounts can access this portal.', [], Response::HTTP_FORBIDDEN);
         }
 
         if (! $user->is_active) {
@@ -62,13 +64,57 @@ class PortalAuthService
 
     public function forgotPassword(array $payload): void
     {
-        $user = User::query()
-            ->where('university_email', $payload['university_email'])
-            ->orWhere('email', $payload['university_email'])
-            ->first();
+        $user = $this->findUserByLoginIdentifier($payload['university_email']);
 
         if ($user) {
             $this->auditLogService->log($user, 'staff-portal.password-reset-requested', $user, [], request());
         }
+    }
+
+    protected function findUserByLoginIdentifier(string $identifier): ?User
+    {
+        $emails = $this->candidateEmails($identifier);
+
+        return User::query()
+            ->where(function ($query) use ($emails) {
+                if (Schema::hasColumn('users', 'university_email')) {
+                    $query->whereIn('university_email', $emails)
+                        ->orWhereIn('email', $emails);
+
+                    return;
+                }
+
+                $query->whereIn('email', $emails);
+            })
+            ->first();
+    }
+
+    protected function candidateEmails(string $identifier): array
+    {
+        $normalized = Str::lower(trim($identifier));
+        $candidates = [$normalized];
+
+        if (Str::endsWith($normalized, '@tolab.local')) {
+            $candidates[] = Str::replaceLast('@tolab.local', '@tolab.edu', $normalized);
+        }
+
+        if (Str::endsWith($normalized, '@tolab.edu')) {
+            $candidates[] = Str::replaceLast('@tolab.edu', '@tolab.local', $normalized);
+        }
+
+        if (Str::startsWith($normalized, 'assistant@')) {
+            $candidates[] = Str::replaceFirst('assistant@', 'ta@', $normalized);
+        }
+
+        if (Str::startsWith($normalized, 'ta@')) {
+            $candidates[] = Str::replaceFirst('ta@', 'assistant@', $normalized);
+        }
+
+        return array_values(array_unique(array_filter($candidates)));
+    }
+
+    protected function canAccessPortal(User $user): bool
+    {
+        return $user->role === UserRole::ADMIN || $user->role?->isStaff();
     }
 }

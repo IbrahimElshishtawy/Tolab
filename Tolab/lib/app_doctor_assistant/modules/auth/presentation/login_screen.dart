@@ -23,8 +23,15 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _emailController = TextEditingController(text: 'admin@tolab.edu');
+  final _passwordController = TextEditingController(text: 'Admin@123');
+  String _selectedPreset = 'Admin';
+
+  static const _presets = <String, String>{
+    'Admin': 'admin@tolab.edu',
+    'Doctor': 'doctor@tolab.edu',
+    'Assistant': 'assistant@tolab.edu',
+  };
 
   @override
   void dispose() {
@@ -72,10 +79,28 @@ class _LoginScreenState extends State<LoginScreen> {
                                   'Admin-created accounts only. Use your university email and assigned password.',
                                   style: Theme.of(context).textTheme.bodyMedium,
                                 ),
+                                const SizedBox(height: AppSpacing.lg),
+                                Wrap(
+                                  spacing: AppSpacing.sm,
+                                  runSpacing: AppSpacing.sm,
+                                  children: _presets.entries.map((entry) {
+                                    return ChoiceChip(
+                                      label: Text(entry.key),
+                                      selected: _selectedPreset == entry.key,
+                                      onSelected: (_) {
+                                        setState(() {
+                                          _selectedPreset = entry.key;
+                                          _emailController.text = entry.value;
+                                        });
+                                      },
+                                    );
+                                  }).toList(),
+                                ),
                                 const SizedBox(height: AppSpacing.xxl),
                                 AppTextField(
                                   label: 'University email',
                                   controller: _emailController,
+                                  hint: 'admin@tolab.edu',
                                   keyboardType: TextInputType.emailAddress,
                                   prefixIcon: Icons.alternate_email_rounded,
                                   validator: (value) => (value == null ||
@@ -87,6 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 AppTextField(
                                   label: 'Password',
                                   controller: _passwordController,
+                                  hint: 'Admin@123',
                                   obscureText: true,
                                   prefixIcon: Icons.lock_outline_rounded,
                                   validator: (value) => (value == null ||
@@ -104,6 +130,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                         ?.copyWith(color: AppColors.rose500),
                                   ),
                                 ],
+                                const SizedBox(height: AppSpacing.md),
+                                Text(
+                                  'Staff demo accounts: admin@tolab.edu, doctor@tolab.edu, assistant@tolab.edu',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
                                 const SizedBox(height: AppSpacing.xxl),
                                 AppButton(
                                   label: 'Sign in',

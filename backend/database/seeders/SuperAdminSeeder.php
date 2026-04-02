@@ -16,6 +16,9 @@ class SuperAdminSeeder extends Seeder
             [
                 'role' => UserRole::ADMIN,
                 'username' => 'Super Admin',
+                'full_name' => 'Super Admin',
+                'university_email' => env('DEFAULT_ADMIN_EMAIL', 'admin@tolab.edu'),
+                'role_type' => 'admin',
                 'password_hash' => Hash::make((string) env('DEFAULT_ADMIN_PASSWORD', 'Admin@123')),
                 'national_id' => null,
                 'is_active' => true,
