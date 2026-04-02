@@ -37,15 +37,17 @@ class StatusBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppConstants.pillRadius),
         border: Border.all(color: color.withValues(alpha: 0.18)),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 4,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           if (icon != null) ...[
             Icon(icon, size: 12, color: color),
-            const SizedBox(width: 6),
           ],
           Text(
             label,
+            softWrap: true,
             style: Theme.of(
               context,
             ).textTheme.labelMedium?.copyWith(color: color),

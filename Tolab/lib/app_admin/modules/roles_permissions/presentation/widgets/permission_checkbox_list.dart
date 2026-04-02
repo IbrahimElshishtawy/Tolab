@@ -97,16 +97,39 @@ class _PermissionModuleSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              StatusBadge('${permissions.length}', icon: Icons.tune_rounded),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isCompact = constraints.maxWidth < 320;
+              return isCompact
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        StatusBadge(
+                          '${permissions.length} permissions',
+                          icon: Icons.tune_rounded,
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          title,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
+                        StatusBadge(
+                          '${permissions.length} permissions',
+                          icon: Icons.tune_rounded,
+                        ),
+                      ],
+                    );
+            },
           ),
           const SizedBox(height: AppSpacing.md),
           for (var index = 0; index < permissions.length; index++) ...[
@@ -252,10 +275,13 @@ class _PermissionTileState extends State<_PermissionTile> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [toggle, const Spacer(), if (menu != null) menu],
+                  Wrap(
+                    spacing: AppSpacing.xs,
+                    runSpacing: AppSpacing.xs,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [toggle, if (menu != null) menu],
                   ),
+                  const SizedBox(height: AppSpacing.sm),
                   details,
                 ],
               );

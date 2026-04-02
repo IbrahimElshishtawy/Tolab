@@ -379,33 +379,39 @@ class _RolesWorkspace extends StatelessWidget {
       onTogglePermission: onTogglePermission,
     );
 
-    if (isMobile) {
-      return ListView(
-        children: [
-          rolesList,
-          const SizedBox(height: AppSpacing.lg),
-          detail,
-        ],
-      );
-    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final stackContent =
+            isMobile || !isDesktop || constraints.maxWidth < 1180;
+        final content = stackContent
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  rolesList,
+                  const SizedBox(height: AppSpacing.lg),
+                  detail,
+                ],
+              )
+            : SizedBox(
+                width: constraints.maxWidth,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(width: 360, child: rolesList),
+                    const SizedBox(width: AppSpacing.lg),
+                    Expanded(child: detail),
+                  ],
+                ),
+              );
 
-    if (isDesktop) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(flex: 4, child: SingleChildScrollView(child: rolesList)),
-          const SizedBox(width: AppSpacing.lg),
-          Expanded(child: SingleChildScrollView(child: detail)),
-        ],
-      );
-    }
-
-    return ListView(
-      children: [
-        rolesList,
-        const SizedBox(height: AppSpacing.lg),
-        detail,
-      ],
+        return Scrollbar(
+          thumbVisibility: true,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: AppSpacing.md),
+            child: content,
+          ),
+        );
+      },
     );
   }
 }

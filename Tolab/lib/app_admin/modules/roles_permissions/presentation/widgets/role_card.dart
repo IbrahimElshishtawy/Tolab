@@ -164,11 +164,12 @@ class _MetricPill extends StatelessWidget {
         color: AppColors.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(AppConstants.pillRadius),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 4,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Icon(icon, size: 14, color: AppColors.primary),
-          const SizedBox(width: 6),
           Text(label, style: Theme.of(context).textTheme.labelMedium),
         ],
       ),

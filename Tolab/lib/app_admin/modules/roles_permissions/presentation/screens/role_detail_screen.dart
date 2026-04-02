@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/colors/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -59,6 +60,9 @@ class RoleDetailScreen extends StatelessWidget {
     final selectedPermissionIds = role!.permissionIds.toSet();
     final accent = _colorFromHex(role!.colorHex);
     final isCompact = !AppBreakpoints.isDesktop(context);
+    final selectedPermissions = permissions
+        .where((permission) => selectedPermissionIds.contains(permission.id))
+        .toList(growable: false);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,19 +101,22 @@ class RoleDetailScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        role!.name,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        role!.description,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 420),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          role!.name,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          role!.description,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
                   ),
                   StatusBadge(
                     role!.membersLabel,
@@ -150,6 +157,12 @@ class RoleDetailScreen extends StatelessWidget {
               ),
             ],
           ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        _RoleInsightStrip(
+          role: role!,
+          permissions: selectedPermissions,
+          availableUsers: availableUsers,
         ),
         const SizedBox(height: AppSpacing.lg),
         if (isCompact)
@@ -217,8 +230,11 @@ class _AssignedUsersCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectedUsers = availableUsers
-        .where((user) => role.userIds.contains(user.id))
+    final selectedUsers = (role.assignedUsers.isNotEmpty
+            ? role.assignedUsers
+            : availableUsers
+                  .where((user) => role.userIds.contains(user.id))
+                  .toList(growable: false))
         .toList(growable: false);
 
     return AppCard(
@@ -228,7 +244,7 @@ class _AssignedUsersCard extends StatelessWidget {
         children: [
           LayoutBuilder(
             builder: (context, constraints) {
-              final isCompact = constraints.maxWidth < 320;
+              final isCompact = constraints.maxWidth < 420;
               return isCompact
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -368,7 +384,7 @@ class _PermissionsCard extends StatelessWidget {
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final isCompact = constraints.maxWidth < 380;
+              final isCompact = constraints.maxWidth < 520;
               return isCompact
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -428,6 +444,107 @@ class _PermissionsCard extends StatelessWidget {
           onDelete: onDeletePermission,
         ),
       ],
+    );
+  }
+}
+
+class _RoleInsightStrip extends StatelessWidget {
+  const _RoleInsightStrip({
+    required this.role,
+    required this.permissions,
+    required this.availableUsers,
+  });
+
+  final RoleModel role;
+  final List<PermissionModel> permissions;
+  final List<RoleUserAssignment> availableUsers;
+
+  @override
+  Widget build(BuildContext context) {
+    final modules = {
+      for (final permission in permissions) permission.module,
+    };
+    final activeMembers = role.assignedUsers.isNotEmpty
+        ? role.assignedUsers.where((user) => user.isActive).length
+        : availableUsers
+              .where(
+                (user) => role.userIds.contains(user.id) && user.isActive,
+              )
+              .length;
+
+    return Wrap(
+      spacing: AppSpacing.md,
+      runSpacing: AppSpacing.md,
+      children: [
+        _RoleInsightCard(
+          title: 'Members',
+          value: '${role.membersCount}',
+          caption: '$activeMembers active in this role',
+          icon: Icons.people_alt_rounded,
+          color: AppColors.primary,
+        ),
+        _RoleInsightCard(
+          title: 'Permissions',
+          value: '${permissions.length}',
+          caption: '${permissions.where((item) => item.isCore).length} core rules',
+          icon: Icons.verified_user_rounded,
+          color: AppColors.info,
+        ),
+        _RoleInsightCard(
+          title: 'Academic Scope',
+          value: '${modules.length}',
+          caption: modules.isEmpty
+              ? 'No modules linked yet'
+              : modules.take(2).join(' • '),
+          icon: Icons.school_rounded,
+          color: AppColors.secondary,
+        ),
+        _RoleInsightCard(
+          title: 'Updated',
+          value: DateFormat('d MMM yyyy').format(role.updatedAt.toLocal()),
+          caption: role.isSystem ? 'Protected role template' : 'Editable role',
+          icon: Icons.sync_rounded,
+          color: AppColors.warning,
+        ),
+      ],
+    );
+  }
+}
+
+class _RoleInsightCard extends StatelessWidget {
+  const _RoleInsightCard({
+    required this.title,
+    required this.value,
+    required this.caption,
+    required this.icon,
+    required this.color,
+  });
+
+  final String title;
+  final String value;
+  final String caption;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 220,
+      child: AppCard(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color),
+            const SizedBox(height: AppSpacing.md),
+            Text(title, style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: AppSpacing.xs),
+            Text(value, style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: AppSpacing.xs),
+            Text(caption, style: Theme.of(context).textTheme.bodySmall),
+          ],
+        ),
+      ),
     );
   }
 }

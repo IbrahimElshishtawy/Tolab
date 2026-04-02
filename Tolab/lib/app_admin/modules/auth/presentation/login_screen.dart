@@ -61,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
             SafeArea(
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final isWide = constraints.maxWidth >= 980;
+                  final isWide = constraints.maxWidth >= 520;
 
                   return SingleChildScrollView(
                     padding: const EdgeInsets.all(AppSpacing.xl),
