@@ -24,10 +24,6 @@ class NotificationsRepository {
       if (remote.isNotEmpty) {
         _cache = _sort(remote);
       }
-    } on AppException catch (error) {
-      if (error.statusCode == 401 || error.statusCode == 403) {
-        rethrow;
-      }
     } catch (_) {
       // Falls through to the locally cached snapshot below.
     }
@@ -127,11 +123,6 @@ class NotificationsRepository {
           return fallbackNotification.copyWith(source: 'api');
         },
       );
-    } on AppException catch (error) {
-      if (error.statusCode == 401 || error.statusCode == 403) {
-        rethrow;
-      }
-      return fallbackNotification;
     } catch (_) {
       return fallbackNotification;
     }

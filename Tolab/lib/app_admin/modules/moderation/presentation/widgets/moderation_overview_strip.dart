@@ -119,7 +119,9 @@ class _MetricCard extends StatelessWidget {
                 width: 36,
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
+                  borderRadius: BorderRadius.circular(
+                    AppConstants.mediumRadius,
+                  ),
                 ),
                 child: Icon(icon, color: color, size: 18),
               ),
@@ -157,7 +159,9 @@ class _NotificationsPanel extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
-              StatusBadge('${notifications.where((item) => item.isUnread).length} new'),
+              StatusBadge(
+                '${notifications.where((item) => item.isUnread).length} new',
+              ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
@@ -173,7 +177,9 @@ class _NotificationsPanel extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(AppSpacing.md),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).canvasColor.withValues(alpha: 0.72),
+                    color: Theme.of(
+                      context,
+                    ).canvasColor.withValues(alpha: 0.72),
                     borderRadius: BorderRadius.circular(
                       AppConstants.mediumRadius,
                     ),

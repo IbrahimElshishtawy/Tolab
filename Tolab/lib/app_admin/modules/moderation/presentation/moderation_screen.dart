@@ -41,8 +41,9 @@ class ModerationScreen extends StatelessWidget {
       builder: (context, vm) {
         return LayoutBuilder(
           builder: (context, constraints) {
-            final workspaceHeight =
-                (constraints.maxHeight * 0.62).clamp(420.0, 820.0).toDouble();
+            final workspaceHeight = (constraints.maxHeight * 0.62)
+                .clamp(420.0, 820.0)
+                .toDouble();
 
             return SingleChildScrollView(
               padding: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -101,9 +102,10 @@ class ModerationScreen extends StatelessWidget {
                       child: AsyncStateView(
                         status: vm.state.status,
                         errorMessage: vm.state.errorMessage,
-                        onRetry: () => StoreProvider.of<AppState>(
-                          context,
-                        ).dispatch(const LoadModerationDashboardRequestedAction()),
+                        onRetry: () =>
+                            StoreProvider.of<AppState>(context).dispatch(
+                              const LoadModerationDashboardRequestedAction(),
+                            ),
                         isEmpty:
                             vm.state.groups.isEmpty &&
                             vm.state.posts.isEmpty &&

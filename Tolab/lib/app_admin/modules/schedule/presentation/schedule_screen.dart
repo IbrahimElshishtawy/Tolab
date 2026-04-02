@@ -69,323 +69,339 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-            PageHeader(
-              title: 'Academic Schedule',
-              subtitle:
-                  'Manage lectures, quizzes, examinations, and academic operations from one coordinated timetable workspace for university administration.',
-              breadcrumbs: const ['Admin', 'Academic', 'Schedule'],
-              actions: [
-                PremiumButton(
-                  label: 'Refresh',
-                  icon: Icons.sync_rounded,
-                  isSecondary: true,
-                  onPressed: () => store.dispatch(const FetchScheduleAction()),
-                ),
-                PremiumButton(
-                  label: 'Add event',
-                  icon: Icons.add_rounded,
-                  onPressed: () => _openCreateDialog(
-                    context,
-                    store,
-                    vm.lookups,
-                    vm.selectedDay,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Wrap(
-              spacing: AppSpacing.md,
-              runSpacing: AppSpacing.md,
-              children: [
-                _AcademicOverviewPanel(
-                  metrics: vm.metrics,
-                  view: vm.view,
-                  selectedDay: vm.selectedDay,
-                  nextUpcomingEvent: vm.nextUpcomingEvent,
-                  lookups: vm.lookups,
-                  activeFiltersCount: activeFiltersCount,
-                ),
-                _MetricTile(
-                  label: 'Today',
-                  value: '${vm.metrics.todayCount}',
-                  icon: Icons.today_rounded,
-                  accent: AppColors.primary,
-                  detail: 'Academic items scheduled today',
-                ),
-                _MetricTile(
-                  label: 'This week',
-                  value: '${vm.metrics.weekCount}',
-                  icon: Icons.calendar_view_week_rounded,
-                  accent: AppColors.info,
-                  detail: 'Visible sessions in the current week',
-                ),
-                _MetricTile(
-                  label: 'Conflicts',
-                  value: '${vm.metrics.conflictCount}',
-                  icon: Icons.warning_amber_rounded,
-                  accent: AppColors.danger,
-                  detail: 'Items that need timetable review',
-                ),
-                _MetricTile(
-                  label: 'Planned',
-                  value: '${vm.metrics.plannedCount}',
-                  icon: Icons.fact_check_outlined,
-                  accent: AppColors.secondary,
-                  detail: 'Sessions still awaiting delivery',
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.md),
-            if (vm.feedbackMessage != null &&
-                vm.feedbackMessage!.isNotEmpty) ...[
-              _FeedbackBanner(message: vm.feedbackMessage!),
-              const SizedBox(height: AppSpacing.md),
-            ],
-            SizedBox(
-              height: workspaceHeight,
-              child: Builder(
-                builder: (context) {
-                  if (vm.status == LoadStatus.loading &&
-                      vm.visibleEvents.isEmpty) {
-                    return const ScheduleLoadingState();
-                  }
-                  if (vm.status == LoadStatus.failure &&
-                      vm.visibleEvents.isEmpty) {
-                    return ScheduleErrorState(
-                      message:
-                          vm.errorMessage ?? 'Unable to load schedule data.',
-                      onRetry: () =>
-                          store.dispatch(const FetchScheduleAction()),
-                    );
-                  }
-                  if (vm.visibleEvents.isEmpty) {
-                    return ScheduleEmptyState(
-                      onCreatePressed: () => _openCreateDialog(
-                        context,
-                        store,
-                        vm.lookups,
-                        vm.selectedDay,
-                      ),
-                    );
-                  }
-
-                  if (isDesktop) {
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 296,
-                          child: SingleChildScrollView(
-                            child: ScheduleFiltersPanel(
-                              filters: vm.filters,
-                              lookups: vm.lookups,
-                              onChanged: (filters) => store.dispatch(
-                                ScheduleFiltersChangedAction(filters),
-                              ),
-                              onReset: () => store.dispatch(
-                                const ScheduleFiltersChangedAction(
-                                  ScheduleFilters(),
-                                ),
-                              ),
-                            ),
-                          ),
+                    PageHeader(
+                      title: 'Academic Schedule',
+                      subtitle:
+                          'Manage lectures, quizzes, examinations, and academic operations from one coordinated timetable workspace for university administration.',
+                      breadcrumbs: const ['Admin', 'Academic', 'Schedule'],
+                      actions: [
+                        PremiumButton(
+                          label: 'Refresh',
+                          icon: Icons.sync_rounded,
+                          isSecondary: true,
+                          onPressed: () =>
+                              store.dispatch(const FetchScheduleAction()),
                         ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: ScheduleCalendarBoard(
-                            events: vm.visibleEvents,
-                            view: vm.view,
-                            focusedDay: vm.focusedDay,
-                            selectedDay: vm.selectedDay,
-                            conflictMap: vm.conflictMap,
-                            onViewChanged: (view) => store.dispatch(
-                              ScheduleViewChangedAction(view),
-                            ),
-                            onFocusedDayChanged: (day) => store.dispatch(
-                              ScheduleFocusedDayChangedAction(day),
-                            ),
-                            onSelectedDayChanged: (day) => store.dispatch(
-                              ScheduleSelectedDayChangedAction(day),
-                            ),
-                            onNavigate: (direction) =>
-                                _navigateCalendar(store, vm, direction),
-                            onEventTap: (event) => _openEditDialog(
-                              context,
-                              store,
-                              vm.lookups,
-                              event,
-                            ),
-                            onEventDropped: (event, start, end) {
-                              store.dispatch(
-                                RescheduleScheduleEventAction(
-                                  event: event,
-                                  targetStart: start,
-                                  targetEnd: end,
-                                ),
-                              );
-                            },
-                            onCreateAt: (date) => _openCreateDialog(
-                              context,
-                              store,
-                              vm.lookups,
-                              date,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        SizedBox(
-                          width: 320,
-                          child: _ScheduleSidePanel(
-                            selectedDay: vm.selectedDay,
-                            selectedEvents: vm.selectedDayEvents,
-                            conflictMap: vm.conflictMap,
-                            highlightedEventId: vm.highlightedEventId,
-                            onEventTap: (event) => _openEditDialog(
-                              context,
-                              store,
-                              vm.lookups,
-                              event,
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  }
-
-                  final compactCalendarHeight = _compactCalendarHeight(
-                    context,
-                    vm.view,
-                  );
-                  final compactSidePanelHeight = _compactSidePanelHeight(
-                    context,
-                  );
-
-                  return SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ScheduleFiltersPanel(
-                          filters: vm.filters,
-                          lookups: vm.lookups,
-                          onChanged: (filters) => store.dispatch(
-                            ScheduleFiltersChangedAction(filters),
-                          ),
-                          onReset: () => store.dispatch(
-                            const ScheduleFiltersChangedAction(
-                              ScheduleFilters(),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        if (vm.view == ScheduleCalendarView.month)
-                          ScheduleCalendarBoard(
-                            events: vm.visibleEvents,
-                            view: vm.view,
-                            focusedDay: vm.focusedDay,
-                            selectedDay: vm.selectedDay,
-                            conflictMap: vm.conflictMap,
-                            onViewChanged: (view) =>
-                                store.dispatch(ScheduleViewChangedAction(view)),
-                            onFocusedDayChanged: (day) => store.dispatch(
-                              ScheduleFocusedDayChangedAction(day),
-                            ),
-                            onSelectedDayChanged: (day) => store.dispatch(
-                              ScheduleSelectedDayChangedAction(day),
-                            ),
-                            onNavigate: (direction) =>
-                                _navigateCalendar(store, vm, direction),
-                            onEventTap: (event) => _openEditDialog(
-                              context,
-                              store,
-                              vm.lookups,
-                              event,
-                            ),
-                            onEventDropped: (event, start, end) {
-                              store.dispatch(
-                                RescheduleScheduleEventAction(
-                                  event: event,
-                                  targetStart: start,
-                                  targetEnd: end,
-                                ),
-                              );
-                            },
-                            onCreateAt: (date) => _openCreateDialog(
-                              context,
-                              store,
-                              vm.lookups,
-                              date,
-                            ),
-                          )
-                        else
-                          SizedBox(
-                            height: compactCalendarHeight,
-                            child: ScheduleCalendarBoard(
-                              events: vm.visibleEvents,
-                              view: vm.view,
-                              focusedDay: vm.focusedDay,
-                              selectedDay: vm.selectedDay,
-                              conflictMap: vm.conflictMap,
-                              onViewChanged: (view) => store.dispatch(
-                                ScheduleViewChangedAction(view),
-                              ),
-                              onFocusedDayChanged: (day) => store.dispatch(
-                                ScheduleFocusedDayChangedAction(day),
-                              ),
-                              onSelectedDayChanged: (day) => store.dispatch(
-                                ScheduleSelectedDayChangedAction(day),
-                              ),
-                              onNavigate: (direction) =>
-                                  _navigateCalendar(store, vm, direction),
-                              onEventTap: (event) => _openEditDialog(
-                                context,
-                                store,
-                                vm.lookups,
-                                event,
-                              ),
-                              onEventDropped: (event, start, end) {
-                                store.dispatch(
-                                  RescheduleScheduleEventAction(
-                                    event: event,
-                                    targetStart: start,
-                                    targetEnd: end,
-                                  ),
-                                );
-                              },
-                              onCreateAt: (date) => _openCreateDialog(
-                                context,
-                                store,
-                                vm.lookups,
-                                date,
-                              ),
-                            ),
-                          ),
-                        const SizedBox(height: AppSpacing.md),
-                        SizedBox(
-                          height: compactSidePanelHeight,
-                          child: _ScheduleSidePanel(
-                            selectedDay: vm.selectedDay,
-                            selectedEvents: vm.selectedDayEvents,
-                            conflictMap: vm.conflictMap,
-                            highlightedEventId: vm.highlightedEventId,
-                            onEventTap: (event) => _openEditDialog(
-                              context,
-                              store,
-                              vm.lookups,
-                              event,
-                            ),
+                        PremiumButton(
+                          label: 'Add event',
+                          icon: Icons.add_rounded,
+                          onPressed: () => _openCreateDialog(
+                            context,
+                            store,
+                            vm.lookups,
+                            vm.selectedDay,
                           ),
                         ),
                       ],
                     ),
-                  );
-                },
+                    const SizedBox(height: AppSpacing.lg),
+                    Wrap(
+                      spacing: AppSpacing.md,
+                      runSpacing: AppSpacing.md,
+                      children: [
+                        _AcademicOverviewPanel(
+                          metrics: vm.metrics,
+                          view: vm.view,
+                          selectedDay: vm.selectedDay,
+                          nextUpcomingEvent: vm.nextUpcomingEvent,
+                          lookups: vm.lookups,
+                          activeFiltersCount: activeFiltersCount,
+                        ),
+                        _MetricTile(
+                          label: 'Today',
+                          value: '${vm.metrics.todayCount}',
+                          icon: Icons.today_rounded,
+                          accent: AppColors.primary,
+                          detail: 'Academic items scheduled today',
+                        ),
+                        _MetricTile(
+                          label: 'This week',
+                          value: '${vm.metrics.weekCount}',
+                          icon: Icons.calendar_view_week_rounded,
+                          accent: AppColors.info,
+                          detail: 'Visible sessions in the current week',
+                        ),
+                        _MetricTile(
+                          label: 'Conflicts',
+                          value: '${vm.metrics.conflictCount}',
+                          icon: Icons.warning_amber_rounded,
+                          accent: AppColors.danger,
+                          detail: 'Items that need timetable review',
+                        ),
+                        _MetricTile(
+                          label: 'Planned',
+                          value: '${vm.metrics.plannedCount}',
+                          icon: Icons.fact_check_outlined,
+                          accent: AppColors.secondary,
+                          detail: 'Sessions still awaiting delivery',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    if (vm.feedbackMessage != null &&
+                        vm.feedbackMessage!.isNotEmpty) ...[
+                      _FeedbackBanner(message: vm.feedbackMessage!),
+                      const SizedBox(height: AppSpacing.md),
+                    ],
+                    SizedBox(
+                      height: workspaceHeight,
+                      child: Builder(
+                        builder: (context) {
+                          if (vm.status == LoadStatus.loading &&
+                              vm.visibleEvents.isEmpty) {
+                            return const ScheduleLoadingState();
+                          }
+                          if (vm.status == LoadStatus.failure &&
+                              vm.visibleEvents.isEmpty) {
+                            return ScheduleErrorState(
+                              message:
+                                  vm.errorMessage ??
+                                  'Unable to load schedule data.',
+                              onRetry: () =>
+                                  store.dispatch(const FetchScheduleAction()),
+                            );
+                          }
+                          if (vm.visibleEvents.isEmpty) {
+                            return ScheduleEmptyState(
+                              onCreatePressed: () => _openCreateDialog(
+                                context,
+                                store,
+                                vm.lookups,
+                                vm.selectedDay,
+                              ),
+                            );
+                          }
+
+                          if (isDesktop) {
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  width: 296,
+                                  child: SingleChildScrollView(
+                                    child: ScheduleFiltersPanel(
+                                      filters: vm.filters,
+                                      lookups: vm.lookups,
+                                      onChanged: (filters) => store.dispatch(
+                                        ScheduleFiltersChangedAction(filters),
+                                      ),
+                                      onReset: () => store.dispatch(
+                                        const ScheduleFiltersChangedAction(
+                                          ScheduleFilters(),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacing.md),
+                                Expanded(
+                                  child: ScheduleCalendarBoard(
+                                    events: vm.visibleEvents,
+                                    view: vm.view,
+                                    focusedDay: vm.focusedDay,
+                                    selectedDay: vm.selectedDay,
+                                    conflictMap: vm.conflictMap,
+                                    onViewChanged: (view) => store.dispatch(
+                                      ScheduleViewChangedAction(view),
+                                    ),
+                                    onFocusedDayChanged: (day) =>
+                                        store.dispatch(
+                                          ScheduleFocusedDayChangedAction(day),
+                                        ),
+                                    onSelectedDayChanged: (day) =>
+                                        store.dispatch(
+                                          ScheduleSelectedDayChangedAction(day),
+                                        ),
+                                    onNavigate: (direction) =>
+                                        _navigateCalendar(store, vm, direction),
+                                    onEventTap: (event) => _openEditDialog(
+                                      context,
+                                      store,
+                                      vm.lookups,
+                                      event,
+                                    ),
+                                    onEventDropped: (event, start, end) {
+                                      store.dispatch(
+                                        RescheduleScheduleEventAction(
+                                          event: event,
+                                          targetStart: start,
+                                          targetEnd: end,
+                                        ),
+                                      );
+                                    },
+                                    onCreateAt: (date) => _openCreateDialog(
+                                      context,
+                                      store,
+                                      vm.lookups,
+                                      date,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacing.md),
+                                SizedBox(
+                                  width: 320,
+                                  child: _ScheduleSidePanel(
+                                    selectedDay: vm.selectedDay,
+                                    selectedEvents: vm.selectedDayEvents,
+                                    conflictMap: vm.conflictMap,
+                                    highlightedEventId: vm.highlightedEventId,
+                                    onEventTap: (event) => _openEditDialog(
+                                      context,
+                                      store,
+                                      vm.lookups,
+                                      event,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+
+                          final compactCalendarHeight = _compactCalendarHeight(
+                            context,
+                            vm.view,
+                          );
+                          final compactSidePanelHeight =
+                              _compactSidePanelHeight(context);
+
+                          return SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ScheduleFiltersPanel(
+                                  filters: vm.filters,
+                                  lookups: vm.lookups,
+                                  onChanged: (filters) => store.dispatch(
+                                    ScheduleFiltersChangedAction(filters),
+                                  ),
+                                  onReset: () => store.dispatch(
+                                    const ScheduleFiltersChangedAction(
+                                      ScheduleFilters(),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: AppSpacing.md),
+                                if (vm.view == ScheduleCalendarView.month)
+                                  ScheduleCalendarBoard(
+                                    events: vm.visibleEvents,
+                                    view: vm.view,
+                                    focusedDay: vm.focusedDay,
+                                    selectedDay: vm.selectedDay,
+                                    conflictMap: vm.conflictMap,
+                                    onViewChanged: (view) => store.dispatch(
+                                      ScheduleViewChangedAction(view),
+                                    ),
+                                    onFocusedDayChanged: (day) =>
+                                        store.dispatch(
+                                          ScheduleFocusedDayChangedAction(day),
+                                        ),
+                                    onSelectedDayChanged: (day) =>
+                                        store.dispatch(
+                                          ScheduleSelectedDayChangedAction(day),
+                                        ),
+                                    onNavigate: (direction) =>
+                                        _navigateCalendar(store, vm, direction),
+                                    onEventTap: (event) => _openEditDialog(
+                                      context,
+                                      store,
+                                      vm.lookups,
+                                      event,
+                                    ),
+                                    onEventDropped: (event, start, end) {
+                                      store.dispatch(
+                                        RescheduleScheduleEventAction(
+                                          event: event,
+                                          targetStart: start,
+                                          targetEnd: end,
+                                        ),
+                                      );
+                                    },
+                                    onCreateAt: (date) => _openCreateDialog(
+                                      context,
+                                      store,
+                                      vm.lookups,
+                                      date,
+                                    ),
+                                  )
+                                else
+                                  SizedBox(
+                                    height: compactCalendarHeight,
+                                    child: ScheduleCalendarBoard(
+                                      events: vm.visibleEvents,
+                                      view: vm.view,
+                                      focusedDay: vm.focusedDay,
+                                      selectedDay: vm.selectedDay,
+                                      conflictMap: vm.conflictMap,
+                                      onViewChanged: (view) => store.dispatch(
+                                        ScheduleViewChangedAction(view),
+                                      ),
+                                      onFocusedDayChanged: (day) =>
+                                          store.dispatch(
+                                            ScheduleFocusedDayChangedAction(
+                                              day,
+                                            ),
+                                          ),
+                                      onSelectedDayChanged: (day) =>
+                                          store.dispatch(
+                                            ScheduleSelectedDayChangedAction(
+                                              day,
+                                            ),
+                                          ),
+                                      onNavigate: (direction) =>
+                                          _navigateCalendar(
+                                            store,
+                                            vm,
+                                            direction,
+                                          ),
+                                      onEventTap: (event) => _openEditDialog(
+                                        context,
+                                        store,
+                                        vm.lookups,
+                                        event,
+                                      ),
+                                      onEventDropped: (event, start, end) {
+                                        store.dispatch(
+                                          RescheduleScheduleEventAction(
+                                            event: event,
+                                            targetStart: start,
+                                            targetEnd: end,
+                                          ),
+                                        );
+                                      },
+                                      onCreateAt: (date) => _openCreateDialog(
+                                        context,
+                                        store,
+                                        vm.lookups,
+                                        date,
+                                      ),
+                                    ),
+                                  ),
+                                const SizedBox(height: AppSpacing.md),
+                                SizedBox(
+                                  height: compactSidePanelHeight,
+                                  child: _ScheduleSidePanel(
+                                    selectedDay: vm.selectedDay,
+                                    selectedEvents: vm.selectedDayEvents,
+                                    conflictMap: vm.conflictMap,
+                                    highlightedEventId: vm.highlightedEventId,
+                                    onEventTap: (event) => _openEditDialog(
+                                      context,
+                                      store,
+                                      vm.lookups,
+                                      event,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
+            );
           },
         );
       },
@@ -457,7 +473,13 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     required bool isDesktop,
     required bool isMobile,
   }) {
-    final target = availableHeight * (isDesktop ? 0.58 : isMobile ? 0.82 : 0.72);
+    final target =
+        availableHeight *
+        (isDesktop
+            ? 0.58
+            : isMobile
+            ? 0.82
+            : 0.72);
     return target.clamp(420.0, 860.0).toDouble();
   }
 

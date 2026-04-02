@@ -459,17 +459,18 @@ List<Middleware<AppState>> createNotificationsMiddleware(AppDependencies deps) {
     ) async {
       next(action);
       try {
-        final createdNotification = await deps.notificationsRepository.broadcast(
-          title: action.title,
-          body: action.body,
-          category: action.category,
-          audienceType: action.audienceType,
-          tone: action.tone,
-          audienceLabel: action.audienceLabel,
-          scheduledAt: action.scheduledAt,
-          refType: action.refType,
-          refId: action.refId,
-        );
+        final createdNotification = await deps.notificationsRepository
+            .broadcast(
+              title: action.title,
+              body: action.body,
+              category: action.category,
+              audienceType: action.audienceType,
+              tone: action.tone,
+              audienceLabel: action.audienceLabel,
+              scheduledAt: action.scheduledAt,
+              refType: action.refType,
+              refId: action.refId,
+            );
 
         deps.notificationsRepository.cacheIncoming(createdNotification);
         store.dispatch(

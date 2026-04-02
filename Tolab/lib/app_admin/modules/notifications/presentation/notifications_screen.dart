@@ -462,6 +462,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                           : Icons.mark_email_unread_rounded,
                                     ),
                                     StatusBadge(item.category.label),
+                                    if (item.tone != null)
+                                      StatusBadge(item.tone!.label),
+                                    if (item.isScheduled)
+                                      StatusBadge(
+                                        'Scheduled ${DateFormat('dd MMM, HH:mm').format(item.scheduledAt!)}',
+                                      ),
                                   ],
                                 ),
                                 const SizedBox(height: AppSpacing.sm),
@@ -792,7 +798,7 @@ class _NotificationOverviewStrip extends StatelessWidget {
       children: [
         for (final metric in metrics)
           SizedBox(
-            width: 260,
+            width: 220,
             child: AppCard(
               child: Row(
                 children: [
@@ -881,6 +887,12 @@ class _NotificationListCard extends StatelessWidget {
                             icon: Icons.fiber_manual_record_rounded,
                           ),
                         StatusBadge(notification.category.label),
+                        if (notification.tone != null)
+                          StatusBadge(notification.tone!.label),
+                        if (notification.isScheduled)
+                          StatusBadge(
+                            'Scheduled ${DateFormat('dd MMM, HH:mm').format(notification.scheduledAt!)}',
+                          ),
                       ],
                     ),
                     const SizedBox(height: AppSpacing.sm),
@@ -960,6 +972,11 @@ class _NotificationDetailCard extends StatelessWidget {
             children: [
               StatusBadge(item.category.label),
               StatusBadge(item.isRead ? 'Read' : 'Unread'),
+              if (item.tone != null) StatusBadge(item.tone!.label),
+              if (item.isScheduled)
+                StatusBadge(
+                  'Scheduled ${DateFormat('dd MMM, HH:mm').format(item.scheduledAt!)}',
+                ),
               if (item.source.isNotEmpty)
                 StatusBadge(item.source.toUpperCase()),
             ],
@@ -973,6 +990,16 @@ class _NotificationDetailCard extends StatelessWidget {
           _DetailRow(label: 'Reference type', value: item.refType ?? 'None'),
           _DetailRow(label: 'Reference ID', value: item.refId ?? 'None'),
           _DetailRow(label: 'Audience', value: item.audienceLabel ?? 'General'),
+          _DetailRow(
+            label: 'Target type',
+            value: item.audienceType?.label ?? 'General',
+          ),
+          _DetailRow(label: 'Tone', value: item.tone?.label ?? 'Message'),
+          if (item.scheduledAt != null)
+            _DetailRow(
+              label: 'Scheduled for',
+              value: DateFormat('dd MMM yyyy, HH:mm').format(item.scheduledAt!),
+            ),
           const SizedBox(height: AppSpacing.lg),
           Wrap(
             spacing: AppSpacing.sm,
@@ -1004,21 +1031,39 @@ class _BroadcastComposerCard extends StatelessWidget {
   const _BroadcastComposerCard({
     required this.titleController,
     required this.bodyController,
+    required this.audienceController,
     required this.refTypeController,
     required this.refIdController,
     required this.selectedCategory,
+    required this.selectedAudienceType,
+    required this.selectedTone,
+    required this.deliveryMode,
+    required this.scheduledAt,
     required this.isSubmitting,
     required this.onCategoryChanged,
+    required this.onAudienceTypeChanged,
+    required this.onToneChanged,
+    required this.onDeliveryModeChanged,
+    required this.onScheduleTap,
     required this.onSubmit,
   });
 
   final TextEditingController titleController;
   final TextEditingController bodyController;
+  final TextEditingController audienceController;
   final TextEditingController refTypeController;
   final TextEditingController refIdController;
   final AdminNotificationCategory selectedCategory;
+  final NotificationAudienceType selectedAudienceType;
+  final NotificationTone selectedTone;
+  final NotificationDeliveryMode deliveryMode;
+  final DateTime? scheduledAt;
   final bool isSubmitting;
   final ValueChanged<AdminNotificationCategory?> onCategoryChanged;
+  final ValueChanged<NotificationAudienceType?> onAudienceTypeChanged;
+  final ValueChanged<NotificationTone?> onToneChanged;
+  final ValueChanged<NotificationDeliveryMode?> onDeliveryModeChanged;
+  final VoidCallback onScheduleTap;
   final VoidCallback onSubmit;
 
   @override
@@ -1033,19 +1078,77 @@ class _BroadcastComposerCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Queue backend-ready announcement payloads for Laravel broadcast delivery and keep the notification center in sync.',
+            'Send academic messages to cohorts or doctors, raise alerts or warnings, and schedule delivery times when the backend is available.',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-          const SizedBox(height: AppSpacing.lg),
-          DropdownButtonFormField<AdminNotificationCategory>(
-            key: ValueKey(selectedCategory),
-            initialValue: selectedCategory,
-            items: [
-              for (final category in AdminNotificationCategory.values)
-                DropdownMenuItem(value: category, child: Text(category.label)),
-            ],
-            onChanged: onCategoryChanged,
-            decoration: const InputDecoration(labelText: 'Category'),
+          const SizedBox(height: AppSpacing.md),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 700;
+              final categoryField =
+                  DropdownButtonFormField<AdminNotificationCategory>(
+                    key: ValueKey(selectedCategory),
+                    initialValue: selectedCategory,
+                    items: [
+                      for (final category in AdminNotificationCategory.values)
+                        DropdownMenuItem(
+                          value: category,
+                          child: Text(category.label),
+                        ),
+                    ],
+                    onChanged: onCategoryChanged,
+                    decoration: const InputDecoration(labelText: 'Category'),
+                  );
+              final audienceField =
+                  DropdownButtonFormField<NotificationAudienceType>(
+                    key: ValueKey(selectedAudienceType),
+                    initialValue: selectedAudienceType,
+                    items: [
+                      for (final audienceType in NotificationAudienceType.values)
+                        DropdownMenuItem(
+                          value: audienceType,
+                          child: Text(audienceType.label),
+                        ),
+                    ],
+                    onChanged: onAudienceTypeChanged,
+                    decoration: const InputDecoration(labelText: 'Target group'),
+                  );
+              final toneField = DropdownButtonFormField<NotificationTone>(
+                    key: ValueKey(selectedTone),
+                    initialValue: selectedTone,
+                    items: [
+                      for (final tone in NotificationTone.values)
+                        DropdownMenuItem(
+                          value: tone,
+                          child: Text(tone.label),
+                        ),
+                    ],
+                    onChanged: onToneChanged,
+                    decoration: const InputDecoration(labelText: 'Tone'),
+                  );
+
+              if (compact) {
+                return Column(
+                  children: [
+                    categoryField,
+                    const SizedBox(height: AppSpacing.md),
+                    audienceField,
+                    const SizedBox(height: AppSpacing.md),
+                    toneField,
+                  ],
+                );
+              }
+
+              return Row(
+                children: [
+                  Expanded(child: categoryField),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(child: audienceField),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(child: toneField),
+                ],
+              );
+            },
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
@@ -1062,28 +1165,105 @@ class _BroadcastComposerCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.md),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: refTypeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Reference type',
-                    hintText: 'schedule / enrollment / message',
-                  ),
+          TextField(
+            controller: audienceController,
+            decoration: InputDecoration(
+              labelText: 'Audience details',
+              hintText: switch (selectedAudienceType) {
+                NotificationAudienceType.cohorts =>
+                  'Batch 2026, Level 3, Section A',
+                NotificationAudienceType.doctors =>
+                  'All CS doctors or Dr. Laila Hassan',
+                NotificationAudienceType.departments =>
+                  'Computer Science, Information Systems',
+                _ => 'Optional specific audience label',
+              },
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 700;
+              final refTypeField = TextField(
+                controller: refTypeController,
+                decoration: const InputDecoration(
+                  labelText: 'Reference type',
+                  hintText: 'schedule / enrollment / message',
                 ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: TextField(
-                  controller: refIdController,
-                  decoration: const InputDecoration(
-                    labelText: 'Reference ID',
-                    hintText: 'Optional',
-                  ),
+              );
+              final refIdField = TextField(
+                controller: refIdController,
+                decoration: const InputDecoration(
+                  labelText: 'Reference ID',
+                  hintText: 'Optional',
                 ),
-              ),
-            ],
+              );
+
+              if (compact) {
+                return Column(
+                  children: [
+                    refTypeField,
+                    const SizedBox(height: AppSpacing.md),
+                    refIdField,
+                  ],
+                ),
+              }
+
+              return Row(
+                children: [
+                  Expanded(child: refTypeField),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(child: refIdField),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: AppSpacing.md),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 700;
+              final modeField =
+                  DropdownButtonFormField<NotificationDeliveryMode>(
+                    key: ValueKey(deliveryMode),
+                    initialValue: deliveryMode,
+                    items: [
+                      for (final mode in NotificationDeliveryMode.values)
+                        DropdownMenuItem(
+                          value: mode,
+                          child: Text(mode.label),
+                        ),
+                    ],
+                    onChanged: onDeliveryModeChanged,
+                    decoration: const InputDecoration(labelText: 'Delivery'),
+                  );
+              final scheduleField = OutlinedButton.icon(
+                onPressed: onScheduleTap,
+                icon: const Icon(Icons.schedule_rounded),
+                label: Text(
+                  scheduledAt == null
+                      ? 'Pick schedule'
+                      : DateFormat('dd MMM, HH:mm').format(scheduledAt!),
+                ),
+              );
+
+              if (compact) {
+                return Column(
+                  children: [
+                    modeField,
+                    const SizedBox(height: AppSpacing.md),
+                    scheduleField,
+                  ],
+                );
+              }
+
+              return Row(
+                children: [
+                  Expanded(child: modeField),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(child: scheduleField),
+                ],
+              );
+            },
           ),
           const SizedBox(height: AppSpacing.lg),
           SizedBox(

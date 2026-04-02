@@ -92,7 +92,8 @@ class CourseOfferingsPage extends StatelessWidget {
                         ),
                         _SummaryCard(
                           label: 'Average fill rate',
-                          value: '${(vm.metrics.averageFillRate * 100).round()}%',
+                          value:
+                              '${(vm.metrics.averageFillRate * 100).round()}%',
                           accent: AppColors.warning,
                         ),
                         _SummaryCard(
@@ -149,8 +150,9 @@ class CourseOfferingsPage extends StatelessWidget {
                       child: AsyncStateView(
                         status: vm.status,
                         errorMessage: vm.errorMessage,
-                        onRetry: () =>
-                            vm.store.dispatch(const FetchCourseOfferingsAction()),
+                        onRetry: () => vm.store.dispatch(
+                          const FetchCourseOfferingsAction(),
+                        ),
                         isEmpty:
                             vm.filteredCount == 0 &&
                             vm.status == LoadStatus.success,
@@ -187,14 +189,19 @@ class CourseOfferingsPage extends StatelessWidget {
                                     return OfferingCard(
                                       offering: item,
                                       onView: () => context.go(
-                                        RoutePaths.courseOfferingDetails(item.id),
+                                        RoutePaths.courseOfferingDetails(
+                                          item.id,
+                                        ),
                                       ),
                                       onEdit: () => OfferingForm.show(
                                         context,
                                         initialOffering: item,
                                       ),
-                                      onDelete: () =>
-                                          _confirmDelete(context, vm.store, item),
+                                      onDelete: () => _confirmDelete(
+                                        context,
+                                        vm.store,
+                                        item,
+                                      ),
                                     );
                                   },
                                 ),
@@ -207,14 +214,19 @@ class CourseOfferingsPage extends StatelessWidget {
                                     return OfferingCard(
                                       offering: item,
                                       onView: () => context.go(
-                                        RoutePaths.courseOfferingDetails(item.id),
+                                        RoutePaths.courseOfferingDetails(
+                                          item.id,
+                                        ),
                                       ),
                                       onEdit: () => OfferingForm.show(
                                         context,
                                         initialOffering: item,
                                       ),
-                                      onDelete: () =>
-                                          _confirmDelete(context, vm.store, item),
+                                      onDelete: () => _confirmDelete(
+                                        context,
+                                        vm.store,
+                                        item,
+                                      ),
                                     );
                                   },
                                 ),
@@ -243,7 +255,9 @@ class CourseOfferingsPage extends StatelessWidget {
                                                   ),
                                                 ),
                                               ),
-                                        icon: const Icon(Icons.chevron_left_rounded),
+                                        icon: const Icon(
+                                          Icons.chevron_left_rounded,
+                                        ),
                                       ),
                                       if (isDesktop && !compact)
                                         Padding(
@@ -264,7 +278,9 @@ class CourseOfferingsPage extends StatelessWidget {
                                                   ),
                                                 ),
                                               ),
-                                        icon: const Icon(Icons.chevron_right_rounded),
+                                        icon: const Icon(
+                                          Icons.chevron_right_rounded,
+                                        ),
                                       ),
                                     ],
                                   );

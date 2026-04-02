@@ -96,7 +96,8 @@ class _RolesListScreenState extends State<RolesListScreen> {
                     _OverviewMetricsStrip(vm: vm),
                     const SizedBox(height: AppSpacing.md),
                     FilterBar(
-                      searchHint: 'Search roles, permissions, users, or modules',
+                      searchHint:
+                          'Search roles, permissions, users, or modules',
                       onSearchChanged: (value) => vm.updateFilters(
                         vm.filters.copyWith(searchQuery: value),
                       ),
@@ -187,13 +188,14 @@ class _RolesListScreenState extends State<RolesListScreen> {
                                   roles: vm.roles,
                                   permissions: vm.filteredPermissions,
                                   pendingCellKeys: vm.pendingCellKeys,
-                                  onPermissionToggle: (role, permission, value) {
-                                    vm.togglePermission(
-                                      role.id,
-                                      permission.id,
-                                      value,
-                                    );
-                                  },
+                                  onPermissionToggle:
+                                      (role, permission, value) {
+                                        vm.togglePermission(
+                                          role.id,
+                                          permission.id,
+                                          value,
+                                        );
+                                      },
                                 )
                               : _RolesWorkspace(
                                   key: const ValueKey('roles-view'),

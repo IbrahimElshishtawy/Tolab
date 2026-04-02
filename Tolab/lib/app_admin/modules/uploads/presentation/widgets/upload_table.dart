@@ -48,8 +48,7 @@ class UploadTable extends StatelessWidget {
         final iconBoxSize = isCompact ? 34.0 : 38.0;
         final minTableWidth = (isCompact ? 980 : 1120).toDouble();
         final resolvedWidth = math.max(constraints.maxWidth, minTableWidth);
-        final tableHeight =
-            headingRowHeight + (items.length * rowHeight) + 8;
+        final tableHeight = headingRowHeight + (items.length * rowHeight) + 8;
 
         return AppCard(
           padding: EdgeInsets.zero,
@@ -88,8 +87,14 @@ class UploadTable extends StatelessWidget {
                       size: ColumnSize.M,
                     ),
                     const DataColumn2(label: Text('Date'), size: ColumnSize.M),
-                    const DataColumn2(label: Text('Status'), size: ColumnSize.M),
-                    const DataColumn2(label: Text('Actions'), size: ColumnSize.M),
+                    const DataColumn2(
+                      label: Text('Status'),
+                      size: ColumnSize.M,
+                    ),
+                    const DataColumn2(
+                      label: Text('Actions'),
+                      size: ColumnSize.M,
+                    ),
                   ],
                   rows: [
                     for (final item in items)
@@ -131,7 +136,8 @@ class UploadTable extends StatelessWidget {
                                 Expanded(
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         item.name,
@@ -239,7 +245,9 @@ class UploadTable extends StatelessWidget {
                                   tooltip: 'Delete',
                                   visualDensity: VisualDensity.compact,
                                   onPressed: () => onDelete(item),
-                                  icon: const Icon(Icons.delete_outline_rounded),
+                                  icon: const Icon(
+                                    Icons.delete_outline_rounded,
+                                  ),
                                 ),
                               ],
                             ),

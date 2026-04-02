@@ -129,10 +129,14 @@ extension NotificationAudienceTypeX on NotificationAudienceType {
   static NotificationAudienceType? fromRaw(String? value) {
     final normalized = value?.trim().toLowerCase();
     return switch (normalized) {
-      'cohort' || 'cohorts' || 'batch' || 'batches' =>
-        NotificationAudienceType.cohorts,
-      'doctor' || 'doctors' || 'instructor' || 'instructors' =>
-        NotificationAudienceType.doctors,
+      'cohort' ||
+      'cohorts' ||
+      'batch' ||
+      'batches' => NotificationAudienceType.cohorts,
+      'doctor' ||
+      'doctors' ||
+      'instructor' ||
+      'instructors' => NotificationAudienceType.doctors,
       'student' || 'students' => NotificationAudienceType.students,
       'staff' => NotificationAudienceType.staff,
       'department' || 'departments' => NotificationAudienceType.departments,
@@ -213,7 +217,8 @@ class AdminNotification {
   final NotificationTone? tone;
   final DateTime? scheduledAt;
 
-  bool get isScheduled => scheduledAt != null && scheduledAt!.isAfter(DateTime.now());
+  bool get isScheduled =>
+      scheduledAt != null && scheduledAt!.isAfter(DateTime.now());
 
   String get createdAtLabel {
     final now = DateTime.now();
@@ -334,8 +339,7 @@ class AdminNotification {
           json['audience']?.toString() ??
           json['target']?.toString(),
       audienceType: NotificationAudienceTypeX.fromRaw(
-        json['audience_type']?.toString() ??
-            json['audienceType']?.toString(),
+        json['audience_type']?.toString() ?? json['audienceType']?.toString(),
       ),
       tone: NotificationToneX.fromRaw(
         json['tone']?.toString() ?? json['priority']?.toString(),
