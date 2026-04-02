@@ -49,7 +49,8 @@ class StaffScreen extends StatelessWidget {
                         spacing: AppSpacing.sm,
                         runSpacing: AppSpacing.sm,
                         children: [
-                          for (final focus in profile.focusAreas) StatusBadge(focus),
+                          for (final focus in profile.focusAreas)
+                            StatusBadge(focus),
                         ],
                       ),
                     ],
@@ -87,7 +88,8 @@ class StaffScreen extends StatelessWidget {
 
                     final availability = DoctorAssistantPanel(
                       title: 'Availability',
-                      subtitle: 'Aligned with the compact admin section-card layout.',
+                      subtitle:
+                          'Aligned with the compact admin section-card layout.',
                       child: Column(
                         children: [
                           DoctorAssistantItemCard(

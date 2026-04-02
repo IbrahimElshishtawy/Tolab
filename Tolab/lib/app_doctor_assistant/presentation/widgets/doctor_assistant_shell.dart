@@ -23,7 +23,6 @@ class DoctorAssistantShell extends StatelessWidget {
     final repository = DoctorAssistantMockRepository.instance;
 
     return AdaptiveScaffold(
-      child: child,
       location: activeRoute,
       destinations: const [
         NavigationDestinationItem(
@@ -86,6 +85,7 @@ class DoctorAssistantShell extends StatelessWidget {
       notificationRoute: AppRoutes.notifications,
       onToggleTheme: AppScope.theme(context).toggle,
       onLogout: AppScope.auth(context).logout,
+      child: child,
     );
   }
 }

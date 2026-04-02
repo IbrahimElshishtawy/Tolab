@@ -20,7 +20,9 @@ class SubjectsScreen extends StatelessWidget {
       converter: (store) => getCurrentUser(store.state),
       builder: (context, user) {
         if (user == null) return const SizedBox.shrink();
-        final subjects = DoctorAssistantMockRepository.instance.subjectsFor(user);
+        final subjects = DoctorAssistantMockRepository.instance.subjectsFor(
+          user,
+        );
 
         return DoctorAssistantShell(
           user: user,

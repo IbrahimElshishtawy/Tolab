@@ -19,8 +19,8 @@ class NotificationsScreen extends StatelessWidget {
       converter: (store) => getCurrentUser(store.state),
       builder: (context, user) {
         if (user == null) return const SizedBox.shrink();
-        final notifications =
-            DoctorAssistantMockRepository.instance.notificationsFor(user);
+        final notifications = DoctorAssistantMockRepository.instance
+            .notificationsFor(user);
 
         return DoctorAssistantShell(
           user: user,

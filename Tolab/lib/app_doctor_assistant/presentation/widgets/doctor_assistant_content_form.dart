@@ -97,7 +97,8 @@ class _DoctorAssistantContentFormScreenState
                   maxLines: 5,
                   decoration: const InputDecoration(
                     labelText: 'Notes',
-                    hintText: 'Add compact internal notes or student instructions',
+                    hintText:
+                        'Add compact internal notes or student instructions',
                   ),
                 ),
               ],

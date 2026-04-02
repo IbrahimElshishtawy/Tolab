@@ -224,7 +224,11 @@ class DoctorAssistantMockRepository {
           : 'Your workspace is tuned for section readiness, task follow-up, and assistant-level execution.',
       focusAreas: user.isDoctor
           ? const ['Algorithms', 'Software Engineering', 'Assessment Design']
-          : const ['Lab Supervision', 'Student Follow-up', 'Weekly Coordination'],
+          : const [
+              'Lab Supervision',
+              'Student Follow-up',
+              'Weekly Coordination',
+            ],
       officeHours: user.isDoctor
           ? 'Sun & Tue • 13:00 - 15:00'
           : 'Mon & Wed • 11:00 - 13:00',
@@ -491,7 +495,8 @@ class DoctorAssistantMockRepository {
     WorkspaceNotificationItem(
       id: 'notif-1',
       title: 'Room B2 updated for Algorithms lecture',
-      body: 'The lecture has moved from Hall B1 to Hall B2 after capacity review.',
+      body:
+          'The lecture has moved from Hall B1 to Hall B2 after capacity review.',
       timeLabel: '15 min ago',
       statusLabel: 'Live',
       courseLabel: 'CS301',
@@ -501,7 +506,8 @@ class DoctorAssistantMockRepository {
     WorkspaceNotificationItem(
       id: 'notif-2',
       title: 'Quiz review window opens tomorrow',
-      body: 'Software Engineering quiz feedback will unlock automatically at 09:00.',
+      body:
+          'Software Engineering quiz feedback will unlock automatically at 09:00.',
       timeLabel: '1 hr ago',
       statusLabel: 'Scheduled',
       courseLabel: 'SE402',
@@ -521,7 +527,8 @@ class DoctorAssistantMockRepository {
     WorkspaceNotificationItem(
       id: 'notif-4',
       title: 'Task deadline reminder',
-      body: 'Graph Traversal Assignment closes in 48 hours for all lecture groups.',
+      body:
+          'Graph Traversal Assignment closes in 48 hours for all lecture groups.',
       timeLabel: 'Yesterday',
       statusLabel: 'Pending',
       courseLabel: 'CS301',

@@ -41,12 +41,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 DoctorAssistantPanel(
                   title: 'Preferences',
-                  subtitle: 'Tune local behavior without leaving the shared design system.',
+                  subtitle:
+                      'Tune local behavior without leaving the shared design system.',
                   child: Column(
                     children: [
                       DropdownButtonFormField<String>(
                         initialValue: _language,
-                        decoration: const InputDecoration(labelText: 'Language'),
+                        decoration: const InputDecoration(
+                          labelText: 'Language',
+                        ),
                         items: const [
                           DropdownMenuItem(
                             value: 'English',
@@ -89,7 +92,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: AppSpacing.md),
                 DoctorAssistantPanel(
                   title: 'Actions',
-                  subtitle: 'Primary and secondary actions reuse the admin button treatment.',
+                  subtitle:
+                      'Primary and secondary actions reuse the admin button treatment.',
                   child: Wrap(
                     spacing: AppSpacing.sm,
                     runSpacing: AppSpacing.sm,
@@ -100,7 +104,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Settings saved to local mock state.'),
+                              content: Text(
+                                'Settings saved to local mock state.',
+                              ),
                             ),
                           );
                         },

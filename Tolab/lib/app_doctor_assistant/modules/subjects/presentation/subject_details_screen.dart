@@ -14,10 +14,7 @@ import '../../../state/app_state.dart';
 import '../../auth/state/session_selectors.dart';
 
 class SubjectDetailsScreen extends StatelessWidget {
-  const SubjectDetailsScreen({
-    super.key,
-    required this.subjectId,
-  });
+  const SubjectDetailsScreen({super.key, required this.subjectId});
 
   final int subjectId;
 
@@ -27,8 +24,9 @@ class SubjectDetailsScreen extends StatelessWidget {
       converter: (store) => getCurrentUser(store.state),
       builder: (context, user) {
         if (user == null) return const SizedBox.shrink();
-        final subject =
-            DoctorAssistantMockRepository.instance.subjectById(subjectId);
+        final subject = DoctorAssistantMockRepository.instance.subjectById(
+          subjectId,
+        );
 
         return DoctorAssistantShell(
           user: user,
@@ -55,10 +53,7 @@ class SubjectDetailsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  DoctorAssistantSubjectCard(
-                    subject: subject,
-                    onTap: () {},
-                  ),
+                  DoctorAssistantSubjectCard(subject: subject, onTap: () {}),
                   const SizedBox(height: AppSpacing.md),
                   AppCard(
                     padding: const EdgeInsets.symmetric(

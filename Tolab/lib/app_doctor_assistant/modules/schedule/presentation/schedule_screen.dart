@@ -48,11 +48,13 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 final isWide = constraints.maxWidth >= 1120;
                 final agenda = DoctorAssistantPanel(
                   title: 'This Week',
-                  subtitle: 'Compact agenda cards for upcoming delivery blocks.',
+                  subtitle:
+                      'Compact agenda cards for upcoming delivery blocks.',
                   expandChild: true,
                   child: ListView.separated(
                     itemCount: events.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
+                    separatorBuilder: (_, _) =>
+                        const SizedBox(height: AppSpacing.md),
                     itemBuilder: (context, index) {
                       final event = events[index];
                       return DoctorAssistantItemCard(
@@ -75,20 +77,25 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   selectedDay: _selectedDay,
                   conflictMap: conflicts,
                   onViewChanged: (view) => setState(() => _view = view),
-                  onFocusedDayChanged: (day) => setState(() => _focusedDay = day),
+                  onFocusedDayChanged: (day) =>
+                      setState(() => _focusedDay = day),
                   onSelectedDayChanged: (day) =>
                       setState(() => _selectedDay = day),
                   onNavigate: (direction) => setState(() {
                     final delta = switch (_view) {
-                      ScheduleCalendarView.month => Duration(days: 30 * direction),
-                      ScheduleCalendarView.week => Duration(days: 7 * direction),
+                      ScheduleCalendarView.month => Duration(
+                        days: 30 * direction,
+                      ),
+                      ScheduleCalendarView.week => Duration(
+                        days: 7 * direction,
+                      ),
                       ScheduleCalendarView.day => Duration(days: direction),
                     };
                     _focusedDay = _focusedDay.add(delta);
                     _selectedDay = _selectedDay.add(delta);
                   }),
                   onEventTap: (_) {},
-                  onEventDropped: (_, __, ___) {},
+                  onEventDropped: (event, startAt, endAt) {},
                 );
 
                 if (!isWide) {

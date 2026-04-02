@@ -71,44 +71,57 @@ class DoctorAssistantSummaryStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = AppBreakpoints.isMobile(context);
-    return Wrap(
-      spacing: AppSpacing.md,
-      runSpacing: AppSpacing.md,
-      children: [
-        for (final metric in metrics)
-          SizedBox(
-            width: isMobile ? double.infinity : 240,
-            child: AppCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 42,
-                    width: 42,
-                    decoration: BoxDecoration(
-                      color: metric.color.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Icon(metric.icon, color: metric.color),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobile = AppBreakpoints.isMobile(context);
+        final width = isMobile
+            ? constraints.maxWidth
+            : (((constraints.maxWidth - (AppSpacing.md * 3)) / 4)
+                  .clamp(220.0, 260.0)
+                  .toDouble());
+
+        return Wrap(
+          spacing: AppSpacing.md,
+          runSpacing: AppSpacing.md,
+          children: [
+            for (final metric in metrics)
+              SizedBox(
+                width: width,
+                child: AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: 42,
+                        width: 42,
+                        decoration: BoxDecoration(
+                          color: metric.color.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Icon(metric.icon, color: metric.color),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Text(
+                        metric.label,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        metric.value,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        metric.caption,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: AppSpacing.md),
-                  Text(metric.label, style: Theme.of(context).textTheme.bodySmall),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    metric.value,
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    metric.caption,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-      ],
+          ],
+        );
+      },
     );
   }
 }
@@ -214,18 +227,12 @@ class DoctorAssistantItemCard extends StatelessWidget {
                   spacing: AppSpacing.sm,
                   runSpacing: AppSpacing.sm,
                   children: [
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
+                    Text(title, style: Theme.of(context).textTheme.titleMedium),
                     StatusBadge(statusLabel),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                Text(
-                  subtitle,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+                Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
                 const SizedBox(height: AppSpacing.xs),
                 Text(meta, style: Theme.of(context).textTheme.bodySmall),
               ],
@@ -281,9 +288,8 @@ class DoctorAssistantSubjectCard extends StatelessWidget {
                           ),
                           child: Text(
                             subject.code,
-                            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              color: subject.accentColor,
-                            ),
+                            style: Theme.of(context).textTheme.labelLarge
+                                ?.copyWith(color: subject.accentColor),
                           ),
                         ),
                         StatusBadge('${subject.studentCount} students'),
@@ -333,49 +339,60 @@ class DoctorAssistantSubjectCard extends StatelessWidget {
 }
 
 class DoctorAssistantQuickActionGrid extends StatelessWidget {
-  const DoctorAssistantQuickActionGrid({
-    super.key,
-    required this.actions,
-  });
+  const DoctorAssistantQuickActionGrid({super.key, required this.actions});
 
   final List<WorkspaceQuickAction> actions;
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: AppSpacing.md,
-      runSpacing: AppSpacing.md,
-      children: [
-        for (final action in actions)
-          SizedBox(
-            width: AppBreakpoints.isMobile(context) ? double.infinity : 232,
-            child: AppCard(
-              interactive: true,
-              onTap: () => context.go(action.route),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 44,
-                    width: 44,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.10),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Icon(action.icon, color: AppColors.primary),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobile = AppBreakpoints.isMobile(context);
+        final width = isMobile
+            ? constraints.maxWidth
+            : (((constraints.maxWidth - AppSpacing.md) / 2)
+                  .clamp(220.0, 260.0)
+                  .toDouble());
+
+        return Wrap(
+          spacing: AppSpacing.md,
+          runSpacing: AppSpacing.md,
+          children: [
+            for (final action in actions)
+              SizedBox(
+                width: width,
+                child: AppCard(
+                  interactive: true,
+                  onTap: () => context.go(action.route),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: 44,
+                        width: 44,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Icon(action.icon, color: AppColors.primary),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Text(
+                        action.title,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        action.subtitle,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: AppSpacing.md),
-                  Text(action.title, style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    action.subtitle,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-      ],
+          ],
+        );
+      },
     );
   }
 }
