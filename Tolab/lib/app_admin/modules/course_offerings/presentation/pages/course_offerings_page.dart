@@ -48,250 +48,277 @@ class CourseOfferingsPage extends StatelessWidget {
         final isDesktop = AppBreakpoints.isDesktop(context);
         final isMobile = AppBreakpoints.isMobile(context);
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            PageHeader(
-              title: 'Course Offerings',
-              subtitle:
-                  'Manage the live academic delivery layer across subjects, staff, sections, and capacity planning.',
-              breadcrumbs: const ['Admin', 'Academic'],
-              actions: [
-                PremiumButton(
-                  label: 'New offering',
-                  icon: Icons.add_rounded,
-                  onPressed: () => OfferingForm.show(context),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            Wrap(
-              spacing: AppSpacing.md,
-              runSpacing: AppSpacing.md,
-              children: [
-                _SummaryCard(
-                  label: 'Filtered offerings',
-                  value: '${vm.metrics.total}',
-                  accent: AppColors.primary,
-                ),
-                _SummaryCard(
-                  label: 'Active offerings',
-                  value: '${vm.metrics.active}',
-                  accent: AppColors.secondary,
-                ),
-                _SummaryCard(
-                  label: 'Average fill rate',
-                  value: '${(vm.metrics.averageFillRate * 100).round()}%',
-                  accent: AppColors.warning,
-                ),
-                _SummaryCard(
-                  label: 'Seats remaining',
-                  value: '${vm.metrics.totalSeatsRemaining}',
-                  accent: AppColors.info,
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            _AcademicDeliveryPanel(offerings: vm.visibleOfferings),
-            const SizedBox(height: AppSpacing.lg),
-            OfferingFilters(
-              filters: vm.filters,
-              semesterOptions: vm.semesterOptions,
-              departments: vm.departments,
-              isMutating: vm.mutationStatus == LoadStatus.loading,
-              onSearchChanged: (value) => vm.store.dispatch(
-                CourseOfferingsFiltersChangedAction(
-                  vm.filters.copyWith(searchQuery: value),
-                ),
-              ),
-              onSemesterChanged: (value) => vm.store.dispatch(
-                CourseOfferingsFiltersChangedAction(
-                  value == null
-                      ? vm.filters.copyWith(clearSemester: true)
-                      : vm.filters.copyWith(semester: value),
-                ),
-              ),
-              onDepartmentChanged: (value) => vm.store.dispatch(
-                CourseOfferingsFiltersChangedAction(
-                  value == null
-                      ? vm.filters.copyWith(clearDepartmentId: true)
-                      : vm.filters.copyWith(departmentId: value),
-                ),
-              ),
-              onStatusChanged: (value) => vm.store.dispatch(
-                CourseOfferingsFiltersChangedAction(
-                  value == null
-                      ? vm.filters.copyWith(clearStatus: true)
-                      : vm.filters.copyWith(status: value),
-                ),
-              ),
-              onReset: () => vm.store.dispatch(
-                const CourseOfferingsFiltersChangedAction(
-                  CourseOfferingsFilters(),
-                ),
-              ),
-              onCreate: () => OfferingForm.show(context),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Expanded(
-              child: AsyncStateView(
-                status: vm.status,
-                errorMessage: vm.errorMessage,
-                onRetry: () =>
-                    vm.store.dispatch(const FetchCourseOfferingsAction()),
-                isEmpty:
-                    vm.filteredCount == 0 && vm.status == LoadStatus.success,
-                emptyTitle: 'No offerings match the current view',
-                emptySubtitle:
-                    'Adjust your search or filters to reveal more course offerings.',
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final workspaceHeight = _workspaceHeight(
+              constraints.maxHeight,
+              isMobile: isMobile,
+            );
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: AppSpacing.md),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: switch (AppBreakpoints.resolve(context)) {
-                        DeviceScreenType.desktop => OfferingTable(
-                          offerings: vm.visibleOfferings,
-                          onView: (item) => context.go(
-                            RoutePaths.courseOfferingDetails(item.id),
-                          ),
-                          onEdit: (item) =>
-                              OfferingForm.show(context, initialOffering: item),
-                          onDelete: (item) =>
-                              _confirmDelete(context, vm.store, item),
+                    PageHeader(
+                      title: 'Course Offerings',
+                      subtitle:
+                          'Manage the live academic delivery layer across subjects, staff, sections, and capacity planning.',
+                      breadcrumbs: const ['Admin', 'Academic'],
+                      actions: [
+                        PremiumButton(
+                          label: 'New offering',
+                          icon: Icons.add_rounded,
+                          onPressed: () => OfferingForm.show(context),
                         ),
-                        DeviceScreenType.tablet => GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: AppSpacing.md,
-                                mainAxisSpacing: AppSpacing.md,
-                                childAspectRatio: 1.25,
-                              ),
-                          itemCount: vm.visibleOfferings.length,
-                          itemBuilder: (context, index) {
-                            final item = vm.visibleOfferings[index];
-                            return OfferingCard(
-                              offering: item,
-                              onView: () => context.go(
-                                RoutePaths.courseOfferingDetails(item.id),
-                              ),
-                              onEdit: () => OfferingForm.show(
-                                context,
-                                initialOffering: item,
-                              ),
-                              onDelete: () =>
-                                  _confirmDelete(context, vm.store, item),
-                            );
-                          },
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    Wrap(
+                      spacing: AppSpacing.md,
+                      runSpacing: AppSpacing.md,
+                      children: [
+                        _SummaryCard(
+                          label: 'Filtered offerings',
+                          value: '${vm.metrics.total}',
+                          accent: AppColors.primary,
                         ),
-                        DeviceScreenType.mobile => ListView.separated(
-                          itemCount: vm.visibleOfferings.length,
-                          separatorBuilder: (_, index) =>
-                              const SizedBox(height: AppSpacing.md),
-                          itemBuilder: (context, index) {
-                            final item = vm.visibleOfferings[index];
-                            return OfferingCard(
-                              offering: item,
-                              onView: () => context.go(
-                                RoutePaths.courseOfferingDetails(item.id),
-                              ),
-                              onEdit: () => OfferingForm.show(
-                                context,
-                                initialOffering: item,
-                              ),
-                              onDelete: () =>
-                                  _confirmDelete(context, vm.store, item),
-                            );
-                          },
+                        _SummaryCard(
+                          label: 'Active offerings',
+                          value: '${vm.metrics.active}',
+                          accent: AppColors.secondary,
                         ),
-                      },
+                        _SummaryCard(
+                          label: 'Average fill rate',
+                          value: '${(vm.metrics.averageFillRate * 100).round()}%',
+                          accent: AppColors.warning,
+                        ),
+                        _SummaryCard(
+                          label: 'Seats remaining',
+                          value: '${vm.metrics.totalSeatsRemaining}',
+                          accent: AppColors.info,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    _AcademicDeliveryPanel(offerings: vm.visibleOfferings),
+                    const SizedBox(height: AppSpacing.md),
+                    OfferingFilters(
+                      filters: vm.filters,
+                      semesterOptions: vm.semesterOptions,
+                      departments: vm.departments,
+                      isMutating: vm.mutationStatus == LoadStatus.loading,
+                      onSearchChanged: (value) => vm.store.dispatch(
+                        CourseOfferingsFiltersChangedAction(
+                          vm.filters.copyWith(searchQuery: value),
+                        ),
+                      ),
+                      onSemesterChanged: (value) => vm.store.dispatch(
+                        CourseOfferingsFiltersChangedAction(
+                          value == null
+                              ? vm.filters.copyWith(clearSemester: true)
+                              : vm.filters.copyWith(semester: value),
+                        ),
+                      ),
+                      onDepartmentChanged: (value) => vm.store.dispatch(
+                        CourseOfferingsFiltersChangedAction(
+                          value == null
+                              ? vm.filters.copyWith(clearDepartmentId: true)
+                              : vm.filters.copyWith(departmentId: value),
+                        ),
+                      ),
+                      onStatusChanged: (value) => vm.store.dispatch(
+                        CourseOfferingsFiltersChangedAction(
+                          value == null
+                              ? vm.filters.copyWith(clearStatus: true)
+                              : vm.filters.copyWith(status: value),
+                        ),
+                      ),
+                      onReset: () => vm.store.dispatch(
+                        const CourseOfferingsFiltersChangedAction(
+                          CourseOfferingsFilters(),
+                        ),
+                      ),
+                      onCreate: () => OfferingForm.show(context),
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    AppCard(
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          final compact = constraints.maxWidth < 540;
-                          final summaryText = isMobile
-                              ? 'Page ${vm.page}/${vm.totalPages}'
-                              : 'Showing ${vm.visibleOfferings.length} of ${vm.filteredCount} offerings';
-
-                          final pager = Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                onPressed: vm.page <= 1
-                                    ? null
-                                    : () => vm.store.dispatch(
-                                        CourseOfferingsPaginationChangedAction(
-                                          vm.pagination.copyWith(
-                                            page: vm.page - 1,
-                                          ),
-                                        ),
-                                      ),
-                                icon: const Icon(Icons.chevron_left_rounded),
-                              ),
-                              if (isDesktop && !compact)
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.sm,
+                    SizedBox(
+                      height: workspaceHeight,
+                      child: AsyncStateView(
+                        status: vm.status,
+                        errorMessage: vm.errorMessage,
+                        onRetry: () =>
+                            vm.store.dispatch(const FetchCourseOfferingsAction()),
+                        isEmpty:
+                            vm.filteredCount == 0 &&
+                            vm.status == LoadStatus.success,
+                        emptyTitle: 'No offerings match the current view',
+                        emptySubtitle:
+                            'Adjust your search or filters to reveal more course offerings.',
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: switch (AppBreakpoints.resolve(context)) {
+                                DeviceScreenType.desktop => OfferingTable(
+                                  offerings: vm.visibleOfferings,
+                                  onView: (item) => context.go(
+                                    RoutePaths.courseOfferingDetails(item.id),
                                   ),
-                                  child: Text(
-                                    'Page ${vm.page} / ${vm.totalPages}',
+                                  onEdit: (item) => OfferingForm.show(
+                                    context,
+                                    initialOffering: item,
                                   ),
+                                  onDelete: (item) =>
+                                      _confirmDelete(context, vm.store, item),
                                 ),
-                              IconButton(
-                                onPressed: vm.page >= vm.totalPages
-                                    ? null
-                                    : () => vm.store.dispatch(
-                                        CourseOfferingsPaginationChangedAction(
-                                          vm.pagination.copyWith(
-                                            page: vm.page + 1,
+                                DeviceScreenType.tablet => GridView.builder(
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2,
+                                        crossAxisSpacing: AppSpacing.md,
+                                        mainAxisSpacing: AppSpacing.md,
+                                        childAspectRatio: 1.25,
+                                      ),
+                                  itemCount: vm.visibleOfferings.length,
+                                  itemBuilder: (context, index) {
+                                    final item = vm.visibleOfferings[index];
+                                    return OfferingCard(
+                                      offering: item,
+                                      onView: () => context.go(
+                                        RoutePaths.courseOfferingDetails(item.id),
+                                      ),
+                                      onEdit: () => OfferingForm.show(
+                                        context,
+                                        initialOffering: item,
+                                      ),
+                                      onDelete: () =>
+                                          _confirmDelete(context, vm.store, item),
+                                    );
+                                  },
+                                ),
+                                DeviceScreenType.mobile => ListView.separated(
+                                  itemCount: vm.visibleOfferings.length,
+                                  separatorBuilder: (_, index) =>
+                                      const SizedBox(height: AppSpacing.md),
+                                  itemBuilder: (context, index) {
+                                    final item = vm.visibleOfferings[index];
+                                    return OfferingCard(
+                                      offering: item,
+                                      onView: () => context.go(
+                                        RoutePaths.courseOfferingDetails(item.id),
+                                      ),
+                                      onEdit: () => OfferingForm.show(
+                                        context,
+                                        initialOffering: item,
+                                      ),
+                                      onDelete: () =>
+                                          _confirmDelete(context, vm.store, item),
+                                    );
+                                  },
+                                ),
+                              },
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            AppCard(
+                              padding: const EdgeInsets.all(AppSpacing.md),
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final compact = constraints.maxWidth < 540;
+                                  final summaryText = isMobile
+                                      ? 'Page ${vm.page}/${vm.totalPages}'
+                                      : 'Showing ${vm.visibleOfferings.length} of ${vm.filteredCount} offerings';
+
+                                  final pager = Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        onPressed: vm.page <= 1
+                                            ? null
+                                            : () => vm.store.dispatch(
+                                                CourseOfferingsPaginationChangedAction(
+                                                  vm.pagination.copyWith(
+                                                    page: vm.page - 1,
+                                                  ),
+                                                ),
+                                              ),
+                                        icon: const Icon(Icons.chevron_left_rounded),
+                                      ),
+                                      if (isDesktop && !compact)
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: AppSpacing.sm,
+                                          ),
+                                          child: Text(
+                                            'Page ${vm.page} / ${vm.totalPages}',
                                           ),
                                         ),
+                                      IconButton(
+                                        onPressed: vm.page >= vm.totalPages
+                                            ? null
+                                            : () => vm.store.dispatch(
+                                                CourseOfferingsPaginationChangedAction(
+                                                  vm.pagination.copyWith(
+                                                    page: vm.page + 1,
+                                                  ),
+                                                ),
+                                              ),
+                                        icon: const Icon(Icons.chevron_right_rounded),
                                       ),
-                                icon: const Icon(Icons.chevron_right_rounded),
-                              ),
-                            ],
-                          );
+                                    ],
+                                  );
 
-                          return compact
-                              ? Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      summaryText,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium,
-                                    ),
-                                    const SizedBox(height: AppSpacing.sm),
-                                    pager,
-                                  ],
-                                )
-                              : Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        summaryText,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.bodyMedium,
-                                      ),
-                                    ),
-                                    pager,
-                                  ],
-                                );
-                        },
+                                  return compact
+                                      ? Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              summaryText,
+                                              style: Theme.of(
+                                                context,
+                                              ).textTheme.bodyMedium,
+                                            ),
+                                            const SizedBox(
+                                              height: AppSpacing.sm,
+                                            ),
+                                            pager,
+                                          ],
+                                        )
+                                      : Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                summaryText,
+                                                style: Theme.of(
+                                                  context,
+                                                ).textTheme.bodyMedium,
+                                              ),
+                                            ),
+                                            pager,
+                                          ],
+                                        );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+            );
+          },
         );
       },
     );
+  }
+
+  double _workspaceHeight(double availableHeight, {required bool isMobile}) {
+    final target = availableHeight * (isMobile ? 0.78 : 0.58);
+    return target.clamp(420.0, 760.0).toDouble();
   }
 
   Future<void> _confirmDelete(
@@ -325,7 +352,7 @@ class _AcademicDeliveryPanel extends StatelessWidget {
     final academicYears = offerings.map((item) => item.academicYear).toSet();
 
     return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -383,9 +410,9 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 220,
+      width: 196,
       child: AppCard(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

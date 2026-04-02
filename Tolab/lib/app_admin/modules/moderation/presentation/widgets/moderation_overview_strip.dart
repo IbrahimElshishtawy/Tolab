@@ -95,8 +95,8 @@ class _MetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 220,
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      width: 196,
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppConstants.cardRadius),
@@ -115,19 +115,19 @@ class _MetricCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                height: 40,
-                width: 40,
+                height: 36,
+                width: 36,
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
                 ),
-                child: Icon(icon, color: color, size: 20),
+                child: Icon(icon, color: color, size: 18),
               ),
               const Spacer(),
               StatusBadge(label == 'Open reports' ? 'Live' : 'Trend'),
             ],
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.md),
           Text(value, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: AppSpacing.xs),
           Text(label, style: Theme.of(context).textTheme.bodySmall),
@@ -145,7 +145,7 @@ class _NotificationsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

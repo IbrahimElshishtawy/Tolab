@@ -9,7 +9,7 @@ class AppCard extends StatefulWidget {
   const AppCard({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(AppSpacing.xl),
+    this.padding = const EdgeInsets.all(AppSpacing.lg),
     this.height,
     this.width,
     this.onTap,

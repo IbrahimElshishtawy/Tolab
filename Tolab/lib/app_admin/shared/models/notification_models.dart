@@ -15,6 +15,19 @@ enum NotificationRealtimeStatus {
 
 enum NotificationHistoryDateFilter { all, today, last7Days, last30Days }
 
+enum NotificationAudienceType {
+  general,
+  cohorts,
+  doctors,
+  students,
+  staff,
+  departments,
+}
+
+enum NotificationDeliveryMode { instant, scheduled }
+
+enum NotificationTone { message, alert, warning }
+
 extension AdminNotificationCategoryX on AdminNotificationCategory {
   String get label => switch (this) {
     AdminNotificationCategory.academic => 'Academic',
@@ -94,6 +107,72 @@ extension NotificationHistoryDateFilterX on NotificationHistoryDateFilter {
   }
 }
 
+extension NotificationAudienceTypeX on NotificationAudienceType {
+  String get label => switch (this) {
+    NotificationAudienceType.general => 'General',
+    NotificationAudienceType.cohorts => 'Cohorts',
+    NotificationAudienceType.doctors => 'Doctors',
+    NotificationAudienceType.students => 'Students',
+    NotificationAudienceType.staff => 'Staff',
+    NotificationAudienceType.departments => 'Departments',
+  };
+
+  String get backendValue => switch (this) {
+    NotificationAudienceType.general => 'general',
+    NotificationAudienceType.cohorts => 'cohorts',
+    NotificationAudienceType.doctors => 'doctors',
+    NotificationAudienceType.students => 'students',
+    NotificationAudienceType.staff => 'staff',
+    NotificationAudienceType.departments => 'departments',
+  };
+
+  static NotificationAudienceType? fromRaw(String? value) {
+    final normalized = value?.trim().toLowerCase();
+    return switch (normalized) {
+      'cohort' || 'cohorts' || 'batch' || 'batches' =>
+        NotificationAudienceType.cohorts,
+      'doctor' || 'doctors' || 'instructor' || 'instructors' =>
+        NotificationAudienceType.doctors,
+      'student' || 'students' => NotificationAudienceType.students,
+      'staff' => NotificationAudienceType.staff,
+      'department' || 'departments' => NotificationAudienceType.departments,
+      'general' || 'all' || 'everyone' => NotificationAudienceType.general,
+      _ => null,
+    };
+  }
+}
+
+extension NotificationDeliveryModeX on NotificationDeliveryMode {
+  String get label => switch (this) {
+    NotificationDeliveryMode.instant => 'Send now',
+    NotificationDeliveryMode.scheduled => 'Schedule',
+  };
+}
+
+extension NotificationToneX on NotificationTone {
+  String get label => switch (this) {
+    NotificationTone.message => 'Message',
+    NotificationTone.alert => 'Alert',
+    NotificationTone.warning => 'Warning',
+  };
+
+  String get backendValue => switch (this) {
+    NotificationTone.message => 'message',
+    NotificationTone.alert => 'alert',
+    NotificationTone.warning => 'warning',
+  };
+
+  static NotificationTone? fromRaw(String? value) {
+    final normalized = value?.trim().toLowerCase();
+    return switch (normalized) {
+      'alert' => NotificationTone.alert,
+      'warning' => NotificationTone.warning,
+      'message' => NotificationTone.message,
+      _ => null,
+    };
+  }
+}
+
 class NotificationQuickAction {
   const NotificationQuickAction({required this.type, this.route});
 
@@ -114,6 +193,9 @@ class AdminNotification {
     this.refId,
     this.source = 'api',
     this.audienceLabel,
+    this.audienceType,
+    this.tone,
+    this.scheduledAt,
   });
 
   final String id;
@@ -127,6 +209,11 @@ class AdminNotification {
   final String? refId;
   final String source;
   final String? audienceLabel;
+  final NotificationAudienceType? audienceType;
+  final NotificationTone? tone;
+  final DateTime? scheduledAt;
+
+  bool get isScheduled => scheduledAt != null && scheduledAt!.isAfter(DateTime.now());
 
   String get createdAtLabel {
     final now = DateTime.now();
@@ -184,6 +271,9 @@ class AdminNotification {
     String? refId,
     String? source,
     String? audienceLabel,
+    NotificationAudienceType? audienceType,
+    NotificationTone? tone,
+    DateTime? scheduledAt,
     bool clearRefType = false,
     bool clearRefId = false,
     bool clearAudienceLabel = false,
@@ -202,6 +292,9 @@ class AdminNotification {
       audienceLabel: clearAudienceLabel
           ? null
           : audienceLabel ?? this.audienceLabel,
+      audienceType: audienceType ?? this.audienceType,
+      tone: tone ?? this.tone,
+      scheduledAt: scheduledAt ?? this.scheduledAt,
     );
   }
 
@@ -240,6 +333,16 @@ class AdminNotification {
           json['audience_label']?.toString() ??
           json['audience']?.toString() ??
           json['target']?.toString(),
+      audienceType: NotificationAudienceTypeX.fromRaw(
+        json['audience_type']?.toString() ??
+            json['audienceType']?.toString(),
+      ),
+      tone: NotificationToneX.fromRaw(
+        json['tone']?.toString() ?? json['priority']?.toString(),
+      ),
+      scheduledAt: _parseOptionalDateTime(
+        json['scheduled_at'] ?? json['scheduledAt'] ?? json['deliver_at'],
+      ),
     );
   }
 
@@ -264,6 +367,12 @@ class AdminNotification {
       return DateTime.tryParse(value)?.toLocal() ?? DateTime.now();
     }
     return DateTime.now();
+  }
+
+  static DateTime? _parseOptionalDateTime(dynamic value) {
+    if (value == null) return null;
+    if (value is String && value.trim().isEmpty) return null;
+    return _parseDateTime(value);
   }
 
   static bool _parseBool(dynamic value) {

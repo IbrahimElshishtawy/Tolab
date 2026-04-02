@@ -59,176 +59,210 @@ class _RolesListScreenState extends State<RolesListScreen> {
         final isDesktop = AppBreakpoints.isDesktop(context);
         final isMobile = AppBreakpoints.isMobile(context);
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            PageHeader(
-              title: 'Roles & Permissions',
-              subtitle:
-                  'Manage university security with role CRUD, permission governance, membership assignment, and a responsive access matrix.',
-              breadcrumbs: const ['Admin', 'Security', 'Roles'],
-              actions: [
-                PremiumButton(
-                  label: 'New role',
-                  icon: Icons.add_moderator_rounded,
-                  onPressed: () => _openRoleDialog(context, vm),
-                ),
-                PremiumButton(
-                  label: 'New permission',
-                  icon: Icons.shield_moon_rounded,
-                  isSecondary: true,
-                  onPressed: () => _openPermissionDialog(context, vm),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            _OverviewMetricsStrip(vm: vm),
-            const SizedBox(height: AppSpacing.lg),
-            FilterBar(
-              searchHint: 'Search roles, permissions, users, or modules',
-              onSearchChanged: (value) =>
-                  vm.updateFilters(vm.filters.copyWith(searchQuery: value)),
-              leading: [
-                _ModuleMenu(
-                  modules: vm.modules,
-                  selectedModule: vm.filters.moduleFilter,
-                  onSelected: (module) {
-                    if (module == null) {
-                      vm.updateFilters(
-                        vm.filters.copyWith(clearModuleFilter: true),
-                      );
-                    } else {
-                      vm.updateFilters(
-                        vm.filters.copyWith(moduleFilter: module),
-                      );
-                    }
-                  },
-                ),
-                _SortMenu(
-                  value: vm.filters.sortOption,
-                  onSelected: (value) =>
-                      vm.updateFilters(vm.filters.copyWith(sortOption: value)),
-                ),
-              ],
-              trailing: [
-                FilterChip(
-                  selected: vm.filters.showSystemRoles,
-                  label: const Text('System roles'),
-                  onSelected: (value) => vm.updateFilters(
-                    vm.filters.copyWith(showSystemRoles: value),
-                  ),
-                ),
-                _ViewToggle(value: vm.view, onChanged: vm.changeView),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            if (vm.isFallback)
-              Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                child: AppCard(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.lg,
-                    vertical: AppSpacing.md,
-                  ),
-                  backgroundColor: AppColors.warningSoft.withValues(
-                    alpha: 0.55,
-                  ),
-                  borderColor: AppColors.warning.withValues(alpha: 0.2),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.wifi_off_rounded,
-                        color: AppColors.warning,
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Text(
-                          'Live security data is unavailable, so the module is working from cached or bundled fallback records.',
-                          style: Theme.of(context).textTheme.bodyMedium,
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final workspaceHeight =
+                (constraints.maxHeight * (isMobile ? 0.78 : 0.62))
+                    .clamp(420.0, 840.0)
+                    .toDouble();
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: AppSpacing.md),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    PageHeader(
+                      title: 'Roles & Permissions',
+                      subtitle:
+                          'Manage university security with role CRUD, permission governance, membership assignment, and a responsive access matrix.',
+                      breadcrumbs: const ['Admin', 'Security', 'Roles'],
+                      actions: [
+                        PremiumButton(
+                          label: 'New role',
+                          icon: Icons.add_moderator_rounded,
+                          onPressed: () => _openRoleDialog(context, vm),
                         ),
+                        PremiumButton(
+                          label: 'New permission',
+                          icon: Icons.shield_moon_rounded,
+                          isSecondary: true,
+                          onPressed: () => _openPermissionDialog(context, vm),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    _OverviewMetricsStrip(vm: vm),
+                    const SizedBox(height: AppSpacing.md),
+                    FilterBar(
+                      searchHint: 'Search roles, permissions, users, or modules',
+                      onSearchChanged: (value) => vm.updateFilters(
+                        vm.filters.copyWith(searchQuery: value),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-            Expanded(
-              child: AsyncStateView(
-                status: vm.status,
-                errorMessage: vm.errorMessage,
-                onRetry: vm.reload,
-                isEmpty:
-                    vm.status == LoadStatus.success &&
-                    vm.roles.isEmpty &&
-                    vm.permissions.isEmpty,
-                emptyTitle: 'No roles or permissions found',
-                emptySubtitle:
-                    'Create a role or connect the Laravel API to begin managing access.',
-                child: AnimatedSwitcher(
-                  duration: AppMotion.medium,
-                  switchInCurve: AppMotion.entrance,
-                  switchOutCurve: AppMotion.emphasized,
-                  child: vm.view == RolesDashboardView.matrix
-                      ? PermissionsMatrixScreen(
-                          key: const ValueKey('matrix-view'),
-                          roles: vm.roles,
-                          permissions: vm.filteredPermissions,
-                          pendingCellKeys: vm.pendingCellKeys,
-                          onPermissionToggle: (role, permission, value) {
-                            vm.togglePermission(role.id, permission.id, value);
+                      leading: [
+                        _ModuleMenu(
+                          modules: vm.modules,
+                          selectedModule: vm.filters.moduleFilter,
+                          onSelected: (module) {
+                            if (module == null) {
+                              vm.updateFilters(
+                                vm.filters.copyWith(clearModuleFilter: true),
+                              );
+                            } else {
+                              vm.updateFilters(
+                                vm.filters.copyWith(moduleFilter: module),
+                              );
+                            }
                           },
-                        )
-                      : _RolesWorkspace(
-                          key: const ValueKey('roles-view'),
-                          isDesktop: isDesktop,
-                          isMobile: isMobile,
-                          roles: vm.roles,
-                          selectedRole: vm.selectedRole,
-                          filteredPermissions: vm.filteredPermissions,
-                          permissionCount: vm.permissions.length,
-                          availableUsers: vm.availableUsers,
-                          pendingPermissionIds:
-                              vm.pendingPermissionIdsForSelectedRole,
-                          isUsersBusy: vm.isUsersBusy,
-                          onSelectRole: vm.selectRole,
-                          onCreateRole: () => _openRoleDialog(context, vm),
-                          onEditRole: vm.selectedRole == null
-                              ? null
-                              : () => _openRoleDialog(
-                                  context,
-                                  vm,
-                                  role: vm.selectedRole,
-                                ),
-                          onDeleteRole: vm.selectedRole == null
-                              ? null
-                              : () =>
-                                    _deleteRole(context, vm, vm.selectedRole!),
-                          onAssignUsers: vm.selectedRole == null
-                              ? null
-                              : () => _openAssignUsersDialog(
-                                  context,
-                                  vm,
-                                  vm.selectedRole!,
-                                ),
-                          onCreatePermission: () =>
-                              _openPermissionDialog(context, vm),
-                          onEditPermission: (permission) =>
-                              _openPermissionDialog(
-                                context,
-                                vm,
-                                permission: permission,
+                        ),
+                        _SortMenu(
+                          value: vm.filters.sortOption,
+                          onSelected: (value) => vm.updateFilters(
+                            vm.filters.copyWith(sortOption: value),
+                          ),
+                        ),
+                      ],
+                      trailing: [
+                        FilterChip(
+                          selected: vm.filters.showSystemRoles,
+                          label: const Text('System roles'),
+                          onSelected: (value) => vm.updateFilters(
+                            vm.filters.copyWith(showSystemRoles: value),
+                          ),
+                        ),
+                        _ViewToggle(value: vm.view, onChanged: vm.changeView),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    if (vm.isFallback)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                        child: AppCard(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.md,
+                            vertical: AppSpacing.sm,
+                          ),
+                          backgroundColor: AppColors.warningSoft.withValues(
+                            alpha: 0.55,
+                          ),
+                          borderColor: AppColors.warning.withValues(alpha: 0.2),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.wifi_off_rounded,
+                                color: AppColors.warning,
                               ),
-                          onDeletePermission: (permission) =>
-                              _deletePermission(context, vm, permission),
-                          onTogglePermission: (permission, value) {
-                            final role = vm.selectedRole;
-                            if (role == null) return;
-                            vm.togglePermission(role.id, permission.id, value);
-                          },
+                              const SizedBox(width: AppSpacing.sm),
+                              Expanded(
+                                child: Text(
+                                  'Live security data is unavailable, so the module is working from cached or bundled fallback records.',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                      ),
+                    SizedBox(
+                      height: workspaceHeight,
+                      child: AsyncStateView(
+                        status: vm.status,
+                        errorMessage: vm.errorMessage,
+                        onRetry: vm.reload,
+                        isEmpty:
+                            vm.status == LoadStatus.success &&
+                            vm.roles.isEmpty &&
+                            vm.permissions.isEmpty,
+                        emptyTitle: 'No roles or permissions found',
+                        emptySubtitle:
+                            'Create a role or connect the Laravel API to begin managing access.',
+                        child: AnimatedSwitcher(
+                          duration: AppMotion.medium,
+                          switchInCurve: AppMotion.entrance,
+                          switchOutCurve: AppMotion.emphasized,
+                          child: vm.view == RolesDashboardView.matrix
+                              ? PermissionsMatrixScreen(
+                                  key: const ValueKey('matrix-view'),
+                                  roles: vm.roles,
+                                  permissions: vm.filteredPermissions,
+                                  pendingCellKeys: vm.pendingCellKeys,
+                                  onPermissionToggle: (role, permission, value) {
+                                    vm.togglePermission(
+                                      role.id,
+                                      permission.id,
+                                      value,
+                                    );
+                                  },
+                                )
+                              : _RolesWorkspace(
+                                  key: const ValueKey('roles-view'),
+                                  isDesktop: isDesktop,
+                                  isMobile: isMobile,
+                                  roles: vm.roles,
+                                  selectedRole: vm.selectedRole,
+                                  filteredPermissions: vm.filteredPermissions,
+                                  permissionCount: vm.permissions.length,
+                                  availableUsers: vm.availableUsers,
+                                  pendingPermissionIds:
+                                      vm.pendingPermissionIdsForSelectedRole,
+                                  isUsersBusy: vm.isUsersBusy,
+                                  onSelectRole: vm.selectRole,
+                                  onCreateRole: () =>
+                                      _openRoleDialog(context, vm),
+                                  onEditRole: vm.selectedRole == null
+                                      ? null
+                                      : () => _openRoleDialog(
+                                          context,
+                                          vm,
+                                          role: vm.selectedRole,
+                                        ),
+                                  onDeleteRole: vm.selectedRole == null
+                                      ? null
+                                      : () => _deleteRole(
+                                          context,
+                                          vm,
+                                          vm.selectedRole!,
+                                        ),
+                                  onAssignUsers: vm.selectedRole == null
+                                      ? null
+                                      : () => _openAssignUsersDialog(
+                                          context,
+                                          vm,
+                                          vm.selectedRole!,
+                                        ),
+                                  onCreatePermission: () =>
+                                      _openPermissionDialog(context, vm),
+                                  onEditPermission: (permission) =>
+                                      _openPermissionDialog(
+                                        context,
+                                        vm,
+                                        permission: permission,
+                                      ),
+                                  onDeletePermission: (permission) =>
+                                      _deletePermission(
+                                        context,
+                                        vm,
+                                        permission,
+                                      ),
+                                  onTogglePermission: (permission, value) {
+                                    final role = vm.selectedRole;
+                                    if (role == null) return;
+                                    vm.togglePermission(
+                                      role.id,
+                                      permission.id,
+                                      value,
+                                    );
+                                  },
+                                ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
+            );
+          },
         );
       },
     );

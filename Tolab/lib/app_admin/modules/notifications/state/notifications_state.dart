@@ -138,6 +138,10 @@ class NotificationBroadcastRequestedAction {
     required this.title,
     required this.body,
     required this.category,
+    required this.audienceType,
+    required this.tone,
+    this.audienceLabel,
+    this.scheduledAt,
     this.refType,
     this.refId,
     this.onSuccess,
@@ -147,9 +151,13 @@ class NotificationBroadcastRequestedAction {
   final String title;
   final String body;
   final AdminNotificationCategory category;
+  final NotificationAudienceType audienceType;
+  final NotificationTone tone;
+  final String? audienceLabel;
+  final DateTime? scheduledAt;
   final String? refType;
   final String? refId;
-  final VoidCallback? onSuccess;
+  final void Function(AdminNotification notification)? onSuccess;
   final void Function(String message)? onError;
 }
 
@@ -451,37 +459,28 @@ List<Middleware<AppState>> createNotificationsMiddleware(AppDependencies deps) {
     ) async {
       next(action);
       try {
-        await deps.notificationsRepository.broadcast(
+        final createdNotification = await deps.notificationsRepository.broadcast(
           title: action.title,
           body: action.body,
           category: action.category,
+          audienceType: action.audienceType,
+          tone: action.tone,
+          audienceLabel: action.audienceLabel,
+          scheduledAt: action.scheduledAt,
           refType: action.refType,
           refId: action.refId,
         );
 
-        final syntheticNotification = AdminNotification(
-          id: 'LOCAL-${DateTime.now().microsecondsSinceEpoch}',
-          title: action.title,
-          body: action.body,
-          category: action.category,
-          createdAt: DateTime.now(),
-          isRead: false,
-          rawType: action.category.backendType,
-          refType: action.refType,
-          refId: action.refId,
-          source: 'broadcast',
-          audienceLabel: 'Queued broadcast',
-        );
-        deps.notificationsRepository.cacheIncoming(syntheticNotification);
+        deps.notificationsRepository.cacheIncoming(createdNotification);
         store.dispatch(
           IncomingNotificationAction(
-            syntheticNotification,
+            createdNotification,
             showToast: false,
             showLocalAlert: false,
           ),
         );
         store.dispatch(const NotificationBroadcastFinishedAction());
-        action.onSuccess?.call();
+        action.onSuccess?.call(createdNotification);
       } catch (error) {
         final message = _messageOf(error);
         store.dispatch(NotificationsFailedAction(message));

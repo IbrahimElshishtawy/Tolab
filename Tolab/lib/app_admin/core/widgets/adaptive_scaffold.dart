@@ -138,7 +138,7 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
             ),
             SafeArea(
               child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.md),
+                padding: const EdgeInsets.all(AppSpacing.sm),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -176,7 +176,8 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
                           ),
                           const SizedBox(height: AppSpacing.md),
                           Expanded(
-                            child: Center(
+                            child: Align(
+                              alignment: Alignment.topCenter,
                               child: ConstrainedBox(
                                 constraints: const BoxConstraints(
                                   maxWidth: AppConstants.shellMaxContentWidth,
@@ -293,10 +294,10 @@ class _Sidebar extends StatelessWidget {
               ],
             ],
           ),
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.lg),
           if (!isCollapsed)
             Container(
-              padding: const EdgeInsets.all(AppSpacing.md),
+              padding: const EdgeInsets.all(AppSpacing.sm),
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
@@ -314,7 +315,7 @@ class _Sidebar extends StatelessWidget {
                 ],
               ),
             ),
-          if (!isCollapsed) const SizedBox(height: AppSpacing.lg),
+          if (!isCollapsed) const SizedBox(height: AppSpacing.md),
           Expanded(
             child: ListView.separated(
               itemCount: destinations.length,
@@ -337,7 +338,7 @@ class _Sidebar extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(AppSpacing.md),
+              padding: const EdgeInsets.all(AppSpacing.sm),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor.withValues(alpha: 0.72),
                 borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
@@ -478,8 +479,8 @@ class _TopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppCard(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {

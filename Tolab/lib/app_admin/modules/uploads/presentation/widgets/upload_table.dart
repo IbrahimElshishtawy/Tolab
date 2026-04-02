@@ -43,210 +43,211 @@ class UploadTable extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isCompact = constraints.maxWidth < 1280;
-        final rowHeight = isCompact ? 74.0 : 84.0;
-        final headingRowHeight = isCompact ? 52.0 : 58.0;
-        final iconBoxSize = isCompact ? 38.0 : 42.0;
+        final rowHeight = isCompact ? 64.0 : 72.0;
+        final headingRowHeight = isCompact ? 46.0 : 52.0;
+        final iconBoxSize = isCompact ? 34.0 : 38.0;
+        final minTableWidth = (isCompact ? 980 : 1120).toDouble();
+        final resolvedWidth = math.max(constraints.maxWidth, minTableWidth);
+        final tableHeight =
+            headingRowHeight + (items.length * rowHeight) + 8;
 
         return AppCard(
           padding: EdgeInsets.zero,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: SizedBox(
-              width: math.max(
-                constraints.maxWidth,
-                (isCompact ? 980 : 1120).toDouble(),
-              ),
-              child: DataTable2(
-                headingRowHeight: headingRowHeight,
-                dataRowHeight: rowHeight,
-                columnSpacing: isCompact ? 10 : 14,
-                horizontalMargin: isCompact ? 12 : 16,
-                minWidth: math.max(
-                  constraints.maxWidth,
-                  (isCompact ? 980 : 1120).toDouble(),
-                ),
-                smRatio: 0.72,
-                lmRatio: 1.25,
-                columns: [
-                  DataColumn2(
-                    fixedWidth: 52,
-                    label: Checkbox.adaptive(
-                      value: allSelected,
-                      tristate: false,
-                      onChanged: (value) => onToggleAll(value ?? false),
-                    ),
-                  ),
-                  const DataColumn2(label: Text('Name'), size: ColumnSize.L),
-                  const DataColumn2(label: Text('Type'), size: ColumnSize.S),
-                  const DataColumn2(label: Text('Size'), size: ColumnSize.S),
-                  const DataColumn2(
-                    label: Text('Material / Section'),
-                    size: ColumnSize.L,
-                  ),
-                  const DataColumn2(
-                    label: Text('Uploaded By'),
-                    size: ColumnSize.M,
-                  ),
-                  const DataColumn2(label: Text('Date'), size: ColumnSize.M),
-                  const DataColumn2(label: Text('Status'), size: ColumnSize.M),
-                  const DataColumn2(label: Text('Actions'), size: ColumnSize.M),
-                ],
-                rows: [
-                  for (final item in items)
-                    DataRow2(
-                      onTap: () => onPreview(item),
-                      color: WidgetStatePropertyAll(
-                        selectedIds.contains(item.id)
-                            ? AppColors.primary.withValues(alpha: 0.06)
-                            : Colors.transparent,
+              width: resolvedWidth,
+              child: SizedBox(
+                height: tableHeight,
+                child: DataTable2(
+                  headingRowHeight: headingRowHeight,
+                  dataRowHeight: rowHeight,
+                  columnSpacing: isCompact ? 8 : 12,
+                  horizontalMargin: isCompact ? 10 : 14,
+                  minWidth: resolvedWidth,
+                  smRatio: 0.72,
+                  lmRatio: 1.25,
+                  columns: [
+                    DataColumn2(
+                      fixedWidth: 48,
+                      label: Checkbox.adaptive(
+                        value: allSelected,
+                        tristate: false,
+                        onChanged: (value) => onToggleAll(value ?? false),
                       ),
-                      cells: [
-                        DataCell(
-                          Checkbox.adaptive(
-                            value: selectedIds.contains(item.id),
-                            onChanged: (_) => onToggleSelection(item.id),
-                          ),
-                        ),
-                        DataCell(
-                          Row(
-                            children: [
-                              Container(
-                                height: iconBoxSize,
-                                width: iconBoxSize,
-                                decoration: BoxDecoration(
-                                  color: item.type.accent.withValues(
-                                    alpha: 0.12,
-                                  ),
-                                  borderRadius: BorderRadius.circular(
-                                    isCompact ? 12 : 16,
-                                  ),
-                                ),
-                                child: Icon(
-                                  item.type.icon,
-                                  color: item.type.accent,
-                                  size: isCompact ? 18 : 22,
-                                ),
-                              ),
-                              const SizedBox(width: AppSpacing.sm),
-                              Expanded(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.name,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleSmall,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      item.accessControl.level.label,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodySmall,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        DataCell(Text(item.type.label)),
-                        DataCell(Text(_formatFileSize(item.sizeBytes))),
-                        DataCell(
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                item.assignment.materialLabel,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                item.assignment.sectionLabel,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
-                        ),
-                        DataCell(
-                          Text(
-                            item.uploadedBy,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        DataCell(
-                          Text(
-                            DateFormat('dd MMM yyyy').format(item.uploadedAt),
-                          ),
-                        ),
-                        DataCell(
-                          SizedBox(
-                            width: isCompact ? 160 : 180,
-                            child: item.isUploading
-                                ? UploadsProgressIndicator(
-                                    progress: item.progress,
-                                    status: item.status,
-                                    compact: true,
-                                  )
-                                : StatusBadge(item.status.label),
-                          ),
-                        ),
-                        DataCell(
-                          Row(
-                            children: [
-                              IconButton(
-                                tooltip: 'Preview',
-                                visualDensity: VisualDensity.compact,
-                                onPressed: () => onPreview(item),
-                                icon: const Icon(Icons.visibility_rounded),
-                              ),
-                              IconButton(
-                                tooltip: 'Assign',
-                                visualDensity: VisualDensity.compact,
-                                onPressed: () => onAssign(item),
-                                icon: const Icon(Icons.rule_folder_rounded),
-                              ),
-                              if (item.isFailed)
-                                IconButton(
-                                  tooltip: 'Retry',
-                                  visualDensity: VisualDensity.compact,
-                                  onPressed: onRetry == null
-                                      ? null
-                                      : () => onRetry!(item),
-                                  icon: const Icon(Icons.refresh_rounded),
-                                ),
-                              if (item.isUploading)
-                                IconButton(
-                                  tooltip: 'Cancel',
-                                  visualDensity: VisualDensity.compact,
-                                  onPressed: onCancel == null
-                                      ? null
-                                      : () => onCancel!(item),
-                                  icon: const Icon(Icons.close_rounded),
-                                ),
-                              IconButton(
-                                tooltip: 'Delete',
-                                visualDensity: VisualDensity.compact,
-                                onPressed: () => onDelete(item),
-                                icon: const Icon(Icons.delete_outline_rounded),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
                     ),
-                ],
+                    const DataColumn2(label: Text('Name'), size: ColumnSize.L),
+                    const DataColumn2(label: Text('Type'), size: ColumnSize.S),
+                    const DataColumn2(label: Text('Size'), size: ColumnSize.S),
+                    const DataColumn2(
+                      label: Text('Material / Section'),
+                      size: ColumnSize.L,
+                    ),
+                    const DataColumn2(
+                      label: Text('Uploaded By'),
+                      size: ColumnSize.M,
+                    ),
+                    const DataColumn2(label: Text('Date'), size: ColumnSize.M),
+                    const DataColumn2(label: Text('Status'), size: ColumnSize.M),
+                    const DataColumn2(label: Text('Actions'), size: ColumnSize.M),
+                  ],
+                  rows: [
+                    for (final item in items)
+                      DataRow2(
+                        onTap: () => onPreview(item),
+                        color: WidgetStatePropertyAll(
+                          selectedIds.contains(item.id)
+                              ? AppColors.primary.withValues(alpha: 0.06)
+                              : Colors.transparent,
+                        ),
+                        cells: [
+                          DataCell(
+                            Checkbox.adaptive(
+                              value: selectedIds.contains(item.id),
+                              onChanged: (_) => onToggleSelection(item.id),
+                            ),
+                          ),
+                          DataCell(
+                            Row(
+                              children: [
+                                Container(
+                                  height: iconBoxSize,
+                                  width: iconBoxSize,
+                                  decoration: BoxDecoration(
+                                    color: item.type.accent.withValues(
+                                      alpha: 0.12,
+                                    ),
+                                    borderRadius: BorderRadius.circular(
+                                      isCompact ? 10 : 14,
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    item.type.icon,
+                                    color: item.type.accent,
+                                    size: isCompact ? 16 : 18,
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacing.sm),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.name,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.titleSmall,
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        item.accessControl.level.label,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          DataCell(Text(item.type.label)),
+                          DataCell(Text(_formatFileSize(item.sizeBytes))),
+                          DataCell(
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.assignment.materialLabel,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  item.assignment.sectionLabel,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                          DataCell(
+                            Text(
+                              item.uploadedBy,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          DataCell(
+                            Text(
+                              DateFormat('dd MMM yyyy').format(item.uploadedAt),
+                            ),
+                          ),
+                          DataCell(
+                            SizedBox(
+                              width: isCompact ? 148 : 170,
+                              child: item.isUploading
+                                  ? UploadsProgressIndicator(
+                                      progress: item.progress,
+                                      status: item.status,
+                                      compact: true,
+                                    )
+                                  : StatusBadge(item.status.label),
+                            ),
+                          ),
+                          DataCell(
+                            Row(
+                              children: [
+                                IconButton(
+                                  tooltip: 'Preview',
+                                  visualDensity: VisualDensity.compact,
+                                  onPressed: () => onPreview(item),
+                                  icon: const Icon(Icons.visibility_rounded),
+                                ),
+                                IconButton(
+                                  tooltip: 'Assign',
+                                  visualDensity: VisualDensity.compact,
+                                  onPressed: () => onAssign(item),
+                                  icon: const Icon(Icons.rule_folder_rounded),
+                                ),
+                                if (item.isFailed)
+                                  IconButton(
+                                    tooltip: 'Retry',
+                                    visualDensity: VisualDensity.compact,
+                                    onPressed: onRetry == null
+                                        ? null
+                                        : () => onRetry!(item),
+                                    icon: const Icon(Icons.refresh_rounded),
+                                  ),
+                                if (item.isUploading)
+                                  IconButton(
+                                    tooltip: 'Cancel',
+                                    visualDensity: VisualDensity.compact,
+                                    onPressed: onCancel == null
+                                        ? null
+                                        : () => onCancel!(item),
+                                    icon: const Icon(Icons.close_rounded),
+                                  ),
+                                IconButton(
+                                  tooltip: 'Delete',
+                                  visualDensity: VisualDensity.compact,
+                                  onPressed: () => onDelete(item),
+                                  icon: const Icon(Icons.delete_outline_rounded),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
               ),
             ),
           ),

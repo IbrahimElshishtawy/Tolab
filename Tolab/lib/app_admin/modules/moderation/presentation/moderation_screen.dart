@@ -39,86 +39,104 @@ class ModerationScreen extends StatelessWidget {
         );
       },
       builder: (context, vm) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            PageHeader(
-              title: 'Moderation',
-              subtitle:
-                  'University-wide safety operations for groups, posts, comments, reports, messaging, and moderator permissions.',
-              breadcrumbs: const ['Admin', 'Safety', 'Moderation'],
-              actions: [
-                PremiumButton(
-                  label: 'Refresh',
-                  icon: Icons.refresh_rounded,
-                  isSecondary: true,
-                  onPressed: () => StoreProvider.of<AppState>(context).dispatch(
-                    const LoadModerationDashboardRequestedAction(silent: true),
-                  ),
-                ),
-                PremiumButton(
-                  label: 'Assign moderators',
-                  icon: Icons.admin_panel_settings_outlined,
-                  onPressed: () => StoreProvider.of<AppState>(context).dispatch(
-                    const ModerationTabChangedAction(
-                      ModerationWorkspaceTab.permissions,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            if (vm.state.feedbackMessage != null &&
-                vm.state.feedbackMessage!.isNotEmpty) ...[
-              ModerationNoticeBanner(
-                message: vm.state.feedbackMessage!,
-                isFallback: vm.state.isUsingFallbackData,
-              ),
-              const SizedBox(height: AppSpacing.md),
-            ],
-            ModerationOverviewStrip(
-              metrics: vm.metrics,
-              notifications: vm.unreadNotifications,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _TabBarStrip(activeTab: vm.state.activeTab),
-            const SizedBox(height: AppSpacing.md),
-            Expanded(
-              child: AsyncStateView(
-                status: vm.state.status,
-                errorMessage: vm.state.errorMessage,
-                onRetry: () => StoreProvider.of<AppState>(
-                  context,
-                ).dispatch(const LoadModerationDashboardRequestedAction()),
-                isEmpty:
-                    vm.state.groups.isEmpty &&
-                    vm.state.posts.isEmpty &&
-                    vm.state.comments.isEmpty &&
-                    vm.state.reports.isEmpty,
-                emptyTitle: 'No moderation data yet',
-                emptySubtitle:
-                    'Connect the Laravel moderation endpoints or wait for new reports to arrive.',
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 260),
-                  layoutBuilder: (currentChild, previousChildren) {
-                    return Stack(
-                      fit: StackFit.expand,
-                      children: <Widget>[
-                        ...previousChildren,
-                        if (currentChild != null) currentChild,
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final workspaceHeight =
+                (constraints.maxHeight * 0.62).clamp(420.0, 820.0).toDouble();
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: AppSpacing.md),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    PageHeader(
+                      title: 'Moderation',
+                      subtitle:
+                          'University-wide safety operations for groups, posts, comments, reports, messaging, and moderator permissions.',
+                      breadcrumbs: const ['Admin', 'Safety', 'Moderation'],
+                      actions: [
+                        PremiumButton(
+                          label: 'Refresh',
+                          icon: Icons.refresh_rounded,
+                          isSecondary: true,
+                          onPressed: () =>
+                              StoreProvider.of<AppState>(context).dispatch(
+                                const LoadModerationDashboardRequestedAction(
+                                  silent: true,
+                                ),
+                              ),
+                        ),
+                        PremiumButton(
+                          label: 'Assign moderators',
+                          icon: Icons.admin_panel_settings_outlined,
+                          onPressed: () =>
+                              StoreProvider.of<AppState>(context).dispatch(
+                                const ModerationTabChangedAction(
+                                  ModerationWorkspaceTab.permissions,
+                                ),
+                              ),
+                        ),
                       ],
-                    );
-                  },
-                  child: KeyedSubtree(
-                    key: ValueKey(vm.state.activeTab),
-                    child: SizedBox.expand(
-                      child: _screenFor(vm.state.activeTab),
                     ),
-                  ),
+                    const SizedBox(height: AppSpacing.md),
+                    if (vm.state.feedbackMessage != null &&
+                        vm.state.feedbackMessage!.isNotEmpty) ...[
+                      ModerationNoticeBanner(
+                        message: vm.state.feedbackMessage!,
+                        isFallback: vm.state.isUsingFallbackData,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                    ],
+                    ModerationOverviewStrip(
+                      metrics: vm.metrics,
+                      notifications: vm.unreadNotifications,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    _TabBarStrip(activeTab: vm.state.activeTab),
+                    const SizedBox(height: AppSpacing.md),
+                    SizedBox(
+                      height: workspaceHeight,
+                      child: AsyncStateView(
+                        status: vm.state.status,
+                        errorMessage: vm.state.errorMessage,
+                        onRetry: () => StoreProvider.of<AppState>(
+                          context,
+                        ).dispatch(const LoadModerationDashboardRequestedAction()),
+                        isEmpty:
+                            vm.state.groups.isEmpty &&
+                            vm.state.posts.isEmpty &&
+                            vm.state.comments.isEmpty &&
+                            vm.state.reports.isEmpty,
+                        emptyTitle: 'No moderation data yet',
+                        emptySubtitle:
+                            'Connect the Laravel moderation endpoints or wait for new reports to arrive.',
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 260),
+                          layoutBuilder: (currentChild, previousChildren) {
+                            return Stack(
+                              fit: StackFit.expand,
+                              children: <Widget>[
+                                ...previousChildren,
+                                if (currentChild != null) currentChild,
+                              ],
+                            );
+                          },
+                          child: KeyedSubtree(
+                            key: ValueKey(vm.state.activeTab),
+                            child: SizedBox.expand(
+                              child: _screenFor(vm.state.activeTab),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
+            );
+          },
         );
       },
     );

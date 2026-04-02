@@ -68,24 +68,73 @@ class NotificationsRepository {
     }
   }
 
-  Future<void> broadcast({
+  Future<AdminNotification> broadcast({
     required String title,
     required String body,
     required AdminNotificationCategory category,
+    required NotificationAudienceType audienceType,
+    required NotificationTone tone,
+    String? audienceLabel,
+    DateTime? scheduledAt,
     String? refType,
     String? refId,
   }) async {
-    await _apiClient.post<void>(
-      '/admin/notifications/broadcast',
-      data: {
-        'title': title,
-        'body': body,
-        'type': category.backendType,
-        if (refType != null && refType.isNotEmpty) 'ref_type': refType,
-        if (refId != null && refId.isNotEmpty) 'ref_id': refId,
-      },
-      decoder: (_) {},
+    final payload = {
+      'title': title,
+      'body': body,
+      'type': category.backendType,
+      'audience_type': audienceType.backendValue,
+      'tone': tone.backendValue,
+      if (audienceLabel != null && audienceLabel.isNotEmpty)
+        'audience': audienceLabel,
+      if (scheduledAt != null) 'scheduled_at': scheduledAt.toIso8601String(),
+      if (refType != null && refType.isNotEmpty) 'ref_type': refType,
+      if (refId != null && refId.isNotEmpty) 'ref_id': refId,
+    };
+
+    final fallbackNotification = AdminNotification(
+      id: 'LOCAL-${DateTime.now().microsecondsSinceEpoch}',
+      title: title,
+      body: body,
+      category: category,
+      createdAt: DateTime.now(),
+      isRead: false,
+      rawType: category.backendType,
+      refType: refType,
+      refId: refId,
+      source: 'local-fallback',
+      audienceLabel: audienceLabel,
+      audienceType: audienceType,
+      tone: tone,
+      scheduledAt: scheduledAt,
     );
+
+    try {
+      return await _apiClient.post<AdminNotification>(
+        '/admin/notifications/broadcast',
+        data: payload,
+        decoder: (json) {
+          if (json is JsonMap && json['data'] is JsonMap) {
+            return AdminNotification.fromJson(json['data'] as JsonMap);
+          }
+          if (json is JsonMap) {
+            return AdminNotification.fromJson({
+              ...json,
+              ...payload,
+              'source': 'api',
+            });
+          }
+          return fallbackNotification.copyWith(source: 'api');
+        },
+      );
+    } on AppException catch (error) {
+      if (error.statusCode == 401 || error.statusCode == 403) {
+        rethrow;
+      }
+      return fallbackNotification;
+    } catch (_) {
+      return fallbackNotification;
+    }
   }
 
   void cacheIncoming(AdminNotification notification) {

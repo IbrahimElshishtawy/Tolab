@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../core/colors/app_colors.dart';
 import '../../../core/routing/route_paths.dart';
@@ -27,6 +28,7 @@ class NotificationsScreen extends StatefulWidget {
 class _NotificationsScreenState extends State<NotificationsScreen> {
   late final TextEditingController _broadcastTitleController;
   late final TextEditingController _broadcastBodyController;
+  late final TextEditingController _broadcastAudienceController;
   late final TextEditingController _broadcastRefTypeController;
   late final TextEditingController _broadcastRefIdController;
   late final TextEditingController _historySearchController;
@@ -39,12 +41,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   String? _selectedNotificationId;
   AdminNotificationCategory _broadcastCategory =
       AdminNotificationCategory.announcements;
+  NotificationAudienceType _broadcastAudienceType =
+      NotificationAudienceType.general;
+  NotificationTone _broadcastTone = NotificationTone.message;
+  NotificationDeliveryMode _broadcastDeliveryMode =
+      NotificationDeliveryMode.instant;
+  DateTime? _scheduledAt;
 
   @override
   void initState() {
     super.initState();
     _broadcastTitleController = TextEditingController();
     _broadcastBodyController = TextEditingController();
+    _broadcastAudienceController = TextEditingController();
     _broadcastRefTypeController = TextEditingController();
     _broadcastRefIdController = TextEditingController();
     _historySearchController = TextEditingController();
@@ -54,6 +63,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   void dispose() {
     _broadcastTitleController.dispose();
     _broadcastBodyController.dispose();
+    _broadcastAudienceController.dispose();
     _broadcastRefTypeController.dispose();
     _broadcastRefIdController.dispose();
     _historySearchController.dispose();
@@ -77,82 +87,95 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         return DefaultTabController(
           initialIndex: widget.initialTabIndex,
           length: 2,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              PageHeader(
-                title: 'Notification Center',
-                subtitle:
-                    'Realtime operational updates, delivery history, and quick actions for academic, system, and message events.',
-                breadcrumbs: const ['Admin', 'Notifications'],
-                actions: [
-                  PremiumButton(
-                    label: 'Refresh',
-                    icon: Icons.refresh_rounded,
-                    onPressed: () => StoreProvider.of<AppState>(
-                      context,
-                      listen: false,
-                    ).dispatch(const LoadNotificationsAction()),
-                  ),
-                  PremiumButton(
-                    label: 'Mark all read',
-                    icon: Icons.done_all_rounded,
-                    onPressed: state.unreadCount == 0
-                        ? null
-                        : () =>
-                              StoreProvider.of<AppState>(
-                                context,
-                                listen: false,
-                              ).dispatch(
-                                const MarkAllNotificationsReadRequestedAction(),
-                              ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              _NotificationOverviewStrip(state: state),
-              const SizedBox(height: AppSpacing.lg),
-              AppCard(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md,
-                  vertical: AppSpacing.sm,
-                ),
-                child: const TabBar(
-                  isScrollable: true,
-                  tabAlignment: TabAlignment.start,
-                  tabs: [
-                    Tab(text: 'Center'),
-                    Tab(text: 'History'),
-                  ],
-                ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Expanded(
-                child: AsyncStateView(
-                  status: state.status,
-                  errorMessage: state.errorMessage,
-                  onRetry: () => StoreProvider.of<AppState>(
-                    context,
-                    listen: false,
-                  ).dispatch(const LoadNotificationsAction()),
-                  child: TabBarView(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final workspaceHeight =
+                  (constraints.maxHeight * 0.64).clamp(420.0, 860.0).toDouble();
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildCenterTab(
-                        context,
-                        state: state,
-                        items: centerItems,
-                        selected: resolvedSelected,
+                      PageHeader(
+                        title: 'Notification Center',
+                        subtitle:
+                            'Realtime operational updates, delivery history, and quick actions for academic, system, and message events.',
+                        breadcrumbs: const ['Admin', 'Notifications'],
+                        actions: [
+                          PremiumButton(
+                            label: 'Refresh',
+                            icon: Icons.refresh_rounded,
+                            onPressed: () => StoreProvider.of<AppState>(
+                              context,
+                              listen: false,
+                            ).dispatch(const LoadNotificationsAction()),
+                          ),
+                          PremiumButton(
+                            label: 'Mark all read',
+                            icon: Icons.done_all_rounded,
+                            onPressed: state.unreadCount == 0
+                                ? null
+                                : () => StoreProvider.of<AppState>(
+                                      context,
+                                      listen: false,
+                                    ).dispatch(
+                                      const MarkAllNotificationsReadRequestedAction(),
+                                    ),
+                          ),
+                        ],
                       ),
-                      _buildHistoryTab(
-                        context,
-                        state: state,
-                        items: historyItems,
+                      const SizedBox(height: AppSpacing.md),
+                      _NotificationOverviewStrip(state: state),
+                      const SizedBox(height: AppSpacing.md),
+                      AppCard(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.md,
+                          vertical: AppSpacing.sm,
+                        ),
+                        child: const TabBar(
+                          isScrollable: true,
+                          tabAlignment: TabAlignment.start,
+                          tabs: [
+                            Tab(text: 'Center'),
+                            Tab(text: 'History'),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      SizedBox(
+                        height: workspaceHeight,
+                        child: AsyncStateView(
+                          status: state.status,
+                          errorMessage: state.errorMessage,
+                          onRetry: () => StoreProvider.of<AppState>(
+                            context,
+                            listen: false,
+                          ).dispatch(const LoadNotificationsAction()),
+                          child: TabBarView(
+                            children: [
+                              _buildCenterTab(
+                                context,
+                                state: state,
+                                items: centerItems,
+                                selected: resolvedSelected,
+                              ),
+                              _buildHistoryTab(
+                                context,
+                                state: state,
+                                items: historyItems,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ),
-            ],
+              );
+            },
           ),
         );
       },
@@ -257,14 +280,37 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               _BroadcastComposerCard(
                 titleController: _broadcastTitleController,
                 bodyController: _broadcastBodyController,
+                audienceController: _broadcastAudienceController,
                 refTypeController: _broadcastRefTypeController,
                 refIdController: _broadcastRefIdController,
                 selectedCategory: _broadcastCategory,
+                selectedAudienceType: _broadcastAudienceType,
+                selectedTone: _broadcastTone,
+                deliveryMode: _broadcastDeliveryMode,
+                scheduledAt: _scheduledAt,
                 isSubmitting: state.isBroadcasting,
                 onCategoryChanged: (value) {
                   if (value == null) return;
                   setState(() => _broadcastCategory = value);
                 },
+                onAudienceTypeChanged: (value) {
+                  if (value == null) return;
+                  setState(() => _broadcastAudienceType = value);
+                },
+                onToneChanged: (value) {
+                  if (value == null) return;
+                  setState(() => _broadcastTone = value);
+                },
+                onDeliveryModeChanged: (value) {
+                  if (value == null) return;
+                  setState(() {
+                    _broadcastDeliveryMode = value;
+                    if (value == NotificationDeliveryMode.instant) {
+                      _scheduledAt = null;
+                    }
+                  });
+                },
+                onScheduleTap: () => _pickSchedule(context),
                 onSubmit: () => _submitBroadcast(context),
               ),
             ],
@@ -301,46 +347,49 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Column(
       children: [
         AppCard(
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: TextField(
-                      controller: _historySearchController,
-                      onChanged: (_) => setState(() {}),
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.search_rounded),
-                        hintText: 'Search title, body, category, or audience',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child:
-                        DropdownButtonFormField<NotificationHistoryDateFilter>(
-                          key: ValueKey(_historyDateFilter),
-                          initialValue: _historyDateFilter,
-                          items: [
-                            for (final filter
-                                in NotificationHistoryDateFilter.values)
-                              DropdownMenuItem(
-                                value: filter,
-                                child: Text(filter.label),
-                              ),
-                          ],
-                          onChanged: (value) {
-                            if (value == null) return;
-                            setState(() => _historyDateFilter = value);
-                          },
-                          decoration: const InputDecoration(
-                            labelText: 'Date range',
-                          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 720;
+              final searchField = TextField(
+                controller: _historySearchController,
+                onChanged: (_) => setState(() {}),
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.search_rounded),
+                  hintText: 'Search title, body, category, or audience',
+                ),
+              );
+              final dateField =
+                  DropdownButtonFormField<NotificationHistoryDateFilter>(
+                    key: ValueKey(_historyDateFilter),
+                    initialValue: _historyDateFilter,
+                    items: [
+                      for (final filter in NotificationHistoryDateFilter.values)
+                        DropdownMenuItem(
+                          value: filter,
+                          child: Text(filter.label),
                         ),
-                  ),
-                ],
-              ),
+                    ],
+                    onChanged: (value) {
+                      if (value == null) return;
+                      setState(() => _historyDateFilter = value);
+                    },
+                    decoration: const InputDecoration(labelText: 'Date range'),
+                  );
+
+              return Column(
+                children: [
+                  if (compact) ...[
+                    searchField,
+                    const SizedBox(height: AppSpacing.md),
+                    dateField,
+                  ] else
+                    Row(
+                      children: [
+                        Expanded(flex: 2, child: searchField),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(child: dateField),
+                      ],
+                    ),
               const SizedBox(height: AppSpacing.md),
               Wrap(
                 spacing: AppSpacing.sm,
@@ -366,7 +415,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ),
                 ],
               ),
-            ],
+                ],
+              );
+            },
           ),
         ),
         const SizedBox(height: AppSpacing.md),
@@ -496,25 +547,53 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       );
       return;
     }
+    if (_broadcastDeliveryMode == NotificationDeliveryMode.scheduled &&
+        _scheduledAt == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Choose a schedule date and time first.')),
+      );
+      return;
+    }
 
     StoreProvider.of<AppState>(context, listen: false).dispatch(
       NotificationBroadcastRequestedAction(
         title: title,
         body: body,
         category: _broadcastCategory,
+        audienceType: _broadcastAudienceType,
+        tone: _broadcastTone,
+        audienceLabel: _broadcastAudienceController.text.trim().isEmpty
+            ? null
+            : _broadcastAudienceController.text.trim(),
+        scheduledAt: _broadcastDeliveryMode == NotificationDeliveryMode.scheduled
+            ? _scheduledAt
+            : null,
         refType: _broadcastRefTypeController.text.trim().isEmpty
             ? null
             : _broadcastRefTypeController.text.trim(),
         refId: _broadcastRefIdController.text.trim().isEmpty
             ? null
             : _broadcastRefIdController.text.trim(),
-        onSuccess: () {
+        onSuccess: (notification) {
           _broadcastTitleController.clear();
           _broadcastBodyController.clear();
+          _broadcastAudienceController.clear();
           _broadcastRefTypeController.clear();
           _broadcastRefIdController.clear();
+          setState(() {
+            _broadcastDeliveryMode = NotificationDeliveryMode.instant;
+            _scheduledAt = null;
+            _broadcastTone = NotificationTone.message;
+            _broadcastAudienceType = NotificationAudienceType.general;
+          });
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Broadcast queued successfully.')),
+            SnackBar(
+              content: Text(
+                notification.source == 'local-fallback'
+                    ? 'Saved locally until the backend notification API is available.'
+                    : 'Broadcast queued successfully.',
+              ),
+            ),
           );
         },
         onError: (message) {
@@ -524,6 +603,33 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         },
       ),
     );
+  }
+
+  Future<void> _pickSchedule(BuildContext context) async {
+    final now = DateTime.now();
+    final initial = _scheduledAt ?? now.add(const Duration(hours: 1));
+    final date = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(now.year, now.month, now.day),
+      lastDate: now.add(const Duration(days: 365)),
+    );
+    if (!mounted || date == null) return;
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(initial),
+    );
+    if (!mounted || time == null) return;
+    setState(() {
+      _scheduledAt = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        time.hour,
+        time.minute,
+      );
+      _broadcastDeliveryMode = NotificationDeliveryMode.scheduled;
+    });
   }
 
   Future<void> _handleQuickAction(
