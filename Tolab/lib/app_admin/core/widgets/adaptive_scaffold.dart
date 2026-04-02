@@ -32,6 +32,7 @@ class AdaptiveScaffold extends StatefulWidget {
     required this.userRole,
     required this.unreadNotifications,
     required this.notificationStatus,
+    required this.notificationRoute,
     required this.onToggleTheme,
     required this.onLogout,
   });
@@ -43,6 +44,7 @@ class AdaptiveScaffold extends StatefulWidget {
   final String userRole;
   final int unreadNotifications;
   final String notificationStatus;
+  final String notificationRoute;
   final VoidCallback onToggleTheme;
   final VoidCallback onLogout;
 
@@ -632,11 +634,10 @@ class _TopBar extends StatelessWidget {
                             onPressed: onToggleTheme,
                             icon: const Icon(Icons.contrast_rounded),
                           ),
-                          _NotificationBellButton(
-                            count: unreadNotifications,
-                            onPressed: () =>
-                                context.go(RoutePaths.notifications),
-                          ),
+                            _NotificationBellButton(
+                              count: unreadNotifications,
+                              onPressed: () => context.go(notificationRoute),
+                            ),
                           PopupMenuButton<String>(
                             onSelected: (value) {
                               if (value == 'logout') onLogout();
@@ -702,7 +703,7 @@ class _TopBar extends StatelessWidget {
                     const SizedBox(width: AppSpacing.xs),
                     _NotificationBellButton(
                       count: unreadNotifications,
-                      onPressed: () => context.go(RoutePaths.notifications),
+                      onPressed: () => context.go(notificationRoute),
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     PopupMenuButton<String>(

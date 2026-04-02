@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:go_router/go_router.dart';
 import 'package:redux/redux.dart';
 
+import '../../../../app/core/app_scope.dart';
 import '../../../core/models/session_user.dart';
 import '../../../core/navigation/app_routes.dart';
 import '../../../core/navigation/navigation_items.dart';
@@ -10,7 +10,6 @@ import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_shell.dart';
 import '../../../state/app_state.dart';
-import '../../auth/state/auth_actions.dart';
 import '../../auth/state/session_selectors.dart';
 import '../state/settings_actions.dart';
 
@@ -110,10 +109,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               AppButton(
                 label: 'Logout',
                 isSecondary: true,
-                onPressed: () {
-                  vm.logout();
-                  context.go(AppRoutes.login);
-                },
+                onPressed: AppScope.auth(context).logout,
               ),
             ],
           ),
@@ -127,18 +123,15 @@ class _SettingsVm {
   const _SettingsVm({
     required this.user,
     required this.save,
-    required this.logout,
   });
 
   final SessionUser? user;
   final void Function(Map<String, dynamic>) save;
-  final VoidCallback logout;
 
   factory _SettingsVm.fromStore(Store<DoctorAssistantAppState> store) {
     return _SettingsVm(
       user: getCurrentUser(store.state),
       save: (payload) => store.dispatch(UpdateSettingsAction(payload)),
-      logout: () => store.dispatch(LogoutRequestedAction()),
     );
   }
 }

@@ -170,6 +170,7 @@ class AppRouter {
           userRole: vm.userRole,
           unreadNotifications: vm.unreadNotifications,
           notificationStatus: vm.notificationStatus,
+          notificationRoute: RoutePaths.notifications,
           onToggleTheme: () => StoreProvider.of<AppState>(
             context,
           ).dispatch(ToggleThemeModeAction()),

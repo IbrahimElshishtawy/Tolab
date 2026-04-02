@@ -3,16 +3,16 @@ class AppRoutes {
 
   static const login = '/login';
   static const forgotPassword = '/forgot-password';
-  static const dashboard = '/home';
-  static const subjects = '/subjects';
-  static const lectures = '/lectures';
-  static const sectionContent = '/sections';
-  static const quizzes = '/quizzes';
-  static const tasks = '/tasks';
-  static const schedule = '/schedule';
-  static const notifications = '/notifications';
-  static const uploads = '/uploads';
-  static const staff = '/staff';
-  static const admin = '/admin';
-  static const settings = '/settings';
+  static const dashboard = '/workspace/home';
+  static const subjects = '/workspace/subjects';
+  static const lectures = '/workspace/lectures';
+  static const sectionContent = '/workspace/sections';
+  static const quizzes = '/workspace/quizzes';
+  static const tasks = '/workspace/tasks';
+  static const schedule = '/workspace/schedule';
+  static const notifications = '/workspace/notifications';
+  static const uploads = '/workspace/uploads';
+  static const staff = '/workspace/staff';
+  static const admin = '/workspace/admin';
+  static const settings = '/workspace/settings';
 }

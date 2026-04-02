@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/core/app_scope.dart';
 import '../design/app_colors.dart';
 import '../design/app_spacing.dart';
 import '../models/session_user.dart';
@@ -29,6 +30,8 @@ class AppShell extends StatelessWidget {
     final width = MediaQuery.sizeOf(context).width;
     final isDesktop = width >= AppBreakpoints.desktop;
     final selectedIndex = items.indexWhere((item) => activePath == item.path);
+    final themeController = AppScope.theme(context);
+    final authController = AppScope.auth(context);
 
     final header = Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -54,7 +57,23 @@ class AppShell extends StatelessWidget {
               ],
             ),
           ),
-          if (trailing != null) trailing!,
+          Wrap(
+            spacing: AppSpacing.sm,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              if (trailing != null) trailing!,
+              IconButton(
+                tooltip: 'Toggle theme',
+                onPressed: themeController.toggle,
+                icon: const Icon(Icons.contrast_rounded),
+              ),
+              TextButton.icon(
+                onPressed: authController.logout,
+                icon: const Icon(Icons.logout_rounded),
+                label: const Text('Logout'),
+              ),
+            ],
+          ),
         ],
       ),
     );
