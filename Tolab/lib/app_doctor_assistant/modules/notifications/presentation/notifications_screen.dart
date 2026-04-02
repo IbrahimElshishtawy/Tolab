@@ -1,83 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:redux/redux.dart';
 
-import '../../../core/models/notification_models.dart';
+import '../../../../app_admin/core/spacing/app_spacing.dart';
 import '../../../core/models/session_user.dart';
 import '../../../core/navigation/app_routes.dart';
-import '../../../core/navigation/navigation_items.dart';
-import '../../../core/widgets/app_badge.dart';
-import '../../../core/widgets/app_card.dart';
-import '../../../core/widgets/app_shell.dart';
-import '../../../core/widgets/state_views.dart';
+import '../../../mock/doctor_assistant_mock_repository.dart';
+import '../../../presentation/widgets/doctor_assistant_shell.dart';
+import '../../../presentation/widgets/doctor_assistant_widgets.dart';
 import '../../../state/app_state.dart';
 import '../../auth/state/session_selectors.dart';
-import '../state/notifications_actions.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<DoctorAssistantAppState, _NotificationsVm>(
-      converter: (store) => _NotificationsVm.fromStore(store),
-      onInit: (store) => store.dispatch(LoadNotificationsAction()),
-      builder: (context, vm) {
-        final user = vm.user;
+    return StoreConnector<DoctorAssistantAppState, SessionUser?>(
+      converter: (store) => getCurrentUser(store.state),
+      builder: (context, user) {
         if (user == null) return const SizedBox.shrink();
+        final notifications =
+            DoctorAssistantMockRepository.instance.notificationsFor(user);
 
-        return AppShell(
+        return DoctorAssistantShell(
           user: user,
-          title: 'Notifications',
-          activePath: AppRoutes.notifications,
-          items: buildNavigationItems(user),
-          body: vm.items == null
-              ? const LoadingStateView()
-              : ListView(
-                  children: vm.items!
-                      .map(
-                        (NotificationModel item) => Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(22),
-                            onTap: () => vm.markRead(item.id),
-                            child: AppCard(
-                              child: ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                title: Text(item.title),
-                                subtitle: Text(item.body),
-                                trailing: AppBadge(
-                                  label: item.isRead ? 'Read' : 'Unread',
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                ),
+          activeRoute: AppRoutes.notifications,
+          child: DoctorAssistantPageScaffold(
+            title: 'Notifications',
+            subtitle:
+                'List cards keep the same admin spacing, badge treatment, and interaction feel.',
+            breadcrumbs: const ['Workspace', 'Notifications'],
+            child: Column(
+              children: [
+                for (final item in notifications) ...[
+                  DoctorAssistantItemCard(
+                    icon: item.icon,
+                    title: item.title,
+                    subtitle: item.body,
+                    meta: '${item.courseLabel} • ${item.timeLabel}',
+                    statusLabel: item.isRead ? 'Completed' : item.statusLabel,
+                  ),
+                  if (item != notifications.last)
+                    const SizedBox(height: AppSpacing.md),
+                ],
+              ],
+            ),
+          ),
         );
       },
-    );
-  }
-}
-
-class _NotificationsVm {
-  const _NotificationsVm({
-    required this.user,
-    required this.items,
-    required this.markRead,
-  });
-
-  final SessionUser? user;
-  final List<NotificationModel>? items;
-  final void Function(int id) markRead;
-
-  factory _NotificationsVm.fromStore(Store<DoctorAssistantAppState> store) {
-    return _NotificationsVm(
-      user: getCurrentUser(store.state),
-      items: store.state.notificationsState.data,
-      markRead: (id) => store.dispatch(MarkNotificationReadAction(id)),
     );
   }
 }

@@ -120,12 +120,14 @@ class DoctorAssistantPanel extends StatelessWidget {
     required this.subtitle,
     required this.child,
     this.trailing,
+    this.expandChild = false,
   });
 
   final String title;
   final String subtitle;
   final Widget child;
   final Widget? trailing;
+  final bool expandChild;
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +158,7 @@ class DoctorAssistantPanel extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          child,
+          if (expandChild) Expanded(child: child) else child,
         ],
       ),
     );

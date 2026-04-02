@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:redux/redux.dart';
 
-import '../../../../app/core/app_scope.dart';
+import '../../../../app_admin/core/spacing/app_spacing.dart';
+import '../../../../app_admin/shared/widgets/premium_button.dart';
 import '../../../core/models/session_user.dart';
 import '../../../core/navigation/app_routes.dart';
-import '../../../core/navigation/navigation_items.dart';
-import '../../../core/widgets/app_button.dart';
-import '../../../core/widgets/app_card.dart';
-import '../../../core/widgets/app_shell.dart';
+import '../../../presentation/widgets/doctor_assistant_shell.dart';
+import '../../../presentation/widgets/doctor_assistant_widgets.dart';
 import '../../../state/app_state.dart';
 import '../../auth/state/session_selectors.dart';
-import '../state/settings_actions.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -21,119 +18,113 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  late final TextEditingController _languageController;
   bool _notificationsEnabled = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _languageController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _languageController.dispose();
-    super.dispose();
-  }
+  bool _compactMode = true;
+  String _language = 'English';
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<DoctorAssistantAppState, _SettingsVm>(
-      converter: (store) => _SettingsVm.fromStore(store),
-      onWillChange: (previous, current) {
-        if (current.user != null) {
-          _languageController.text = current.user!.language;
-          _notificationsEnabled = current.user!.notificationEnabled;
-        }
-      },
-      builder: (context, vm) {
-        final user = vm.user;
+    return StoreConnector<DoctorAssistantAppState, SessionUser?>(
+      converter: (store) => getCurrentUser(store.state),
+      builder: (context, user) {
         if (user == null) return const SizedBox.shrink();
 
-        return AppShell(
+        return DoctorAssistantShell(
           user: user,
-          title: 'Settings',
-          activePath: AppRoutes.settings,
-          items: buildNavigationItems(user),
-          body: ListView(
-            children: [
-              AppCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Profile',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 12),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(user.fullName),
-                      subtitle: Text(user.universityEmail),
-                    ),
-                  ],
+          activeRoute: AppRoutes.settings,
+          child: DoctorAssistantPageScaffold(
+            title: 'Settings',
+            subtitle:
+                'Section cards, toggles, and action buttons stay aligned with the admin control surface.',
+            breadcrumbs: const ['Workspace', 'Settings'],
+            child: Column(
+              children: [
+                DoctorAssistantPanel(
+                  title: 'Preferences',
+                  subtitle: 'Tune local behavior without leaving the shared design system.',
+                  child: Column(
+                    children: [
+                      DropdownButtonFormField<String>(
+                        initialValue: _language,
+                        decoration: const InputDecoration(labelText: 'Language'),
+                        items: const [
+                          DropdownMenuItem(
+                            value: 'English',
+                            child: Text('English'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Arabic',
+                            child: Text('Arabic'),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          if (value == null) return;
+                          setState(() => _language = value);
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      SwitchListTile.adaptive(
+                        contentPadding: EdgeInsets.zero,
+                        value: _notificationsEnabled,
+                        title: const Text('Enable notifications'),
+                        subtitle: const Text(
+                          'Keep live reminders and delivery updates visible in the workspace.',
+                        ),
+                        onChanged: (value) =>
+                            setState(() => _notificationsEnabled = value),
+                      ),
+                      SwitchListTile.adaptive(
+                        contentPadding: EdgeInsets.zero,
+                        value: _compactMode,
+                        title: const Text('Compact layout density'),
+                        subtitle: const Text(
+                          'Match the tighter admin spacing and information density.',
+                        ),
+                        onChanged: (value) =>
+                            setState(() => _compactMode = value),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              AppCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Preferences',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: _languageController,
-                      decoration: const InputDecoration(labelText: 'Language'),
-                    ),
-                    const SizedBox(height: 12),
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      value: _notificationsEnabled,
-                      title: const Text('Enable notifications'),
-                      onChanged: (value) {
-                        setState(() => _notificationsEnabled = value);
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    AppButton(
-                      label: 'Save settings',
-                      onPressed: () {
-                        vm.save({
-                          'language': _languageController.text.trim(),
-                          'notification_enabled': _notificationsEnabled,
-                        });
-                      },
-                    ),
-                  ],
+                const SizedBox(height: AppSpacing.md),
+                DoctorAssistantPanel(
+                  title: 'Actions',
+                  subtitle: 'Primary and secondary actions reuse the admin button treatment.',
+                  child: Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.sm,
+                    children: [
+                      PremiumButton(
+                        label: 'Save settings',
+                        icon: Icons.check_rounded,
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Settings saved to local mock state.'),
+                            ),
+                          );
+                        },
+                      ),
+                      PremiumButton(
+                        label: 'Reset',
+                        icon: Icons.refresh_rounded,
+                        isSecondary: true,
+                        onPressed: () {
+                          setState(() {
+                            _notificationsEnabled = true;
+                            _compactMode = true;
+                            _language = 'English';
+                          });
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              AppButton(
-                label: 'Logout',
-                isSecondary: true,
-                onPressed: AppScope.auth(context).logout,
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
-    );
-  }
-}
-
-class _SettingsVm {
-  const _SettingsVm({required this.user, required this.save});
-
-  final SessionUser? user;
-  final void Function(Map<String, dynamic>) save;
-
-  factory _SettingsVm.fromStore(Store<DoctorAssistantAppState> store) {
-    return _SettingsVm(
-      user: getCurrentUser(store.state),
-      save: (payload) => store.dispatch(UpdateSettingsAction(payload)),
     );
   }
 }

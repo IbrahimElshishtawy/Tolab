@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:redux/redux.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../core/models/academic_models.dart';
+import '../../../../app_admin/core/spacing/app_spacing.dart';
+import '../../../../app_admin/core/widgets/app_card.dart';
+import '../../../../app_admin/shared/widgets/premium_button.dart';
 import '../../../core/models/session_user.dart';
 import '../../../core/navigation/app_routes.dart';
-import '../../../core/navigation/navigation_items.dart';
-import '../../../core/widgets/app_badge.dart';
-import '../../../core/widgets/app_card.dart';
-import '../../../core/widgets/app_shell.dart';
-import '../../../core/widgets/state_views.dart';
+import '../../../mock/doctor_assistant_mock_repository.dart';
+import '../../../presentation/widgets/doctor_assistant_shell.dart';
+import '../../../presentation/widgets/doctor_assistant_widgets.dart';
 import '../../../state/app_state.dart';
 import '../../auth/state/session_selectors.dart';
-import '../state/subjects_actions.dart';
 
 class SubjectDetailsScreen extends StatelessWidget {
   const SubjectDetailsScreen({
@@ -24,87 +23,153 @@ class SubjectDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<DoctorAssistantAppState, _SubjectDetailsVm>(
-      converter: (store) => _SubjectDetailsVm.fromStore(store),
-      onInit: (store) => store.dispatch(LoadSubjectDetailAction(subjectId)),
-      builder: (context, vm) {
-        final user = vm.user;
-        final subject = vm.subject;
+    return StoreConnector<DoctorAssistantAppState, SessionUser?>(
+      converter: (store) => getCurrentUser(store.state),
+      builder: (context, user) {
         if (user == null) return const SizedBox.shrink();
+        final subject =
+            DoctorAssistantMockRepository.instance.subjectById(subjectId);
 
-        return AppShell(
+        return DoctorAssistantShell(
           user: user,
-          title: subject?.name ?? 'Subject details',
-          activePath: AppRoutes.subjects,
-          items: buildNavigationItems(user),
-          body: subject == null
-              ? const LoadingStateView(lines: 2)
-              : ListView(
-                  children: [
-                    AppCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  subject.name,
-                                  style:
-                                      Theme.of(context).textTheme.headlineMedium,
-                                ),
-                              ),
-                              AppBadge(label: subject.code),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(subject.departmentName),
-                          const SizedBox(height: 8),
-                          Text(subject.description ?? subject.academicYearName),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    AppCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Sections',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 12),
-                          for (final section in subject.sections)
-                            ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              title: Text(section.name),
-                              subtitle: Text(section.assistantName ?? 'Pending'),
-                              trailing: AppBadge(label: section.code),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
+          activeRoute: AppRoutes.subjects,
+          child: DefaultTabController(
+            length: 4,
+            child: DoctorAssistantPageScaffold(
+              title: subject.name,
+              subtitle: subject.description,
+              breadcrumbs: ['Workspace', 'Subjects', subject.code],
+              actions: [
+                PremiumButton(
+                  label: 'Add Lecture',
+                  icon: Icons.co_present_rounded,
+                  onPressed: () => context.go(AppRoutes.lectures),
                 ),
+                PremiumButton(
+                  label: 'Add Task',
+                  icon: Icons.task_alt_rounded,
+                  isSecondary: true,
+                  onPressed: () => context.go(AppRoutes.tasks),
+                ),
+              ],
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DoctorAssistantSubjectCard(
+                    subject: subject,
+                    onTap: () {},
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  AppCard(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.sm,
+                    ),
+                    child: const TabBar(
+                      isScrollable: true,
+                      tabAlignment: TabAlignment.start,
+                      tabs: [
+                        Tab(text: 'Lectures'),
+                        Tab(text: 'Sections'),
+                        Tab(text: 'Quizzes'),
+                        Tab(text: 'Tasks'),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  SizedBox(
+                    height: 560,
+                    child: TabBarView(
+                      children: [
+                        _DetailList(
+                          cards: subject.lectures
+                              .map(
+                                (lecture) => DoctorAssistantItemCard(
+                                  icon: Icons.co_present_rounded,
+                                  title: lecture.title,
+                                  subtitle:
+                                      '${lecture.audience} • ${lecture.room}',
+                                  meta:
+                                      '${lecture.dayLabel} • ${lecture.timeLabel} • ${lecture.weekLabel}',
+                                  statusLabel: lecture.statusLabel,
+                                ),
+                              )
+                              .toList(),
+                        ),
+                        _DetailList(
+                          cards: subject.sections
+                              .map(
+                                (section) => DoctorAssistantItemCard(
+                                  icon: Icons.widgets_rounded,
+                                  title: section.title,
+                                  subtitle:
+                                      '${section.assistantName} • ${section.room}',
+                                  meta:
+                                      '${section.dayLabel} • ${section.timeLabel} • Group ${section.groupLabel}',
+                                  statusLabel: section.statusLabel,
+                                ),
+                              )
+                              .toList(),
+                        ),
+                        _DetailList(
+                          cards: subject.quizzes
+                              .map(
+                                (quiz) => DoctorAssistantItemCard(
+                                  icon: Icons.quiz_rounded,
+                                  title: quiz.title,
+                                  subtitle:
+                                      '${quiz.scopeLabel} • ${quiz.attemptsLabel}',
+                                  meta: quiz.windowLabel,
+                                  statusLabel: quiz.statusLabel,
+                                ),
+                              )
+                              .toList(),
+                        ),
+                        _DetailList(
+                          cards: subject.tasks
+                              .map(
+                                (task) => DoctorAssistantItemCard(
+                                  icon: Icons.assignment_rounded,
+                                  title: task.title,
+                                  subtitle:
+                                      '${task.scopeLabel} • ${task.progressLabel}',
+                                  meta: task.deadlineLabel,
+                                  statusLabel: task.statusLabel,
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         );
       },
     );
   }
 }
 
-class _SubjectDetailsVm {
-  const _SubjectDetailsVm({
-    required this.user,
-    required this.subject,
-  });
+class _DetailList extends StatelessWidget {
+  const _DetailList({required this.cards});
 
-  final SessionUser? user;
-  final SubjectModel? subject;
+  final List<Widget> cards;
 
-  factory _SubjectDetailsVm.fromStore(Store<DoctorAssistantAppState> store) {
-    return _SubjectDetailsVm(
-      user: getCurrentUser(store.state),
-      subject: store.state.subjectsState.detail.data,
+  @override
+  Widget build(BuildContext context) {
+    if (cards.isEmpty) {
+      return const DoctorAssistantEmptyState(
+        title: 'No records in this tab',
+        subtitle: 'Add a new entry from the action bar to populate this view.',
+      );
+    }
+
+    return ListView.separated(
+      itemCount: cards.length,
+      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
+      itemBuilder: (context, index) => cards[index],
     );
   }
 }

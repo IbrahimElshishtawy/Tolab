@@ -1,102 +1,139 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:redux/redux.dart';
 
+import '../../../../app_admin/core/spacing/app_spacing.dart';
+import '../../../../app_admin/shared/widgets/status_badge.dart';
 import '../../../core/models/session_user.dart';
-import '../../../core/models/staff_models.dart';
 import '../../../core/navigation/app_routes.dart';
-import '../../../core/navigation/navigation_items.dart';
-import '../../../core/widgets/app_badge.dart';
-import '../../../core/widgets/app_shell.dart';
-import '../../../core/widgets/responsive_data_table.dart';
-import '../../../core/widgets/state_views.dart';
+import '../../../mock/doctor_assistant_mock_repository.dart';
+import '../../../presentation/widgets/doctor_assistant_shell.dart';
+import '../../../presentation/widgets/doctor_assistant_widgets.dart';
 import '../../../state/app_state.dart';
-import '../../admin/state/admin_actions.dart';
 import '../../auth/state/session_selectors.dart';
-import '../state/staff_actions.dart';
 
 class StaffScreen extends StatelessWidget {
   const StaffScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<DoctorAssistantAppState, _StaffVm>(
-      converter: (store) => _StaffVm.fromStore(store),
-      onInit: (store) => store.dispatch(LoadStaffAction()),
-      builder: (context, vm) {
-        final user = vm.user;
+    return StoreConnector<DoctorAssistantAppState, SessionUser?>(
+      converter: (store) => getCurrentUser(store.state),
+      builder: (context, user) {
         if (user == null) return const SizedBox.shrink();
+        final profile = DoctorAssistantMockRepository.instance.profileFor(user);
 
-        return AppShell(
+        return DoctorAssistantShell(
           user: user,
-          title: 'Staff Management',
-          activePath: AppRoutes.staff,
-          items: buildNavigationItems(user),
-          body: vm.items == null
-              ? const LoadingStateView()
-              : ResponsiveDataTable(
-                  columns: const [
-                    DataColumn(label: Text('Name')),
-                    DataColumn(label: Text('Department')),
-                    DataColumn(label: Text('Assignments')),
-                    DataColumn(label: Text('Status')),
-                  ],
-                  rows: vm.items!
-                      .map(
-                        (StaffMemberModel item) => DataRow(
-                          cells: [
-                            DataCell(Text(item.user.fullName)),
-                            DataCell(Text(item.departmentName)),
-                            DataCell(Text(item.assignmentSummary)),
-                            DataCell(
-                              Switch(
-                                value: item.user.isActive,
-                                onChanged: (value) =>
-                                    vm.toggleActivation(item.user.id, value),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                      .toList(),
-                  mobileBuilder: () => vm.items!
-                      .map(
-                        (StaffMemberModel item) => Card(
-                          child: ListTile(
-                            title: Text(item.user.fullName),
-                            subtitle: Text(item.assignmentSummary),
-                            trailing: AppBadge(
-                              label: item.user.isActive ? 'Active' : 'Inactive',
-                            ),
-                          ),
-                        ),
-                      )
-                      .toList(),
+          activeRoute: AppRoutes.staff,
+          child: DoctorAssistantPageScaffold(
+            title: 'Profile',
+            subtitle:
+                'Profile and workload cards inherit the same section-card language used in admin settings.',
+            breadcrumbs: const ['Workspace', 'Profile'],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DoctorAssistantPanel(
+                  title: user.fullName,
+                  subtitle: profile.roleHeadline,
+                  trailing: StatusBadge(user.roleType.toUpperCase()),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        profile.roleSummary,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Wrap(
+                        spacing: AppSpacing.sm,
+                        runSpacing: AppSpacing.sm,
+                        children: [
+                          for (final focus in profile.focusAreas) StatusBadge(focus),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-        );
-      },
-    );
-  }
-}
+                const SizedBox(height: AppSpacing.md),
+                DoctorAssistantSummaryStrip(metrics: profile.primaryStats),
+                const SizedBox(height: AppSpacing.md),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isWide = constraints.maxWidth >= 960;
+                    final contact = DoctorAssistantPanel(
+                      title: 'Contact',
+                      subtitle: 'Current profile and coordination details.',
+                      child: Column(
+                        children: [
+                          DoctorAssistantItemCard(
+                            icon: Icons.mail_outline_rounded,
+                            title: user.universityEmail,
+                            subtitle: 'University email',
+                            meta: 'Primary communication channel',
+                            statusLabel: 'Active',
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          DoctorAssistantItemCard(
+                            icon: Icons.phone_outlined,
+                            title: profile.phoneLabel,
+                            subtitle: profile.locationLabel,
+                            meta: 'Office hours: ${profile.officeHours}',
+                            statusLabel: 'Scheduled',
+                          ),
+                        ],
+                      ),
+                    );
 
-class _StaffVm {
-  const _StaffVm({
-    required this.user,
-    required this.items,
-    required this.toggleActivation,
-  });
+                    final availability = DoctorAssistantPanel(
+                      title: 'Availability',
+                      subtitle: 'Aligned with the compact admin section-card layout.',
+                      child: Column(
+                        children: [
+                          DoctorAssistantItemCard(
+                            icon: Icons.schedule_rounded,
+                            title: profile.officeHours,
+                            subtitle: 'Office hours',
+                            meta: 'Weekly student-facing support window',
+                            statusLabel: 'Live',
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          DoctorAssistantItemCard(
+                            icon: Icons.apartment_rounded,
+                            title: profile.locationLabel,
+                            subtitle: 'Campus location',
+                            meta: user.isDoctor
+                                ? 'Faculty advising and review room'
+                                : 'Tutorial support and assistant operations',
+                            statusLabel: 'Scheduled',
+                          ),
+                        ],
+                      ),
+                    );
 
-  final SessionUser? user;
-  final List<StaffMemberModel>? items;
-  final void Function(int userId, bool isActive) toggleActivation;
+                    if (!isWide) {
+                      return Column(
+                        children: [
+                          contact,
+                          const SizedBox(height: AppSpacing.md),
+                          availability,
+                        ],
+                      );
+                    }
 
-  factory _StaffVm.fromStore(Store<DoctorAssistantAppState> store) {
-    return _StaffVm(
-      user: getCurrentUser(store.state),
-      items: store.state.staffState.data,
-      toggleActivation: (userId, isActive) {
-        store.dispatch(
-          ToggleStaffActivationAction(userId: userId, isActive: isActive),
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: contact),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(child: availability),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
         );
       },
     );

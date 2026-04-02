@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
+import '../../../../app_admin/core/spacing/app_spacing.dart';
 import '../../../core/models/session_user.dart';
+import '../../../core/navigation/app_routes.dart';
 import '../../../mock/doctor_assistant_mock_repository.dart';
 import '../../../presentation/widgets/doctor_assistant_shell.dart';
 import '../../../presentation/widgets/doctor_assistant_widgets.dart';
@@ -22,7 +24,7 @@ class DashboardScreen extends StatelessWidget {
 
         return DoctorAssistantShell(
           user: user,
-          activeRoute: '/workspace/home',
+          activeRoute: AppRoutes.dashboard,
           child: DoctorAssistantPageScaffold(
             title: user.isDoctor ? 'Doctor Home' : 'Assistant Home',
             subtitle:
@@ -36,7 +38,7 @@ class DashboardScreen extends StatelessWidget {
                   subtitle: snapshot.dateLabel,
                   child: DoctorAssistantSummaryStrip(metrics: snapshot.metrics),
                 ),
-                const SizedBox(height: 11.2),
+                const SizedBox(height: AppSpacing.md),
                 DoctorAssistantPanel(
                   title: 'Upcoming',
                   subtitle:
@@ -57,7 +59,7 @@ class DashboardScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 11.2),
+                const SizedBox(height: AppSpacing.md),
                 DoctorAssistantPanel(
                   title: 'Quick Actions',
                   subtitle:
