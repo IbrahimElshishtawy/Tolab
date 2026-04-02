@@ -66,7 +66,7 @@ class _StudentsManagementPageState extends State<StudentsManagementPage> {
 
         final store = StoreProvider.of<AppState>(context);
         final snapshot = vm.state.snapshot;
-        final isDesktop = MediaQuery.sizeOf(context).width >= 1180;
+        final isDesktop = MediaQuery.sizeOf(context).width >= 1320;
 
         if (!vm.canManage) {
           return Padding(
@@ -350,9 +350,9 @@ class _StudentsManagementPageState extends State<StudentsManagementPage> {
             runSpacing: AppSpacing.md,
             children: [
               SizedBox(
-                width: MediaQuery.sizeOf(context).width < 900
+                width: MediaQuery.sizeOf(context).width < 960
                     ? double.infinity
-                    : 360,
+                    : 300,
                 child: TextField(
                   controller: _searchController,
                   onChanged: (value) => store.dispatch(
@@ -511,9 +511,9 @@ class _StudentsManagementPageState extends State<StudentsManagementPage> {
             children: [
               for (final alert in snapshot.alerts.take(3))
                 SizedBox(
-                  width: MediaQuery.sizeOf(context).width < 900
+                  width: MediaQuery.sizeOf(context).width < 960
                       ? double.infinity
-                      : 280,
+                      : 240,
                   child: _AlertTile(alert: alert),
                 ),
             ],
@@ -1466,7 +1466,9 @@ class _GroupsSection extends StatelessWidget {
       children: [
         for (final group in snapshot.groups)
           SizedBox(
-            width: 360,
+            width: MediaQuery.sizeOf(context).width < 960
+                ? double.infinity
+                : 320,
             child: StudentSectionCard(
               title: group.name,
               subtitle:

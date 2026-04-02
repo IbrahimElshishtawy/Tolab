@@ -29,7 +29,7 @@ class FilterBar extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final isCompact = constraints.maxWidth < 920;
+          final isCompact = constraints.maxWidth < 1040;
           final searchField = TextField(
             onChanged: onSearchChanged,
             decoration: InputDecoration(

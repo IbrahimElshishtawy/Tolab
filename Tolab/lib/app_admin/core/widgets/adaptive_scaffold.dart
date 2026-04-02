@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../shared/widgets/status_badge.dart';
 import '../animations/app_motion.dart';
 import '../colors/app_colors.dart';
@@ -254,8 +255,15 @@ class _Sidebar extends StatelessWidget {
       backgroundColor: isDark ? AppColors.sidebarDark : AppColors.sidebarLight,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final showLiveStatus = !isCollapsed && constraints.maxHeight > 560;
-          final showSeasonCard = !isCollapsed && constraints.maxHeight > 720;
+          final showBrandText = !isCollapsed && constraints.maxWidth > 168;
+          final showLiveStatus =
+              !isCollapsed &&
+              constraints.maxHeight > 560 &&
+              constraints.maxWidth > 184;
+          final showSeasonCard =
+              !isCollapsed &&
+              constraints.maxHeight > 720 &&
+              constraints.maxWidth > 220;
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,7 +287,7 @@ class _Sidebar extends StatelessWidget {
                       size: 20,
                     ),
                   ),
-                  if (!isCollapsed) ...[
+                  if (showBrandText) ...[
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
                       child: Column(
@@ -314,17 +322,16 @@ class _Sidebar extends StatelessWidget {
                       AppConstants.mediumRadius,
                     ),
                   ),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const StatusBadge('Live', icon: Icons.bolt_rounded),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Text(
-                          notificationStatus,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.labelMedium,
-                        ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        notificationStatus,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelMedium,
                       ),
                     ],
                   ),
@@ -510,117 +517,205 @@ class _TopBar extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final showContextStrip = constraints.maxWidth > 760;
+          final showContextStrip = constraints.maxWidth > 860;
+          final compactTopBar = constraints.maxWidth < (isMobile ? 460 : 720);
+          final showStatusBadge = !isMobile && constraints.maxWidth > 960;
+          final showUserMeta = !isMobile && constraints.maxWidth > 780;
+
+          final profileChip = Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: AppSpacing.xs,
+            ),
+            decoration: BoxDecoration(
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircleAvatar(
+                  radius: 15,
+                  backgroundColor: AppColors.primary,
+                  child: Text(
+                    userName.characters.first.toUpperCase(),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelLarge?.copyWith(color: Colors.white),
+                  ),
+                ),
+                if (showUserMeta) ...[
+                  const SizedBox(width: AppSpacing.sm),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        userName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      Text(
+                        userRole.replaceAll('_', ' '),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          );
 
           return Column(
             children: [
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      if (isMobile) {
-                        Scaffold.maybeOf(context)?.openDrawer();
-                      } else {
-                        onMenuPressed();
-                      }
-                    },
-                    icon: Icon(
-                      isMobile ? Icons.menu_rounded : Icons.menu_open_rounded,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              if (compactTopBar)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        Text(
-                          title,
-                          style: Theme.of(context).textTheme.titleLarge,
+                        IconButton(
+                          onPressed: () {
+                            if (isMobile) {
+                              Scaffold.maybeOf(context)?.openDrawer();
+                            } else {
+                              onMenuPressed();
+                            }
+                          },
+                          icon: Icon(
+                            isMobile
+                                ? Icons.menu_rounded
+                                : Icons.menu_open_rounded,
+                          ),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitle,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodySmall,
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                title,
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                subtitle,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  if (!isMobile) ...[
-                    StatusBadge(
-                      notificationStatus,
-                      icon: Icons.radio_button_checked,
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                  ],
-                  IconButton(
-                    onPressed: onToggleTheme,
-                    icon: const Icon(Icons.contrast_rounded),
-                  ),
-                  const SizedBox(width: AppSpacing.xs),
-                  _NotificationBellButton(
-                    count: unreadNotifications,
-                    onPressed: () => context.go(RoutePaths.notifications),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  PopupMenuButton<String>(
-                    onSelected: (value) {
-                      if (value == 'logout') onLogout();
-                    },
-                    itemBuilder: (context) => const [
-                      PopupMenuItem(value: 'logout', child: Text('Logout')),
-                    ],
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm,
-                        vertical: AppSpacing.xs,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(
-                          AppConstants.mediumRadius,
-                        ),
-                      ),
-                      child: Row(
+                    const SizedBox(height: AppSpacing.sm),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Wrap(
+                        spacing: AppSpacing.xs,
+                        runSpacing: AppSpacing.xs,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        alignment: WrapAlignment.end,
                         children: [
-                          CircleAvatar(
-                            radius: 17,
-                            backgroundColor: AppColors.primary,
-                            child: Text(
-                              userName.characters.first.toUpperCase(),
-                              style: Theme.of(context).textTheme.labelLarge
-                                  ?.copyWith(color: Colors.white),
+                          if (showStatusBadge)
+                            StatusBadge(
+                              notificationStatus,
+                              icon: Icons.radio_button_checked,
                             ),
+                          IconButton(
+                            onPressed: onToggleTheme,
+                            icon: const Icon(Icons.contrast_rounded),
                           ),
-                          if (!isMobile) ...[
-                            const SizedBox(width: AppSpacing.sm),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  userName,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.labelLarge,
-                                ),
-                                Text(
-                                  userRole.replaceAll('_', ' '),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ],
-                            ),
-                          ],
+                          _NotificationBellButton(
+                            count: unreadNotifications,
+                            onPressed: () =>
+                                context.go(RoutePaths.notifications),
+                          ),
+                          PopupMenuButton<String>(
+                            onSelected: (value) {
+                              if (value == 'logout') onLogout();
+                            },
+                            itemBuilder: (context) => const [
+                              PopupMenuItem(
+                                value: 'logout',
+                                child: Text('Logout'),
+                              ),
+                            ],
+                            child: profileChip,
+                          ),
                         ],
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                )
+              else
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        if (isMobile) {
+                          Scaffold.maybeOf(context)?.openDrawer();
+                        } else {
+                          onMenuPressed();
+                        }
+                      },
+                      icon: Icon(
+                        isMobile ? Icons.menu_rounded : Icons.menu_open_rounded,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            subtitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (showStatusBadge) ...[
+                      StatusBadge(
+                        notificationStatus,
+                        icon: Icons.radio_button_checked,
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                    ],
+                    IconButton(
+                      onPressed: onToggleTheme,
+                      icon: const Icon(Icons.contrast_rounded),
+                    ),
+                    const SizedBox(width: AppSpacing.xs),
+                    _NotificationBellButton(
+                      count: unreadNotifications,
+                      onPressed: () => context.go(RoutePaths.notifications),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    PopupMenuButton<String>(
+                      onSelected: (value) {
+                        if (value == 'logout') onLogout();
+                      },
+                      itemBuilder: (context) => const [
+                        PopupMenuItem(value: 'logout', child: Text('Logout')),
+                      ],
+                      child: profileChip,
+                    ),
+                  ],
+                ),
               if (showContextStrip) ...[
                 const SizedBox(height: AppSpacing.md),
                 Row(

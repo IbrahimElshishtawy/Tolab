@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -6,9 +8,7 @@ import '../colors/app_colors.dart';
 class AppTypography {
   const AppTypography._();
 
-  static const double _compactScale = 0.9;
-
-  static double _scale(double value) => value * _compactScale;
+  static double _scale(double value) => math.max(8, value - 2).toDouble();
 
   static TextTheme textTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;

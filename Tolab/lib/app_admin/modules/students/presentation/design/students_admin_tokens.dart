@@ -45,9 +45,9 @@ class StudentsAdminSpacing {
   static const double pageGap = AppSpacing.xl;
   static const double sectionGap = AppSpacing.lg;
   static const double panelPadding = AppSpacing.lg;
-  static const double cardMinHeight = 272;
-  static const double detailPanelWidth = 430;
-  static const double analyticsMinWidth = 290;
+  static const double cardMinHeight = 218;
+  static const double detailPanelWidth = 344;
+  static const double analyticsMinWidth = 232;
 }
 
 class StudentsAdminDecorations {

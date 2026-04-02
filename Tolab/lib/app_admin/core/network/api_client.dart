@@ -165,6 +165,10 @@ class ApiClient {
     Future<Response<dynamic>> Function() request, {
     required T Function(dynamic json) decoder,
   }) async {
+    if (_requiresAuthentication(path) && !await _hasUsableSession()) {
+      throw AppException('Unauthenticated.', statusCode: 401);
+    }
+
     if (_isMissingRouteCoolingDown(path)) {
       throw AppException('Route not found.', statusCode: 404);
     }
@@ -198,6 +202,16 @@ class ApiClient {
       }
     }
     throw AppException('Unable to complete your request.');
+  }
+
+  Future<bool> _hasUsableSession() async {
+    final accessToken = await _secureStorage.readAccessToken();
+    if (_hasUsableAccessToken(accessToken)) {
+      return true;
+    }
+
+    final refreshToken = await _secureStorage.readRefreshToken();
+    return _hasUsableRefreshToken(refreshToken);
   }
 
   Future<bool> _refreshToken() async {
@@ -287,6 +301,20 @@ class ApiClient {
     }
 
     return false;
+  }
+
+  bool _requiresAuthentication(String path) {
+    final normalized = path.trim().toLowerCase();
+    if (normalized.isEmpty) return false;
+    if (normalized.startsWith('/auth/login') ||
+        normalized.startsWith('/auth/refresh') ||
+        normalized == '/departments') {
+      return false;
+    }
+
+    return normalized.startsWith('/admin/') ||
+        normalized.startsWith('/notifications') ||
+        normalized.startsWith('/me');
   }
 
   String _mapDioError(DioException error) {

@@ -97,7 +97,7 @@ class _SectionsScreenState extends State<SectionsScreen> {
                   ),
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      final showSidebarPreview = constraints.maxWidth >= 1480;
+                      final showSidebarPreview = constraints.maxWidth >= 1560;
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -114,7 +114,7 @@ class _SectionsScreenState extends State<SectionsScreen> {
                                 Expanded(child: _buildMainWorkspace(context)),
                                 const SizedBox(width: AppSpacing.xl),
                                 SizedBox(
-                                  width: 360,
+                                  width: 288,
                                   child: _buildDesktopSidebar(context),
                                 ),
                               ],
@@ -854,7 +854,7 @@ class _SectionsScreenState extends State<SectionsScreen> {
           children: [
             for (final target in transferTargets)
               SizedBox(
-                width: 260,
+                width: 220,
                 child: DragTarget<SectionStudentRecord>(
                   onAcceptWithDetails: (details) =>
                       _moveStudents({details.data.id}, target.id),

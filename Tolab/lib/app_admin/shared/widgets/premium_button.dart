@@ -38,7 +38,7 @@ class PremiumButton extends StatelessWidget {
         Size(0, AppConstants.denseInputHeight),
       ),
       padding: const WidgetStatePropertyAll(
-        EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        EdgeInsets.symmetric(horizontal: 11, vertical: 8),
       ),
       side: isSecondary
           ? WidgetStatePropertyAll(BorderSide(color: borderColor))

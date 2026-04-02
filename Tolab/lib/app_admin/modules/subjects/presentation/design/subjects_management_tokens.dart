@@ -56,8 +56,8 @@ class SubjectsManagementSpacing {
 
   static const double pageGap = AppSpacing.xl;
   static const double sectionGap = AppSpacing.lg;
-  static const double analyticsMinWidth = 270;
-  static const double detailsPanelWidth = 430;
+  static const double analyticsMinWidth = 216;
+  static const double detailsPanelWidth = 344;
   static const double tableMinWidth = 980;
 }
 

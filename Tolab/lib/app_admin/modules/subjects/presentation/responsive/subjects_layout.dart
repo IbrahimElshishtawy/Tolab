@@ -8,10 +8,10 @@ class SubjectsLayout {
   const SubjectsLayout._();
 
   static bool showDesktopTable(BuildContext context) =>
-      MediaQuery.sizeOf(context).width >= 980;
+      MediaQuery.sizeOf(context).width >= 1080;
 
   static bool showSidePanel(BuildContext context) =>
-      MediaQuery.sizeOf(context).width >= 1360;
+      MediaQuery.sizeOf(context).width >= 1460;
 
   static int analyticsColumns(BuildContext context) {
     final type = AppBreakpoints.resolve(context);

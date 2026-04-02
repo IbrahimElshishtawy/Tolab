@@ -67,15 +67,15 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
-      visualDensity: VisualDensity.compact,
+      visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       colorScheme: scheme,
       scaffoldBackgroundColor: isDark
           ? AppColors.backgroundDark
           : AppColors.backgroundLight,
       textTheme: textTheme,
-      iconTheme: IconThemeData(color: scheme.onSurface, size: 18),
-      primaryIconTheme: const IconThemeData(color: Colors.white, size: 18),
+      iconTheme: IconThemeData(color: scheme.onSurface, size: 16),
+      primaryIconTheme: const IconThemeData(color: Colors.white, size: 16),
       cardColor: surfaceColor,
       dividerColor: divider,
       canvasColor: elevatedSurface,
@@ -96,7 +96,7 @@ class AppTheme {
       appBarTheme: AppBarTheme(
         elevation: 0,
         scrolledUnderElevation: 0,
-        toolbarHeight: 64,
+        toolbarHeight: 56,
         backgroundColor: Colors.transparent,
         foregroundColor: isDark
             ? AppColors.textPrimaryDark
@@ -146,7 +146,7 @@ class AppTheme {
         suffixIconColor: isDark
             ? AppColors.textSecondaryDark
             : AppColors.textSecondaryLight,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         constraints: const BoxConstraints(
           minHeight: AppConstants.denseInputHeight,
         ),
@@ -158,7 +158,7 @@ class AppTheme {
         selectedColor: primaryColor.withValues(alpha: 0.16),
         secondarySelectedColor: primaryColor.withValues(alpha: 0.16),
         disabledColor: mutedSurface,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.smallRadius),
           side: BorderSide(color: divider),
@@ -172,7 +172,7 @@ class AppTheme {
             Size(0, AppConstants.denseInputHeight),
           ),
           padding: const WidgetStatePropertyAll(
-            EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
@@ -202,7 +202,7 @@ class AppTheme {
             Size(0, AppConstants.denseInputHeight),
           ),
           padding: const WidgetStatePropertyAll(
-            EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
@@ -226,7 +226,7 @@ class AppTheme {
             Size(0, AppConstants.denseInputHeight),
           ),
           padding: const WidgetStatePropertyAll(
-            EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           ),
           foregroundColor: WidgetStatePropertyAll(scheme.onSurface),
           textStyle: WidgetStatePropertyAll(textTheme.labelLarge),
@@ -239,7 +239,7 @@ class AppTheme {
       ),
       iconButtonTheme: IconButtonThemeData(
         style: ButtonStyle(
-          minimumSize: const WidgetStatePropertyAll(Size(32, 32)),
+          minimumSize: const WidgetStatePropertyAll(Size(28, 28)),
           padding: const WidgetStatePropertyAll(EdgeInsets.zero),
           backgroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.pressed)) {

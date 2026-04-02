@@ -63,7 +63,7 @@ class _RolesListScreenState extends State<RolesListScreen> {
           builder: (context, constraints) {
             final workspaceHeight =
                 (constraints.maxHeight * (isMobile ? 0.78 : 0.62))
-                    .clamp(420.0, 840.0)
+                    .clamp(400.0, 780.0)
                     .toDouble();
 
             return SingleChildScrollView(
@@ -431,7 +431,7 @@ class _RolesWorkspaceState extends State<_RolesWorkspace> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final stackContent =
-            widget.isMobile || !widget.isDesktop || constraints.maxWidth < 1180;
+            widget.isMobile || !widget.isDesktop || constraints.maxWidth < 1320;
         final content = stackContent
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,7 +446,7 @@ class _RolesWorkspaceState extends State<_RolesWorkspace> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(width: 360, child: rolesList),
+                    SizedBox(width: 320, child: rolesList),
                     const SizedBox(width: AppSpacing.lg),
                     Expanded(child: detail),
                   ],
@@ -633,7 +633,7 @@ class _OverviewMetricsStrip extends StatelessWidget {
       children: [
         for (final item in items)
           SizedBox(
-            width: 260,
+            width: 220,
             child: AppCard(
               interactive: true,
               padding: const EdgeInsets.all(AppSpacing.lg),
