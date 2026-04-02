@@ -89,8 +89,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           length: 2,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final workspaceHeight =
-                  (constraints.maxHeight * 0.64).clamp(420.0, 860.0).toDouble();
+              final workspaceHeight = (constraints.maxHeight * 0.64)
+                  .clamp(420.0, 860.0)
+                  .toDouble();
 
               return SingleChildScrollView(
                 padding: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -118,12 +119,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             icon: Icons.done_all_rounded,
                             onPressed: state.unreadCount == 0
                                 ? null
-                                : () => StoreProvider.of<AppState>(
-                                      context,
-                                      listen: false,
-                                    ).dispatch(
-                                      const MarkAllNotificationsReadRequestedAction(),
-                                    ),
+                                : () =>
+                                      StoreProvider.of<AppState>(
+                                        context,
+                                        listen: false,
+                                      ).dispatch(
+                                        const MarkAllNotificationsReadRequestedAction(),
+                                      ),
                           ),
                         ],
                       ),
@@ -390,31 +392,32 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         Expanded(child: dateField),
                       ],
                     ),
-              const SizedBox(height: AppSpacing.md),
-              Wrap(
-                spacing: AppSpacing.sm,
-                runSpacing: AppSpacing.sm,
-                children: [
-                  FilterChip(
-                    label: const Text('Unread only'),
-                    selected: _historyUnreadOnly,
-                    onSelected: (value) =>
-                        setState(() => _historyUnreadOnly = value),
+                  const SizedBox(height: AppSpacing.md),
+                  Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.sm,
+                    children: [
+                      FilterChip(
+                        label: const Text('Unread only'),
+                        selected: _historyUnreadOnly,
+                        onSelected: (value) =>
+                            setState(() => _historyUnreadOnly = value),
+                      ),
+                      FilterChip(
+                        label: const Text('All categories'),
+                        selected: _historyCategory == null,
+                        onSelected: (_) =>
+                            setState(() => _historyCategory = null),
+                      ),
+                      for (final category in AdminNotificationCategory.values)
+                        FilterChip(
+                          label: Text(category.label),
+                          selected: _historyCategory == category,
+                          onSelected: (_) =>
+                              setState(() => _historyCategory = category),
+                        ),
+                    ],
                   ),
-                  FilterChip(
-                    label: const Text('All categories'),
-                    selected: _historyCategory == null,
-                    onSelected: (_) => setState(() => _historyCategory = null),
-                  ),
-                  for (final category in AdminNotificationCategory.values)
-                    FilterChip(
-                      label: Text(category.label),
-                      selected: _historyCategory == category,
-                      onSelected: (_) =>
-                          setState(() => _historyCategory = category),
-                    ),
-                ],
-              ),
                 ],
               );
             },
@@ -571,7 +574,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         audienceLabel: _broadcastAudienceController.text.trim().isEmpty
             ? null
             : _broadcastAudienceController.text.trim(),
-        scheduledAt: _broadcastDeliveryMode == NotificationDeliveryMode.scheduled
+        scheduledAt:
+            _broadcastDeliveryMode == NotificationDeliveryMode.scheduled
             ? _scheduledAt
             : null,
         refType: _broadcastRefTypeController.text.trim().isEmpty
@@ -620,7 +624,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       firstDate: DateTime(now.year, now.month, now.day),
       lastDate: now.add(const Duration(days: 365)),
     );
-    if (!mounted || date == null) return;
+    if (!context.mounted || date == null) return;
     final time = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(initial),
@@ -1104,28 +1108,28 @@ class _BroadcastComposerCard extends StatelessWidget {
                     key: ValueKey(selectedAudienceType),
                     initialValue: selectedAudienceType,
                     items: [
-                      for (final audienceType in NotificationAudienceType.values)
+                      for (final audienceType
+                          in NotificationAudienceType.values)
                         DropdownMenuItem(
                           value: audienceType,
                           child: Text(audienceType.label),
                         ),
                     ],
                     onChanged: onAudienceTypeChanged,
-                    decoration: const InputDecoration(labelText: 'Target group'),
+                    decoration: const InputDecoration(
+                      labelText: 'Target group',
+                    ),
                   );
               final toneField = DropdownButtonFormField<NotificationTone>(
-                    key: ValueKey(selectedTone),
-                    initialValue: selectedTone,
-                    items: [
-                      for (final tone in NotificationTone.values)
-                        DropdownMenuItem(
-                          value: tone,
-                          child: Text(tone.label),
-                        ),
-                    ],
-                    onChanged: onToneChanged,
-                    decoration: const InputDecoration(labelText: 'Tone'),
-                  );
+                key: ValueKey(selectedTone),
+                initialValue: selectedTone,
+                items: [
+                  for (final tone in NotificationTone.values)
+                    DropdownMenuItem(value: tone, child: Text(tone.label)),
+                ],
+                onChanged: onToneChanged,
+                decoration: const InputDecoration(labelText: 'Tone'),
+              );
 
               if (compact) {
                 return Column(
@@ -1206,7 +1210,7 @@ class _BroadcastComposerCard extends StatelessWidget {
                     const SizedBox(height: AppSpacing.md),
                     refIdField,
                   ],
-                ),
+                );
               }
 
               return Row(
@@ -1228,10 +1232,7 @@ class _BroadcastComposerCard extends StatelessWidget {
                     initialValue: deliveryMode,
                     items: [
                       for (final mode in NotificationDeliveryMode.values)
-                        DropdownMenuItem(
-                          value: mode,
-                          child: Text(mode.label),
-                        ),
+                        DropdownMenuItem(value: mode, child: Text(mode.label)),
                     ],
                     onChanged: onDeliveryModeChanged,
                     decoration: const InputDecoration(labelText: 'Delivery'),

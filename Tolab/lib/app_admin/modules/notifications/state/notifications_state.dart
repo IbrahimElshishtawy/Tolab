@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:redux/redux.dart';
 
 import '../../../core/config/app_config.dart';

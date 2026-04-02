@@ -1,4 +1,3 @@
-import '../../../core/errors/app_exception.dart';
 import '../../../core/helpers/json_types.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/services/demo_data_service.dart';
