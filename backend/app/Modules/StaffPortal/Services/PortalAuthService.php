@@ -92,22 +92,28 @@ class PortalAuthService
     protected function candidateEmails(string $identifier): array
     {
         $normalized = Str::lower(trim($identifier));
-        $candidates = [$normalized];
+        $localPart = Str::before($normalized, '@');
+        $domain = Str::after($normalized, '@');
 
-        if (Str::endsWith($normalized, '@tolab.local')) {
-            $candidates[] = Str::replaceLast('@tolab.local', '@tolab.edu', $normalized);
+        $localParts = [$localPart];
+        if ($localPart === 'assistant') {
+            $localParts[] = 'ta';
+        } elseif ($localPart === 'ta') {
+            $localParts[] = 'assistant';
         }
 
-        if (Str::endsWith($normalized, '@tolab.edu')) {
-            $candidates[] = Str::replaceLast('@tolab.edu', '@tolab.local', $normalized);
+        $domains = [$domain];
+        if ($domain === 'tolab.local') {
+            $domains[] = 'tolab.edu';
+        } elseif ($domain === 'tolab.edu') {
+            $domains[] = 'tolab.local';
         }
 
-        if (Str::startsWith($normalized, 'assistant@')) {
-            $candidates[] = Str::replaceFirst('assistant@', 'ta@', $normalized);
-        }
-
-        if (Str::startsWith($normalized, 'ta@')) {
-            $candidates[] = Str::replaceFirst('ta@', 'assistant@', $normalized);
+        $candidates = [];
+        foreach ($localParts as $candidateLocalPart) {
+            foreach ($domains as $candidateDomain) {
+                $candidates[] = $candidateLocalPart.'@'.$candidateDomain;
+            }
         }
 
         return array_values(array_unique(array_filter($candidates)));

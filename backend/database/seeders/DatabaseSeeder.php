@@ -49,6 +49,7 @@ class DatabaseSeeder extends Seeder
                 'email' => 'assistant@tolab.edu',
                 'university_email' => 'assistant@tolab.edu',
                 'role_type' => 'assistant',
+                'password_hash' => Hash::make($sharedPassword),
             ]);
 
             $student = User::factory()->create([
