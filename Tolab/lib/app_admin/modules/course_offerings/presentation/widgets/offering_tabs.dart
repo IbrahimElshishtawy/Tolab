@@ -36,21 +36,24 @@ class OfferingTabs extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CupertinoSlidingSegmentedControl<CourseOfferingDetailsTab>(
-            groupValue: activeTab,
-            children: {
-              for (final tab in CourseOfferingDetailsTab.values)
-                tab: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md,
-                    vertical: AppSpacing.sm,
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: CupertinoSlidingSegmentedControl<CourseOfferingDetailsTab>(
+              groupValue: activeTab,
+              children: {
+                for (final tab in CourseOfferingDetailsTab.values)
+                  tab: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.sm,
+                    ),
+                    child: Text(tab.label),
                   ),
-                  child: Text(tab.label),
-                ),
-            },
-            onValueChanged: (value) {
-              if (value != null) onTabChanged(value);
-            },
+              },
+              onValueChanged: (value) {
+                if (value != null) onTabChanged(value);
+              },
+            ),
           ),
           const SizedBox(height: AppSpacing.xl),
           AnimatedSwitcher(
@@ -142,118 +145,132 @@ class _OverviewTab extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.lg),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: _Panel(
-                title: 'Basic info',
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _LineItem(label: 'Subject', value: offering.subjectName),
-                    _LineItem(label: 'Code', value: offering.code),
-                    _LineItem(
-                      label: 'Department',
-                      value: offering.departmentName,
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final wide = constraints.maxWidth >= 920;
+            final panelWidth = wide
+                ? (constraints.maxWidth - AppSpacing.md) / 2
+                : constraints.maxWidth;
+
+            return Wrap(
+              spacing: AppSpacing.md,
+              runSpacing: AppSpacing.md,
+              children: [
+                SizedBox(
+                  width: panelWidth,
+                  child: _Panel(
+                    title: 'Basic info',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _LineItem(
+                          label: 'Subject',
+                          value: offering.subjectName,
+                        ),
+                        _LineItem(label: 'Code', value: offering.code),
+                        _LineItem(
+                          label: 'Department',
+                          value: offering.departmentName,
+                        ),
+                        _LineItem(
+                          label: 'Section',
+                          value: offering.sectionName,
+                        ),
+                        _LineItem(
+                          label: 'Academic cycle',
+                          value:
+                              '${offering.semester} - ${offering.academicYear}',
+                        ),
+                        _LineItem(
+                          label: 'Duration',
+                          value:
+                              '${DateFormat('d MMM').format(offering.startDate)} - ${DateFormat('d MMM yyyy').format(offering.endDate)}',
+                        ),
+                      ],
                     ),
-                    _LineItem(label: 'Section', value: offering.sectionName),
-                    _LineItem(
-                      label: 'Academic cycle',
-                      value: '${offering.semester} - ${offering.academicYear}',
-                    ),
-                    _LineItem(
-                      label: 'Duration',
-                      value:
-                          '${DateFormat('d MMM').format(offering.startDate)} - ${DateFormat('d MMM yyyy').format(offering.endDate)}',
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            if (AppBreakpoints.isDesktop(context))
-              const SizedBox(width: AppSpacing.md),
-            if (AppBreakpoints.isDesktop(context))
-              Expanded(
-                child: _Panel(
-                  title: 'Capacity health',
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
+                SizedBox(
+                  width: panelWidth,
+                  child: _Panel(
+                    title: 'Capacity health',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Wrap(
+                          spacing: AppSpacing.sm,
+                          runSpacing: AppSpacing.sm,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(
                               '${offering.enrolledCount} students enrolled',
                               style: Theme.of(context).textTheme.titleSmall,
                             ),
-                          ),
-                          OfferingStatusBadge(status: offering.status),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                          AppConstants.pillRadius,
+                            OfferingStatusBadge(status: offering.status),
+                          ],
                         ),
-                        child: LinearProgressIndicator(
-                          minHeight: 10,
-                          value: offering.fillRate.clamp(0, 1),
-                          backgroundColor: AppColors.primary.withValues(
-                            alpha: 0.10,
+                        const SizedBox(height: AppSpacing.md),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            AppConstants.pillRadius,
                           ),
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            offering.fillRate >= 0.95
-                                ? AppColors.danger
-                                : offering.fillRate >= 0.75
-                                ? AppColors.warning
-                                : AppColors.secondary,
+                          child: LinearProgressIndicator(
+                            minHeight: 10,
+                            value: offering.fillRate.clamp(0, 1),
+                            backgroundColor: AppColors.primary.withValues(
+                              alpha: 0.10,
+                            ),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              offering.fillRate >= 0.95
+                                  ? AppColors.danger
+                                  : offering.fillRate >= 0.75
+                                  ? AppColors.warning
+                                  : AppColors.secondary,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      Text(
-                        '${(offering.fillRate * 100).round()}% filled - ${offering.seatsRemaining} seats remaining',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-          ],
-        ),
-        if (!AppBreakpoints.isDesktop(context)) ...[
-          const SizedBox(height: AppSpacing.md),
-          _Panel(
-            title: 'Capacity health',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                OfferingStatusBadge(status: offering.status),
-                const SizedBox(height: AppSpacing.md),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(AppConstants.pillRadius),
-                  child: LinearProgressIndicator(
-                    minHeight: 10,
-                    value: offering.fillRate.clamp(0, 1),
-                    backgroundColor: AppColors.primary.withValues(alpha: 0.10),
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      offering.fillRate >= 0.95
-                          ? AppColors.danger
-                          : offering.fillRate >= 0.75
-                          ? AppColors.warning
-                          : AppColors.secondary,
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          '${(offering.fillRate * 100).round()}% filled - ${offering.seatsRemaining} seats remaining',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  '${(offering.fillRate * 100).round()}% filled - ${offering.seatsRemaining} seats remaining',
+                SizedBox(
+                  width: panelWidth,
+                  child: _Panel(
+                    title: 'Academic delivery',
+                    child: Wrap(
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.sm,
+                      children: [
+                        _DeliveryChip(
+                          label: '${offering.schedule.length} schedule slots',
+                          color: AppColors.info,
+                        ),
+                        _DeliveryChip(
+                          label:
+                              '${offering.contentActions.length} content actions',
+                          color: AppColors.warning,
+                        ),
+                        _DeliveryChip(
+                          label: '${offering.assistants.length} assistants',
+                          color: AppColors.secondary,
+                        ),
+                        _DeliveryChip(
+                          label: '${offering.students.length} enrolled records',
+                          color: AppColors.primary,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ],
     );
   }
@@ -277,20 +294,41 @@ class _StudentsTab extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                '${students.length} enrolled students',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-            PremiumButton(
-              label: 'Add student',
-              icon: Icons.person_add_alt_rounded,
-              onPressed: onAddStudent,
-            ),
-          ],
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final compact = constraints.maxWidth < 560;
+            return compact
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${students.length} enrolled students',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      PremiumButton(
+                        label: 'Add student',
+                        icon: Icons.person_add_alt_rounded,
+                        onPressed: onAddStudent,
+                      ),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${students.length} enrolled students',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                      PremiumButton(
+                        label: 'Add student',
+                        icon: Icons.person_add_alt_rounded,
+                        onPressed: onAddStudent,
+                      ),
+                    ],
+                  );
+          },
         ),
         const SizedBox(height: AppSpacing.lg),
         if (isDesktop)
@@ -403,9 +441,10 @@ class _ScheduleTab extends StatelessWidget {
         for (final item in offering.schedule) ...[
           AppCard(
             padding: const EdgeInsets.all(AppSpacing.md),
-            child: Row(
-              children: [
-                Container(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final compact = constraints.maxWidth < 620;
+                final dayPill = Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.md,
                     vertical: AppSpacing.sm,
@@ -417,31 +456,49 @@ class _ScheduleTab extends StatelessWidget {
                     ),
                   ),
                   child: Text(item.dayLabel),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.title,
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${item.timeLabel} - ${item.location} - ${item.type}',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-                Text(
+                );
+                final details = Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.title,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${item.timeLabel} - ${item.location} - ${item.type}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                );
+                final status = Text(
                   item.status,
                   style: Theme.of(
                     context,
                   ).textTheme.labelMedium?.copyWith(color: AppColors.secondary),
-                ),
-              ],
+                );
+
+                return compact
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          dayPill,
+                          const SizedBox(height: AppSpacing.sm),
+                          details,
+                          const SizedBox(height: AppSpacing.xs),
+                          status,
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          dayPill,
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(child: details),
+                          const SizedBox(width: AppSpacing.sm),
+                          status,
+                        ],
+                      );
+              },
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -548,38 +605,47 @@ class _StaffCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      child: Row(
-        children: [
-          CircleAvatar(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 420;
+          final avatar = CircleAvatar(
             radius: 24,
             backgroundColor: member.role == 'Doctor'
                 ? AppColors.primarySoft
                 : AppColors.infoSoft,
             child: Text(member.name.characters.first),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  member.name,
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  member.email,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${member.role} - ${member.department}',
-                  style: Theme.of(context).textTheme.labelMedium,
-                ),
-              ],
-            ),
-          ),
-        ],
+          );
+          final details = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(member.name, style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 4),
+              Text(member.email, style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(height: 4),
+              Text(
+                '${member.role} - ${member.department}',
+                style: Theme.of(context).textTheme.labelMedium,
+              ),
+            ],
+          );
+
+          return compact
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    avatar,
+                    const SizedBox(height: AppSpacing.sm),
+                    details,
+                  ],
+                )
+              : Row(
+                  children: [
+                    avatar,
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(child: details),
+                  ],
+                );
+        },
       ),
     );
   }
@@ -648,15 +714,57 @@ class _LineItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 110,
-            child: Text(label, style: Theme.of(context).textTheme.bodySmall),
-          ),
-          Expanded(child: Text(value)),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 320;
+          return compact
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(label, style: Theme.of(context).textTheme.bodySmall),
+                    const SizedBox(height: 4),
+                    Text(value),
+                  ],
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 110,
+                      child: Text(
+                        label,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                    Expanded(child: Text(value)),
+                  ],
+                );
+        },
+      ),
+    );
+  }
+}
+
+class _DeliveryChip extends StatelessWidget {
+  const _DeliveryChip({required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(AppConstants.pillRadius),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color),
       ),
     );
   }

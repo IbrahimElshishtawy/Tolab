@@ -30,98 +30,127 @@ class OfferingCard extends StatelessWidget {
     return AppCard(
       interactive: true,
       padding: const EdgeInsets.all(AppSpacing.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isCompact = constraints.maxWidth < 340;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
+              if (isCompact) ...[
+                Text(
+                  offering.code,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelLarge?.copyWith(color: AppColors.primary),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  offering.subjectName,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                OfferingStatusBadge(status: offering.status),
+              ] else
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      offering.code,
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: AppColors.primary,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            offering.code,
+                            style: Theme.of(context).textTheme.labelLarge
+                                ?.copyWith(color: AppColors.primary),
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            offering.subjectName,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      offering.subjectName,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    OfferingStatusBadge(status: offering.status),
                   ],
                 ),
+              const SizedBox(height: AppSpacing.md),
+              _InfoRow(
+                icon: Icons.person_outline_rounded,
+                label: offering.doctor.name,
               ),
-              OfferingStatusBadge(status: offering.status),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          _InfoRow(
-            icon: Icons.person_outline_rounded,
-            label: offering.doctor.name,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          _InfoRow(
-            icon: Icons.grid_view_rounded,
-            label: '${offering.sectionName} - ${offering.semester}',
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          _InfoRow(icon: Icons.event_outlined, label: rangeLabel),
-          const SizedBox(height: AppSpacing.lg),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Capacity',
-                      style: Theme.of(context).textTheme.bodySmall,
+              const SizedBox(height: AppSpacing.sm),
+              _InfoRow(
+                icon: Icons.grid_view_rounded,
+                label: '${offering.sectionName} - ${offering.semester}',
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              _InfoRow(icon: Icons.event_outlined, label: rangeLabel),
+              const SizedBox(height: AppSpacing.lg),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Capacity',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            AppConstants.pillRadius,
+                          ),
+                          child: LinearProgressIndicator(
+                            minHeight: 8,
+                            value: offering.fillRate.clamp(0, 1),
+                            backgroundColor: fillColor.withValues(alpha: 0.16),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              fillColor,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: AppSpacing.xs),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                        AppConstants.pillRadius,
-                      ),
-                      child: LinearProgressIndicator(
-                        minHeight: 8,
-                        value: offering.fillRate.clamp(0, 1),
-                        backgroundColor: fillColor.withValues(alpha: 0.16),
-                        valueColor: AlwaysStoppedAnimation<Color>(fillColor),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Text(
+                    '${offering.enrolledCount}/${offering.capacity}',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ],
               ),
-              const SizedBox(width: AppSpacing.md),
-              Text(
-                '${offering.enrolledCount}/${offering.capacity}',
-                style: Theme.of(context).textTheme.titleSmall,
+              const SizedBox(height: AppSpacing.lg),
+              OverflowBar(
+                spacing: AppSpacing.xs,
+                overflowSpacing: AppSpacing.xs,
+                alignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton.icon(
+                    onPressed: onView,
+                    icon: const Icon(Icons.visibility_outlined, size: 18),
+                    label: const Text('View'),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: onEdit,
+                        icon: const Icon(Icons.edit_outlined),
+                      ),
+                      IconButton(
+                        onPressed: onDelete,
+                        icon: const Icon(Icons.delete_outline_rounded),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Row(
-            children: [
-              TextButton.icon(
-                onPressed: onView,
-                icon: const Icon(Icons.visibility_outlined, size: 18),
-                label: const Text('View'),
-              ),
-              const Spacer(),
-              IconButton(
-                onPressed: onEdit,
-                icon: const Icon(Icons.edit_outlined),
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              IconButton(
-                onPressed: onDelete,
-                icon: const Icon(Icons.delete_outline_rounded),
-              ),
-            ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }

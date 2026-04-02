@@ -36,50 +36,87 @@ class CourseOfferingDetailsPage extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                IconButton(
-                  onPressed: () => context.go(RoutePaths.courseOfferings),
-                  icon: const Icon(Icons.arrow_back_rounded),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        vm.offering?.subjectName ?? 'Offering details',
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        vm.offering == null
-                            ? 'Loading course offering details.'
-                            : '${vm.offering!.code} - ${vm.offering!.sectionName} - ${vm.offering!.semester} ${vm.offering!.academicYear}',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
-                ),
-                if (vm.offering != null) ...[
-                  PremiumButton(
-                    label: 'Edit',
-                    icon: Icons.edit_outlined,
-                    isSecondary: true,
-                    onPressed: () => OfferingForm.show(
-                      context,
-                      initialOffering: vm.offering,
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final compact = constraints.maxWidth < 760;
+                final titleBlock = Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      vm.offering?.subjectName ?? 'Offering details',
+                      style: Theme.of(context).textTheme.headlineMedium,
                     ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  PremiumButton(
-                    label: 'Delete',
-                    icon: Icons.delete_outline_rounded,
-                    isSecondary: true,
-                    onPressed: () => _delete(context, vm.store, vm.offering!),
-                  ),
-                ],
-              ],
+                    const SizedBox(height: 4),
+                    Text(
+                      vm.offering == null
+                          ? 'Loading course offering details.'
+                          : '${vm.offering!.code} - ${vm.offering!.sectionName} - ${vm.offering!.semester} ${vm.offering!.academicYear}',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                );
+                final actions = vm.offering == null
+                    ? const <Widget>[]
+                    : [
+                        PremiumButton(
+                          label: 'Edit',
+                          icon: Icons.edit_outlined,
+                          isSecondary: true,
+                          onPressed: () => OfferingForm.show(
+                            context,
+                            initialOffering: vm.offering,
+                          ),
+                        ),
+                        PremiumButton(
+                          label: 'Delete',
+                          icon: Icons.delete_outline_rounded,
+                          isSecondary: true,
+                          onPressed: () =>
+                              _delete(context, vm.store, vm.offering!),
+                        ),
+                      ];
+
+                return compact
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          IconButton(
+                            onPressed: () =>
+                                context.go(RoutePaths.courseOfferings),
+                            icon: const Icon(Icons.arrow_back_rounded),
+                          ),
+                          titleBlock,
+                          if (actions.isNotEmpty) ...[
+                            const SizedBox(height: AppSpacing.md),
+                            Wrap(
+                              spacing: AppSpacing.sm,
+                              runSpacing: AppSpacing.sm,
+                              children: actions,
+                            ),
+                          ],
+                        ],
+                      )
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          IconButton(
+                            onPressed: () =>
+                                context.go(RoutePaths.courseOfferings),
+                            icon: const Icon(Icons.arrow_back_rounded),
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(child: titleBlock),
+                          if (actions.isNotEmpty) ...[
+                            const SizedBox(width: AppSpacing.md),
+                            Wrap(
+                              spacing: AppSpacing.sm,
+                              runSpacing: AppSpacing.sm,
+                              children: actions,
+                            ),
+                          ],
+                        ],
+                      );
+              },
             ),
             const SizedBox(height: AppSpacing.lg),
             Expanded(
@@ -95,23 +132,29 @@ class CourseOfferingDetailsPage extends StatelessWidget {
                     'The selected course offering is no longer available in the current workspace snapshot.',
                 child: vm.offering == null
                     ? const SizedBox.shrink()
-                    : OfferingTabs(
-                        offering: vm.offering!,
-                        activeTab: vm.activeTab,
-                        onTabChanged: (tab) => vm.store.dispatch(
-                          CourseOfferingDetailsTabChangedAction(tab),
-                        ),
-                        onAddStudent: () => _showPlaceholder(
-                          context,
-                          'Student enrollment controls are ready for backend integration.',
-                        ),
-                        onRemoveStudent: (_) => _showPlaceholder(
-                          context,
-                          'Student removal controls are ready for backend integration.',
-                        ),
-                        onQuickAction: (action) => _showPlaceholder(
-                          context,
-                          '${action.title} is ready for content module integration.',
+                    : Scrollbar(
+                        thumbVisibility: true,
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                          child: OfferingTabs(
+                            offering: vm.offering!,
+                            activeTab: vm.activeTab,
+                            onTabChanged: (tab) => vm.store.dispatch(
+                              CourseOfferingDetailsTabChangedAction(tab),
+                            ),
+                            onAddStudent: () => _showPlaceholder(
+                              context,
+                              'Student enrollment controls are ready for backend integration.',
+                            ),
+                            onRemoveStudent: (_) => _showPlaceholder(
+                              context,
+                              'Student removal controls are ready for backend integration.',
+                            ),
+                            onQuickAction: (action) => _showPlaceholder(
+                              context,
+                              '${action.title} is ready for content module integration.',
+                            ),
+                          ),
                         ),
                       ),
               ),

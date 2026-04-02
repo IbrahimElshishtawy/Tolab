@@ -42,9 +42,7 @@ class StatusBadge extends StatelessWidget {
         runSpacing: 4,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          if (icon != null) ...[
-            Icon(icon, size: 12, color: color),
-          ],
+          if (icon != null) ...[Icon(icon, size: 12, color: color)],
           Text(
             label,
             softWrap: true,

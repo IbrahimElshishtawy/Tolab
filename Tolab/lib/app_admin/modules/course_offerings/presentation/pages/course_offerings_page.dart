@@ -92,6 +92,8 @@ class CourseOfferingsPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.xl),
+            _AcademicDeliveryPanel(offerings: vm.visibleOfferings),
+            const SizedBox(height: AppSpacing.lg),
             OfferingFilters(
               filters: vm.filters,
               semesterOptions: vm.semesterOptions,
@@ -206,43 +208,80 @@ class CourseOfferingsPage extends StatelessWidget {
                     const SizedBox(height: AppSpacing.md),
                     AppCard(
                       padding: const EdgeInsets.all(AppSpacing.md),
-                      child: Row(
-                        children: [
-                          Text(
-                            isMobile
-                                ? 'Page ${vm.page}/${vm.totalPages}'
-                                : 'Showing ${vm.visibleOfferings.length} of ${vm.filteredCount} offerings',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                          const Spacer(),
-                          IconButton(
-                            onPressed: vm.page <= 1
-                                ? null
-                                : () => vm.store.dispatch(
-                                    CourseOfferingsPaginationChangedAction(
-                                      vm.pagination.copyWith(page: vm.page - 1),
-                                    ),
-                                  ),
-                            icon: const Icon(Icons.chevron_left_rounded),
-                          ),
-                          if (isDesktop)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.sm,
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final compact = constraints.maxWidth < 540;
+                          final summaryText = isMobile
+                              ? 'Page ${vm.page}/${vm.totalPages}'
+                              : 'Showing ${vm.visibleOfferings.length} of ${vm.filteredCount} offerings';
+
+                          final pager = Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                onPressed: vm.page <= 1
+                                    ? null
+                                    : () => vm.store.dispatch(
+                                        CourseOfferingsPaginationChangedAction(
+                                          vm.pagination.copyWith(
+                                            page: vm.page - 1,
+                                          ),
+                                        ),
+                                      ),
+                                icon: const Icon(Icons.chevron_left_rounded),
                               ),
-                              child: Text('Page ${vm.page} / ${vm.totalPages}'),
-                            ),
-                          IconButton(
-                            onPressed: vm.page >= vm.totalPages
-                                ? null
-                                : () => vm.store.dispatch(
-                                    CourseOfferingsPaginationChangedAction(
-                                      vm.pagination.copyWith(page: vm.page + 1),
-                                    ),
+                              if (isDesktop && !compact)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.sm,
                                   ),
-                            icon: const Icon(Icons.chevron_right_rounded),
-                          ),
-                        ],
+                                  child: Text(
+                                    'Page ${vm.page} / ${vm.totalPages}',
+                                  ),
+                                ),
+                              IconButton(
+                                onPressed: vm.page >= vm.totalPages
+                                    ? null
+                                    : () => vm.store.dispatch(
+                                        CourseOfferingsPaginationChangedAction(
+                                          vm.pagination.copyWith(
+                                            page: vm.page + 1,
+                                          ),
+                                        ),
+                                      ),
+                                icon: const Icon(Icons.chevron_right_rounded),
+                              ),
+                            ],
+                          );
+
+                          return compact
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      summaryText,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodyMedium,
+                                    ),
+                                    const SizedBox(height: AppSpacing.sm),
+                                    pager,
+                                  ],
+                                )
+                              : Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        summaryText,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodyMedium,
+                                      ),
+                                    ),
+                                    pager,
+                                  ],
+                                );
+                        },
                       ),
                     ),
                   ],
@@ -268,6 +307,65 @@ class CourseOfferingsPage extends StatelessWidget {
     );
     if (!confirmed || !context.mounted) return;
     store.dispatch(DeleteCourseOfferingAction(offeringId: offering.id));
+  }
+}
+
+class _AcademicDeliveryPanel extends StatelessWidget {
+  const _AcademicDeliveryPanel({required this.offerings});
+
+  final List<CourseOfferingModel> offerings;
+
+  @override
+  Widget build(BuildContext context) {
+    final active = offerings
+        .where((item) => item.status == CourseOfferingStatus.active)
+        .length;
+    final highDemand = offerings.where((item) => item.fillRate >= 0.85).length;
+    final departments = offerings.map((item) => item.departmentName).toSet();
+    final academicYears = offerings.map((item) => item.academicYear).toSet();
+
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Academic delivery snapshot',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            'A cleaner split for active delivery, demand pressure, and academic coverage across the current offerings view.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              _InsightChip(
+                label: '$active active now',
+                color: AppColors.secondary,
+              ),
+              _InsightChip(
+                label: '$highDemand high-demand sections',
+                color: AppColors.warning,
+              ),
+              _InsightChip(
+                label: '${departments.length} departments',
+                color: AppColors.info,
+              ),
+              _InsightChip(
+                label: academicYears.isEmpty
+                    ? 'No academic year data'
+                    : academicYears.join(' • '),
+                color: AppColors.primary,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -305,6 +403,32 @@ class _SummaryCard extends StatelessWidget {
             Text(value, style: Theme.of(context).textTheme.headlineSmall),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _InsightChip extends StatelessWidget {
+  const _InsightChip({required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color),
       ),
     );
   }

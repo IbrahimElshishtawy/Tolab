@@ -230,12 +230,13 @@ class _AssignedUsersCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectedUsers = (role.assignedUsers.isNotEmpty
-            ? role.assignedUsers
-            : availableUsers
-                  .where((user) => role.userIds.contains(user.id))
-                  .toList(growable: false))
-        .toList(growable: false);
+    final selectedUsers =
+        (role.assignedUsers.isNotEmpty
+                ? role.assignedUsers
+                : availableUsers
+                      .where((user) => role.userIds.contains(user.id))
+                      .toList(growable: false))
+            .toList(growable: false);
 
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -461,15 +462,11 @@ class _RoleInsightStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final modules = {
-      for (final permission in permissions) permission.module,
-    };
+    final modules = {for (final permission in permissions) permission.module};
     final activeMembers = role.assignedUsers.isNotEmpty
         ? role.assignedUsers.where((user) => user.isActive).length
         : availableUsers
-              .where(
-                (user) => role.userIds.contains(user.id) && user.isActive,
-              )
+              .where((user) => role.userIds.contains(user.id) && user.isActive)
               .length;
 
     return Wrap(
@@ -486,7 +483,8 @@ class _RoleInsightStrip extends StatelessWidget {
         _RoleInsightCard(
           title: 'Permissions',
           value: '${permissions.length}',
-          caption: '${permissions.where((item) => item.isCore).length} core rules',
+          caption:
+              '${permissions.where((item) => item.isCore).length} core rules',
           icon: Icons.verified_user_rounded,
           color: AppColors.info,
         ),
