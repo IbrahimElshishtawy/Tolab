@@ -1,0 +1,113 @@
+import 'package:flutter/material.dart';
+
+import '../models/session_user.dart';
+import '../widgets/app_shell.dart';
+import 'app_routes.dart';
+
+List<ShellNavItem> buildNavigationItems(SessionUser user) {
+  final items = <ShellNavItem>[
+    const ShellNavItem(
+      label: 'Home',
+      path: AppRoutes.dashboard,
+      icon: Icons.grid_view_rounded,
+    ),
+    const ShellNavItem(
+      label: 'Subjects',
+      path: AppRoutes.subjects,
+      icon: Icons.menu_book_rounded,
+    ),
+  ];
+
+  if (user.hasPermission('lectures.view')) {
+    items.add(
+      const ShellNavItem(
+        label: 'Lectures',
+        path: AppRoutes.lectures,
+        icon: Icons.slideshow_rounded,
+      ),
+    );
+  }
+
+  if (user.hasPermission('section_content.view')) {
+    items.add(
+      const ShellNavItem(
+        label: 'Sections',
+        path: AppRoutes.sectionContent,
+        icon: Icons.widgets_rounded,
+      ),
+    );
+  }
+
+  if (user.hasPermission('quizzes.view')) {
+    items.add(
+      const ShellNavItem(
+        label: 'Quizzes',
+        path: AppRoutes.quizzes,
+        icon: Icons.fact_check_rounded,
+      ),
+    );
+  }
+
+  if (user.hasPermission('tasks.view')) {
+    items.add(
+      const ShellNavItem(
+        label: 'Tasks',
+        path: AppRoutes.tasks,
+        icon: Icons.assignment_rounded,
+      ),
+    );
+  }
+
+  items.addAll([
+    const ShellNavItem(
+      label: 'Schedule',
+      path: AppRoutes.schedule,
+      icon: Icons.calendar_month_rounded,
+    ),
+    const ShellNavItem(
+      label: 'Alerts',
+      path: AppRoutes.notifications,
+      icon: Icons.notifications_active_rounded,
+    ),
+  ]);
+
+  if (user.hasPermission('uploads.view')) {
+    items.add(
+      const ShellNavItem(
+        label: 'Uploads',
+        path: AppRoutes.uploads,
+        icon: Icons.upload_file_rounded,
+      ),
+    );
+  }
+
+  if (user.isAdmin || user.hasPermission('staff.view')) {
+    items.add(
+      const ShellNavItem(
+        label: 'Staff',
+        path: AppRoutes.staff,
+        icon: Icons.groups_rounded,
+      ),
+    );
+  }
+
+  if (user.isAdmin) {
+    items.add(
+      const ShellNavItem(
+        label: 'Admin',
+        path: AppRoutes.admin,
+        icon: Icons.admin_panel_settings_rounded,
+      ),
+    );
+  }
+
+  items.add(
+    const ShellNavItem(
+      label: 'Settings',
+      path: AppRoutes.settings,
+      icon: Icons.tune_rounded,
+    ),
+  );
+
+  return items;
+}
