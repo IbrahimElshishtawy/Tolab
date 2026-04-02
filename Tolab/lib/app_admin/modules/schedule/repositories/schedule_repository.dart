@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import '../../../core/errors/app_exception.dart';
 import '../../../core/services/demo_data_service.dart';
+import '../../subjects/models/subject_management_models.dart';
 import '../models/schedule_models.dart';
 import '../services/schedule_api_service.dart';
 
@@ -213,7 +214,7 @@ class ScheduleRepository {
           subjectId: subject.id,
           instructorId: instructorId,
           studentScopeLabel:
-              '$sectionCode • ${math.max(subject.enrolledStudents - (index * 2), 24)} students',
+              '$sectionCode - ${math.max(subject.enrolledStudents - (index * 2), 24)} students',
           repeatRule: index < 8
               ? ScheduleRepeatRule.weekly
               : ScheduleRepeatRule.none,
@@ -246,7 +247,7 @@ class ScheduleRepository {
         sectionId: 'SEC-CS-4A',
         subjectId: subjects.first.id,
         instructorId: subjects.first.doctor.id,
-        studentScopeLabel: 'CS-4A • 82 students',
+        studentScopeLabel: 'CS-4A - 82 students',
         assignedStaffIds: <String>[subjects.first.doctor.id],
         isSynced: true,
       ),
@@ -268,7 +269,7 @@ class ScheduleRepository {
         sectionId: 'SEC-CS-4A',
         subjectId: subjects[1].id,
         instructorId: subjects.first.doctor.id,
-        studentScopeLabel: 'CS-4A • 82 students',
+        studentScopeLabel: 'CS-4A - 82 students',
         assignedStaffIds: <String>[
           subjects.first.doctor.id,
           subjects.first.assistant.id,
@@ -283,7 +284,7 @@ class ScheduleRepository {
 
   ScheduleLookupBundle _buildLookups(List<ScheduleEventItem> events) {
     final subjects = _demoDataService.subjects();
-    final staff = _demoDataService.staff();
+    final staffOptions = _buildStaffOptions(subjects);
     return ScheduleLookupBundle(
       departments: _distinctOptions(
         events.map(
@@ -306,21 +307,13 @@ class ScheduleRepository {
           ),
         ),
       ),
-      instructors: _distinctOptions(
-        staff.map(
-          (member) => ScheduleOption(
-            id: member.id,
-            label: member.name,
-            subtitle: '${member.title} • ${member.department}',
-          ),
-        ),
-      ),
+      instructors: _distinctOptions(staffOptions),
       sections: _distinctOptions(
         events.map(
           (event) => ScheduleOption(
             id: event.sectionId ?? event.section,
             label: event.section,
-            subtitle: '${event.department} • ${event.yearLabel}',
+            subtitle: '${event.department} - ${event.yearLabel}',
           ),
         ),
       ),
@@ -328,20 +321,32 @@ class ScheduleRepository {
         events.map(
           (event) => ScheduleOption(
             id: event.courseOfferingId ?? event.id,
-            label: '${event.subject} • ${event.section}',
+            label: '${event.subject} - ${event.section}',
             subtitle: event.yearLabel,
           ),
         ),
       ),
-      staff: _distinctOptions(
-        staff.map(
-          (member) => ScheduleOption(
-            id: member.id,
-            label: member.name,
-            subtitle: member.title,
-          ),
-        ),
-      ),
+      staff: _distinctOptions(staffOptions),
+    );
+  }
+
+  Iterable<ScheduleOption> _buildStaffOptions(
+    List<SubjectRecord> subjects,
+  ) sync* {
+    for (final subject in subjects) {
+      yield _staffOptionForMember(subject.doctor, subject.department);
+      yield _staffOptionForMember(subject.assistant, subject.department);
+    }
+  }
+
+  ScheduleOption _staffOptionForMember(
+    SubjectStaffMember member,
+    String department,
+  ) {
+    return ScheduleOption(
+      id: member.id,
+      label: member.name,
+      subtitle: '${member.role} - $department',
     );
   }
 

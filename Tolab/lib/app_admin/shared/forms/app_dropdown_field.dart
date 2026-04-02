@@ -26,11 +26,25 @@ class AppDropdownField<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final resolvedItems = <AppDropdownItem<T>>[];
+    for (final item in items) {
+      final alreadyAdded = resolvedItems.any(
+        (resolvedItem) => resolvedItem.value == item.value,
+      );
+      if (alreadyAdded) continue;
+      resolvedItems.add(item);
+    }
+    final resolvedValue =
+        value != null &&
+            resolvedItems.where((item) => item.value == value).length == 1
+        ? value
+        : null;
+
     return DropdownButtonFormField<T>(
-      initialValue: value,
+      initialValue: resolvedValue,
       isExpanded: true,
       selectedItemBuilder: (context) => [
-        for (final item in items)
+        for (final item in resolvedItems)
           Align(
             alignment: Alignment.centerLeft,
             child: Row(
@@ -53,7 +67,7 @@ class AppDropdownField<T> extends StatelessWidget {
       onChanged: onChanged,
       decoration: InputDecoration(labelText: label, hintText: hint),
       items: [
-        for (final item in items)
+        for (final item in resolvedItems)
           DropdownMenuItem<T>(
             value: item.value,
             child: Row(

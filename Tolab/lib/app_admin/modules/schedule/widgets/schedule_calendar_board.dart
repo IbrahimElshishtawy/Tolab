@@ -437,6 +437,15 @@ class _MonthCalendarView extends StatelessWidget {
   final bool compact;
   final double? availableHeight;
 
+  BoxDecoration _buildDayDecoration({Color? color, BorderSide? borderSide}) {
+    return BoxDecoration(
+      color: color,
+      shape: BoxShape.rectangle,
+      borderRadius: BorderRadius.circular(AppConstants.smallRadius),
+      border: borderSide == null ? null : Border.fromBorderSide(borderSide),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final grouped = _groupByDay(events);
@@ -462,18 +471,21 @@ class _MonthCalendarView extends StatelessWidget {
       onPageChanged: onFocusedDayChanged,
       calendarStyle: CalendarStyle(
         outsideDaysVisible: true,
-        defaultDecoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppConstants.smallRadius),
-        ),
-        todayDecoration: BoxDecoration(
+        defaultDecoration: _buildDayDecoration(),
+        outsideDecoration: _buildDayDecoration(),
+        weekendDecoration: _buildDayDecoration(),
+        disabledDecoration: _buildDayDecoration(),
+        holidayDecoration: _buildDayDecoration(),
+        withinRangeDecoration: _buildDayDecoration(),
+        rangeStartDecoration: _buildDayDecoration(color: AppColors.primary),
+        rangeEndDecoration: _buildDayDecoration(color: AppColors.primary),
+        todayDecoration: _buildDayDecoration(
           color: AppColors.primary.withValues(alpha: 0.14),
-          borderRadius: BorderRadius.circular(AppConstants.smallRadius),
-          border: Border.all(color: AppColors.primary.withValues(alpha: 0.5)),
+          borderSide: BorderSide(
+            color: AppColors.primary.withValues(alpha: 0.5),
+          ),
         ),
-        selectedDecoration: BoxDecoration(
-          color: AppColors.primary,
-          borderRadius: BorderRadius.circular(AppConstants.smallRadius),
-        ),
+        selectedDecoration: _buildDayDecoration(color: AppColors.primary),
         weekendTextStyle: Theme.of(context).textTheme.bodyMedium!,
       ),
       daysOfWeekStyle: DaysOfWeekStyle(
