@@ -5,10 +5,7 @@ import '../../../app/core/app_scope.dart';
 import '../../../app_doctor_assistant/state/app_state.dart';
 
 class DoctorAssistantScope extends StatelessWidget {
-  const DoctorAssistantScope({
-    super.key,
-    required this.child,
-  });
+  const DoctorAssistantScope({super.key, required this.child});
 
   final Widget child;
 

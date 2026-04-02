@@ -5,11 +5,7 @@ import '../bootstrap/app_bootstrap.dart';
 import '../shared/theme_mode_controller.dart';
 
 class AppScope extends InheritedWidget {
-  const AppScope({
-    super.key,
-    required this.bootstrap,
-    required super.child,
-  });
+  const AppScope({super.key, required this.bootstrap, required super.child});
 
   final UnifiedAppBootstrap bootstrap;
 
@@ -19,7 +15,8 @@ class AppScope extends InheritedWidget {
     return scope!.bootstrap;
   }
 
-  static AuthController auth(BuildContext context) => read(context).authController;
+  static AuthController auth(BuildContext context) =>
+      read(context).authController;
 
   static ThemeModeController theme(BuildContext context) =>
       read(context).themeController;

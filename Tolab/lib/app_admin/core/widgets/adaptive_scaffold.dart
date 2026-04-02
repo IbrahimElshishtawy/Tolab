@@ -170,6 +170,7 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
                             userRole: widget.userRole,
                             unreadNotifications: widget.unreadNotifications,
                             notificationStatus: widget.notificationStatus,
+                            notificationRoute: widget.notificationRoute,
                             isMobile: isMobile,
                             onMenuPressed: () => setState(
                               () => _isSidebarCollapsed = !_isSidebarCollapsed,
@@ -493,6 +494,7 @@ class _TopBar extends StatelessWidget {
     required this.userRole,
     required this.unreadNotifications,
     required this.notificationStatus,
+    required this.notificationRoute,
     required this.isMobile,
     required this.onMenuPressed,
     required this.onToggleTheme,
@@ -505,6 +507,7 @@ class _TopBar extends StatelessWidget {
   final String userRole;
   final int unreadNotifications;
   final String notificationStatus;
+  final String notificationRoute;
   final bool isMobile;
   final VoidCallback onMenuPressed;
   final VoidCallback onToggleTheme;
@@ -634,10 +637,10 @@ class _TopBar extends StatelessWidget {
                             onPressed: onToggleTheme,
                             icon: const Icon(Icons.contrast_rounded),
                           ),
-                            _NotificationBellButton(
-                              count: unreadNotifications,
-                              onPressed: () => context.go(notificationRoute),
-                            ),
+                          _NotificationBellButton(
+                            count: unreadNotifications,
+                            onPressed: () => context.go(notificationRoute),
+                          ),
                           PopupMenuButton<String>(
                             onSelected: (value) {
                               if (value == 'logout') onLogout();

@@ -53,7 +53,10 @@ class _UnifiedLoginScreenState extends State<UnifiedLoginScreen> {
                     return isWide
                         ? Row(
                             children: [
-                              const Expanded(flex: 11, child: _LoginHeroPanel()),
+                              const Expanded(
+                                flex: 11,
+                                child: _LoginHeroPanel(),
+                              ),
                               const SizedBox(width: 24),
                               Expanded(
                                 flex: 9,
@@ -70,7 +73,8 @@ class _UnifiedLoginScreenState extends State<UnifiedLoginScreen> {
                                   },
                                   onToggleObscure: () {
                                     setState(
-                                      () => _obscurePassword = !_obscurePassword,
+                                      () =>
+                                          _obscurePassword = !_obscurePassword,
                                     );
                                   },
                                   onSubmit: _submit,
@@ -225,7 +229,8 @@ class _LoginHeroPanel extends StatelessWidget {
                 SizedBox(height: 12),
                 _TrustLine(
                   title: 'Shared session persistence',
-                  subtitle: 'One auth state, one logout path, protected routing.',
+                  subtitle:
+                      'One auth state, one logout path, protected routing.',
                 ),
                 SizedBox(height: 12),
                 _TrustLine(
@@ -291,16 +296,16 @@ class _LoginCard extends StatelessWidget {
           children: [
             Text(
               'Sign in',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             Text(
               'Use your university email and password. Your role is resolved automatically after login.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: const Color(0xFF5B6475),
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: const Color(0xFF5B6475)),
             ),
             const SizedBox(height: 20),
             TextFormField(

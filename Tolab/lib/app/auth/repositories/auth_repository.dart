@@ -150,9 +150,10 @@ class UnifiedAuthRepository {
       return null;
     }
 
-    final accessToken = await _adminDependencies.secureStorage.readAccessToken();
-    final refreshToken =
-        await _adminDependencies.secureStorage.readRefreshToken();
+    final accessToken = await _adminDependencies.secureStorage
+        .readAccessToken();
+    final refreshToken = await _adminDependencies.secureStorage
+        .readRefreshToken();
     final user = await _adminAuthService.isDemoSession()
         ? _adminDependencies.demoDataService.adminProfile()
         : await _adminDependencies.authRepository.me();

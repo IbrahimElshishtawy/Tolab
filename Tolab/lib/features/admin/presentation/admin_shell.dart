@@ -7,13 +7,10 @@ import '../../../app_admin/core/routing/route_paths.dart';
 import '../../../app_admin/core/widgets/adaptive_scaffold.dart';
 import '../../../app_admin/modules/notifications/presentation/widgets/notification_toast_host.dart';
 import '../../../app_admin/state/app_state.dart';
+import '../../../app_admin/shared/models/notification_models.dart';
 
 class AdminShell extends StatelessWidget {
-  const AdminShell({
-    super.key,
-    required this.location,
-    required this.child,
-  });
+  const AdminShell({super.key, required this.location, required this.child});
 
   final String location;
   final Widget child;
@@ -155,11 +152,9 @@ class _AdminShellViewModel {
   }) {
     return _AdminShellViewModel(
       userName: authName ?? store.state.authState.currentUser?.name ?? 'Admin',
-      userRole:
-          authRole ?? store.state.authState.currentUser?.role ?? 'admin',
+      userRole: authRole ?? store.state.authState.currentUser?.role ?? 'admin',
       unreadNotifications: store.state.notificationsState.unreadCount,
-      notificationStatus:
-          store.state.notificationsState.connectionStatus.label,
+      notificationStatus: store.state.notificationsState.connectionStatus.label,
     );
   }
 }

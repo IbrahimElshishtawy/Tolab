@@ -51,7 +51,9 @@ class UnauthorizedScreen extends StatelessWidget {
                             return;
                           }
 
-                          context.go(UnifiedAppRoutes.homeForRole(currentUser.role));
+                          context.go(
+                            UnifiedAppRoutes.homeForRole(currentUser.role),
+                          );
                         },
                         child: const Text('Go home'),
                       ),

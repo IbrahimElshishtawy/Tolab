@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:redux/redux.dart';
 
@@ -62,8 +60,12 @@ class UnifiedAppBootstrap {
         return;
       }
 
-      adminStore.dispatch(admin_auth.HydrateUserAction(session.user.toAdminProfile()));
-      doctorStore.dispatch(SessionEstablishedAction(session.user.toSessionUser()));
+      adminStore.dispatch(
+        admin_auth.HydrateUserAction(session.user.toAdminProfile()),
+      );
+      doctorStore.dispatch(
+        SessionEstablishedAction(session.user.toSessionUser()),
+      );
     }
 
     authController.addListener(syncLegacyStores);
@@ -84,6 +86,6 @@ class UnifiedAppBootstrap {
     authController.removeListener(_legacySyncListener);
     authController.dispose();
     themeController.dispose();
-    await adminDependencies.notificationService.dispose();
+    await adminDependencies.notificationService.stopRealtime();
   }
 }

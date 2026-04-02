@@ -123,9 +123,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     });
 
     try {
-      await AppScope.auth(
-        context,
-      ).forgotPassword(_emailController.text.trim());
+      await AppScope.auth(context).forgotPassword(_emailController.text.trim());
       if (!mounted) {
         return;
       }

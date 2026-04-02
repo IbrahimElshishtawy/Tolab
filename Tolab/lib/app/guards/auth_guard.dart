@@ -39,12 +39,16 @@ class AuthGuard {
     }
 
     if (state.isBootstrapping || state.status == AuthFlowStatus.initial) {
-      return location == UnifiedAppRoutes.launch ? null : UnifiedAppRoutes.launch;
+      return location == UnifiedAppRoutes.launch
+          ? null
+          : UnifiedAppRoutes.launch;
     }
 
     if (!state.isAuthenticated) {
       if (_publicRoutes.contains(location)) {
-        return location == UnifiedAppRoutes.launch ? UnifiedAppRoutes.login : null;
+        return location == UnifiedAppRoutes.launch
+            ? UnifiedAppRoutes.login
+            : null;
       }
       return UnifiedAppRoutes.login;
     }

@@ -28,7 +28,6 @@ import '../../app_admin/modules/uploads/presentation/uploads_screen.dart'
     as admin_uploads;
 import '../../app_doctor_assistant/core/navigation/app_routes.dart'
     as staff_routes;
-import '../../app_doctor_assistant/modules/admin/presentation/admin_screen.dart';
 import '../../app_doctor_assistant/modules/dashboard/presentation/dashboard_screen.dart';
 import '../../app_doctor_assistant/modules/lectures/presentation/lectures_screen.dart';
 import '../../app_doctor_assistant/modules/notifications/presentation/notifications_screen.dart';
@@ -66,7 +65,7 @@ class UnifiedAppRouter {
     routes: [
       GoRoute(
         path: UnifiedAppRoutes.root,
-        redirect: (_, __) => UnifiedAppRoutes.launch,
+        redirect: (_, _) => UnifiedAppRoutes.launch,
       ),
       GoRoute(
         path: UnifiedAppRoutes.launch,
@@ -89,10 +88,8 @@ class UnifiedAppRouter {
         builder: (context, state) => const UnauthorizedScreen(),
       ),
       ShellRoute(
-        builder: (context, state, child) => AdminShell(
-          location: state.uri.path,
-          child: child,
-        ),
+        builder: (context, state, child) =>
+            AdminShell(location: state.uri.path, child: child),
         routes: _adminRoutes,
       ),
       ..._doctorRoutes,
@@ -179,10 +176,8 @@ class UnifiedAppRouter {
     ),
     GoRoute(
       path: RoutePaths.notifications,
-      pageBuilder: (context, state) => _noTransition(
-        state,
-        const admin_notifications.NotificationsScreen(),
-      ),
+      pageBuilder: (context, state) =>
+          _noTransition(state, const admin_notifications.NotificationsScreen()),
     ),
     GoRoute(
       path: RoutePaths.notificationsHistory,
@@ -198,7 +193,8 @@ class UnifiedAppRouter {
     ),
     GoRoute(
       path: RoutePaths.roles,
-      pageBuilder: (context, state) => _noTransition(state, const RolesScreen()),
+      pageBuilder: (context, state) =>
+          _noTransition(state, const RolesScreen()),
     ),
     GoRoute(
       path: RoutePaths.settings,
@@ -262,11 +258,8 @@ class UnifiedAppRouter {
     ),
     GoRoute(
       path: staff_routes.AppRoutes.staff,
-      builder: (context, state) => const DoctorAssistantScope(child: StaffScreen()),
-    ),
-    GoRoute(
-      path: staff_routes.AppRoutes.admin,
-      builder: (context, state) => const DoctorAssistantScope(child: AdminScreen()),
+      builder: (context, state) =>
+          const DoctorAssistantScope(child: StaffScreen()),
     ),
     GoRoute(
       path: staff_routes.AppRoutes.settings,

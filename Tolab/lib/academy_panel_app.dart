@@ -4,10 +4,7 @@ import 'app/app.dart';
 import 'app/bootstrap/app_bootstrap.dart';
 
 class AcademyPanelApp extends StatelessWidget {
-  const AcademyPanelApp({
-    super.key,
-    required this.bootstrap,
-  });
+  const AcademyPanelApp({super.key, required this.bootstrap});
 
   final UnifiedAppBootstrap bootstrap;
 

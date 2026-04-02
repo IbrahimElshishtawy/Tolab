@@ -61,7 +61,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Profile', style: Theme.of(context).textTheme.titleLarge),
+                    Text(
+                      'Profile',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     const SizedBox(height: 12),
                     ListTile(
                       contentPadding: EdgeInsets.zero,
@@ -76,8 +79,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Preferences',
-                        style: Theme.of(context).textTheme.titleLarge),
+                    Text(
+                      'Preferences',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: _languageController,
@@ -120,10 +125,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 }
 
 class _SettingsVm {
-  const _SettingsVm({
-    required this.user,
-    required this.save,
-  });
+  const _SettingsVm({required this.user, required this.save});
 
   final SessionUser? user;
   final void Function(Map<String, dynamic>) save;

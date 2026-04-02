@@ -6,10 +6,7 @@ import 'core/app_scope.dart';
 import 'routing/app_router.dart';
 
 class TolabApp extends StatefulWidget {
-  const TolabApp({
-    super.key,
-    required this.bootstrap,
-  });
+  const TolabApp({super.key, required this.bootstrap});
 
   final UnifiedAppBootstrap bootstrap;
 
