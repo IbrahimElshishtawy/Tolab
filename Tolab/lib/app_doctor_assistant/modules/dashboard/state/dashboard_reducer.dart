@@ -1,3 +1,5 @@
+// ignore_for_file: type_literal_in_constant_pattern
+
 import '../../../core/state/async_state.dart';
 import 'dashboard_actions.dart';
 import 'dashboard_state.dart';

@@ -11,13 +11,13 @@ List<Middleware<DoctorAssistantAppState>> createAuthMiddleware(
   return [
     TypedMiddleware<DoctorAssistantAppState, LoginRequestedAction>(
       _login(repository),
-    ),
+    ).call,
     TypedMiddleware<DoctorAssistantAppState, ForgotPasswordRequestedAction>(
       _forgotPassword(repository),
-    ),
+    ).call,
     TypedMiddleware<DoctorAssistantAppState, LogoutRequestedAction>(
       _logout(repository),
-    ),
+    ).call,
   ];
 }
 

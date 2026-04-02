@@ -11,16 +11,18 @@ class UploadsState extends AsyncState<List<UploadModel>> {
 
   final double progress;
 
+  @override
   UploadsState copyWith({
     ViewStatus? status,
     List<UploadModel>? data,
     String? error,
+    bool clearError = false,
     double? progress,
   }) {
     return UploadsState(
       status: status ?? this.status,
       data: data ?? this.data,
-      error: error ?? this.error,
+      error: clearError ? null : error ?? this.error,
       progress: progress ?? this.progress,
     );
   }

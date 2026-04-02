@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import '../../../core/models/notification_models.dart';
 
 class LoadUploadsAction {}
@@ -23,5 +25,5 @@ class UploadProgressChangedAction {
 class UploadFileAction {
   UploadFileAction(this.formData);
 
-  final Object formData;
+  final FormData formData;
 }

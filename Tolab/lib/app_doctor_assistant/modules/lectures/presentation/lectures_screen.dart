@@ -1,6 +1,11 @@
+// ignore_for_file: unnecessary_underscores
+
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:redux/redux.dart';
 
+import '../../../core/models/content_models.dart';
+import '../../../core/models/session_user.dart';
 import '../../../core/navigation/app_routes.dart';
 import '../../../core/navigation/navigation_items.dart';
 import '../../../core/widgets/app_badge.dart';
@@ -48,7 +53,9 @@ class LecturesScreen extends StatelessWidget {
                       child: ListTile(
                         contentPadding: EdgeInsets.zero,
                         title: Text(item.title),
-                        subtitle: Text('Week ${item.weekNumber} • ${item.instructorName}'),
+                        subtitle: Text(
+                          'Week ${item.weekNumber} • ${item.instructorName}',
+                        ),
                         trailing: AppBadge(
                           label: item.isPublished ? 'Published' : 'Draft',
                         ),

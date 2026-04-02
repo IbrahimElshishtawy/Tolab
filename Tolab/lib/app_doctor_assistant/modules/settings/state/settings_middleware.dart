@@ -9,18 +9,21 @@ List<Middleware<DoctorAssistantAppState>> createSettingsMiddleware(
   SettingsRepository repository,
 ) {
   return [
-    TypedMiddleware<DoctorAssistantAppState, UpdateSettingsAction>(
-      (store, action, next) async {
-        next(action);
-        try {
-          final user = await repository.updateSettings(
-            (action as UpdateSettingsAction).payload,
-          );
-          store.dispatch(SessionEstablishedAction(user));
-        } catch (error) {
-          store.dispatch(UpdateSettingsFailureAction(error.toString()));
-        }
-      },
-    ),
+    TypedMiddleware<DoctorAssistantAppState, UpdateSettingsAction>((
+      store,
+      action,
+      next,
+    ) async {
+      next(action);
+      try {
+        final user = await repository.updateSettings(
+          // ignore: unnecessary_cast
+          (action as UpdateSettingsAction).payload,
+        );
+        store.dispatch(SessionEstablishedAction(user));
+      } catch (error) {
+        store.dispatch(UpdateSettingsFailureAction(error.toString()));
+      }
+    }).call,
   ];
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_cast
+
 import 'package:redux/redux.dart';
 
 import '../../../state/app_state.dart';
@@ -8,24 +10,30 @@ List<Middleware<DoctorAssistantAppState>> createSubjectsMiddleware(
   SubjectsRepository repository,
 ) {
   return [
-    TypedMiddleware<DoctorAssistantAppState, LoadSubjectsAction>(
-      (store, action, next) async {
-        next(action);
-        try {
-          final items = await repository.fetchSubjects();
-          store.dispatch(LoadSubjectsSuccessAction(items));
-        } catch (error) {
-          store.dispatch(LoadSubjectsFailureAction(error.toString()));
-        }
-      },
-    ),
-    TypedMiddleware<DoctorAssistantAppState, LoadSubjectDetailAction>(
-      (store, action, next) async {
-        next(action);
-        final detailAction = action as LoadSubjectDetailAction;
-        final subject = await repository.fetchSubjectDetail(detailAction.subjectId);
-        store.dispatch(LoadSubjectDetailSuccessAction(subject));
-      },
-    ),
+    TypedMiddleware<DoctorAssistantAppState, LoadSubjectsAction>((
+      store,
+      action,
+      next,
+    ) async {
+      next(action);
+      try {
+        final items = await repository.fetchSubjects();
+        store.dispatch(LoadSubjectsSuccessAction(items));
+      } catch (error) {
+        store.dispatch(LoadSubjectsFailureAction(error.toString()));
+      }
+    }).call,
+    TypedMiddleware<DoctorAssistantAppState, LoadSubjectDetailAction>((
+      store,
+      action,
+      next,
+    ) async {
+      next(action);
+      final detailAction = action as LoadSubjectDetailAction;
+      final subject = await repository.fetchSubjectDetail(
+        detailAction.subjectId,
+      );
+      store.dispatch(LoadSubjectDetailSuccessAction(subject));
+    }).call,
   ];
 }

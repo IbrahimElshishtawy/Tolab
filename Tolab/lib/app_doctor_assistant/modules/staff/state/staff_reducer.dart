@@ -4,14 +4,14 @@ import 'staff_state.dart';
 
 StaffState staffReducer(StaffState state, dynamic action) {
   switch (action.runtimeType) {
-    case LoadStaffAction:
+    case LoadStaffAction _:
       return const StaffState(status: ViewStatus.loading);
-    case LoadStaffSuccessAction:
+    case LoadStaffSuccessAction _:
       return StaffState(
         status: ViewStatus.success,
         data: (action as LoadStaffSuccessAction).items,
       );
-    case LoadStaffFailureAction:
+    case LoadStaffFailureAction _:
       return StaffState(
         status: ViewStatus.failure,
         error: (action as LoadStaffFailureAction).message,

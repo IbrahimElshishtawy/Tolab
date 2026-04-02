@@ -48,8 +48,8 @@ class AppShell extends StatelessWidget {
                 Text(
                   '${user.fullName} • ${user.roleType.toUpperCase()}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
@@ -96,15 +96,15 @@ class AppShell extends StatelessWidget {
                   Text(
                     'Tolab',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          color: AppColors.white,
-                        ),
+                      color: AppColors.white,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
                     'Academic staff workspace',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.white.withValues(alpha: .8),
-                        ),
+                      color: AppColors.white.withValues(alpha: .8),
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.xxl),
                   for (final item in items)
@@ -112,16 +112,19 @@ class AppShell extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                       child: ListTile(
                         selected: item.path == activePath,
-                        selectedTileColor: AppColors.white.withValues(alpha: .12),
+                        selectedTileColor: AppColors.white.withValues(
+                          alpha: .12,
+                        ),
                         leading: Icon(item.icon, color: AppColors.white),
                         title: Text(
                           item.label,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: AppColors.white,
-                              ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(color: AppColors.white),
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.radiusMd,
+                          ),
                         ),
                         onTap: () => context.go(item.path),
                       ),
@@ -131,7 +134,7 @@ class AppShell extends StatelessWidget {
             ),
             Expanded(child: content),
           ],
-        ],
+        ),
       );
     }
 

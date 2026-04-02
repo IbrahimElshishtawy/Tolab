@@ -1,12 +1,14 @@
+// ignore_for_file: type_literal_in_constant_pattern
+
 import '../../../core/state/async_state.dart';
 import 'uploads_actions.dart';
 import 'uploads_state.dart';
 
 UploadsState uploadsReducer(UploadsState state, dynamic action) {
   switch (action.runtimeType) {
-    case LoadUploadsAction:
+    case LoadUploadsAction _:
       return state.copyWith(status: ViewStatus.loading);
-    case LoadUploadsSuccessAction:
+    case LoadUploadsSuccessAction _:
       return state.copyWith(
         status: ViewStatus.success,
         data: (action as LoadUploadsSuccessAction).items,

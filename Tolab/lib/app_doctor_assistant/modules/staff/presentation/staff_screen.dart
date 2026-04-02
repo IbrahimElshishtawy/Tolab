@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:redux/redux.dart';
 
+import '../../../core/models/session_user.dart';
+import '../../../core/models/staff_models.dart';
 import '../../../core/navigation/app_routes.dart';
 import '../../../core/navigation/navigation_items.dart';
 import '../../../core/widgets/app_badge.dart';
@@ -40,7 +43,7 @@ class StaffScreen extends StatelessWidget {
                   ],
                   rows: vm.items!
                       .map(
-                        (item) => DataRow(
+                        (StaffMemberModel item) => DataRow(
                           cells: [
                             DataCell(Text(item.user.fullName)),
                             DataCell(Text(item.departmentName)),
@@ -58,7 +61,7 @@ class StaffScreen extends StatelessWidget {
                       .toList(),
                   mobileBuilder: () => vm.items!
                       .map(
-                        (item) => Card(
+                        (StaffMemberModel item) => Card(
                           child: ListTile(
                             title: Text(item.user.fullName),
                             subtitle: Text(item.assignmentSummary),

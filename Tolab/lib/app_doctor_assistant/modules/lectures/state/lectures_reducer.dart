@@ -1,3 +1,5 @@
+// ignore_for_file: type_literal_in_constant_pattern
+
 import '../../../core/state/async_state.dart';
 import 'lectures_actions.dart';
 import 'lectures_state.dart';
@@ -7,10 +9,7 @@ LecturesState lecturesReducer(LecturesState state, dynamic action) {
     case LoadLecturesAction:
     case SaveLectureAction:
     case DeleteLectureAction:
-      return LecturesState(
-        status: ViewStatus.loading,
-        data: state.data,
-      );
+      return LecturesState(status: ViewStatus.loading, data: state.data);
     case LoadLecturesSuccessAction:
       return LecturesState(
         status: ViewStatus.success,

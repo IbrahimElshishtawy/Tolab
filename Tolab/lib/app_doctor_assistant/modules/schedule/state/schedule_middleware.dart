@@ -8,16 +8,18 @@ List<Middleware<DoctorAssistantAppState>> createScheduleMiddleware(
   ScheduleRepository repository,
 ) {
   return [
-    TypedMiddleware<DoctorAssistantAppState, LoadScheduleAction>(
-      (store, action, next) async {
-        next(action);
-        try {
-          final items = await repository.fetchEvents();
-          store.dispatch(LoadScheduleSuccessAction(items));
-        } catch (error) {
-          store.dispatch(LoadScheduleFailureAction(error.toString()));
-        }
-      },
-    ),
+    TypedMiddleware<DoctorAssistantAppState, LoadScheduleAction>((
+      store,
+      action,
+      next,
+    ) async {
+      next(action);
+      try {
+        final items = await repository.fetchEvents();
+        store.dispatch(LoadScheduleSuccessAction(items));
+      } catch (error) {
+        store.dispatch(LoadScheduleFailureAction(error.toString()));
+      }
+    }).call,
   ];
 }

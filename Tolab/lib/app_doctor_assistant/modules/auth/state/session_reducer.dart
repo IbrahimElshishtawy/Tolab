@@ -1,3 +1,5 @@
+// ignore_for_file: type_literal_in_constant_pattern
+
 import 'session_actions.dart';
 import 'session_state.dart';
 

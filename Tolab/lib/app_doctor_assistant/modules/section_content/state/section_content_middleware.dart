@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_cast
+
 import 'package:redux/redux.dart';
 
 import '../../../state/app_state.dart';
@@ -8,25 +10,29 @@ List<Middleware<DoctorAssistantAppState>> createSectionContentMiddleware(
   SectionContentRepository repository,
 ) {
   return [
-    TypedMiddleware<DoctorAssistantAppState, LoadSectionContentAction>(
-      (store, action, next) async {
-        next(action);
-        try {
-          final items = await repository.fetchSectionContent();
-          store.dispatch(LoadSectionContentSuccessAction(items));
-        } catch (error) {
-          store.dispatch(LoadSectionContentFailureAction(error.toString()));
-        }
-      },
-    ),
-    TypedMiddleware<DoctorAssistantAppState, SaveSectionContentAction>(
-      (store, action, next) async {
-        next(action);
-        await repository.saveSectionContent(
-          (action as SaveSectionContentAction).payload,
-        );
-        store.dispatch(LoadSectionContentAction());
-      },
-    ),
+    TypedMiddleware<DoctorAssistantAppState, LoadSectionContentAction>((
+      store,
+      action,
+      next,
+    ) async {
+      next(action);
+      try {
+        final items = await repository.fetchSectionContent();
+        store.dispatch(LoadSectionContentSuccessAction(items));
+      } catch (error) {
+        store.dispatch(LoadSectionContentFailureAction(error.toString()));
+      }
+    }),
+    TypedMiddleware<DoctorAssistantAppState, SaveSectionContentAction>((
+      store,
+      action,
+      next,
+    ) async {
+      next(action);
+      await repository.saveSectionContent(
+        (action as SaveSectionContentAction).payload,
+      );
+      store.dispatch(LoadSectionContentAction());
+    }).call,
   ];
 }

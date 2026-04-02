@@ -4,15 +4,15 @@ import 'quizzes_state.dart';
 
 QuizzesState quizzesReducer(QuizzesState state, dynamic action) {
   switch (action.runtimeType) {
-    case LoadQuizzesAction:
-    case SaveQuizAction:
+    case LoadQuizzesAction _:
+    case SaveQuizAction _:
       return QuizzesState(status: ViewStatus.loading, data: state.data);
-    case LoadQuizzesSuccessAction:
+    case LoadQuizzesSuccessAction _:
       return QuizzesState(
         status: ViewStatus.success,
         data: (action as LoadQuizzesSuccessAction).items,
       );
-    case LoadQuizzesFailureAction:
+    case LoadQuizzesFailureAction _:
       return QuizzesState(
         status: ViewStatus.failure,
         data: state.data,

@@ -7,15 +7,15 @@ SectionContentState sectionContentReducer(
   dynamic action,
 ) {
   switch (action.runtimeType) {
-    case LoadSectionContentAction:
-    case SaveSectionContentAction:
+    case LoadSectionContentAction _:
+    case SaveSectionContentAction _:
       return SectionContentState(status: ViewStatus.loading, data: state.data);
-    case LoadSectionContentSuccessAction:
+    case LoadSectionContentSuccessAction _:
       return SectionContentState(
         status: ViewStatus.success,
         data: (action as LoadSectionContentSuccessAction).items,
       );
-    case LoadSectionContentFailureAction:
+    case LoadSectionContentFailureAction _:
       return SectionContentState(
         status: ViewStatus.failure,
         data: state.data,

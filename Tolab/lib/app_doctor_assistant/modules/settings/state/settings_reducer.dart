@@ -5,14 +5,14 @@ import 'settings_state.dart';
 
 SettingsState settingsReducer(SettingsState state, dynamic action) {
   switch (action.runtimeType) {
-    case UpdateSettingsAction:
+    case UpdateSettingsAction _:
       return SettingsState(status: ViewStatus.loading, data: state.data);
-    case SessionEstablishedAction:
+    case SessionEstablishedAction _:
       return SettingsState(
         status: ViewStatus.success,
         data: (action as SessionEstablishedAction).user,
       );
-    case UpdateSettingsFailureAction:
+    case UpdateSettingsFailureAction _:
       return SettingsState(
         status: ViewStatus.failure,
         error: (action as UpdateSettingsFailureAction).message,

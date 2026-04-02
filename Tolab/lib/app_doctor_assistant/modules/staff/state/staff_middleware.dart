@@ -8,16 +8,18 @@ List<Middleware<DoctorAssistantAppState>> createStaffMiddleware(
   StaffRepository repository,
 ) {
   return [
-    TypedMiddleware<DoctorAssistantAppState, LoadStaffAction>(
-      (store, action, next) async {
-        next(action);
-        try {
-          final items = await repository.fetchStaff();
-          store.dispatch(LoadStaffSuccessAction(items));
-        } catch (error) {
-          store.dispatch(LoadStaffFailureAction(error.toString()));
-        }
-      },
-    ),
+    TypedMiddleware<DoctorAssistantAppState, LoadStaffAction>((
+      store,
+      action,
+      next,
+    ) async {
+      next(action);
+      try {
+        final items = await repository.fetchStaff();
+        store.dispatch(LoadStaffSuccessAction(items));
+      } catch (error) {
+        store.dispatch(LoadStaffFailureAction(error.toString()));
+      }
+    }).call,
   ];
 }

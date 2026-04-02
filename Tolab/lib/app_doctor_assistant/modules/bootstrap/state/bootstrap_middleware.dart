@@ -1,8 +1,9 @@
+// ignore_for_file: implicit_call_tearoffs
+
 import 'package:redux/redux.dart';
 
 import '../../../state/app_state.dart';
 import '../../auth/state/session_actions.dart';
-import '../../auth/state/session_state.dart';
 import '../../auth/repositories/auth_repository.dart';
 import 'bootstrap_actions.dart';
 

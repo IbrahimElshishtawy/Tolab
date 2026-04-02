@@ -2,7 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:redux/redux.dart';
 
+import '../../../core/models/notification_models.dart';
+import '../../../core/models/session_user.dart';
 import '../../../core/navigation/app_routes.dart';
 import '../../../core/navigation/navigation_items.dart';
 import '../../../core/widgets/app_badge.dart';
@@ -77,7 +80,7 @@ class UploadsScreen extends StatelessWidget {
                 const LoadingStateView()
               else
                 ...vm.items!.map(
-                  (item) => Padding(
+                  (UploadModel item) => Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: AppCard(
                       child: ListTile(

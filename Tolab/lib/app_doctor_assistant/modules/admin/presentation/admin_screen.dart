@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:redux/redux.dart';
 
+import '../../../core/models/academic_models.dart';
+import '../../../core/models/session_user.dart';
 import '../../../core/navigation/app_routes.dart';
 import '../../../core/navigation/navigation_items.dart';
 import '../../../core/widgets/app_badge.dart';
@@ -87,7 +90,7 @@ class AdminScreen extends StatelessWidget {
                               style: Theme.of(context).textTheme.titleLarge),
                           const SizedBox(height: 12),
                           ...vm.departments.map(
-                            (department) => ListTile(
+                            (DepartmentModel department) => ListTile(
                               contentPadding: EdgeInsets.zero,
                               title: Text(department.name),
                               subtitle: Text(department.description ?? ''),
