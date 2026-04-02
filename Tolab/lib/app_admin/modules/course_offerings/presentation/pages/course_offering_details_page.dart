@@ -17,20 +17,34 @@ import '../../state/course_offerings_selectors.dart';
 import '../widgets/offering_form.dart';
 import '../widgets/offering_tabs.dart';
 
-class CourseOfferingDetailsPage extends StatelessWidget {
+class CourseOfferingDetailsPage extends StatefulWidget {
   const CourseOfferingDetailsPage({super.key, required this.offeringId});
 
   final String offeringId;
+
+  @override
+  State<CourseOfferingDetailsPage> createState() =>
+      _CourseOfferingDetailsPageState();
+}
+
+class _CourseOfferingDetailsPageState extends State<CourseOfferingDetailsPage> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, _CourseOfferingDetailsViewModel>(
       onInit: (store) {
         store.dispatch(const FetchCourseOfferingsAction(silent: true));
-        store.dispatch(FetchCourseOfferingDetailsAction(offeringId));
+        store.dispatch(FetchCourseOfferingDetailsAction(widget.offeringId));
       },
       converter: (store) =>
-          _CourseOfferingDetailsViewModel.fromStore(store, offeringId),
+          _CourseOfferingDetailsViewModel.fromStore(store, widget.offeringId),
       distinct: true,
       builder: (context, vm) {
         return Column(
@@ -124,7 +138,7 @@ class CourseOfferingDetailsPage extends StatelessWidget {
                 status: vm.status,
                 errorMessage: vm.errorMessage,
                 onRetry: () => vm.store.dispatch(
-                  FetchCourseOfferingDetailsAction(offeringId),
+                  FetchCourseOfferingDetailsAction(widget.offeringId),
                 ),
                 isEmpty: vm.offering == null && vm.status == LoadStatus.success,
                 emptyTitle: 'Offering not found',
@@ -133,8 +147,10 @@ class CourseOfferingDetailsPage extends StatelessWidget {
                 child: vm.offering == null
                     ? const SizedBox.shrink()
                     : Scrollbar(
+                        controller: _scrollController,
                         thumbVisibility: true,
                         child: SingleChildScrollView(
+                          controller: _scrollController,
                           padding: const EdgeInsets.only(bottom: AppSpacing.md),
                           child: OfferingTabs(
                             offering: vm.offering!,

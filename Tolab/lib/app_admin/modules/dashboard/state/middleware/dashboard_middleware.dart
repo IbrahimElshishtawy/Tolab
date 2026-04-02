@@ -183,7 +183,11 @@ List<Middleware<AppState>> createDashboardMiddleware(AppDependencies deps) {
       next(action);
       await stopRealtime();
     }).call,
-    TypedMiddleware<AppState, LogoutCompletedAction>((store, action, next) async {
+    TypedMiddleware<AppState, LogoutCompletedAction>((
+      store,
+      action,
+      next,
+    ) async {
       next(action);
       searchDebounce?.cancel();
       await stopRealtime();

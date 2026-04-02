@@ -312,7 +312,7 @@ class _RolesListScreenState extends State<RolesListScreen> {
   }
 }
 
-class _RolesWorkspace extends StatelessWidget {
+class _RolesWorkspace extends StatefulWidget {
   const _RolesWorkspace({
     super.key,
     required this.isDesktop,
@@ -356,33 +356,46 @@ class _RolesWorkspace extends StatelessWidget {
   onTogglePermission;
 
   @override
+  State<_RolesWorkspace> createState() => _RolesWorkspaceState();
+}
+
+class _RolesWorkspaceState extends State<_RolesWorkspace> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final rolesList = _RolesListPane(
-      roles: roles,
-      selectedRoleId: selectedRole?.id,
-      permissionCount: permissionCount,
-      onCreateRole: onCreateRole,
-      onSelectRole: onSelectRole,
+      roles: widget.roles,
+      selectedRoleId: widget.selectedRole?.id,
+      permissionCount: widget.permissionCount,
+      onCreateRole: widget.onCreateRole,
+      onSelectRole: widget.onSelectRole,
     );
     final detail = RoleDetailScreen(
-      role: selectedRole,
-      permissions: filteredPermissions,
-      availableUsers: availableUsers,
-      pendingPermissionIds: pendingPermissionIds,
-      isUsersBusy: isUsersBusy,
-      onEditRole: onEditRole ?? () {},
-      onDeleteRole: onDeleteRole ?? () {},
-      onAssignUsers: onAssignUsers ?? () {},
-      onCreatePermission: onCreatePermission,
-      onEditPermission: onEditPermission,
-      onDeletePermission: onDeletePermission,
-      onTogglePermission: onTogglePermission,
+      role: widget.selectedRole,
+      permissions: widget.filteredPermissions,
+      availableUsers: widget.availableUsers,
+      pendingPermissionIds: widget.pendingPermissionIds,
+      isUsersBusy: widget.isUsersBusy,
+      onEditRole: widget.onEditRole ?? () {},
+      onDeleteRole: widget.onDeleteRole ?? () {},
+      onAssignUsers: widget.onAssignUsers ?? () {},
+      onCreatePermission: widget.onCreatePermission,
+      onEditPermission: widget.onEditPermission,
+      onDeletePermission: widget.onDeletePermission,
+      onTogglePermission: widget.onTogglePermission,
     );
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final stackContent =
-            isMobile || !isDesktop || constraints.maxWidth < 1180;
+            widget.isMobile || !widget.isDesktop || constraints.maxWidth < 1180;
         final content = stackContent
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -405,8 +418,10 @@ class _RolesWorkspace extends StatelessWidget {
               );
 
         return Scrollbar(
+          controller: _scrollController,
           thumbVisibility: true,
           child: SingleChildScrollView(
+            controller: _scrollController,
             padding: const EdgeInsets.only(bottom: AppSpacing.md),
             child: content,
           ),
