@@ -16,7 +16,9 @@ List<Middleware<AppState>> createRolesMiddleware(AppDependencies deps) {
     ) async {
       next(action);
       try {
-        final bundle = await deps.rolesRepository.fetchDashboard();
+        final bundle = await deps.rolesRepository.fetchDashboard(
+          preferRemote: await deps.authService.hasUsableSession(),
+        );
         store.dispatch(RolesDashboardLoadedAction(bundle));
       } catch (error) {
         store.dispatch(RolesDashboardFailedAction(_messageOf(error)));

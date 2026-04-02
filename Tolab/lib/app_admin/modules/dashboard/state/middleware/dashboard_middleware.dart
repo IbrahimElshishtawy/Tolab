@@ -34,9 +34,11 @@ List<Middleware<AppState>> createDashboardMiddleware(AppDependencies deps) {
       activeDashboardToken = token;
 
       try {
+        final preferRemote = await deps.authService.hasUsableSession();
         final bundle = await deps.dashboardRepository.fetchDashboard(
           filters: store.state.dashboardState.filters,
           cancelToken: token,
+          preferRemote: preferRemote,
         );
         if (token.isCancelled || activeDashboardToken != token) {
           return;
@@ -121,10 +123,12 @@ List<Middleware<AppState>> createDashboardMiddleware(AppDependencies deps) {
       final token = CancelToken();
       activeSearchToken = token;
       try {
+        final preferRemote = await deps.authService.hasUsableSession();
         final results = await deps.dashboardRepository.searchDirectory(
           query: action.query,
           scope: action.scope,
           cancelToken: token,
+          preferRemote: preferRemote,
         );
         if (token.isCancelled || activeSearchToken != token) {
           return;
@@ -154,6 +158,10 @@ List<Middleware<AppState>> createDashboardMiddleware(AppDependencies deps) {
     ) async {
       next(action);
       await stopRealtime();
+
+      if (!await deps.authService.hasUsableSession()) {
+        return;
+      }
 
       final accessToken = await deps.secureStorage.readAccessToken();
       final userId = store.state.authState.currentUser?.id;

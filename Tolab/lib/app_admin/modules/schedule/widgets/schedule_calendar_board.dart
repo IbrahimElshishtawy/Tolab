@@ -12,7 +12,7 @@ import '../../../core/widgets/app_card.dart';
 import '../models/schedule_models.dart';
 
 // Interactive schedule board supporting month, week, and day timelines.
-class ScheduleCalendarBoard extends StatelessWidget {
+class ScheduleCalendarBoard extends StatefulWidget {
   const ScheduleCalendarBoard({
     super.key,
     required this.events,
@@ -48,19 +48,36 @@ class ScheduleCalendarBoard extends StatelessWidget {
   final ValueChanged<DateTime>? onCreateAt;
 
   @override
+  State<ScheduleCalendarBoard> createState() => _ScheduleCalendarBoardState();
+}
+
+class _ScheduleCalendarBoardState extends State<ScheduleCalendarBoard> {
+  final ScrollController _monthScrollController = ScrollController();
+  final ScrollController _timelineHorizontalController = ScrollController();
+  final ScrollController _timelineVerticalController = ScrollController();
+
+  @override
+  void dispose() {
+    _monthScrollController.dispose();
+    _timelineHorizontalController.dispose();
+    _timelineVerticalController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final title = switch (view) {
+        final title = switch (widget.view) {
           ScheduleCalendarView.month => DateFormat(
             'MMMM yyyy',
-          ).format(focusedDay),
+          ).format(widget.focusedDay),
           ScheduleCalendarView.week => _weekRangeLabel(
-            _startOfWeek(focusedDay),
+            _startOfWeek(widget.focusedDay),
           ),
           ScheduleCalendarView.day => DateFormat(
             'EEEE, d MMMM yyyy',
-          ).format(selectedDay),
+          ).format(widget.selectedDay),
         };
         final hasBoundedHeight = constraints.maxHeight.isFinite;
         final isCompact =
@@ -76,20 +93,20 @@ class ScheduleCalendarBoard extends StatelessWidget {
           switchInCurve: AppMotion.entrance,
           switchOutCurve: AppMotion.emphasized,
           child: GestureDetector(
-            key: ValueKey<String>(view.name),
+            key: ValueKey<String>(widget.view.name),
             onHorizontalDragEnd: (details) {
               final velocity = details.primaryVelocity ?? 0;
               if (velocity.abs() < 150) return;
-              onNavigate(velocity < 0 ? 1 : -1);
+              widget.onNavigate(velocity < 0 ? 1 : -1);
             },
-            child: switch (view) {
+            child: switch (widget.view) {
               ScheduleCalendarView.month => _MonthCalendarView(
-                focusedDay: focusedDay,
-                selectedDay: selectedDay,
-                events: events,
-                conflictMap: conflictMap,
-                onFocusedDayChanged: onFocusedDayChanged,
-                onSelectedDayChanged: onSelectedDayChanged,
+                focusedDay: widget.focusedDay,
+                selectedDay: widget.selectedDay,
+                events: widget.events,
+                conflictMap: widget.conflictMap,
+                onFocusedDayChanged: widget.onFocusedDayChanged,
+                onSelectedDayChanged: widget.onSelectedDayChanged,
                 compact: isCompact,
                 availableHeight: hasBoundedHeight
                     ? math.max(
@@ -102,34 +119,36 @@ class ScheduleCalendarBoard extends StatelessWidget {
               ),
               ScheduleCalendarView.week ||
               ScheduleCalendarView.day => _TimelineCalendarView(
-                events: events,
-                view: view,
-                focusedDay: focusedDay,
-                selectedDay: selectedDay,
-                conflictMap: conflictMap,
-                onSelectedDayChanged: onSelectedDayChanged,
-                onEventTap: onEventTap,
-                onEventDropped: onEventDropped,
-                onCreateAt: onCreateAt,
+                events: widget.events,
+                view: widget.view,
+                focusedDay: widget.focusedDay,
+                selectedDay: widget.selectedDay,
+                conflictMap: widget.conflictMap,
+                onSelectedDayChanged: widget.onSelectedDayChanged,
+                onEventTap: widget.onEventTap,
+                onEventDropped: widget.onEventDropped,
+                onCreateAt: widget.onCreateAt,
                 compact: isCompact,
+                horizontalController: _timelineHorizontalController,
+                verticalController: _timelineVerticalController,
               ),
             },
           ),
         );
         final toolbar = _CalendarToolbar(
           title: title,
-          view: view,
-          onViewChanged: onViewChanged,
-          onNavigate: onNavigate,
+          view: widget.view,
+          onViewChanged: widget.onViewChanged,
+          onNavigate: widget.onNavigate,
           onTodayPressed: () {
             final today = DateTime.now();
-            onFocusedDayChanged(today);
-            onSelectedDayChanged(today);
+            widget.onFocusedDayChanged(today);
+            widget.onSelectedDayChanged(today);
           },
           compact: isCompact,
         );
 
-        if (view == ScheduleCalendarView.month) {
+        if (widget.view == ScheduleCalendarView.month) {
           return AppCard(
             padding: cardPadding,
             child: hasBoundedHeight
@@ -138,11 +157,16 @@ class ScheduleCalendarBoard extends StatelessWidget {
                     children: [
                       toolbar,
                       const SizedBox(height: AppSpacing.md),
-                      _CalendarLegend(view: view),
+                      _CalendarLegend(view: widget.view),
                       SizedBox(height: verticalGap),
                       Expanded(
                         child: Scrollbar(
-                          child: SingleChildScrollView(child: calendarContent),
+                          controller: _monthScrollController,
+                          thumbVisibility: true,
+                          child: SingleChildScrollView(
+                            controller: _monthScrollController,
+                            child: calendarContent,
+                          ),
                         ),
                       ),
                     ],
@@ -153,7 +177,7 @@ class ScheduleCalendarBoard extends StatelessWidget {
                     children: [
                       toolbar,
                       const SizedBox(height: AppSpacing.md),
-                      _CalendarLegend(view: view),
+                      _CalendarLegend(view: widget.view),
                       SizedBox(height: verticalGap),
                       calendarContent,
                     ],
@@ -171,7 +195,7 @@ class ScheduleCalendarBoard extends StatelessWidget {
                   children: [
                     toolbar,
                     const SizedBox(height: AppSpacing.md),
-                    _CalendarLegend(view: view),
+                    _CalendarLegend(view: widget.view),
                     SizedBox(height: verticalGap),
                     Expanded(child: calendarContent),
                   ],
@@ -182,7 +206,7 @@ class ScheduleCalendarBoard extends StatelessWidget {
                   children: [
                     toolbar,
                     const SizedBox(height: AppSpacing.md),
-                    _CalendarLegend(view: view),
+                    _CalendarLegend(view: widget.view),
                     SizedBox(height: verticalGap),
                     SizedBox(
                       height: fallbackTimelineHeight,
@@ -511,6 +535,8 @@ class _TimelineCalendarView extends StatelessWidget {
     required this.onEventTap,
     required this.onEventDropped,
     required this.compact,
+    required this.horizontalController,
+    required this.verticalController,
     this.onCreateAt,
   });
 
@@ -522,6 +548,8 @@ class _TimelineCalendarView extends StatelessWidget {
   final ValueChanged<DateTime> onSelectedDayChanged;
   final ValueChanged<ScheduleEventItem> onEventTap;
   final bool compact;
+  final ScrollController horizontalController;
+  final ScrollController verticalController;
   final void Function(
     ScheduleEventItem event,
     DateTime newStart,
@@ -628,64 +656,72 @@ class _TimelineCalendarView extends StatelessWidget {
             const SizedBox(height: AppSpacing.sm),
             Expanded(
               child: Scrollbar(
+                controller: horizontalController,
+                thumbVisibility: true,
                 child: SingleChildScrollView(
+                  controller: horizontalController,
                   scrollDirection: Axis.horizontal,
                   child: SizedBox(
                     width: leadColumnWidth + timelineWidth,
-                    child: SingleChildScrollView(
-                      child: SizedBox(
-                        height: timelineHeight,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              width: leadColumnWidth,
-                              child: Column(
-                                children: [
-                                  for (
-                                    var hour = _startHour;
-                                    hour <= _endHour;
-                                    hour++
-                                  )
-                                    SizedBox(
-                                      height: slotHeight,
-                                      child: Align(
-                                        alignment: Alignment.topLeft,
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                            top: compact ? 2 : 4,
-                                          ),
-                                          child: Text(
-                                            DateFormat.j().format(
-                                              DateTime(2026, 1, 1, hour),
+                    child: Scrollbar(
+                      controller: verticalController,
+                      thumbVisibility: true,
+                      child: SingleChildScrollView(
+                        controller: verticalController,
+                        child: SizedBox(
+                          height: timelineHeight,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: leadColumnWidth,
+                                child: Column(
+                                  children: [
+                                    for (
+                                      var hour = _startHour;
+                                      hour <= _endHour;
+                                      hour++
+                                    )
+                                      SizedBox(
+                                        height: slotHeight,
+                                        child: Align(
+                                          alignment: Alignment.topLeft,
+                                          child: Padding(
+                                            padding: EdgeInsets.only(
+                                              top: compact ? 2 : 4,
                                             ),
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.bodySmall,
+                                            child: Text(
+                                              DateFormat.j().format(
+                                                DateTime(2026, 1, 1, hour),
+                                              ),
+                                              style: Theme.of(
+                                                context,
+                                              ).textTheme.bodySmall,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            for (final day in visibleDays)
-                              _TimelineDayColumn(
-                                day: day,
-                                width: dayWidth,
-                                slotHeight: slotHeight,
-                                startHour: _startHour,
-                                endHour: _endHour,
-                                events: events
-                                    .where((event) => event.occursOnDay(day))
-                                    .toList(growable: false),
-                                conflictMap: conflictMap,
-                                enableDrag: isDesktopDrag,
-                                onEventTap: onEventTap,
-                                onEventDropped: onEventDropped,
-                                onCreateAt: onCreateAt,
-                              ),
-                          ],
+                              for (final day in visibleDays)
+                                _TimelineDayColumn(
+                                  day: day,
+                                  width: dayWidth,
+                                  slotHeight: slotHeight,
+                                  startHour: _startHour,
+                                  endHour: _endHour,
+                                  events: events
+                                      .where((event) => event.occursOnDay(day))
+                                      .toList(growable: false),
+                                  conflictMap: conflictMap,
+                                  enableDrag: isDesktopDrag,
+                                  onEventTap: onEventTap,
+                                  onEventDropped: onEventDropped,
+                                  onCreateAt: onCreateAt,
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

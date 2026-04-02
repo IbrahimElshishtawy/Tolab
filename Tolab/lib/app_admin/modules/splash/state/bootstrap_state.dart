@@ -66,12 +66,17 @@ List<Middleware<AppState>> createBootstrapMiddleware(AppDependencies deps) {
     ) async {
       next(action);
       try {
-        final settings = await deps.settingsRepository.fetchSettings();
+        final hasUsableSession = await deps.authService.hasUsableSession();
+        final settings = await deps.settingsRepository.fetchSettings(
+          preferRemote: hasUsableSession,
+        );
         store.dispatch(SettingsLoadedAction(settings));
 
         final hasSession = await deps.authService.hasSession();
         if (hasSession) {
-          final user = await deps.authRepository.me();
+          final user = await deps.authService.isDemoSession()
+              ? deps.demoDataService.adminProfile()
+              : await deps.authRepository.me();
           store.dispatch(HydrateUserAction(user));
         }
 

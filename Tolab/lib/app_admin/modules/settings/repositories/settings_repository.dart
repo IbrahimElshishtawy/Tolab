@@ -17,9 +17,14 @@ class SettingsRepository {
   static const String _cacheKey = 'settings.bundle.v2';
   SettingsBundle? _cache;
 
-  Future<SettingsBundle> fetchSettings() async {
+  Future<SettingsBundle> fetchSettings({bool preferRemote = true}) async {
     final cached = _cache ?? _readCachedBundle();
     final seed = cached ?? _demoDataService.settings();
+
+    if (!preferRemote) {
+      await _persist(seed);
+      return seed;
+    }
 
     try {
       final remote = await _api.fetchSettings();

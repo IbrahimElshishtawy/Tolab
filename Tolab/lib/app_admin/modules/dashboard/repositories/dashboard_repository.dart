@@ -14,7 +14,12 @@ class DashboardRepository {
   Future<DashboardBundle> fetchDashboard({
     required DashboardFilters filters,
     CancelToken? cancelToken,
+    bool preferRemote = true,
   }) async {
+    if (!preferRemote) {
+      return _seedService.buildBundle(filters: filters);
+    }
+
     try {
       return await _apiService.fetchDashboard(
         filters: filters,
@@ -35,7 +40,12 @@ class DashboardRepository {
     required String query,
     required DashboardSearchScope scope,
     CancelToken? cancelToken,
+    bool preferRemote = true,
   }) async {
+    if (!preferRemote) {
+      return _seedService.searchDirectory(query: query, scope: scope);
+    }
+
     try {
       final remote = await _apiService.searchDirectory(
         query: query,

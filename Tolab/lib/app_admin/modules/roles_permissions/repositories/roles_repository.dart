@@ -40,7 +40,15 @@ class RolesRepository {
   List<PermissionModel> _cachedPermissions = const <PermissionModel>[];
   List<RoleUserAssignment> _cachedUsers = const <RoleUserAssignment>[];
 
-  Future<RolesDashboardBundle> fetchDashboard() async {
+  Future<RolesDashboardBundle> fetchDashboard({bool preferRemote = true}) async {
+    if (!preferRemote) {
+      final seedBundle = _seedBundle();
+      _cachedRoles = seedBundle.roles;
+      _cachedPermissions = seedBundle.permissions;
+      _cachedUsers = seedBundle.assignableUsers;
+      return seedBundle;
+    }
+
     try {
       final results = await Future.wait<Object>([
         _service.fetchRoles(),
