@@ -4,6 +4,9 @@ namespace App\Modules\UserManagement\Models;
 
 use App\Core\Enums\UserRole;
 use App\Modules\Academic\Models\CourseOffering;
+use App\Modules\Academic\Models\Department;
+use App\Modules\Academic\Models\Section;
+use App\Modules\Academic\Models\Subject;
 use App\Modules\Content\Models\Assessment;
 use App\Modules\Content\Models\Exam;
 use App\Modules\Content\Models\Summary;
@@ -14,6 +17,9 @@ use App\Modules\Group\Models\GroupMember;
 use App\Modules\Group\Models\Message;
 use App\Modules\Group\Models\Post;
 use App\Modules\Notifications\Models\UserNotification;
+use App\Modules\StaffPortal\Models\Permission;
+use App\Modules\StaffPortal\Models\Role;
+use App\Modules\StaffPortal\Models\StaffAssignment;
 use App\Modules\Shared\Models\AuditLog;
 use App\Modules\Shared\Models\RefreshToken;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,11 +37,19 @@ class User extends Authenticatable
 
     protected $fillable = [
         'role',
+        'role_type',
         'username',
+        'full_name',
         'email',
+        'university_email',
         'password_hash',
         'national_id',
         'is_active',
+        'avatar',
+        'phone',
+        'last_login_at',
+        'notification_enabled',
+        'language',
     ];
 
     protected $hidden = [
@@ -49,6 +63,8 @@ class User extends Authenticatable
             'role' => UserRole::class,
             'is_active' => 'boolean',
             'password_hash' => 'hashed',
+            'last_login_at' => 'datetime',
+            'notification_enabled' => 'boolean',
         ];
     }
 
@@ -142,9 +158,36 @@ class User extends Authenticatable
         return $this->hasMany(UserNotification::class, 'target_user_id');
     }
 
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'portal_role_user');
+    }
+
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class, 'portal_permission_user');
+    }
+
+    public function staffAssignments(): HasMany
+    {
+        return $this->hasMany(StaffAssignment::class);
+    }
+
+    public function managedSubjects()
+    {
+        return $this->belongsToMany(Subject::class, 'staff_assignments')
+            ->withPivot(['section_id', 'department_id', 'academic_year_id', 'assignment_type'])
+            ->withTimestamps();
+    }
+
+    public function assignedSections()
+    {
+        return $this->hasMany(Section::class, 'assistant_id');
+    }
+
     public function isAdmin(): bool
     {
-        return $this->role === UserRole::ADMIN;
+        return $this->role === UserRole::ADMIN || $this->role_type === 'admin';
     }
 
     public function isStudent(): bool
@@ -165,5 +208,26 @@ class User extends Authenticatable
     public function canManageSchedule(): bool
     {
         return $this->isAdmin() || (bool) $this->staffPermission?->can_manage_schedule;
+    }
+
+    public function effectivePermissions(): array
+    {
+        $rolePermissions = $this->roles()
+            ->with('permissions:id,name')
+            ->get()
+            ->flatMap(fn (Role $role) => $role->permissions->pluck('name'));
+
+        $directPermissions = $this->permissions()->pluck('name');
+
+        return $rolePermissions
+            ->merge($directPermissions)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        return $this->isAdmin() || in_array($permission, $this->effectivePermissions(), true);
     }
 }

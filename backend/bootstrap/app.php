@@ -2,6 +2,7 @@
 
 use App\Core\Exceptions\ApiException;
 use App\Core\Middleware\EnsureActiveUser;
+use App\Core\Middleware\EnsurePermission;
 use App\Core\Middleware\ForceJsonResponse;
 use App\Core\Middleware\RequireAdminRole;
 use Illuminate\Auth\AuthenticationException;
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'active' => EnsureActiveUser::class,
             'admin' => RequireAdminRole::class,
+            'permission' => EnsurePermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
