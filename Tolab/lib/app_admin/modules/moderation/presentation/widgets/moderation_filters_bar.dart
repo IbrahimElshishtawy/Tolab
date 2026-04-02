@@ -73,7 +73,6 @@ class _ModerationFiltersBarState extends State<ModerationFiltersBar> {
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final compact = constraints.maxWidth < 1040;
           final searchField = TextField(
             controller: _controller,
             onChanged: widget.onSearchChanged,
@@ -85,71 +84,41 @@ class _ModerationFiltersBarState extends State<ModerationFiltersBar> {
           );
 
           final controls = <Widget>[
-            Expanded(flex: 3, child: searchField),
             _FilterDropdown(
               label: 'Status',
               value: widget.selectedStatus,
               options: widget.statusOptions,
               onChanged: widget.onStatusChanged,
+              width: constraints.maxWidth < 560 ? double.infinity : 180,
             ),
             _FilterDropdown(
               label: widget.secondaryLabel,
               value: widget.selectedSecondary,
               options: widget.secondaryOptions,
               onChanged: widget.onSecondaryChanged,
+              width: constraints.maxWidth < 560 ? double.infinity : 180,
             ),
             _FilterDropdown(
               label: 'Date',
               value: widget.selectedDate,
               options: widget.dateOptions,
               onChanged: widget.onDateChanged,
+              width: constraints.maxWidth < 560 ? double.infinity : 180,
             ),
             ...widget.trailing,
           ];
 
-          if (compact) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                searchField,
-                const SizedBox(height: AppSpacing.md),
-                Wrap(
-                  spacing: AppSpacing.sm,
-                  runSpacing: AppSpacing.sm,
-                  children: [
-                    _FilterDropdown(
-                      label: 'Status',
-                      value: widget.selectedStatus,
-                      options: widget.statusOptions,
-                      onChanged: widget.onStatusChanged,
-                      compact: true,
-                    ),
-                    _FilterDropdown(
-                      label: widget.secondaryLabel,
-                      value: widget.selectedSecondary,
-                      options: widget.secondaryOptions,
-                      onChanged: widget.onSecondaryChanged,
-                      compact: true,
-                    ),
-                    _FilterDropdown(
-                      label: 'Date',
-                      value: widget.selectedDate,
-                      options: widget.dateOptions,
-                      onChanged: widget.onDateChanged,
-                      compact: true,
-                    ),
-                    ...widget.trailing,
-                  ],
-                ),
-              ],
-            );
-          }
-
-          return Row(
-            children: controls
-                .expand((widget) => [widget, const SizedBox(width: AppSpacing.sm)])
-                .toList()
-              ..removeLast(),
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              searchField,
+              const SizedBox(height: AppSpacing.md),
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                children: controls,
+              ),
+            ],
           );
         },
       ),
@@ -163,26 +132,33 @@ class _FilterDropdown extends StatelessWidget {
     required this.value,
     required this.options,
     required this.onChanged,
-    this.compact = false,
+    required this.width,
   });
 
   final String label;
   final String value;
   final List<String> options;
   final ValueChanged<String> onChanged;
-  final bool compact;
+  final double width;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: compact ? 180 : 180,
+      width: width,
       child: DropdownButtonFormField<String>(
         initialValue: options.contains(value) ? value : options.first,
+        isExpanded: true,
         decoration: InputDecoration(labelText: label),
         items: options
             .map(
-              (option) =>
-                  DropdownMenuItem<String>(value: option, child: Text(option)),
+              (option) => DropdownMenuItem<String>(
+                value: option,
+                child: Text(
+                  option,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             )
             .toList(growable: false),
         onChanged: (value) {

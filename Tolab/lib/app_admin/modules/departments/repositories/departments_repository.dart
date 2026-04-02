@@ -19,9 +19,13 @@ class DepartmentsRepository {
   final DepartmentsSeedService _seedService;
 
   List<DepartmentRecord>? _cache;
+  bool _remoteUnavailable = false;
 
   Future<List<DepartmentRecord>> fetchDepartments() async {
     final seedRecords = _cache ??= _seedService.build();
+    if (_remoteUnavailable) {
+      return _cache ?? _seedService.build();
+    }
     try {
       final remote = await _apiClient.get<List<DepartmentRecord>>(
         '/departments',
@@ -61,9 +65,10 @@ class DepartmentsRepository {
       }
     } on AppException catch (error) {
       if (error.statusCode != null && error.statusCode! >= 500) {
-        rethrow;
+        _remoteUnavailable = true;
       }
     } on DioException {
+      _remoteUnavailable = true;
       // Falls through to the seeded local snapshot below.
     }
     return _cache ?? _seedService.build();

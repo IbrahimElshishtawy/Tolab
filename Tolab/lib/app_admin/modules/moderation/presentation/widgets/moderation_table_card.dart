@@ -98,6 +98,8 @@ class ModerationTableCard<T> extends StatelessWidget {
                     Text(
                       subtitle,
                       style: Theme.of(context).textTheme.bodySmall,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -209,6 +211,8 @@ class ModerationTableCard<T> extends StatelessWidget {
                     width: tableWidth.toDouble(),
                     child: DataTable2(
                       showCheckboxColumn: false,
+                      dataRowHeight: 72,
+                      headingRowHeight: 56,
                       columnSpacing: 18,
                       horizontalMargin: 8,
                       minWidth: tableWidth.toDouble(),

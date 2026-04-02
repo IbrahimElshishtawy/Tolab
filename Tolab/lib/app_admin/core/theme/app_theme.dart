@@ -74,6 +74,8 @@ class AppTheme {
           ? AppColors.backgroundDark
           : AppColors.backgroundLight,
       textTheme: textTheme,
+      iconTheme: IconThemeData(color: scheme.onSurface, size: 18),
+      primaryIconTheme: const IconThemeData(color: Colors.white, size: 18),
       cardColor: surfaceColor,
       dividerColor: divider,
       canvasColor: elevatedSurface,
@@ -94,6 +96,7 @@ class AppTheme {
       appBarTheme: AppBarTheme(
         elevation: 0,
         scrolledUnderElevation: 0,
+        toolbarHeight: 64,
         backgroundColor: Colors.transparent,
         foregroundColor: isDark
             ? AppColors.textPrimaryDark
@@ -143,10 +146,7 @@ class AppTheme {
         suffixIconColor: isDark
             ? AppColors.textSecondaryDark
             : AppColors.textSecondaryLight,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 10,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         constraints: const BoxConstraints(
           minHeight: AppConstants.denseInputHeight,
         ),
@@ -158,7 +158,7 @@ class AppTheme {
         selectedColor: primaryColor.withValues(alpha: 0.16),
         secondarySelectedColor: primaryColor.withValues(alpha: 0.16),
         disabledColor: mutedSurface,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.smallRadius),
           side: BorderSide(color: divider),
@@ -172,7 +172,7 @@ class AppTheme {
             Size(0, AppConstants.denseInputHeight),
           ),
           padding: const WidgetStatePropertyAll(
-            EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
@@ -202,7 +202,7 @@ class AppTheme {
             Size(0, AppConstants.denseInputHeight),
           ),
           padding: const WidgetStatePropertyAll(
-            EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
@@ -226,7 +226,7 @@ class AppTheme {
             Size(0, AppConstants.denseInputHeight),
           ),
           padding: const WidgetStatePropertyAll(
-            EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           ),
           foregroundColor: WidgetStatePropertyAll(scheme.onSurface),
           textStyle: WidgetStatePropertyAll(textTheme.labelLarge),
@@ -239,7 +239,7 @@ class AppTheme {
       ),
       iconButtonTheme: IconButtonThemeData(
         style: ButtonStyle(
-          minimumSize: const WidgetStatePropertyAll(Size(36, 36)),
+          minimumSize: const WidgetStatePropertyAll(Size(32, 32)),
           padding: const WidgetStatePropertyAll(EdgeInsets.zero),
           backgroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.pressed)) {
@@ -262,7 +262,7 @@ class AppTheme {
         ),
         iconColor: scheme.onSurface,
         textColor: scheme.onSurface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
       ),
       dataTableTheme: DataTableThemeData(
         headingRowColor: WidgetStatePropertyAll(mutedSurface),
@@ -273,11 +273,11 @@ class AppTheme {
         ),
         dataTextStyle: textTheme.bodyMedium,
         dividerThickness: 0.6,
-        horizontalMargin: 12,
-        columnSpacing: 16,
-        headingRowHeight: 42,
-        dataRowMinHeight: 40,
-        dataRowMaxHeight: 52,
+        horizontalMargin: 10,
+        columnSpacing: 12,
+        headingRowHeight: 38,
+        dataRowMinHeight: 34,
+        dataRowMaxHeight: 46,
       ),
       checkboxTheme: CheckboxThemeData(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

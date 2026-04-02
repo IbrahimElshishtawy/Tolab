@@ -61,11 +61,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
 
         final searchError = current.searchErrorMessage;
-        if (searchError != null && searchError != previous?.searchErrorMessage) {
+        if (searchError != null &&
+            searchError != previous?.searchErrorMessage) {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
-              SnackBar(content: Text(searchError), duration: const Duration(seconds: 3)),
+              SnackBar(
+                content: Text(searchError),
+                duration: const Duration(seconds: 3),
+              ),
             );
         }
       },
@@ -77,7 +81,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         if (bundle == null) {
           return _DashboardFailureState(
-            message: state.errorMessage ?? 'Unable to load the admin dashboard.',
+            message:
+                state.errorMessage ?? 'Unable to load the admin dashboard.',
             onRetry: () => StoreProvider.of<AppState>(
               context,
               listen: false,
@@ -116,6 +121,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ).dispatch(DashboardTimeRangeChangedAction(range)),
               ),
               const SizedBox(height: AppSpacing.lg),
+              RecentActivityTableCard(rows: bundle.activityRows),
+              const SizedBox(height: AppSpacing.lg),
               DashboardSearchResultsPanel(
                 query: state.searchQuery,
                 results: state.searchResults,
@@ -135,10 +142,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 bundle: bundle,
                 onQuickActionSelected: (action) {
                   if (action.route.isEmpty) {
-                    StoreProvider.of<AppState>(
-                      context,
-                      listen: false,
-                    ).dispatch(
+                    StoreProvider.of<AppState>(context, listen: false).dispatch(
                       DashboardFeedbackShownAction(
                         '${action.label} is ready for the connected backend flow.',
                       ),
@@ -148,8 +152,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   context.go(action.route);
                 },
               ),
-              const SizedBox(height: AppSpacing.lg),
-              RecentActivityTableCard(rows: bundle.activityRows),
             ],
           ),
         );
@@ -239,7 +241,9 @@ class _ResponsiveCharts extends StatelessWidget {
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   flex: 4,
-                  child: PendingApprovalsDonutCard(slices: bundle.taskBreakdown),
+                  child: PendingApprovalsDonutCard(
+                    slices: bundle.taskBreakdown,
+                  ),
                 ),
               ],
             ),
@@ -301,10 +305,7 @@ class _AdaptiveOperationsRow extends StatelessWidget {
 }
 
 class _DashboardFailureState extends StatelessWidget {
-  const _DashboardFailureState({
-    required this.message,
-    required this.onRetry,
-  });
+  const _DashboardFailureState({required this.message, required this.onRetry});
 
   final String message;
   final VoidCallback onRetry;

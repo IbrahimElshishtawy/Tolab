@@ -173,11 +173,12 @@ class RecentActivityTableCard extends StatefulWidget {
 }
 
 class _RecentActivityTableCardState extends State<RecentActivityTableCard> {
-  static const double _tableHeaderHeight = 56;
-  static const double _tableFooterHeight = 64;
-  static const double _tableChromeHeight = 24;
-  static const double _tableMinHeight = 340;
-  static const double _tableMaxHeight = 680;
+  static const double _tableHeaderHeight = 48;
+  static const double _tableFooterHeight = 56;
+  static const double _tableChromeHeight = 18;
+  static const double _tableMinHeight = 300;
+  static const double _tableMaxHeight = 560;
+  static const double _tableRowHeight = 60;
 
   final TextEditingController _queryController = TextEditingController();
   DashboardActivityCategory _category = DashboardActivityCategory.all;
@@ -218,7 +219,7 @@ class _RecentActivityTableCardState extends State<RecentActivityTableCard> {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               SizedBox(
-                width: 340,
+                width: 300,
                 child: TextField(
                   controller: _queryController,
                   onChanged: (_) => setState(() {}),
@@ -242,9 +243,9 @@ class _RecentActivityTableCardState extends State<RecentActivityTableCard> {
             child: PaginatedDataTable2(
               wrapInCard: false,
               fit: FlexFit.loose,
-              columnSpacing: 18,
-              horizontalMargin: 12,
-              dataRowHeight: 72,
+              columnSpacing: 14,
+              horizontalMargin: 10,
+              dataRowHeight: _tableRowHeight,
               rowsPerPage: _rowsPerPage,
               minWidth: 1100,
               showFirstLastButtons: true,
@@ -323,7 +324,7 @@ class _RecentActivityTableCardState extends State<RecentActivityTableCard> {
         _tableHeaderHeight +
         _tableFooterHeight +
         _tableChromeHeight +
-        (visibleRows * 72);
+        (visibleRows * _tableRowHeight);
     return estimatedHeight.clamp(_tableMinHeight, _tableMaxHeight).toDouble();
   }
 

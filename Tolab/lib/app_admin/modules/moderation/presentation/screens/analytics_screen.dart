@@ -20,7 +20,8 @@ class ModerationAnalyticsScreen extends StatelessWidget {
         moderatorsCount: store.state.moderationState.moderators.length,
       ),
       builder: (context, vm) {
-        return Column(
+        return ListView(
+          padding: EdgeInsets.zero,
           children: [
             Wrap(
               spacing: AppSpacing.md,
@@ -41,7 +42,7 @@ class ModerationAnalyticsScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.md),
-            Expanded(child: ModerationAnalyticsOverview(analytics: vm.analytics)),
+            ModerationAnalyticsOverview(analytics: vm.analytics),
           ],
         );
       },
@@ -50,10 +51,7 @@ class ModerationAnalyticsScreen extends StatelessWidget {
 }
 
 class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({
-    required this.label,
-    required this.value,
-  });
+  const _SummaryCard({required this.label, required this.value});
 
   final String label;
   final String value;

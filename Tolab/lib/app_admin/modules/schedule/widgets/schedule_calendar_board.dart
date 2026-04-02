@@ -53,14 +53,28 @@ class ScheduleCalendarBoard extends StatefulWidget {
 
 class _ScheduleCalendarBoardState extends State<ScheduleCalendarBoard> {
   final ScrollController _monthScrollController = ScrollController();
-  final ScrollController _timelineHorizontalController = ScrollController();
-  final ScrollController _timelineVerticalController = ScrollController();
+  final ScrollController _weekTimelineHorizontalController = ScrollController();
+  final ScrollController _weekTimelineVerticalController = ScrollController();
+  final ScrollController _dayTimelineHorizontalController = ScrollController();
+  final ScrollController _dayTimelineVerticalController = ScrollController();
+
+  ScrollController get _activeTimelineHorizontalController =>
+      widget.view == ScheduleCalendarView.day
+      ? _dayTimelineHorizontalController
+      : _weekTimelineHorizontalController;
+
+  ScrollController get _activeTimelineVerticalController =>
+      widget.view == ScheduleCalendarView.day
+      ? _dayTimelineVerticalController
+      : _weekTimelineVerticalController;
 
   @override
   void dispose() {
     _monthScrollController.dispose();
-    _timelineHorizontalController.dispose();
-    _timelineVerticalController.dispose();
+    _weekTimelineHorizontalController.dispose();
+    _weekTimelineVerticalController.dispose();
+    _dayTimelineHorizontalController.dispose();
+    _dayTimelineVerticalController.dispose();
     super.dispose();
   }
 
@@ -129,8 +143,8 @@ class _ScheduleCalendarBoardState extends State<ScheduleCalendarBoard> {
                 onEventDropped: widget.onEventDropped,
                 onCreateAt: widget.onCreateAt,
                 compact: isCompact,
-                horizontalController: _timelineHorizontalController,
-                verticalController: _timelineVerticalController,
+                horizontalController: _activeTimelineHorizontalController,
+                verticalController: _activeTimelineVerticalController,
               ),
             },
           ),
