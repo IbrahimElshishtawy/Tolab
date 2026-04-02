@@ -95,8 +95,7 @@ class _CourseOfferingDetailsPageState extends State<CourseOfferingDetailsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           IconButton(
-                            onPressed: () =>
-                                context.go(RoutePaths.courseOfferings),
+                            onPressed: () => _closeDetails(context),
                             icon: const Icon(Icons.arrow_back_rounded),
                           ),
                           titleBlock,
@@ -114,8 +113,7 @@ class _CourseOfferingDetailsPageState extends State<CourseOfferingDetailsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           IconButton(
-                            onPressed: () =>
-                                context.go(RoutePaths.courseOfferings),
+                            onPressed: () => _closeDetails(context),
                             icon: const Icon(Icons.arrow_back_rounded),
                           ),
                           const SizedBox(width: AppSpacing.sm),
@@ -196,10 +194,18 @@ class _CourseOfferingDetailsPageState extends State<CourseOfferingDetailsPage> {
       DeleteCourseOfferingAction(
         offeringId: offering.id,
         onSuccess: () {
-          if (context.mounted) context.go(RoutePaths.courseOfferings);
+          if (context.mounted) _closeDetails(context);
         },
       ),
     );
+  }
+
+  void _closeDetails(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+    context.go(RoutePaths.courseOfferings);
   }
 
   void _showPlaceholder(BuildContext context, String message) {

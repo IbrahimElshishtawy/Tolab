@@ -48,8 +48,9 @@ class SubjectsScreen extends StatelessWidget {
                         width: cardWidth,
                         child: DoctorAssistantSubjectCard(
                           subject: subject,
-                          onTap: () =>
-                              context.go('${AppRoutes.subjects}/${subject.id}'),
+                          onTap: () => context.push(
+                            '${AppRoutes.subjects}/${subject.id}',
+                          ),
                         ),
                       ),
                   ],

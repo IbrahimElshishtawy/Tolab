@@ -165,7 +165,7 @@ class CourseOfferingsPage extends StatelessWidget {
                               child: switch (AppBreakpoints.resolve(context)) {
                                 DeviceScreenType.desktop => OfferingTable(
                                   offerings: vm.visibleOfferings,
-                                  onView: (item) => context.go(
+                                  onView: (item) => context.push(
                                     RoutePaths.courseOfferingDetails(item.id),
                                   ),
                                   onEdit: (item) => OfferingForm.show(
@@ -188,7 +188,7 @@ class CourseOfferingsPage extends StatelessWidget {
                                     final item = vm.visibleOfferings[index];
                                     return OfferingCard(
                                       offering: item,
-                                      onView: () => context.go(
+                                      onView: () => context.push(
                                         RoutePaths.courseOfferingDetails(
                                           item.id,
                                         ),
@@ -213,7 +213,7 @@ class CourseOfferingsPage extends StatelessWidget {
                                     final item = vm.visibleOfferings[index];
                                     return OfferingCard(
                                       offering: item,
-                                      onView: () => context.go(
+                                      onView: () => context.push(
                                         RoutePaths.courseOfferingDetails(
                                           item.id,
                                         ),

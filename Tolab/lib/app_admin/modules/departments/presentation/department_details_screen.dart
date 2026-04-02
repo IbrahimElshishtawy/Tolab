@@ -40,7 +40,7 @@ class DepartmentDetailsScreen extends StatelessWidget {
         if (current.department == null &&
             current.status == LoadStatus.success &&
             context.mounted) {
-          context.go(RoutePaths.departments);
+          _closeDetails(context);
         }
       },
       converter: (store) =>
@@ -53,7 +53,7 @@ class DepartmentDetailsScreen extends StatelessWidget {
             Row(
               children: [
                 IconButton(
-                  onPressed: () => context.go(RoutePaths.departments),
+                  onPressed: () => _closeDetails(context),
                   icon: const Icon(Icons.arrow_back_rounded),
                 ),
                 const SizedBox(width: AppSpacing.sm),
@@ -91,6 +91,14 @@ class DepartmentDetailsScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _closeDetails(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+    context.go(RoutePaths.departments);
   }
 }
 

@@ -273,7 +273,7 @@ class _DepartmentsScreenState extends State<DepartmentsScreen> {
     StoreProvider.of<AppState>(
       context,
     ).dispatch(SelectDepartmentAction(department.id));
-    context.go(RoutePaths.departmentDetails(department.id));
+    context.push(RoutePaths.departmentDetails(department.id));
   }
 
   void _toggleActivation(
