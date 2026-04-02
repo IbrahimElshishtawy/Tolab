@@ -1,5 +1,3 @@
-// ignore_for_file: implicit_call_tearoffs
-
 import 'package:redux/redux.dart';
 
 import '../../../state/app_state.dart';
@@ -13,7 +11,7 @@ List<Middleware<DoctorAssistantAppState>> createBootstrapMiddleware(
   return [
     TypedMiddleware<DoctorAssistantAppState, BootstrapStartedAction>(
       _bootstrap(repository),
-    ),
+    ).call,
   ];
 }
 

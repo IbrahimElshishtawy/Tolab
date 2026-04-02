@@ -16,10 +16,7 @@ List<Middleware<DoctorAssistantAppState>> createSettingsMiddleware(
     ) async {
       next(action);
       try {
-        final user = await repository.updateSettings(
-          // ignore: unnecessary_cast
-          (action as UpdateSettingsAction).payload,
-        );
+        final user = await repository.updateSettings(action.payload);
         store.dispatch(SessionEstablishedAction(user));
       } catch (error) {
         store.dispatch(UpdateSettingsFailureAction(error.toString()));

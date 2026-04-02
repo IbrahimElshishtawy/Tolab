@@ -1,5 +1,3 @@
-// ignore_for_file: implicit_call_tearoffs
-
 import 'package:redux/redux.dart';
 
 import '../../../state/app_state.dart';
@@ -29,8 +27,8 @@ List<Middleware<DoctorAssistantAppState>> createNotificationsMiddleware(
       next,
     ) async {
       next(action);
-      await repository.markRead((action).notificationId);
+      await repository.markRead(action.notificationId);
       store.dispatch(LoadNotificationsAction());
-    }),
+    }).call,
   ];
 }

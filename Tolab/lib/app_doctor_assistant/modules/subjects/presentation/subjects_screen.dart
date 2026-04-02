@@ -37,12 +37,14 @@ class SubjectsScreen extends StatelessWidget {
               ? const LoadingStateView()
               : ListView.separated(
                   itemCount: subjects.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final subject = subjects[index];
                     return InkWell(
                       borderRadius: BorderRadius.circular(22),
-                      onTap: () => context.push('${AppRoutes.subjects}/${subject.id}'),
+                      onTap: () =>
+                          context.push('${AppRoutes.subjects}/${subject.id}'),
                       child: AppCard(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,8 +54,9 @@ class SubjectsScreen extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     subject.name,
-                                    style:
-                                        Theme.of(context).textTheme.titleLarge,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleLarge,
                                   ),
                                 ),
                                 AppBadge(label: subject.code),
@@ -78,10 +81,7 @@ class SubjectsScreen extends StatelessWidget {
 }
 
 class _SubjectsVm {
-  const _SubjectsVm({
-    required this.user,
-    required this.subjects,
-  });
+  const _SubjectsVm({required this.user, required this.subjects});
 
   final SessionUser? user;
   final List<SubjectModel>? subjects;

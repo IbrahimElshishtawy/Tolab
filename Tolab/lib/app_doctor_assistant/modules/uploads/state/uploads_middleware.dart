@@ -1,7 +1,4 @@
-// ignore_for_file: implicit_call_tearoffs, unused_import
-
 import 'package:redux/redux.dart';
-import 'package:dio/dio.dart';
 
 import '../../../state/app_state.dart';
 import '../repositories/uploads_repository.dart';
@@ -23,7 +20,7 @@ List<Middleware<DoctorAssistantAppState>> createUploadsMiddleware(
       } catch (error) {
         store.dispatch(LoadUploadsFailureAction(error.toString()));
       }
-    }),
+    }).call,
     TypedMiddleware<DoctorAssistantAppState, UploadFileAction>((
       store,
       action,
@@ -42,6 +39,6 @@ List<Middleware<DoctorAssistantAppState>> createUploadsMiddleware(
       } catch (error) {
         store.dispatch(LoadUploadsFailureAction(error.toString()));
       }
-    }),
+    }).call,
   ];
 }

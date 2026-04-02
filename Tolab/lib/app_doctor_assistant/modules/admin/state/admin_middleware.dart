@@ -1,5 +1,3 @@
-// ignore_for_file: implicit_call_tearoffs, unnecessary_cast
-
 import 'package:redux/redux.dart';
 
 import '../../../state/app_state.dart';
@@ -23,7 +21,7 @@ List<Middleware<DoctorAssistantAppState>> createAdminMiddleware(
       } catch (error) {
         store.dispatch(AdminFailureAction(error.toString()));
       }
-    }),
+    }).call,
     TypedMiddleware<DoctorAssistantAppState, LoadPermissionsAction>((
       store,
       action,
@@ -36,7 +34,7 @@ List<Middleware<DoctorAssistantAppState>> createAdminMiddleware(
       } catch (error) {
         store.dispatch(AdminFailureAction(error.toString()));
       }
-    }),
+    }).call,
     TypedMiddleware<DoctorAssistantAppState, LoadDepartmentsAction>((
       store,
       action,
@@ -49,17 +47,16 @@ List<Middleware<DoctorAssistantAppState>> createAdminMiddleware(
       } catch (error) {
         store.dispatch(AdminFailureAction(error.toString()));
       }
-    }),
+    }).call,
     TypedMiddleware<DoctorAssistantAppState, ToggleStaffActivationAction>((
       store,
       action,
       next,
     ) async {
       next(action);
-      final toggleAction = action as ToggleStaffActivationAction;
       await repository.toggleActivation(
-        toggleAction.userId,
-        toggleAction.isActive,
+        action.userId,
+        action.isActive,
       );
       store.dispatch(LoadStaffAction());
     }).call,

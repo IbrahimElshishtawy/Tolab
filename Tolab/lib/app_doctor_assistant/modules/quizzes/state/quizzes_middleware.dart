@@ -1,5 +1,3 @@
-// ignore_for_file: implicit_call_tearoffs
-
 import 'package:redux/redux.dart';
 
 import '../../../state/app_state.dart';
@@ -22,14 +20,14 @@ List<Middleware<DoctorAssistantAppState>> createQuizzesMiddleware(
       } catch (error) {
         store.dispatch(LoadQuizzesFailureAction(error.toString()));
       }
-    }),
+    }).call,
     TypedMiddleware<DoctorAssistantAppState, SaveQuizAction>((
       store,
       action,
       next,
     ) async {
       next(action);
-      await repository.saveQuiz((action).payload);
+      await repository.saveQuiz(action.payload);
       store.dispatch(LoadQuizzesAction());
     }).call,
   ];

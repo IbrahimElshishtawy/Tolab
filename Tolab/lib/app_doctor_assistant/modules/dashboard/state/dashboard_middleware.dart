@@ -8,16 +8,18 @@ List<Middleware<DoctorAssistantAppState>> createDashboardMiddleware(
   DashboardRepository repository,
 ) {
   return [
-    TypedMiddleware<DoctorAssistantAppState, LoadDashboardAction>(
-      (store, action, next) async {
-        next(action);
-        try {
-          final data = await repository.fetchDashboard();
-          store.dispatch(LoadDashboardSuccessAction(data));
-        } catch (error) {
-          store.dispatch(LoadDashboardFailureAction(error.toString()));
-        }
-      },
-    ),
+    TypedMiddleware<DoctorAssistantAppState, LoadDashboardAction>((
+      store,
+      action,
+      next,
+    ) async {
+      next(action);
+      try {
+        final data = await repository.fetchDashboard();
+        store.dispatch(LoadDashboardSuccessAction(data));
+      } catch (error) {
+        store.dispatch(LoadDashboardFailureAction(error.toString()));
+      }
+    }).call,
   ];
 }

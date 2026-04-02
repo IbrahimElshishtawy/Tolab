@@ -1,5 +1,3 @@
-// ignore_for_file: unnecessary_cast
-
 import 'package:redux/redux.dart';
 
 import '../../../state/app_state.dart';
@@ -22,16 +20,14 @@ List<Middleware<DoctorAssistantAppState>> createSectionContentMiddleware(
       } catch (error) {
         store.dispatch(LoadSectionContentFailureAction(error.toString()));
       }
-    }),
+    }).call,
     TypedMiddleware<DoctorAssistantAppState, SaveSectionContentAction>((
       store,
       action,
       next,
     ) async {
       next(action);
-      await repository.saveSectionContent(
-        (action as SaveSectionContentAction).payload,
-      );
+      await repository.saveSectionContent(action.payload);
       store.dispatch(LoadSectionContentAction());
     }).call,
   ];
