@@ -252,40 +252,134 @@ class _Sidebar extends StatelessWidget {
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.lg),
       backgroundColor: isDark ? AppColors.sidebarDark : AppColors.sidebarLight,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final showLiveStatus = !isCollapsed && constraints.maxHeight > 560;
+          final showSeasonCard = !isCollapsed && constraints.maxHeight > 720;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                height: 52,
-                width: 52,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
-                  gradient: const LinearGradient(
-                    colors: [AppColors.primary, AppColors.info],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+              Row(
+                children: [
+                  Container(
+                    height: isCollapsed ? 40 : 44,
+                    width: isCollapsed ? 40 : 44,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: const LinearGradient(
+                        colors: [AppColors.primary, AppColors.info],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.dashboard_customize_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  if (!isCollapsed) ...[
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Tolab Admin',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'University control center',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              if (showLiveStatus) ...[
+                const SizedBox(height: AppSpacing.lg),
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(
+                      AppConstants.mediumRadius,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const StatusBadge('Live', icon: Icons.bolt_rounded),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          notificationStatus,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: const Icon(
-                  Icons.dashboard_customize_rounded,
-                  color: Colors.white,
+              ],
+              if (!isCollapsed) const SizedBox(height: AppSpacing.md),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: destinations.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 6),
+                  itemBuilder: (context, index) {
+                    final item = destinations[index];
+                    return _SidebarNavTile(
+                      item: item,
+                      selected: index == selectedIndex,
+                      collapsed: isCollapsed,
+                      badgeCount: item.route == RoutePaths.notifications
+                          ? unreadNotifications
+                          : 0,
+                      onTap: () => onSelected(item.route),
+                    );
+                  },
                 ),
               ),
-              if (!isCollapsed) ...[
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
+              if (showSeasonCard) ...[
+                const SizedBox(height: AppSpacing.md),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor.withValues(alpha: 0.72),
+                    borderRadius: BorderRadius.circular(
+                      AppConstants.mediumRadius,
+                    ),
+                    border: Border.all(
+                      color: isDark
+                          ? AppColors.strokeDark
+                          : AppColors.strokeLight,
+                    ),
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Tolab Admin',
-                        style: Theme.of(context).textTheme.titleLarge,
+                        'Spring 2026',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleSmall,
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 6),
                       Text(
-                        'University control center',
+                        'Registration window closes in 5 days.',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -293,76 +387,8 @@ class _Sidebar extends StatelessWidget {
                 ),
               ],
             ],
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          if (!isCollapsed)
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
-              ),
-              child: Row(
-                children: [
-                  const StatusBadge('Live', icon: Icons.bolt_rounded),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Text(
-                      notificationStatus,
-                      style: Theme.of(context).textTheme.labelMedium,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          if (!isCollapsed) const SizedBox(height: AppSpacing.md),
-          Expanded(
-            child: ListView.separated(
-              itemCount: destinations.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 6),
-              itemBuilder: (context, index) {
-                final item = destinations[index];
-                return _SidebarNavTile(
-                  item: item,
-                  selected: index == selectedIndex,
-                  collapsed: isCollapsed,
-                  badgeCount: item.route == RoutePaths.notifications
-                      ? unreadNotifications
-                      : 0,
-                  onTap: () => onSelected(item.route),
-                );
-              },
-            ),
-          ),
-          if (!isCollapsed) ...[
-            const SizedBox(height: AppSpacing.md),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor.withValues(alpha: 0.72),
-                borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
-                border: Border.all(
-                  color: isDark ? AppColors.strokeDark : AppColors.strokeLight,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Spring 2026',
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Registration window closes in 5 days.',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
+          );
+        },
       ),
     );
   }
@@ -561,7 +587,7 @@ class _TopBar extends StatelessWidget {
                       child: Row(
                         children: [
                           CircleAvatar(
-                            radius: 19,
+                            radius: 17,
                             backgroundColor: AppColors.primary,
                             child: Text(
                               userName.characters.first.toUpperCase(),
@@ -576,10 +602,14 @@ class _TopBar extends StatelessWidget {
                               children: [
                                 Text(
                                   userName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: Theme.of(context).textTheme.labelLarge,
                                 ),
                                 Text(
                                   userRole.replaceAll('_', ' '),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ],

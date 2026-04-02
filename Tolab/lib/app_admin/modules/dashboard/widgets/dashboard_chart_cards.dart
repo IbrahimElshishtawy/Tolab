@@ -104,7 +104,9 @@ class _StudentsCoursesTrendCardState extends State<StudentsCoursesTrendCard> {
                               return const SizedBox.shrink();
                             }
                             return Padding(
-                              padding: const EdgeInsets.only(top: AppSpacing.sm),
+                              padding: const EdgeInsets.only(
+                                top: AppSpacing.sm,
+                              ),
                               child: Text(
                                 widget.points[index].label,
                                 style: Theme.of(context).textTheme.bodySmall,
@@ -126,23 +128,25 @@ class _StudentsCoursesTrendCardState extends State<StudentsCoursesTrendCard> {
                           return;
                         }
                         setState(
-                          () => _touchedIndex =
-                              response.lineBarSpots!.first.x.toInt(),
+                          () => _touchedIndex = response.lineBarSpots!.first.x
+                              .toInt(),
                         );
                       },
                       touchTooltipData: LineTouchTooltipData(
                         getTooltipColor: (_) => Theme.of(context).cardColor,
                         getTooltipItems: (spots) {
-                          return spots.map((spot) {
-                            final point = widget.points[spot.x.toInt()];
-                            final label = spot.barIndex == 0
-                                ? 'Students ${point.totalStudents.toStringAsFixed(0)}'
-                                : 'Courses ${point.activeCourses.toStringAsFixed(0)}';
-                            return LineTooltipItem(
-                              '$label\n${point.label}',
-                              Theme.of(context).textTheme.bodySmall!,
-                            );
-                          }).toList(growable: false);
+                          return spots
+                              .map((spot) {
+                                final point = widget.points[spot.x.toInt()];
+                                final label = spot.barIndex == 0
+                                    ? 'Students ${point.totalStudents.toStringAsFixed(0)}'
+                                    : 'Courses ${point.activeCourses.toStringAsFixed(0)}';
+                                return LineTooltipItem(
+                                  '$label\n${point.label}',
+                                  Theme.of(context).textTheme.bodySmall!,
+                                );
+                              })
+                              .toList(growable: false);
                         },
                       ),
                     ),
@@ -175,7 +179,10 @@ class _StudentsCoursesTrendCardState extends State<StudentsCoursesTrendCard> {
                         ),
                         spots: [
                           for (var i = 0; i < widget.points.length; i++)
-                            FlSpot(i.toDouble(), widget.points[i].totalStudents),
+                            FlSpot(
+                              i.toDouble(),
+                              widget.points[i].totalStudents,
+                            ),
                         ],
                       ),
                       LineChartBarData(
@@ -214,15 +221,17 @@ class EnrollmentDepartmentBarCard extends StatefulWidget {
       _EnrollmentDepartmentBarCardState();
 }
 
-class _EnrollmentDepartmentBarCardState extends State<EnrollmentDepartmentBarCard> {
+class _EnrollmentDepartmentBarCardState
+    extends State<EnrollmentDepartmentBarCard> {
   int? _touchedGroup;
 
   @override
   Widget build(BuildContext context) {
     final chartWidth = math.max(widget.points.length * 120.0, 720.0);
-    final maxY = widget.points
-        .map((point) => point.enrollments)
-        .fold<double>(0, math.max) *
+    final maxY =
+        widget.points
+            .map((point) => point.enrollments)
+            .fold<double>(0, math.max) *
         1.2;
 
     return AppCard(
@@ -285,7 +294,9 @@ class _EnrollmentDepartmentBarCardState extends State<EnrollmentDepartmentBarCar
                               return const SizedBox.shrink();
                             }
                             return Padding(
-                              padding: const EdgeInsets.only(top: AppSpacing.sm),
+                              padding: const EdgeInsets.only(
+                                top: AppSpacing.sm,
+                              ),
                               child: Text(
                                 widget.points[index].department,
                                 style: Theme.of(context).textTheme.bodySmall,
@@ -325,7 +336,9 @@ class _EnrollmentDepartmentBarCardState extends State<EnrollmentDepartmentBarCar
                               borderRadius: BorderRadius.circular(12),
                               gradient: LinearGradient(
                                 colors: [
-                                  _toneColor(widget.points[i].tone).withValues(alpha: 0.55),
+                                  _toneColor(
+                                    widget.points[i].tone,
+                                  ).withValues(alpha: 0.55),
                                   _toneColor(widget.points[i].tone),
                                 ],
                                 begin: Alignment.bottomCenter,
@@ -381,10 +394,10 @@ class _PendingApprovalsDonutCardState extends State<PendingApprovalsDonutCard> {
             children: [
               Expanded(
                 child: SizedBox(
-                  height: 260,
+                  height: 220,
                   child: PieChart(
                     PieChartData(
-                      centerSpaceRadius: 64,
+                      centerSpaceRadius: 48,
                       sectionsSpace: 4,
                       pieTouchData: PieTouchData(
                         touchCallback: (event, response) {
@@ -401,10 +414,8 @@ class _PendingApprovalsDonutCardState extends State<PendingApprovalsDonutCard> {
                             color: _toneColor(widget.slices[i].tone),
                             value: widget.slices[i].value,
                             title: widget.slices[i].value.toStringAsFixed(0),
-                            radius: _touchedIndex == i ? 96 : 82,
-                            titleStyle: Theme.of(context)
-                                .textTheme
-                                .labelLarge
+                            radius: _touchedIndex == i ? 76 : 66,
+                            titleStyle: Theme.of(context).textTheme.labelLarge
                                 ?.copyWith(color: Colors.white),
                           ),
                       ],

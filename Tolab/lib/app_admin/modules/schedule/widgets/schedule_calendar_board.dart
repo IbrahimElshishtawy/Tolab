@@ -924,54 +924,83 @@ class _TimelineEventContent extends StatelessWidget {
     return InkWell(
       borderRadius: BorderRadius.circular(isCompact ? 14 : 18),
       onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.18),
-          borderRadius: BorderRadius.circular(isCompact ? 14 : 18),
-          border: Border.all(
-            color: hasConflict
-                ? AppColors.danger
-                : color.withValues(alpha: 0.8),
-            width: hasConflict ? 1.4 : 1,
-          ),
-        ),
-        padding: EdgeInsets.all(isCompact ? AppSpacing.xs : AppSpacing.sm),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              event.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: isCompact
-                  ? Theme.of(context).textTheme.labelLarge
-                  : Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              '${DateFormat.jm().format(event.startAt)} - ${DateFormat.jm().format(event.endAt)}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              event.location,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            if (hasConflict) ...[
-              const SizedBox(height: 4),
-              Text(
-                'Conflict',
-                style: Theme.of(
-                  context,
-                ).textTheme.labelSmall?.copyWith(color: AppColors.danger),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final availableHeight = constraints.maxHeight.isFinite
+              ? constraints.maxHeight
+              : double.infinity;
+          final showLocation =
+              event.location.trim().isNotEmpty && availableHeight >= 66;
+          final showConflictLabel = hasConflict && availableHeight >= 82;
+          final verticalGap = availableHeight < 64 ? 2.0 : 4.0;
+
+          return Container(
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(isCompact ? 14 : 18),
+              border: Border.all(
+                color: hasConflict
+                    ? AppColors.danger
+                    : color.withValues(alpha: 0.8),
+                width: hasConflict ? 1.4 : 1,
               ),
-            ],
-          ],
-        ),
+            ),
+            padding: EdgeInsets.all(isCompact ? AppSpacing.xs : AppSpacing.sm),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        event.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: isCompact
+                            ? Theme.of(context).textTheme.labelLarge
+                            : Theme.of(context).textTheme.titleSmall,
+                      ),
+                    ),
+                    if (hasConflict && !showConflictLabel) ...[
+                      const SizedBox(width: AppSpacing.xs),
+                      Icon(
+                        Icons.warning_amber_rounded,
+                        size: 12,
+                        color: AppColors.danger,
+                      ),
+                    ],
+                  ],
+                ),
+                SizedBox(height: verticalGap),
+                Text(
+                  '${DateFormat.jm().format(event.startAt)} - ${DateFormat.jm().format(event.endAt)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                if (showLocation) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    event.location,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+                if (showConflictLabel) ...[
+                  SizedBox(height: verticalGap),
+                  Text(
+                    'Conflict',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelSmall?.copyWith(color: AppColors.danger),
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
       ),
     );
   }

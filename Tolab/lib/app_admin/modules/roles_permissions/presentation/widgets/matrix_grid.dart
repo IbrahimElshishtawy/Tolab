@@ -55,27 +55,35 @@ class MatrixGrid extends StatelessWidget {
       );
     }
 
-    return AppCard(
-      padding: EdgeInsets.zero,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(minWidth: 360 + (roles.length * 176)),
-          child: Column(
-            children: [
-              _MatrixHeader(roles: roles),
-              for (var index = 0; index < permissions.length; index++)
-                _MatrixRow(
-                  permission: permissions[index],
-                  roles: roles,
-                  pendingCellKeys: pendingCellKeys,
-                  striped: index.isOdd,
-                  onCellToggled: onCellToggled,
-                ),
-            ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final matrixContent = SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: 360 + (roles.length * 176)),
+            child: Column(
+              children: [
+                _MatrixHeader(roles: roles),
+                for (var index = 0; index < permissions.length; index++)
+                  _MatrixRow(
+                    permission: permissions[index],
+                    roles: roles,
+                    pendingCellKeys: pendingCellKeys,
+                    striped: index.isOdd,
+                    onCellToggled: onCellToggled,
+                  ),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+
+        return AppCard(
+          padding: EdgeInsets.zero,
+          child: constraints.maxHeight.isFinite
+              ? SingleChildScrollView(child: matrixContent)
+              : matrixContent,
+        );
+      },
     );
   }
 }

@@ -26,54 +26,61 @@ class PermissionsMatrixScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isCompact = AppBreakpoints.isMobile(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppCard(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Wrap(
-            spacing: AppSpacing.md,
-            runSpacing: AppSpacing.md,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Permission Matrix',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Toggle granular access across every role with smooth matrix updates.',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-              StatusBadge(
-                '${roles.length} roles',
-                icon: Icons.admin_panel_settings_rounded,
-              ),
-              StatusBadge(
-                '${permissions.length} permissions',
-                icon: Icons.grid_view_rounded,
-              ),
-              if (isCompact)
-                const StatusBadge(
-                  'Stacked mobile layout',
-                  icon: Icons.phone_iphone_rounded,
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        MatrixGrid(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final hasBoundedHeight = constraints.maxHeight.isFinite;
+        final matrix = MatrixGrid(
           roles: roles,
           permissions: permissions,
           pendingCellKeys: pendingCellKeys,
           onCellToggled: onPermissionToggle,
-        ),
-      ],
+        );
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AppCard(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Wrap(
+                spacing: AppSpacing.md,
+                runSpacing: AppSpacing.md,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Permission Matrix',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Toggle granular access across every role with smooth matrix updates.',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                  StatusBadge(
+                    '${roles.length} roles',
+                    icon: Icons.admin_panel_settings_rounded,
+                  ),
+                  StatusBadge(
+                    '${permissions.length} permissions',
+                    icon: Icons.grid_view_rounded,
+                  ),
+                  if (isCompact)
+                    const StatusBadge(
+                      'Stacked mobile layout',
+                      icon: Icons.phone_iphone_rounded,
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            if (hasBoundedHeight) Expanded(child: matrix) else matrix,
+          ],
+        );
+      },
     );
   }
 }
