@@ -13,6 +13,7 @@ import '../../../shared/models/schedule_models.dart';
 import '../../../shared/widgets/premium_button.dart';
 import '../../../shared/widgets/status_badge.dart';
 import 'charts/section_analytics_charts.dart';
+import 'design/section_management_tokens.dart';
 import '../models/section_management_models.dart';
 import 'widgets/section_management_primitives.dart';
 
@@ -57,29 +58,34 @@ class _SectionsScreenState extends State<SectionsScreen> {
         : AppSpacing.md;
 
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFFF6F8FC), Color(0xFFEFF4FB), Color(0xFFF8FAFD)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+      decoration: BoxDecoration(
+        gradient: SectionManagementPalette.pageGradient(context),
       ),
       child: Stack(
         children: [
-          const Positioned(
+          Positioned(
             top: -120,
             right: -80,
-            child: _BackdropOrb(size: 280, color: Color(0x332563EB)),
+            child: _BackdropOrb(
+              size: 280,
+              color: SectionManagementPalette.orbPrimary(context),
+            ),
           ),
-          const Positioned(
+          Positioned(
             top: 280,
             left: -100,
-            child: _BackdropOrb(size: 240, color: Color(0x2216A34A)),
+            child: _BackdropOrb(
+              size: 240,
+              color: SectionManagementPalette.orbSuccess(context),
+            ),
           ),
-          const Positioned(
+          Positioned(
             bottom: -120,
             right: 160,
-            child: _BackdropOrb(size: 260, color: Color(0x22F59E0B)),
+            child: _BackdropOrb(
+              size: 260,
+              color: SectionManagementPalette.orbWarning(context),
+            ),
           ),
           SafeArea(
             bottom: false,
@@ -243,9 +249,9 @@ class _SectionsScreenState extends State<SectionsScreen> {
         const SizedBox(height: AppSpacing.sm),
         Text(
           record.description,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondaryLight),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color: SectionManagementPalette.subtleText(context),
+          ),
         ),
       ],
     );
@@ -258,7 +264,7 @@ class _SectionsScreenState extends State<SectionsScreen> {
   ) {
     final record = _selectedRecord;
     return AppCard(
-      backgroundColor: Colors.white.withValues(alpha: 0.78),
+      backgroundColor: SectionManagementPalette.frostedSurface(context),
       borderColor: accentColor.withValues(alpha: 0.20),
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
@@ -409,7 +415,10 @@ class _SectionsScreenState extends State<SectionsScreen> {
   Widget _buildTabBar() {
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.md),
-      backgroundColor: Colors.white.withValues(alpha: 0.72),
+      backgroundColor: SectionManagementPalette.frostedSurface(
+        context,
+        lightAlpha: 0.72,
+      ),
       child: Wrap(
         spacing: AppSpacing.sm,
         runSpacing: AppSpacing.sm,
@@ -866,7 +875,7 @@ class _SectionsScreenState extends State<SectionsScreen> {
                       decoration: BoxDecoration(
                         color: isHovering
                             ? AppColors.secondary.withValues(alpha: 0.08)
-                            : Colors.white,
+                            : SectionManagementPalette.surface(context),
                         borderRadius: BorderRadius.circular(
                           AppConstants.mediumRadius,
                         ),
@@ -1663,14 +1672,21 @@ class _InfoPill extends StatelessWidget {
         vertical: AppSpacing.sm,
       ),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.72),
+        color: SectionManagementPalette.frostedSurface(
+          context,
+          lightAlpha: 0.72,
+        ),
         borderRadius: BorderRadius.circular(AppConstants.pillRadius),
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: AppColors.textSecondaryLight),
+          Icon(
+            icon,
+            size: 16,
+            color: SectionManagementPalette.subtleText(context),
+          ),
           const SizedBox(width: AppSpacing.xs),
           Text(label, style: Theme.of(context).textTheme.labelMedium),
         ],
@@ -1783,11 +1799,13 @@ class _DesktopMobilePreview extends StatelessWidget {
               width: 290,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFF101827),
+                color: SectionManagementPalette.mobileFrame(context),
                 borderRadius: BorderRadius.circular(38),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.shadowLight.withValues(alpha: 0.22),
+                    color: SectionManagementPalette.softShadow(
+                      context,
+                    ).withValues(alpha: 0.22),
                     blurRadius: 30,
                     offset: const Offset(0, 18),
                   ),
@@ -1796,7 +1814,7 @@ class _DesktopMobilePreview extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(30),
                 child: Container(
-                  color: const Color(0xFFF7F9FD),
+                  color: SectionManagementPalette.mobileCanvas(context),
                   padding: const EdgeInsets.all(AppSpacing.md),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1806,7 +1824,9 @@ class _DesktopMobilePreview extends StatelessWidget {
                           height: 5,
                           width: 68,
                           decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.10),
+                            color: SectionManagementPalette.mobileHandle(
+                              context,
+                            ),
                             borderRadius: BorderRadius.circular(999),
                           ),
                         ),
@@ -1828,7 +1848,9 @@ class _DesktopMobilePreview extends StatelessWidget {
                       const SizedBox(height: AppSpacing.md),
                       AppCard(
                         padding: const EdgeInsets.all(AppSpacing.md),
-                        backgroundColor: Colors.white.withValues(alpha: 0.92),
+                        backgroundColor: SectionManagementPalette.surface(
+                          context,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -2070,13 +2092,15 @@ class _StudentDragChip extends StatelessWidget {
         vertical: AppSpacing.sm,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: SectionManagementPalette.surface(context),
         borderRadius: BorderRadius.circular(AppConstants.pillRadius),
         border: Border.all(color: Theme.of(context).dividerColor),
         boxShadow: elevated
             ? [
                 BoxShadow(
-                  color: AppColors.shadowLight.withValues(alpha: 0.16),
+                  color: SectionManagementPalette.softShadow(
+                    context,
+                  ).withValues(alpha: 0.16),
                   blurRadius: 18,
                   offset: const Offset(0, 10),
                 ),
@@ -2089,7 +2113,7 @@ class _StudentDragChip extends StatelessWidget {
           Icon(
             Icons.drag_indicator_rounded,
             size: 18,
-            color: AppColors.textSecondaryLight,
+            color: SectionManagementPalette.subtleText(context),
           ),
           const SizedBox(width: AppSpacing.xs),
           Text(student.name, style: Theme.of(context).textTheme.labelMedium),
@@ -2233,7 +2257,7 @@ class _DaySelectorChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: selected
             ? AppColors.primary
-            : Colors.white.withValues(alpha: 0.92),
+            : SectionManagementPalette.surface(context),
         borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
         border: Border.all(
           color: selected
@@ -2257,14 +2281,18 @@ class _DaySelectorChip extends StatelessWidget {
               Text(
                 DateFormat('EEE').format(day),
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: selected ? Colors.white : null,
+                  color: selected
+                      ? SectionManagementPalette.selectedTextOnAccent(context)
+                      : null,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 DateFormat('d').format(day),
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: selected ? Colors.white : null,
+                  color: selected
+                      ? SectionManagementPalette.selectedTextOnAccent(context)
+                      : null,
                 ),
               ),
             ],
@@ -2399,12 +2427,13 @@ class _ScheduleBoard extends StatelessWidget {
                           ),
                           child: Text(
                             DateFormat('d MMM').format(day),
-                            style: Theme.of(context).textTheme.labelLarge
-                                ?.copyWith(
-                                  color: _isSameDay(day, DateTime.now())
-                                      ? Colors.white
-                                      : null,
-                                ),
+                            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              color: _isSameDay(day, DateTime.now())
+                                  ? SectionManagementPalette.selectedTextOnAccent(
+                                      context,
+                                    )
+                                  : null,
+                            ),
                           ),
                         ),
                       ],
@@ -2775,7 +2804,7 @@ class _CompactOverviewStat extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: SectionManagementPalette.surface(context),
         borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
       ),
       child: Row(
@@ -2810,7 +2839,7 @@ class _CompactStudentCell extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: SectionManagementPalette.surface(context),
         borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
       ),
       child: Row(
@@ -2853,7 +2882,7 @@ class _CompactSubjectCell extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: SectionManagementPalette.surface(context),
         borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
       ),
       child: Row(
@@ -2893,7 +2922,7 @@ class _CompactStaffCell extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: SectionManagementPalette.surface(context),
         borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
       ),
       child: Row(

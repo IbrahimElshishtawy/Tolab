@@ -10,6 +10,7 @@ import '../../../../core/spacing/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../models/section_management_models.dart';
+import '../design/section_management_tokens.dart';
 
 class SectionGlassPanel extends StatelessWidget {
   const SectionGlassPanel({
@@ -23,7 +24,6 @@ class SectionGlassPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppConstants.cardRadius),
       child: BackdropFilter(
@@ -31,16 +31,9 @@ class SectionGlassPanel extends StatelessWidget {
         child: Container(
           padding: padding,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.white.withValues(alpha: isDark ? 0.08 : 0.72),
-                Colors.white.withValues(alpha: isDark ? 0.04 : 0.42),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            gradient: SectionManagementPalette.glassGradient(context),
             border: Border.all(
-              color: Colors.white.withValues(alpha: isDark ? 0.08 : 0.44),
+              color: SectionManagementPalette.glassBorder(context),
             ),
             borderRadius: BorderRadius.circular(AppConstants.cardRadius),
           ),
@@ -149,7 +142,9 @@ class SectionCapacityBar extends StatelessWidget {
                 minHeight: compact ? 6 : 8,
                 value: animatedValue,
                 color: color,
-                backgroundColor: AppColors.slateSoft.withValues(alpha: 0.35),
+                backgroundColor: SectionManagementPalette.progressTrack(
+                  context,
+                ),
               ),
             );
           },

@@ -5,6 +5,7 @@ import '../../../../core/colors/app_colors.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../models/section_management_models.dart';
+import '../design/section_management_tokens.dart';
 
 class SectionBarChartCard extends StatelessWidget {
   const SectionBarChartCard({
@@ -44,7 +45,9 @@ class SectionBarChartCard extends StatelessWidget {
                 gridData: FlGridData(
                   drawVerticalLine: false,
                   getDrawingHorizontalLine: (value) => FlLine(
-                    color: Theme.of(context).dividerColor.withValues(alpha: 0.45),
+                    color: Theme.of(
+                      context,
+                    ).dividerColor.withValues(alpha: 0.45),
                     strokeWidth: 1,
                   ),
                 ),
@@ -146,7 +149,9 @@ class SectionLineChartCard extends StatelessWidget {
                 gridData: FlGridData(
                   drawVerticalLine: false,
                   getDrawingHorizontalLine: (value) => FlLine(
-                    color: Theme.of(context).dividerColor.withValues(alpha: 0.45),
+                    color: Theme.of(
+                      context,
+                    ).dividerColor.withValues(alpha: 0.45),
                     strokeWidth: 1,
                   ),
                 ),
@@ -213,7 +218,9 @@ class SectionLineChartCard extends StatelessWidget {
                             radius: 4.5,
                             color: color,
                             strokeWidth: 2,
-                            strokeColor: Colors.white,
+                            strokeColor: SectionManagementPalette.surface(
+                              context,
+                            ),
                           ),
                     ),
                   ),
@@ -414,7 +421,7 @@ class _LoadRow extends StatelessWidget {
             minHeight: 8,
             value: snapshot.usage.clamp(0, 1),
             color: color,
-            backgroundColor: AppColors.slateSoft.withValues(alpha: 0.40),
+            backgroundColor: SectionManagementPalette.progressTrack(context),
           ),
         ),
         const SizedBox(height: 6),
