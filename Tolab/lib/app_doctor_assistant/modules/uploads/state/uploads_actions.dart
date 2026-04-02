@@ -19,3 +19,9 @@ class UploadProgressChangedAction {
 
   final double progress;
 }
+
+class UploadFileAction {
+  UploadFileAction(this.formData);
+
+  final Object formData;
+}
