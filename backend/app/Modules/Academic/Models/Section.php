@@ -2,11 +2,13 @@
 
 namespace App\Modules\Academic\Models;
 
+use Database\Factories\SectionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Modules\StaffPortal\Models\AcademicYear;
+use App\Modules\UserManagement\Models\StudentProfile;
 use App\Modules\UserManagement\Models\User;
 
 class Section extends Model
@@ -32,6 +34,11 @@ class Section extends Model
         ];
     }
 
+    protected static function newFactory(): SectionFactory
+    {
+        return SectionFactory::new();
+    }
+
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
@@ -40,6 +47,11 @@ class Section extends Model
     public function courseOfferings(): HasMany
     {
         return $this->hasMany(CourseOffering::class);
+    }
+
+    public function studentProfiles(): HasMany
+    {
+        return $this->hasMany(StudentProfile::class);
     }
 
     public function subject(): BelongsTo

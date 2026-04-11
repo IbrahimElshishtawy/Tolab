@@ -4,6 +4,7 @@ namespace App\Modules\UserManagement\Models;
 
 use App\Modules\Academic\Models\Department;
 use App\Modules\Academic\Models\Section;
+use Database\Factories\StudentProfileFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +15,7 @@ class StudentProfile extends Model
 
     protected $fillable = [
         'user_id',
+        'student_code',
         'gpa',
         'grade_year',
         'section_id',
@@ -26,6 +28,11 @@ class StudentProfile extends Model
             'gpa' => 'decimal:2',
             'grade_year' => 'integer',
         ];
+    }
+
+    protected static function newFactory(): StudentProfileFactory
+    {
+        return StudentProfileFactory::new();
     }
 
     public function user(): BelongsTo

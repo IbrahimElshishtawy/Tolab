@@ -22,7 +22,12 @@ class MeController extends ApiController
 
     public function profile(Request $request)
     {
-        $user = $request->user()->load(['studentProfile', 'staffProfile', 'staffPermission']);
+        $user = $request->user()->load([
+            'studentProfile.department',
+            'studentProfile.section',
+            'staffProfile.department',
+            'staffPermission',
+        ]);
 
         return $this->success('Detailed profile retrieved successfully.', ProfileResource::make($user));
     }

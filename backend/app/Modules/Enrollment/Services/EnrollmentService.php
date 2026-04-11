@@ -333,7 +333,7 @@ class EnrollmentService
         return [
             'student_user_id' => $payload['student_user_id'],
             'course_offering_id' => $payload['course_offering_id'],
-            'status' => $payload['status'] ?? 'pending',
+            'status' => $payload['status'] ?? Enrollment::STATUS_ENROLLED,
         ];
     }
 

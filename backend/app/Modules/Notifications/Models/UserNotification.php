@@ -19,9 +19,14 @@ class UserNotification extends Model
         'title',
         'body',
         'type',
+        'category',
         'ref_type',
         'ref_id',
+        'target_type',
+        'target_id',
+        'is_global',
         'is_read',
+        'created_by',
     ];
 
     protected function casts(): array
@@ -29,6 +34,9 @@ class UserNotification extends Model
         return [
             'type' => NotificationType::class,
             'is_read' => 'boolean',
+            'is_global' => 'boolean',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
         ];
     }
 

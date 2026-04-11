@@ -31,7 +31,10 @@ class StudentCourseController extends ApiController
     {
         $this->authorize('view', $courseOffering);
 
-        return $this->success('Course offering retrieved successfully.', CourseOfferingResource::make($courseOffering->load(['subject', 'section', 'doctor', 'ta', 'group'])));
+        return $this->success(
+            'Course offering retrieved successfully.',
+            CourseOfferingResource::make($courseOffering->load(['subject.department', 'section.department', 'doctor', 'ta', 'group']))
+        );
     }
 
     public function content(CourseOffering $courseOffering)

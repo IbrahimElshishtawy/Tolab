@@ -136,10 +136,22 @@ class ScheduleService
 
     public function studentTimetable(User $student, string $weekPattern)
     {
-        return ScheduleEvent::query()
-            ->with(['courseOffering.subject'])
-            ->whereHas('courseOffering.enrollments', fn ($query) => $query->where('student_user_id', $student->id))
-            ->whereIn('week_pattern', ['ALL', $weekPattern])
+        $query = ScheduleEvent::query()
+            ->with([
+                'courseOffering.subject.department',
+                'courseOffering.section.department',
+                'courseOffering.doctor',
+                'courseOffering.ta',
+            ])
+            ->whereHas('courseOffering.enrollments', fn ($builder) => $builder
+                ->active()
+                ->where('student_user_id', $student->id));
+
+        if ($weekPattern !== 'ALL') {
+            $query->whereIn('week_pattern', ['ALL', $weekPattern]);
+        }
+
+        return $query
             ->orderBy('day_of_week')
             ->orderBy('start_time')
             ->get();

@@ -17,13 +17,19 @@ class UserFactory extends Factory
 
     public function definition(): array
     {
+        $email = fake()->unique()->safeEmail();
+
         return [
             'role' => UserRole::STUDENT,
-            'username' => fake('ar_EG')->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'role_type' => 'student',
+            'username' => $name = fake('ar_EG')->name(),
+            'full_name' => $name,
+            'email' => $email,
+            'university_email' => $email,
             'password_hash' => Hash::make('password123'),
             'national_id' => fake()->unique()->numerify('##############'),
             'is_active' => true,
+            'is_microsoft_linked' => false,
             'remember_token' => Str::random(10),
         ];
     }
@@ -32,6 +38,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn () => [
             'role' => UserRole::ADMIN,
+            'role_type' => 'admin',
             'national_id' => null,
         ]);
     }
@@ -40,6 +47,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn () => [
             'role' => UserRole::DOCTOR,
+            'role_type' => 'doctor',
             'national_id' => null,
         ]);
     }
@@ -48,6 +56,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn () => [
             'role' => UserRole::TA,
+            'role_type' => 'assistant',
             'national_id' => null,
         ]);
     }

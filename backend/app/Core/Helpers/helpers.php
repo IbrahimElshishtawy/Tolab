@@ -3,13 +3,19 @@
 use Illuminate\Http\JsonResponse;
 
 if (! function_exists('api_success')) {
-    function api_success(string $message, mixed $data = null, int $status = 200): JsonResponse
+    function api_success(string $message, mixed $data = null, int $status = 200, ?array $meta = null): JsonResponse
     {
-        return new JsonResponse([
+        $payload = [
             'success' => true,
             'message' => $message,
             'data' => $data,
-        ], $status);
+        ];
+
+        if ($meta !== null) {
+            $payload['meta'] = $meta;
+        }
+
+        return new JsonResponse($payload, $status);
     }
 }
 

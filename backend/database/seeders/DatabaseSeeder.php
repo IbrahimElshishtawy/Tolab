@@ -151,6 +151,7 @@ class DatabaseSeeder extends Seeder
 
             $student->enrollments()->create([
                 'course_offering_id' => $offering->id,
+                'status' => 'enrolled',
             ]);
         });
     }

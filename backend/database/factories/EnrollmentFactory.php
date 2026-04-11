@@ -19,7 +19,7 @@ class EnrollmentFactory extends Factory
         return [
             'student_user_id' => User::factory(),
             'course_offering_id' => CourseOffering::factory(),
-            'status' => fake()->randomElement(['enrolled', 'pending', 'rejected']),
+            'status' => Enrollment::STATUS_ENROLLED,
         ];
     }
 }

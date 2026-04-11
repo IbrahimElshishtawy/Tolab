@@ -12,9 +12,9 @@ abstract class ApiController extends Controller
     use AuthorizesRequests;
     use ValidatesRequests;
 
-    protected function success(string $message, mixed $data = null, int $status = 200): JsonResponse
+    protected function success(string $message, mixed $data = null, int $status = 200, ?array $meta = null): JsonResponse
     {
-        return api_success($message, $data, $status);
+        return api_success($message, $data, $status, $meta);
     }
 
     protected function error(string $message, mixed $errors = null, int $status = 422): JsonResponse

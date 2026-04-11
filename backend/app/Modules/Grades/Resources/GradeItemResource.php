@@ -17,7 +17,11 @@ class GradeItemResource extends JsonResource
             'score' => $this->score,
             'max_score' => $this->max_score,
             'note' => $this->note,
-            'updated_by' => $this->updated_by,
+            'updated_by' => $this->whenLoaded('updater', fn () => $this->updater ? [
+                'id' => $this->updater->id,
+                'username' => $this->updater->username,
+                'full_name' => $this->updater->full_name,
+            ] : null, $this->updated_by),
             'updated_at' => $this->updated_at,
         ];
     }

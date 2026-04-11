@@ -22,7 +22,9 @@ use App\Modules\StaffPortal\Models\Role;
 use App\Modules\StaffPortal\Models\StaffAssignment;
 use App\Modules\Shared\Models\AuditLog;
 use App\Modules\Shared\Models\RefreshToken;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -42,6 +44,11 @@ class User extends Authenticatable
         'full_name',
         'email',
         'university_email',
+        'microsoft_id',
+        'microsoft_email',
+        'microsoft_name',
+        'microsoft_avatar',
+        'is_microsoft_linked',
         'password_hash',
         'national_id',
         'is_active',
@@ -62,10 +69,16 @@ class User extends Authenticatable
         return [
             'role' => UserRole::class,
             'is_active' => 'boolean',
+            'is_microsoft_linked' => 'boolean',
             'password_hash' => 'hashed',
             'last_login_at' => 'datetime',
             'notification_enabled' => 'boolean',
         ];
+    }
+
+    protected static function newFactory(): UserFactory
+    {
+        return UserFactory::new();
     }
 
     public function getAuthPassword(): string
@@ -103,6 +116,13 @@ class User extends Authenticatable
         return $this->hasMany(Enrollment::class, 'student_user_id');
     }
 
+    public function enrolledCourseOfferings(): BelongsToMany
+    {
+        return $this->belongsToMany(CourseOffering::class, 'enrollments', 'student_user_id', 'course_offering_id')
+            ->withPivot(['status'])
+            ->withTimestamps();
+    }
+
     public function doctorCourseOfferings(): HasMany
     {
         return $this->hasMany(CourseOffering::class, 'doctor_user_id');
@@ -131,6 +151,13 @@ class User extends Authenticatable
     public function groupMemberships(): HasMany
     {
         return $this->hasMany(GroupMember::class);
+    }
+
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(\App\Modules\Group\Models\GroupChat::class, 'group_members', 'user_id', 'group_id')
+            ->withPivot(['role_in_group'])
+            ->withTimestamps();
     }
 
     public function posts(): HasMany
@@ -193,6 +220,11 @@ class User extends Authenticatable
     public function isStudent(): bool
     {
         return $this->role === UserRole::STUDENT;
+    }
+
+    public function isStaff(): bool
+    {
+        return in_array($this->role, [UserRole::DOCTOR, UserRole::TA], true);
     }
 
     public function canManageContent(): bool

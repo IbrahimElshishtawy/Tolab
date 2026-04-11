@@ -4,11 +4,14 @@ namespace App\Providers;
 
 use App\Core\Enums\UserRole;
 use App\Modules\UserManagement\Models\User;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use SocialiteProviders\Manager\SocialiteWasCalled;
+use SocialiteProviders\Microsoft\Provider as MicrosoftProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,6 +21,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Event::listen(function (SocialiteWasCalled $event): void {
+            $event->extendSocialite('microsoft', MicrosoftProvider::class);
+        });
+
         Relation::enforceMorphMap([
             'user' => User::class,
             'lecture' => \App\Modules\Content\Models\Lecture::class,
@@ -45,6 +52,10 @@ class AppServiceProvider extends ServiceProvider
             $role = $request->user()?->role?->value ?? UserRole::STUDENT->value;
 
             return Limit::perMinute(120)->by(($request->user()?->id ?? $request->ip()).'|'.$role);
+        });
+
+        RateLimiter::for('microsoft-link', function (Request $request) {
+            return Limit::perMinute(5)->by(($request->ip() ?? 'unknown').'|'.$request->string('link_token'));
         });
     }
 }

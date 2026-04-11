@@ -13,7 +13,12 @@ class UserIdentityResource extends JsonResource
             'id' => $this->id,
             'role' => $this->role->value,
             'username' => $this->username,
+            'full_name' => $this->full_name,
             'email' => $this->email,
+            'university_email' => $this->university_email,
+            'is_microsoft_linked' => $this->is_microsoft_linked,
+            'is_active' => $this->is_active,
+            'last_login_at' => $this->last_login_at,
         ];
     }
 }

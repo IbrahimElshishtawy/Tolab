@@ -41,6 +41,7 @@ class ScheduleEventResource extends JsonResource
             'year_label' => $courseOffering?->academic_year,
             'student_scope_label' => $section?->name ? $section->name.' cohort' : null,
             'assigned_staff_ids' => $assignedStaffIds,
+            'group_id' => $courseOffering?->group_id,
             'status' => $this->resolveComputedStatus(),
             'type' => $this->type->value,
             'day_of_week' => $this->day_of_week,

@@ -15,7 +15,9 @@ use App\Modules\Group\Models\GroupChat;
 use App\Modules\Schedule\Models\ScheduleEvent;
 use App\Modules\UserManagement\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -76,6 +78,18 @@ class CourseOffering extends Model
         return $this->hasMany(Enrollment::class);
     }
 
+    public function activeEnrollments(): HasMany
+    {
+        return $this->enrollments()->active();
+    }
+
+    public function students(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'enrollments', 'course_offering_id', 'student_user_id')
+            ->withPivot(['status'])
+            ->withTimestamps();
+    }
+
     public function lectures(): HasMany
     {
         return $this->hasMany(Lecture::class);
@@ -114,5 +128,12 @@ class CourseOffering extends Model
     public function scheduleEvents(): HasMany
     {
         return $this->hasMany(ScheduleEvent::class);
+    }
+
+    public function scopeForStudent(Builder $query, User $student): Builder
+    {
+        return $query->whereHas('enrollments', fn (Builder $builder) => $builder
+            ->active()
+            ->where('student_user_id', $student->id));
     }
 }

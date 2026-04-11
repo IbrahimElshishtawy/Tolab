@@ -19,7 +19,14 @@ class AuthService
 
     public function login(array $credentials)
     {
-        $user = User::query()->where('email', $credentials['email'])->first();
+        $email = mb_strtolower(trim($credentials['email']));
+
+        $user = User::query()
+            ->where(function ($query) use ($email) {
+                $query->whereRaw('LOWER(email) = ?', [$email])
+                    ->orWhereRaw('LOWER(university_email) = ?', [$email]);
+            })
+            ->first();
 
         if (! $user || ! Hash::check($credentials['password'], $user->password_hash)) {
             throw new ApiException('Invalid credentials.', [], Response::HTTP_UNAUTHORIZED);

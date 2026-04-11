@@ -9,9 +9,9 @@ use App\Modules\Group\Models\GroupChat;
 use App\Modules\Group\Models\Post;
 use App\Modules\Group\Models\Message;
 use App\Modules\Group\Models\Comment;
-use App\Modules\Group\Requests\StoreCommentRequest;
-use App\Modules\Group\Requests\StoreMessageRequest;
-use App\Modules\Group\Requests\StorePostRequest;
+use App\Modules\Group\Requests\CreateCommentRequest;
+use App\Modules\Group\Requests\CreatePostRequest;
+use App\Modules\Group\Requests\SendMessageRequest;
 use App\Modules\Group\Resources\CommentResource;
 use App\Modules\Group\Resources\GroupResource;
 use App\Modules\Group\Resources\MessageResource;
@@ -45,10 +45,19 @@ class GroupController extends ApiController
     {
         $posts = $this->groupService->listPosts($group, $request->user(), $this->paginationSanitizer->cursorLimit($request), $request->integer('before'));
 
-        return $this->success('Posts retrieved successfully.', PostResource::collection($posts));
+        return $this->success(
+            'Posts retrieved successfully.',
+            PostResource::collection($posts),
+            200,
+            [
+                'limit' => $this->paginationSanitizer->cursorLimit($request),
+                'before' => $request->integer('before'),
+                'next_before' => $posts->last()?->id,
+            ]
+        );
     }
 
-    public function storePost(StorePostRequest $request, GroupChat $group)
+    public function storePost(CreatePostRequest $request, GroupChat $group)
     {
         $post = $this->groupService->createPost($group, $request->validated(), $request->user());
 
@@ -69,7 +78,7 @@ class GroupController extends ApiController
         return $this->success('Comments retrieved successfully.', CommentResource::collection($comments));
     }
 
-    public function storeComment(StoreCommentRequest $request, Post $post)
+    public function storeComment(CreateCommentRequest $request, Post $post)
     {
         $comment = $this->groupService->createComment($post, $request->validated(), $request->user());
 
@@ -87,10 +96,19 @@ class GroupController extends ApiController
     {
         $messages = $this->groupService->listMessages($group, $request->user(), $this->paginationSanitizer->cursorLimit($request), $request->integer('before'));
 
-        return $this->success('Messages retrieved successfully.', MessageResource::collection($messages));
+        return $this->success(
+            'Messages retrieved successfully.',
+            MessageResource::collection($messages),
+            200,
+            [
+                'limit' => $this->paginationSanitizer->cursorLimit($request),
+                'before' => $request->integer('before'),
+                'next_before' => $messages->last()?->id,
+            ]
+        );
     }
 
-    public function storeMessage(StoreMessageRequest $request, GroupChat $group)
+    public function storeMessage(SendMessageRequest $request, GroupChat $group)
     {
         $message = $this->groupService->createMessage($group, $request->validated(), $request->user());
 

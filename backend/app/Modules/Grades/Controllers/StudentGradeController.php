@@ -13,6 +13,7 @@ class StudentGradeController extends ApiController
         $this->authorize('view', $courseOffering);
 
         $grades = $courseOffering->grades()
+            ->with('updater:id,username,full_name')
             ->where('student_user_id', request()->user()->id)
             ->latest('updated_at')
             ->get();

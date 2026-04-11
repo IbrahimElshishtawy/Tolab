@@ -17,7 +17,10 @@ class CourseOfferingPolicy
             return true;
         }
 
-        return $courseOffering->enrollments()->where('student_user_id', $user->id)->exists();
+        return $courseOffering->enrollments()
+            ->active()
+            ->where('student_user_id', $user->id)
+            ->exists();
     }
 
     public function manage(User $user, CourseOffering $courseOffering): bool

@@ -11,7 +11,7 @@ Route::get('departments', [DepartmentController::class, 'index']);
 Route::get('sections', [SectionController::class, 'index']);
 Route::get('subjects', [SubjectController::class, 'index']);
 
-Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->group(function () {
+Route::middleware(['auth:sanctum', 'active', 'student', 'throttle:api'])->group(function () {
     Route::get('student/courses', [StudentCourseController::class, 'index']);
     Route::get('student/courses/{courseOffering}', [StudentCourseController::class, 'show']);
     Route::get('student/courses/{courseOffering}/content', [StudentCourseController::class, 'content']);

@@ -47,7 +47,12 @@ class UserService
             $this->syncProfiles($user, $payload);
             $this->auditLogService->log($actor, 'users.create', $user, ['role' => $user->role->value], request());
 
-            return $user->fresh(['studentProfile', 'staffProfile', 'staffPermission']);
+            return $user->fresh([
+                'studentProfile.department',
+                'studentProfile.section',
+                'staffProfile.department',
+                'staffPermission',
+            ]);
         });
     }
 
@@ -66,7 +71,12 @@ class UserService
             $this->syncProfiles($user, $payload);
             $this->auditLogService->log($actor, 'users.update', $user, [], request());
 
-            return $user->fresh(['studentProfile', 'staffProfile', 'staffPermission']);
+            return $user->fresh([
+                'studentProfile.department',
+                'studentProfile.section',
+                'staffProfile.department',
+                'staffPermission',
+            ]);
         });
     }
 
@@ -96,9 +106,21 @@ class UserService
 
     public function updateOwnProfile(User $user, array $payload): User
     {
-        $user->update(collect($payload)->only(['username'])->toArray());
+        $user->update(collect($payload)->only([
+            'username',
+            'full_name',
+            'phone',
+            'avatar',
+            'language',
+            'notification_enabled',
+        ])->toArray());
 
-        return $user->fresh(['studentProfile', 'staffProfile', 'staffPermission']);
+        return $user->fresh([
+            'studentProfile.department',
+            'studentProfile.section',
+            'staffProfile.department',
+            'staffPermission',
+        ]);
     }
 
     public function importStudents(UploadedFile $file, User $actor): array

@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\UserManagement\Controllers\AdminUserController;
+use App\Modules\UserManagement\Controllers\AdminStudentImportController;
 use App\Modules\UserManagement\Controllers\ImportController;
 use App\Modules\UserManagement\Controllers\MeController;
 use Illuminate\Support\Facades\Route;
@@ -17,7 +18,7 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->group(function ()
         Route::patch('users/{user}/activate', [AdminUserController::class, 'activate'])->middleware('throttle:sensitive');
         Route::post('users/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->middleware('throttle:sensitive');
 
-        Route::post('import/students', [ImportController::class, 'students'])->middleware('throttle:sensitive');
+        Route::post('import/students', AdminStudentImportController::class)->middleware('throttle:sensitive');
         Route::post('import/staff', [ImportController::class, 'staff'])->middleware('throttle:sensitive');
     });
 });

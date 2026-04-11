@@ -19,7 +19,10 @@ class NotificationRepository extends BaseRepository
         return $this->query()
             ->where(function (Builder $query) use ($user) {
                 $query->where('target_user_id', $user->id)
-                    ->orWhereNull('target_user_id');
+                    ->orWhere(function (Builder $inner) {
+                        $inner->whereNull('target_user_id')
+                            ->where('is_global', true);
+                    });
             })
             ->latest();
     }

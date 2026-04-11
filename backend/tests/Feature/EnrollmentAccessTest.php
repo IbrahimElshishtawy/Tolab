@@ -39,6 +39,7 @@ class EnrollmentAccessTest extends TestCase
         Enrollment::query()->create([
             'student_user_id' => $enrolledStudent->id,
             'course_offering_id' => $offering->id,
+            'status' => Enrollment::STATUS_ENROLLED,
         ]);
 
         Sanctum::actingAs($enrolledStudent);

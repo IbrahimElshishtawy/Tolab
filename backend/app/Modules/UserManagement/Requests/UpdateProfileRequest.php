@@ -15,6 +15,11 @@ class UpdateProfileRequest extends FormRequest
     {
         return [
             'username' => ['sometimes', 'string', 'max:120'],
+            'full_name' => ['sometimes', 'nullable', 'string', 'max:180'],
+            'phone' => ['sometimes', 'nullable', 'string', 'max:40'],
+            'avatar' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'language' => ['sometimes', 'nullable', 'string', 'max:10'],
+            'notification_enabled' => ['sometimes', 'boolean'],
         ];
     }
 }

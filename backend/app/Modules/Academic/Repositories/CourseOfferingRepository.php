@@ -28,6 +28,7 @@ class CourseOfferingRepository extends BaseRepository
     {
         return $this->query()
             ->with(['subject.department', 'section.department', 'doctor', 'ta', 'group'])
-            ->whereHas('enrollments', fn (Builder $query) => $query->where('student_user_id', $student->id));
+            ->forStudent($student)
+            ->latest('id');
     }
 }

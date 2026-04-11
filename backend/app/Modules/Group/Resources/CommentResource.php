@@ -14,6 +14,12 @@ class CommentResource extends JsonResource
             'post_id' => $this->post_id,
             'author_user_id' => $this->author_user_id,
             'text' => $this->text,
+            'author' => $this->whenLoaded('author', fn () => $this->author ? [
+                'id' => $this->author->id,
+                'username' => $this->author->username,
+                'full_name' => $this->author->full_name,
+                'avatar' => $this->author->avatar,
+            ] : null),
             'created_at' => $this->created_at,
         ];
     }
