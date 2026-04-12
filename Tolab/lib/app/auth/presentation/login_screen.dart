@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../dev/dev_auth_config.dart';
+import 'widgets/dev_quick_login_button.dart';
 import '../../core/app_scope.dart';
 import '../../routing/app_routes.dart';
 
@@ -78,6 +81,7 @@ class _UnifiedLoginScreenState extends State<UnifiedLoginScreen> {
                                     );
                                   },
                                   onSubmit: _submit,
+                                  onQuickLoginDev: _quickLoginDev,
                                 ),
                               ),
                             ],
@@ -104,6 +108,7 @@ class _UnifiedLoginScreenState extends State<UnifiedLoginScreen> {
                                   );
                                 },
                                 onSubmit: _submit,
+                                onQuickLoginDev: _quickLoginDev,
                               ),
                             ],
                           );
@@ -133,7 +138,26 @@ class _UnifiedLoginScreenState extends State<UnifiedLoginScreen> {
       return;
     }
 
-    final user = auth.currentUser;
+    _redirectForCurrentUser();
+  }
+
+  Future<void> _quickLoginDev() async {
+    if (!kDebugMode || !enableDevQuickLogin) {
+      return;
+    }
+
+    final auth = AppScope.auth(context);
+    final success = await auth.quickLoginDev(rememberSession: _rememberSession);
+
+    if (!mounted || !success) {
+      return;
+    }
+
+    _redirectForCurrentUser();
+  }
+
+  void _redirectForCurrentUser() {
+    final user = AppScope.auth(context).currentUser;
     if (user == null) {
       return;
     }
@@ -259,6 +283,7 @@ class _LoginCard extends StatelessWidget {
     required this.onRememberChanged,
     required this.onToggleObscure,
     required this.onSubmit,
+    required this.onQuickLoginDev,
   });
 
   final GlobalKey<FormState> formKey;
@@ -271,6 +296,7 @@ class _LoginCard extends StatelessWidget {
   final ValueChanged<bool> onRememberChanged;
   final VoidCallback onToggleObscure;
   final Future<void> Function() onSubmit;
+  final Future<void> Function() onQuickLoginDev;
 
   @override
   Widget build(BuildContext context) {
@@ -392,6 +418,13 @@ class _LoginCard extends StatelessWidget {
                 ),
               ),
             ),
+            if (kDebugMode && enableDevQuickLogin) ...[
+              const SizedBox(height: 12),
+              DevQuickLoginButton(
+                isLoading: isLoading,
+                onPressed: onQuickLoginDev,
+              ),
+            ],
             const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerRight,

@@ -5,6 +5,7 @@ import '../../../app_doctor_assistant/core/models/session_user.dart';
 import '../../../app_doctor_assistant/core/storage/token_storage.dart';
 import '../../../app_doctor_assistant/modules/auth/repositories/auth_repository.dart'
     as doctor_auth;
+import '../dev/dev_auth_config.dart';
 import '../models/auth_session.dart';
 import '../models/auth_user.dart';
 import '../services/session_storage.dart';
@@ -86,6 +87,25 @@ class UnifiedAuthRepository {
       await _persistSession(session);
       return session;
     }
+  }
+
+  Future<AuthSession> createDevTestSession() async {
+    if (!enableDevQuickLogin) {
+      throw StateError('Dev quick login is disabled.');
+    }
+
+    final result = await _doctorRepository.createDevTestUser();
+    final session = AuthSession(
+      user: AuthUser.fromSessionUser(result.user),
+      accessToken: result.tokens['access_token']?.toString() ?? '',
+      refreshToken: result.tokens['refresh_token']?.toString() ?? '',
+      isLocalSession: result.tokens['local_session'] == true,
+      source: result.tokens['local_session'] == true
+          ? 'dev_quick_login_mock'
+          : 'dev_quick_login_api',
+    );
+    await _persistSession(session);
+    return session;
   }
 
   Future<void> forgotPassword(String email) {

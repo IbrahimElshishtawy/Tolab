@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../dev/dev_auth_config.dart';
 import '../models/auth_session.dart';
 import '../models/auth_user.dart';
 import '../repositories/auth_repository.dart';
@@ -60,6 +61,39 @@ class AuthController extends ChangeNotifier {
 
     try {
       final session = await _repository.login(email: email, password: password);
+      _state = _state.copyWith(
+        status: AuthFlowStatus.authenticated,
+        session: session,
+        rememberSession: rememberSession,
+        clearError: true,
+      );
+      notifyListeners();
+      return true;
+    } catch (error) {
+      _state = _state.copyWith(
+        status: AuthFlowStatus.failure,
+        errorMessage: _normalizeError(error),
+        clearSession: true,
+      );
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> quickLoginDev({required bool rememberSession}) async {
+    if (!enableDevQuickLogin) {
+      return false;
+    }
+
+    _state = _state.copyWith(
+      status: AuthFlowStatus.authenticating,
+      rememberSession: rememberSession,
+      clearError: true,
+    );
+    notifyListeners();
+
+    try {
+      final session = await _repository.createDevTestSession();
       _state = _state.copyWith(
         status: AuthFlowStatus.authenticated,
         session: session,
