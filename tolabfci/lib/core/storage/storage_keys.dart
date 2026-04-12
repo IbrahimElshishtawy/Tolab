@@ -1,0 +1,7 @@
+class StorageKeys {
+  static const authToken = 'auth_token';
+  static const refreshToken = 'refresh_token';
+  static const hasVerifiedNationalId = 'has_verified_national_id';
+  static const preferredLocale = 'preferred_locale';
+  static const notificationsEnabled = 'notifications_enabled';
+}

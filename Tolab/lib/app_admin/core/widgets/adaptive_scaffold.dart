@@ -424,6 +424,7 @@ class _SidebarNavTile extends StatefulWidget {
 }
 
 class _SidebarNavTileState extends State<_SidebarNavTile> {
+  static const double _expandedTileWidthThreshold = 164;
   bool _hovered = false;
 
   @override
@@ -450,36 +451,110 @@ class _SidebarNavTileState extends State<_SidebarNavTile> {
                 : Colors.transparent,
           ),
         ),
-        child: ListTile(
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: widget.collapsed ? 12 : 14,
-            vertical: 2,
-          ),
-          onTap: widget.onTap,
-          leading: Icon(
-            widget.item.icon,
-            color: isSelected
-                ? AppColors.primary
-                : Theme.of(context).iconTheme.color,
-          ),
-          title: widget.collapsed ? null : Text(widget.item.label),
-          trailing: widget.collapsed
-              ? null
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (widget.badgeCount > 0)
-                      _NotificationCountBadge(count: widget.badgeCount),
-                    const SizedBox(width: AppSpacing.xs),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      size: 18,
-                      color: isSelected
-                          ? AppColors.primary
-                          : Theme.of(context).textTheme.bodySmall?.color,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final showExpandedTile =
+                !widget.collapsed &&
+                constraints.maxWidth >= _expandedTileWidthThreshold;
+
+            if (!showExpandedTile) {
+              return _CompactSidebarNavTile(
+                icon: widget.item.icon,
+                label: widget.item.label,
+                isSelected: isSelected,
+                badgeCount: widget.badgeCount,
+                onTap: widget.onTap,
+              );
+            }
+
+            return ListTile(
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 2,
+              ),
+              onTap: widget.onTap,
+              leading: Icon(
+                widget.item.icon,
+                color: isSelected
+                    ? AppColors.primary
+                    : Theme.of(context).iconTheme.color,
+              ),
+              title: Text(widget.item.label),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (widget.badgeCount > 0)
+                    _NotificationCountBadge(count: widget.badgeCount),
+                  const SizedBox(width: AppSpacing.xs),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 18,
+                    color: isSelected
+                        ? AppColors.primary
+                        : Theme.of(context).textTheme.bodySmall?.color,
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _CompactSidebarNavTile extends StatelessWidget {
+  const _CompactSidebarNavTile({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.badgeCount,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final int badgeCount;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final iconColor = isSelected
+        ? AppColors.primary
+        : Theme.of(context).iconTheme.color;
+
+    return Tooltip(
+      message: label,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppConstants.smallRadius),
+          onTap: onTap,
+          child: SizedBox(
+            height: 48,
+            child: Center(
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Icon(icon, color: iconColor),
+                  if (badgeCount > 0)
+                    Positioned(
+                      top: -3,
+                      right: -4,
+                      child: Container(
+                        width: 9,
+                        height: 9,
+                        decoration: BoxDecoration(
+                          color: AppColors.danger,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      ),
                     ),
-                  ],
-                ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

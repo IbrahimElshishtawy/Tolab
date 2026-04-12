@@ -16,23 +16,25 @@ class DashboardRepository {
     CancelToken? cancelToken,
     bool preferRemote = true,
   }) async {
+    final seededBundle = _seedService.buildBundle(filters: filters);
     if (!preferRemote) {
-      return _seedService.buildBundle(filters: filters);
+      return seededBundle;
     }
 
     try {
-      return await _apiService.fetchDashboard(
+      final remoteBundle = await _apiService.fetchDashboard(
         filters: filters,
         cancelToken: cancelToken,
       );
+      return _mergeBundles(seeded: seededBundle, remote: remoteBundle);
     } on DioException catch (error) {
       if (error.type == DioExceptionType.cancel) rethrow;
-      return _seedService.buildBundle(filters: filters);
+      return seededBundle;
     } on AppException catch (error) {
       if (error.statusCode == 401 || error.statusCode == 403) rethrow;
-      return _seedService.buildBundle(filters: filters);
+      return seededBundle;
     } catch (_) {
-      return _seedService.buildBundle(filters: filters);
+      return seededBundle;
     }
   }
 
@@ -71,6 +73,38 @@ class DashboardRepository {
     return _apiService.watchRealtimeSignals(
       accessToken: accessToken,
       userId: userId,
+    );
+  }
+
+  DashboardBundle _mergeBundles({
+    required DashboardBundle seeded,
+    required DashboardBundle remote,
+  }) {
+    return DashboardBundle(
+      filters: remote.filters,
+      stats: remote.stats.isNotEmpty ? remote.stats : seeded.stats,
+      trendPoints: remote.trendPoints.isNotEmpty
+          ? remote.trendPoints
+          : seeded.trendPoints,
+      departmentStats: remote.departmentStats.isNotEmpty
+          ? remote.departmentStats
+          : seeded.departmentStats,
+      taskBreakdown: remote.taskBreakdown.isNotEmpty
+          ? remote.taskBreakdown
+          : seeded.taskBreakdown,
+      directoryEntries: remote.directoryEntries.isNotEmpty
+          ? remote.directoryEntries
+          : seeded.directoryEntries,
+      activityRows: remote.activityRows.isNotEmpty
+          ? remote.activityRows
+          : seeded.activityRows,
+      alerts: remote.alerts.isNotEmpty ? remote.alerts : seeded.alerts,
+      quickActions: remote.quickActions.isNotEmpty
+          ? remote.quickActions
+          : seeded.quickActions,
+      sourceLabel: remote.sourceLabel,
+      refreshedAt: remote.refreshedAt,
+      isFallback: remote.isFallback,
     );
   }
 }
