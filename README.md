@@ -1,187 +1,275 @@
-# 🎓 EduGate — University Academic Platform
+# 🎓 EduGate — Smart University Academic Platform
 
-> A comprehensive mobile platform built for universities to digitize the full academic experience — from content delivery and grade tracking to real-time group communication and scheduling.
-
----
-
-## 📱 Overview
-
-**EduGate** is a dual-app mobile system designed to serve every stakeholder in the academic environment:
-
-- **EduGate Student** — A dedicated app for students to access their courses, content, grades, timetable, and group discussions.
-- **EduGate Admin/Staff** — A powerful management app for administrators, doctors, and teaching assistants to run and control the entire academic lifecycle.
-
-The platform is built around a role-based access model that ensures every user sees only what they need, with security and simplicity at the core.
+> A scalable academic ecosystem that streamlines the university experience for students, educators, and administrators through structured course management, academic communication, scheduling, and performance tracking.
 
 ---
 
-## ✨ Features
+## Overview
 
-### 🎒 Student App
+**EduGate** is a role-based university platform designed to digitize and simplify the academic journey across the entire institution.
 
-#### 📚 My Courses
-Students can browse all their enrolled courses in one place. Each course opens into a rich detail view with tabbed content covering:
-- **Lectures** — uploaded lecture files and materials
-- **Section Sessions** — practical session content
-- **Summaries** — condensed study materials
-- **Assessments** — tasks, quizzes, and sheets with due dates
+The system is organized into two dedicated applications:
+
+- **EduGate Student** — a focused student experience for accessing courses, study materials, grades, schedules, and course groups.
+- **EduGate Admin & Staff** — an operational platform for administrators, doctors, and teaching assistants to manage academic workflows, content, enrollments, and communication.
+
+EduGate is built around clarity, access control, and maintainability, ensuring that every user interacts only with the features and data relevant to their role.
+
+---
+
+## Core Vision
+
+EduGate is designed to solve common academic management challenges by providing:
+
+- A centralized academic content hub
+- Structured course enrollment and organization
+- Secure role-based access control
+- Real-time academic communication
+- Scalable scheduling and notification workflows
+- A maintainable architecture ready for institutional growth
+
+---
+
+## Applications
+
+### EduGate Student
+
+A dedicated application built around the student’s academic journey.
+
+#### Course Access
+Students can browse all enrolled courses and open each course into a detailed academic workspace containing:
+
+- **Lectures** — uploaded lecture materials and resources
+- **Section Sessions** — practical or assistant-led learning content
+- **Summaries** — concise course study materials
+- **Assessments** — quizzes, tasks, and sheets with deadlines
 - **Exams** — exam details and attached files
-- **Course Files** — any general course-related files
+- **Course Files** — general course-related documents
 
-#### 📊 Grades
-Students can view their grades per course in real time, broken down by item type — midterms, quizzes, tasks, finals, attendance, and more.
+#### Grades Tracking
+Students can review their grades per course in a structured format, including:
 
-#### 🗓️ Smart Timetable
-A dynamic timetable that supports **Odd/Even week patterns**, showing lectures, section sessions, quiz dates, and exam schedules — all in one view.
+- Midterms
+- Quizzes
+- Tasks
+- Finals
+- Attendance
+- Additional grading items
 
-#### 💬 Group Discussions
-Every course has its own group chat where students can post, comment, and message. Participation permissions are configured by the admin, keeping conversations organized and on-topic.
+#### Smart Timetable
+A dynamic academic timetable that supports:
 
-#### 🔔 Notifications
-Real-time notifications delivered by the admin for course updates, exam announcements, new content, and more.
+- **Odd / Even week scheduling**
+- Lecture sessions
+- Section sessions
+- Quiz dates
+- Task deadlines
+- Exam dates
+
+#### Course Groups
+Each course has its own dedicated group space where students can:
+
+- Create posts
+- Add comments
+- Send messages
+- Interact within course-specific academic discussions
+
+Participation permissions are fully controlled by the admin to maintain structure and relevance.
+
+#### Notifications
+Students receive targeted academic notifications for:
+
+- New uploaded content
+- Exam and quiz announcements
+- Schedule changes
+- Course-specific updates
+- General academic alerts
 
 ---
 
-### 🛠️ Admin & Staff App
+### EduGate Admin & Staff
 
-#### 👥 User Management
-Full control over all platform users:
-- Create, edit, activate, or deactivate student and staff accounts
-- Bulk-import students and staff via Excel/CSV files
-- Reset passwords individually or in bulk
+A management-focused application for academic and operational control.
 
-#### 🏛️ Academic Structure Setup
-Build the entire university structure from scratch:
-- **Departments** — organize faculties and divisions
-- **Sections** — manage class groups by year and department
-- **Subjects** — define courses with codes, years, and semesters
+#### User Management
+Administrators can fully manage users across the platform:
 
-#### 📋 Course Offerings
-Link subjects to sections per semester and academic year. Each offering automatically generates a dedicated group chat. Assign doctors and TAs to offerings as needed.
+- Create student and staff accounts
+- Edit user information
+- Activate or deactivate accounts
+- Reset passwords
+- Import students and staff in bulk through Excel or CSV
 
-#### 🎯 Enrollments
-Enroll students into course offerings individually or in bulk by section. Full control over who is registered in each course.
+#### Academic Structure Management
+The platform supports full academic structure setup, including:
 
-#### 📤 Content Management
-Upload and manage all course content:
-- Lecture files and descriptions
-- Section session materials
+- **Departments**
+- **Sections**
+- **Subjects**
+- Academic years and semester mapping
+
+#### Course Offerings
+Subjects can be assigned to sections for a specific semester and academic year.  
+Each course offering automatically generates its own dedicated group space.
+
+Admins can also assign:
+
+- Doctors
+- Teaching assistants
+
+to the appropriate course offerings.
+
+#### Enrollment Management
+Students can be enrolled:
+
+- Individually
+- In bulk by section
+
+This gives the institution full control over subject registration and visibility.
+
+#### Content Management
+Academic content can be uploaded and managed per course offering, including:
+
+- Lectures
+- Section materials
 - Summaries
-- Assessments (Tasks / Quizzes / Sheets) with due dates
-- Exam details and schedules
+- Assessments
+- Exams
 - General course files
 
-#### 📈 Grades Management
-Enter, edit, and review student grades per course offering. Grades are categorized by type and include score, max score, and optional notes.
+#### Grades Management
+Staff and admins can manage student performance through:
 
-#### 📅 Timetable Manager
-Create and manage the weekly schedule with support for:
-- **Odd/Even week patterns** — perfect for rotating schedules
-- Event types: Lectures, Sections, Quizzes, Task Deadlines, Exams
-- Location and time slot configuration
+- Grade entry
+- Grade editing
+- Grade review
+- Categorized grading by item type
+- Optional notes and score breakdowns
 
-#### 📢 Broadcast Notifications
-Send targeted notifications to individual users, an entire section, or all students in a specific course — all from a single screen.
+#### Timetable Management
+Admins can build and maintain the weekly academic schedule with support for:
 
-#### 🛡️ Moderation
-Maintain a healthy academic environment by reviewing and removing inappropriate posts, comments, or messages from any course group.
+- Odd / Even week logic
+- Event-based scheduling
+- Room and hall assignment
+- Lecture and section time slots
+- Assessment and exam scheduling
 
----
+#### Broadcast Notifications
+The system allows targeted notifications to be sent to:
 
-## 👤 User Roles
+- Individual users
+- Entire sections
+- Students enrolled in a specific course
 
-| Role | Description |
-|------|-------------|
-| **Admin** | Full platform control — the only role that can create structure, manage users, upload content, and configure permissions |
-| **Student** | Access enrolled courses, view content & grades, participate in groups (based on admin settings) |
-| **Doctor** *(optional)* | View course content by default; can be granted upload/editing permissions by admin |
-| **TA** *(optional)* | Same as Doctor — view-only by default with optional elevated permissions |
+#### Moderation
+To maintain a healthy academic communication environment, admins can review and remove:
 
----
+- Posts
+- Comments
+- Messages
 
-## 🔐 Authentication
-
-- Students log in using their **university email + national ID** (as default password)
-- Staff accounts are created and configured entirely by the Admin
-- Password reset is **admin-controlled only** — no self-reset flow
-- Optional password change available for students after first login
-
----
-
-## 🚀 Platform Workflow
-
-The typical setup flow for a new semester:
-
-1. **Import** students and staff via bulk CSV/Excel upload
-2. **Create** departments, sections, and subjects
-3. **Set up** course offerings — groups are auto-created for each
-4. **Enroll** students in bulk per section
-5. **Upload** content and configure the odd/even timetable
-6. **Activate** notifications and moderate group activity throughout the semester
+from course groups when necessary.
 
 ---
 
-## 📐 App Screens
+## User Roles
 
-### Student App
+| Role | Responsibility |
+|------|----------------|
+| **Admin** | Full system control, including user management, academic setup, content administration, permissions, notifications, moderation, and enrollments |
+| **Student** | Access enrolled courses, content, grades, timetable, notifications, and participate in course groups according to system policy |
+| **Doctor** | Access assigned academic subjects and, when granted by the admin, manage course content and academic actions |
+| **TA** | Access assigned subjects and assist with academic management based on permissions configured by the admin |
+
+---
+
+## Authentication & Access Control
+
+EduGate follows a strict and secure authentication model:
+
+- Students log in using their **university email**
+- The default initial password may be based on the student’s **national ID**, according to system configuration
+- Staff accounts are created and controlled entirely by the admin
+- Password reset is **admin-controlled only**
+- No self-registration is allowed
+- All data access is controlled by role and enrollment rules
+
+This ensures that:
+
+- Students only access their own enrolled courses
+- Staff only access their assigned academic content
+- Admin-only operations remain protected at the API level
+
+---
+
+## Academic Workflow
+
+A typical semester setup within EduGate follows this lifecycle:
+
+1. Import students and staff in bulk
+2. Create departments, sections, and subjects
+3. Create course offerings for the semester
+4. Auto-generate course groups
+5. Enroll students into course offerings
+6. Upload course content and configure schedules
+7. Enable notifications and manage ongoing academic communication
+
+This workflow makes the system efficient, repeatable, and easy to operate at scale.
+
+---
+
+## Main Screens
+
+### Student Application
 - Login
-- Home Dashboard (today's schedule + notifications + enrolled courses)
+- Home Dashboard
 - Courses List
-- Course Detail (Lectures / Sections / Summaries / Assessments / Exams / Files / Grades / Group)
-- Group Screen (Posts, Comments, Live Chat)
-- Timetable (Odd/Even toggle)
+- Course Details
+- Lectures
+- Sections
+- Summaries
+- Assessments
+- Exams
+- Course Files
+- Grades
+- Course Group
+- Timetable
 - Notifications
-- Profile (optional password change)
+- Profile
 
-### Admin/Staff App
+### Admin & Staff Application
+- Login
 - Dashboard
-- Users (import, create, edit, reset password, activate/deactivate)
-- Academic Setup (Departments / Sections / Subjects)
-- Course Offerings + Auto Group Creation
-- Enrollments (bulk assignment)
-- Content Manager (per course)
-- Timetable Manager (Odd/Even)
-- Notification Broadcast
-- Moderation (Posts / Comments / Messages)
+- User Management
+- Academic Setup
+- Course Offerings
+- Enrollments
+- Content Manager
+- Timetable Manager
+- Notifications Broadcast
+- Moderation
+- Profile
 
 ---
 
-## 🧰 Tech Stack
+## Technical Stack
 
 | Layer | Technology |
-|-------|-----------|
-| Mobile Framework | Flutter |
-| Backend API | REST API |
-| Authentication | JWT (Access + Refresh Tokens) |
-| File Uploads | Multipart upload service |
-| Real-time Groups | Group messaging per course |
+|------|------------|
+| **Mobile Applications** | Flutter |
+| **Backend** | REST API |
+| **Authentication** | JWT (Access Token + Refresh Token) |
+| **File Uploads** | Multipart Upload Service |
+| **Academic Communication** | Course-based group interactions |
+| **Architecture Goal** | Scalable, maintainable, role-driven system design |
 
 ---
 
-## 📁 Project Structure
+## Repository Structure
 
-```
+```bash
 edugate/
-├── student_app/          # Flutter app for students
-├── admin_app/            # Flutter app for admins, doctors & TAs
-└── backend/              # REST API server
-```
-
----
-
-## 🔒 Security Highlights
-
-- All endpoints are role-protected — students can only access their own enrolled courses
-- Admin-only routes are strictly enforced at the API level
-- Group participation requires active enrollment in the linked course offering
-- No self-registration — all accounts are created and managed by the Admin
-
----
-
-## 📬 Contact
-
-For support or inquiries, please reach out to the project maintainer.
-
----
-
-> Built with ❤️ to simplify university life — for students, educators, and administrators alike.
+├── student_app/     # Flutter application for students
+├── admin_app/       # Flutter application for admins, doctors, and TAs
+└── backend/         # REST API backend
