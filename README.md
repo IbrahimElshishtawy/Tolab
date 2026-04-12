@@ -273,3 +273,40 @@ edugate/
 ├── student_app/     # Flutter application for students
 ├── admin_app/       # Flutter application for admins, doctors, and TAs
 └── backend/         # REST API backend
+
+## Security Highlights
+
+EduGate is designed with access control and data isolation in mind:
+
+- Role-protected API endpoints
+- Enrollment-based course access control
+- Course-group participation restricted by registration rules
+- No unauthorized self-registration
+- Admin-only control over account provisioning and resets
+- Structured moderation support for academic discussions
+
+---
+
+## Why EduGate
+
+EduGate is more than a classroom utility. It is a structured academic platform designed to support real university operations through:
+
+- Organized academic delivery
+- Controlled user access
+- Streamlined course workflows
+- Centralized communication
+- Scalable administration
+
+It aims to reduce operational friction while improving visibility, coordination, and engagement across the academic environment.
+
+---
+
+## Maintainer
+
+For support, collaboration, or project inquiries, please contact the project maintainer.
+
+**By Ibrahim Elshishtawy**
+
+---
+
+> Built to modernize university life with a secure, scalable, and user-focused academic experience.
