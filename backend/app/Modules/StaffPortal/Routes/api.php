@@ -22,7 +22,7 @@ Route::prefix('staff-portal')->group(function () {
     Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout'])->middleware('throttle:sensitive');
 
-        Route::get('dashboard', [DashboardController::class, 'index']);
+        Route::get('dashboard', [DashboardController::class, 'index'])->middleware('staff_role');
         Route::get('profile', [ProfileController::class, 'show']);
         Route::put('profile/settings', [ProfileController::class, 'updateSettings'])->middleware('throttle:sensitive');
 

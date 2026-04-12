@@ -3,7 +3,9 @@
 namespace App\Modules\Content\Models;
 
 use App\Modules\Academic\Models\CourseOffering;
+use App\Modules\Academic\Models\Subject;
 use App\Modules\Shared\Traits\HasAttachments;
+use App\Modules\UserManagement\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,8 +19,16 @@ class Lecture extends Model
 
     protected $fillable = [
         'course_offering_id',
+        'subject_id',
+        'created_by',
+        'week_number',
         'title',
         'description',
+        'instructor_name',
+        'video_url',
+        'file_path',
+        'is_published',
+        'published_at',
         'date',
     ];
 
@@ -26,11 +36,24 @@ class Lecture extends Model
     {
         return [
             'date' => 'date',
+            'week_number' => 'integer',
+            'is_published' => 'boolean',
+            'published_at' => 'datetime',
         ];
     }
 
     public function courseOffering(): BelongsTo
     {
         return $this->belongsTo(CourseOffering::class);
+    }
+
+    public function subject(): BelongsTo
+    {
+        return $this->belongsTo(Subject::class);
+    }
+
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Modules\StaffPortal\Services;
 
 use App\Core\Exceptions\ApiException;
+use App\Modules\Academic\Models\CourseOffering;
 use App\Modules\Academic\Models\Subject;
 use App\Modules\Content\Models\Attachment;
 use App\Modules\Content\Models\Lecture;
@@ -13,6 +14,7 @@ use App\Modules\StaffPortal\Models\AcademicSectionContent;
 use App\Modules\StaffPortal\Models\Quiz;
 use App\Modules\StaffPortal\Models\Task;
 use App\Modules\UserManagement\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -88,8 +90,11 @@ class PortalService
 
     public function createLecture(User $user, array $payload): Lecture
     {
+        $subjectId = $payload['subject_id'] ?? $this->resolveDefaultSubjectId($user);
+
         $lecture = Lecture::query()->create([
-            'subject_id' => $payload['subject_id'] ?? $this->resolveDefaultSubjectId($user),
+            'course_offering_id' => $this->resolveDefaultCourseOfferingId($user, (int) $subjectId),
+            'subject_id' => $subjectId,
             'created_by' => $user->id,
             'title' => $payload['title'],
             'week_number' => $payload['week_number'] ?? 1,
@@ -231,7 +236,12 @@ class PortalService
 
     protected function assignedSubjectIds(User $user)
     {
-        return $user->staffAssignments()->pluck('subject_id');
+        return $user->staffAssignments()
+            ->pluck('subject_id')
+            ->merge($this->managedCourseOfferingQuery($user)->pluck('subject_id'))
+            ->filter()
+            ->unique()
+            ->values();
     }
 
     protected function resolveDefaultSubjectId(User $user): int
@@ -243,5 +253,28 @@ class PortalService
         }
 
         return (int) $subjectId;
+    }
+
+    protected function resolveDefaultCourseOfferingId(User $user, int $subjectId): int
+    {
+        $courseOfferingId = $this->managedCourseOfferingQuery($user)
+            ->where('subject_id', $subjectId)
+            ->value('id');
+
+        if (! $courseOfferingId) {
+            throw new ApiException('No course offering found for this subject assignment.', [], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        return (int) $courseOfferingId;
+    }
+
+    protected function managedCourseOfferingQuery(User $user): Builder
+    {
+        return CourseOffering::query()
+            ->when(
+                $user->role?->value === 'DOCTOR',
+                fn (Builder $query) => $query->where('doctor_user_id', $user->id),
+                fn (Builder $query) => $query->where('ta_user_id', $user->id),
+            );
     }
 }

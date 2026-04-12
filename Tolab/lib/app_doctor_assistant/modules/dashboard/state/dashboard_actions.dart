@@ -1,6 +1,10 @@
 import '../../../core/models/dashboard_models.dart';
 
-class LoadDashboardAction {}
+class LoadDashboardAction {
+  const LoadDashboardAction({this.force = false});
+
+  final bool force;
+}
 
 class LoadDashboardSuccessAction {
   LoadDashboardSuccessAction(this.data);

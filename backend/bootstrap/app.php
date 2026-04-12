@@ -5,6 +5,7 @@ use App\Core\Middleware\EnsureActiveUser;
 use App\Core\Middleware\EnsurePermission;
 use App\Core\Middleware\ForceJsonResponse;
 use App\Core\Middleware\RequireAdminRole;
+use App\Core\Middleware\RequireStaffRole;
 use App\Core\Middleware\RequireStudentRole;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -30,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'active' => EnsureActiveUser::class,
             'admin' => RequireAdminRole::class,
             'permission' => EnsurePermission::class,
+            'staff_role' => RequireStaffRole::class,
             'student' => RequireStudentRole::class,
         ]);
     })

@@ -7,7 +7,11 @@ import 'dashboard_state.dart';
 DashboardState dashboardReducer(DashboardState state, dynamic action) {
   switch (action.runtimeType) {
     case LoadDashboardAction:
-      return const DashboardState(status: ViewStatus.loading);
+      return DashboardState(
+        status: ViewStatus.loading,
+        data: state.data,
+        error: state.error,
+      );
     case LoadDashboardSuccessAction:
       return DashboardState(
         status: ViewStatus.success,

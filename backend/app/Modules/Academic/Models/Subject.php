@@ -5,6 +5,7 @@ namespace App\Modules\Academic\Models;
 use App\Core\Enums\Semester;
 use App\Modules\StaffPortal\Models\AcademicYear;
 use App\Modules\StaffPortal\Models\StaffAssignment;
+use Database\Factories\SubjectFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,6 +35,11 @@ class Subject extends Model
         ];
     }
 
+    protected static function newFactory(): SubjectFactory
+    {
+        return SubjectFactory::new();
+    }
+
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
@@ -52,5 +58,10 @@ class Subject extends Model
     public function assignments(): HasMany
     {
         return $this->hasMany(StaffAssignment::class);
+    }
+
+    public function sections(): HasMany
+    {
+        return $this->hasMany(Section::class);
     }
 }

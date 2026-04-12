@@ -20,6 +20,7 @@ use App\Modules\Notifications\Models\UserNotification;
 use App\Modules\StaffPortal\Models\Permission;
 use App\Modules\StaffPortal\Models\Role;
 use App\Modules\StaffPortal\Models\StaffAssignment;
+use App\Modules\StaffPortal\Models\TaskSubmission;
 use App\Modules\Shared\Models\AuditLog;
 use App\Modules\Shared\Models\RefreshToken;
 use Database\Factories\UserFactory;
@@ -198,6 +199,11 @@ class User extends Authenticatable
     public function staffAssignments(): HasMany
     {
         return $this->hasMany(StaffAssignment::class);
+    }
+
+    public function taskSubmissions(): HasMany
+    {
+        return $this->hasMany(TaskSubmission::class, 'student_user_id');
     }
 
     public function managedSubjects()
