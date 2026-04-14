@@ -51,7 +51,7 @@ class _SubjectsPageState extends ConsumerState<SubjectsPage> {
               children: [
                 const AppSectionHeader(
                   title: 'المواد الدراسية',
-                  subtitle: 'بطاقات منظمة توضح المحتوى والنشاط والتقدم داخل كل مادة.',
+                  subtitle: 'بطاقات منظمة توضّح المحتوى، المتابعة، والتقدم داخل كل مادة.',
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 AppSearchField(
@@ -67,17 +67,36 @@ class _SubjectsPageState extends ConsumerState<SubjectsPage> {
                     icon: Icons.search_off_rounded,
                   )
                 else
-                  ...filtered.map(
-                    (subject) => Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                      child: SubjectCard(
-                        subject: subject,
-                        onTap: () => context.goNamed(
-                          RouteNames.subjectDetails,
-                          pathParameters: {'subjectId': subject.id},
-                        ),
-                      ),
-                    ),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final columns = constraints.maxWidth >= 1000
+                          ? 2
+                          : constraints.maxWidth >= 680
+                              ? 2
+                              : 1;
+                      final spacing = AppSpacing.lg;
+                      final itemWidth = columns == 1
+                          ? constraints.maxWidth
+                          : (constraints.maxWidth - spacing) / columns;
+
+                      return Wrap(
+                        spacing: spacing,
+                        runSpacing: spacing,
+                        children: [
+                          for (final subject in filtered)
+                            SizedBox(
+                              width: itemWidth,
+                              child: SubjectCard(
+                                subject: subject,
+                                onTap: () => context.goNamed(
+                                  RouteNames.subjectDetails,
+                                  pathParameters: {'subjectId': subject.id},
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
                   ),
               ],
             );

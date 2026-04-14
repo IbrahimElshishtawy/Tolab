@@ -13,11 +13,12 @@ class NotificationSettingsSection extends ConsumerWidget {
 
     return AppCard(
       child: SwitchListTile.adaptive(
+        contentPadding: EdgeInsets.zero,
         value: state.notificationsEnabled,
         onChanged: (value) =>
             ref.read(settingsNotifierProvider.notifier).updateNotifications(value),
-        title: const Text('Notifications'),
-        subtitle: const Text('Enable alerts, quiz reminders, and summary updates'),
+        title: const Text('التنبيهات'),
+        subtitle: const Text('تفعيل تنبيهات المحاضرات والكويزات والشيتات والدرجات'),
       ),
     );
   }

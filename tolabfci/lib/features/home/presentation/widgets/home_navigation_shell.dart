@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/responsive/responsive_extensions.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../notifications/presentation/providers/notifications_providers.dart';
 
@@ -17,6 +18,7 @@ class HomeNavigationShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final unreadCount = ref.watch(unreadNotificationsCountProvider);
+    final palette = context.appColors;
 
     final destinations = [
       const NavigationDestination(
@@ -27,7 +29,12 @@ class HomeNavigationShell extends ConsumerWidget {
       const NavigationDestination(
         icon: Icon(Icons.menu_book_outlined),
         selectedIcon: Icon(Icons.menu_book_rounded),
-        label: 'المواد الدراسية',
+        label: 'المواد',
+      ),
+      const NavigationDestination(
+        icon: Icon(Icons.calendar_month_outlined),
+        selectedIcon: Icon(Icons.calendar_month_rounded),
+        label: 'الجدول',
       ),
       NavigationDestination(
         icon: Badge.count(
@@ -43,11 +50,6 @@ class HomeNavigationShell extends ConsumerWidget {
         label: 'التنبيهات',
       ),
       const NavigationDestination(
-        icon: Icon(Icons.insert_chart_outlined_rounded),
-        selectedIcon: Icon(Icons.insert_chart_rounded),
-        label: 'النتائج',
-      ),
-      const NavigationDestination(
         icon: Icon(Icons.person_outline_rounded),
         selectedIcon: Icon(Icons.person_rounded),
         label: 'الملف الشخصي',
@@ -58,25 +60,41 @@ class HomeNavigationShell extends ConsumerWidget {
       return Scaffold(
         body: Row(
           children: [
-            NavigationRail(
-              selectedIndex: navigationShell.currentIndex,
-              onDestinationSelected: _onTap,
-              labelType: NavigationRailLabelType.all,
-              leading: const Padding(
-                padding: EdgeInsets.only(top: AppSpacing.lg),
-                child: Icon(Icons.school_rounded),
+            Container(
+              width: 106,
+              margin: const EdgeInsets.all(AppSpacing.md),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+              decoration: BoxDecoration(
+                color: palette.surface,
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(color: palette.border),
               ),
-              destinations: destinations
-                  .map(
-                    (destination) => NavigationRailDestination(
-                      icon: destination.icon,
-                      selectedIcon: destination.selectedIcon,
-                      label: Text(destination.label),
-                    ),
-                  )
-                  .toList(),
+              child: NavigationRail(
+                selectedIndex: navigationShell.currentIndex,
+                onDestinationSelected: _onTap,
+                labelType: NavigationRailLabelType.all,
+                backgroundColor: Colors.transparent,
+                leading: Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: palette.primarySoft,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  alignment: Alignment.center,
+                  child: const Icon(Icons.school_rounded, color: AppColors.primary),
+                ),
+                destinations: destinations
+                    .map(
+                      (destination) => NavigationRailDestination(
+                        icon: destination.icon,
+                        selectedIcon: destination.selectedIcon,
+                        label: Text(destination.label),
+                      ),
+                    )
+                    .toList(),
+              ),
             ),
-            const VerticalDivider(width: 1),
             Expanded(child: navigationShell),
           ],
         ),
@@ -85,10 +103,36 @@ class HomeNavigationShell extends ConsumerWidget {
 
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: _onTap,
-        destinations: destinations,
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          0,
+          AppSpacing.md,
+          AppSpacing.md,
+        ),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: palette.surface.withValues(alpha: 0.98),
+            borderRadius: BorderRadius.circular(26),
+            border: Border.all(color: palette.border),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(
+                  alpha: Theme.of(context).brightness == Brightness.dark ? 0.24 : 0.08,
+                ),
+                blurRadius: 22,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: NavigationBar(
+            selectedIndex: navigationShell.currentIndex,
+            onDestinationSelected: _onTap,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            destinations: destinations,
+          ),
+        ),
       ),
     );
   }

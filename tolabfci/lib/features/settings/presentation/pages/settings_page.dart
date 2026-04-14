@@ -5,6 +5,7 @@ import '../../../../core/widgets/adaptive_page_container.dart';
 import '../widgets/language_section.dart';
 import '../widgets/logout_tile.dart';
 import '../widgets/notification_settings_section.dart';
+import '../widgets/theme_mode_section.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -12,11 +13,13 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: const Text('الإعدادات')),
       body: SafeArea(
         child: AdaptivePageContainer(
           child: ListView(
             children: const [
+              ThemeModeSection(),
+              SizedBox(height: AppSpacing.lg),
               LanguageSection(),
               SizedBox(height: AppSpacing.lg),
               NotificationSettingsSection(),

@@ -13,6 +13,7 @@ class StudyInsightsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     final totalTasks = model.completedTasks + model.pendingTasks;
     final progress = totalTasks == 0 ? 0.0 : model.completedTasks / totalTasks;
 
@@ -39,7 +40,8 @@ class StudyInsightsSection extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 10,
-              backgroundColor: AppColors.surfaceAlt,
+              backgroundColor: palette.surfaceAlt,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -101,13 +103,15 @@ class _InsightMetric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
+
     return Container(
       width: 132,
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.surfaceAlt,
+        color: palette.surfaceAlt,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: palette.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

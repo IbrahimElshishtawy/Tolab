@@ -21,6 +21,7 @@ class SubjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     final accent = _accentColor(subject.accentHex);
 
     return AppCard(
@@ -28,33 +29,35 @@ class SubjectCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 12,
-                height: 64,
+                width: 52,
+                height: 52,
                 decoration: BoxDecoration(
-                  color: accent,
-                  borderRadius: BorderRadius.circular(999),
+                  color: accent.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(18),
                 ),
+                alignment: Alignment.center,
+                child: Icon(Icons.auto_stories_rounded, color: accent),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      subject.name,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20),
-                    ),
+                    Text(subject.name, style: Theme.of(context).textTheme.titleLarge),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(subject.code, style: Theme.of(context).textTheme.labelLarge),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      '${subject.code} - ${subject.instructor}',
+                      'د. ${subject.instructor}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'المعيد: ${subject.assistantName}',
-                      style: Theme.of(context).textTheme.labelLarge,
+                      'م. ${subject.assistantName}',
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
                 ),
@@ -73,10 +76,10 @@ class SubjectCard extends StatelessWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
-              _MetaBadge(label: 'المحاضرات', value: '${subject.lecturesCount}'),
-              _MetaBadge(label: 'السكاشن', value: '${subject.sectionsCount}'),
-              _MetaBadge(label: 'الكويزات', value: '${subject.quizCount}'),
-              _MetaBadge(label: 'الشيتات', value: '${subject.sheetCount}'),
+              _MetaChip(label: 'المحاضرات', value: '${subject.lecturesCount}'),
+              _MetaChip(label: 'الكويزات', value: '${subject.quizCount}'),
+              _MetaChip(label: 'الشيتات', value: '${subject.sheetCount}'),
+              _MetaChip(label: 'الساعات', value: '${subject.creditHours}'),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
@@ -84,14 +87,23 @@ class SubjectCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
-              color: AppColors.surfaceAlt,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
+              color: palette.surfaceAlt,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: palette.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('آخر نشاط', style: Theme.of(context).textTheme.labelLarge),
+                Row(
+                  children: [
+                    Text('آخر نشاط', style: Theme.of(context).textTheme.labelLarge),
+                    const Spacer(),
+                    Text(
+                      'التقدم ${(subject.progress * 100).round()}%',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: accent),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(subject.lastActivityLabel),
                 const SizedBox(height: AppSpacing.sm),
@@ -100,14 +112,9 @@ class SubjectCard extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: subject.progress,
                     minHeight: 8,
-                    backgroundColor: Colors.white,
+                    backgroundColor: palette.surface,
                     color: accent,
                   ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  'نسبة التقدم ${(subject.progress * 100).round()}%',
-                  style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
             ),
@@ -119,20 +126,20 @@ class SubjectCard extends StatelessWidget {
             children: [
               AppButton(label: 'فتح المادة', onPressed: onTap, isExpanded: false),
               AppButton(
-                label: 'دخول الجروب',
+                label: 'الجروب',
                 onPressed: () => _openTab(context, 'group'),
                 isExpanded: false,
                 variant: AppButtonVariant.secondary,
               ),
               AppButton(
-                label: 'عرض المحتوى',
+                label: 'المحاضرات',
                 onPressed: () => _openTab(context, 'lectures'),
                 isExpanded: false,
                 variant: AppButtonVariant.secondary,
               ),
               AppButton(
-                label: 'عرض الشيتات',
-                onPressed: () => _openTab(context, 'tasks'),
+                label: 'الدرجات',
+                onPressed: () => _openTab(context, 'grades'),
                 isExpanded: false,
                 variant: AppButtonVariant.secondary,
               ),
@@ -152,8 +159,8 @@ class SubjectCard extends StatelessWidget {
   }
 }
 
-class _MetaBadge extends StatelessWidget {
-  const _MetaBadge({
+class _MetaChip extends StatelessWidget {
+  const _MetaChip({
     required this.label,
     required this.value,
   });
@@ -163,13 +170,15 @@ class _MetaBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
+
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.sm,
         vertical: AppSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surfaceAlt,
+        color: palette.surfaceAlt,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text('$label: $value', style: Theme.of(context).textTheme.labelLarge),

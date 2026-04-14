@@ -4,4 +4,5 @@ class StorageKeys {
   static const hasVerifiedNationalId = 'has_verified_national_id';
   static const preferredLocale = 'preferred_locale';
   static const notificationsEnabled = 'notifications_enabled';
+  static const themeMode = 'theme_mode';
 }

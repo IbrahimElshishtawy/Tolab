@@ -20,7 +20,7 @@ class AcademicOverviewCard extends StatelessWidget {
       ('GPA', snapshot.gpa.toStringAsFixed(2)),
       ('المواد', '${snapshot.courseCount}'),
       ('المهام المكتملة', '${snapshot.completedTasks}'),
-      ('المهام المعلقة', '${snapshot.pendingTasks}'),
+      ('المعلقة', '${snapshot.pendingTasks}'),
       ('المحاضرات المشاهدة', '${snapshot.viewedLectures}'),
       ('التفاعل', snapshot.engagementSummary),
     ];
@@ -30,7 +30,7 @@ class AcademicOverviewCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppSectionHeader(
-            title: 'ملخص أكاديمي',
+            title: 'نظرة أكاديمية سريعة',
             subtitle: snapshot.academicStatus,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -65,12 +65,14 @@ class _OverviewTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.surfaceAlt,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        color: palette.surfaceAlt,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: palette.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

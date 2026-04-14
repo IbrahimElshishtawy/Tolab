@@ -22,8 +22,10 @@ class StudentHomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
+
     return AppCard(
-      backgroundColor: AppColors.surfaceAlt,
+      backgroundColor: palette.surfaceElevated,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -41,12 +43,12 @@ class StudentHomeHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'أهلاً ${profile.fullName}',
-                      style: Theme.of(context).textTheme.titleLarge,
+                      'أهلًا ${profile.fullName}',
+                      style: Theme.of(context).textTheme.displaySmall,
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      '${profile.department} - ${profile.level}',
+                      '${profile.department} • ${profile.level}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: AppSpacing.xs),
@@ -60,8 +62,8 @@ class StudentHomeHeader extends StatelessWidget {
               IconButton.filledTonal(
                 onPressed: () => context.goNamed(RouteNames.notifications),
                 style: IconButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: AppColors.textPrimary,
+                  backgroundColor: palette.primarySoft,
+                  foregroundColor: Theme.of(context).colorScheme.primary,
                 ),
                 icon: NotificationBadge(
                   count: unreadCount,
@@ -76,14 +78,15 @@ class StudentHomeHeader extends StatelessWidget {
             runSpacing: AppSpacing.sm,
             children: [
               AppBadge(label: 'GPA ${profile.gpa.toStringAsFixed(2)}'),
-              AppBadge(label: profile.faculty, backgroundColor: Colors.white),
+              AppBadge(label: profile.faculty, backgroundColor: palette.surfaceAlt),
               AppBadge(
-                label: 'المرشد: ${profile.academicAdvisor}',
-                backgroundColor: Colors.white,
+                label: 'المستوى ${profile.level}',
+                backgroundColor: palette.surfaceAlt,
               ),
               AppBadge(
-                label: 'الحالة: ${profile.academicStatus}',
-                backgroundColor: Colors.white,
+                label: profile.academicStatus,
+                backgroundColor: palette.surfaceAlt,
+                foregroundColor: AppColors.success,
               ),
             ],
           ),

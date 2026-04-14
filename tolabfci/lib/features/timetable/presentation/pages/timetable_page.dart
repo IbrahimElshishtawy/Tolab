@@ -10,6 +10,7 @@ import '../../../../core/widgets/adaptive_page_container.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_section_header.dart';
+import '../../../../core/widgets/app_segmented_control.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/error_state_widget.dart';
 import '../../../../core/widgets/loading_widget.dart';
@@ -23,7 +24,7 @@ class TimetablePage extends ConsumerStatefulWidget {
 }
 
 class _TimetablePageState extends ConsumerState<TimetablePage> {
-  String _view = 'اليوم';
+  String _view = 'today';
 
   @override
   Widget build(BuildContext context) {
@@ -40,20 +41,22 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
               children: [
                 const AppSectionHeader(
                   title: 'الجدول الدراسي',
-                  subtitle: 'عرض اليوم والأسبوع أو حسب النوع مع فتح الوجهة المرتبطة مباشرة.',
+                  subtitle: 'عرض اليوم أو الأسبوع مع فتح الوجهة المرتبطة مباشرة.',
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                Wrap(
-                  spacing: AppSpacing.sm,
-                  children: ['اليوم', 'الأسبوع', 'حسب النوع']
-                      .map(
-                        (view) => ChoiceChip(
-                          label: Text(view),
-                          selected: _view == view,
-                          onSelected: (_) => setState(() => _view = view),
-                        ),
-                      )
-                      .toList(),
+                AppSegmentedControl<String>(
+                  groupValue: _view,
+                  onValueChanged: (value) => setState(() => _view = value),
+                  children: const {
+                    'today': Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      child: Text('اليوم'),
+                    ),
+                    'week': Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      child: Text('الأسبوع'),
+                    ),
+                  },
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 if (filtered.isEmpty)
@@ -84,30 +87,17 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
     final today = DateTime(now.year, now.month, now.day);
     final endOfWeek = today.add(const Duration(days: 7));
 
-    switch (_view) {
-      case 'اليوم':
-        return items.where((item) {
-          final date = DateTime(item.startsAt.year, item.startsAt.month, item.startsAt.day);
-          return date == today;
-        }).toList();
-      case 'الأسبوع':
-        return items.where((item) => item.startsAt.isBefore(endOfWeek)).toList();
-      case 'حسب النوع':
-        return items;
-      default:
-        return items;
+    if (_view == 'today') {
+      return items.where((item) {
+        final date = DateTime(item.startsAt.year, item.startsAt.month, item.startsAt.day);
+        return date == today;
+      }).toList();
     }
+
+    return items.where((item) => item.startsAt.isBefore(endOfWeek)).toList();
   }
 
   Map<String, List<TimetableItem>> _groupItems(List<TimetableItem> items) {
-    if (_view == 'حسب النوع') {
-      final grouped = <String, List<TimetableItem>>{};
-      for (final item in items) {
-        grouped.putIfAbsent(item.typeLabel, () => []).add(item);
-      }
-      return grouped;
-    }
-
     final grouped = <String, List<TimetableItem>>{};
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -118,10 +108,11 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
       final key = itemDate == today
           ? 'اليوم'
           : itemDate == tomorrow
-          ? 'غدًا'
-          : formatArabicDate(item.startsAt, pattern: 'EEEE d MMM');
+              ? 'غدًا'
+              : formatArabicDate(item.startsAt, pattern: 'EEEE d MMM');
       grouped.putIfAbsent(key, () => []).add(item);
     }
+
     return grouped;
   }
 }
@@ -155,6 +146,8 @@ class _TimetableTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
+
     return InkWell(
       borderRadius: BorderRadius.circular(18),
       onTap: () => context.goNamed(
@@ -162,14 +155,15 @@ class _TimetableTile extends StatelessWidget {
         pathParameters: item.pathParameters,
       ),
       child: AppCard(
+        backgroundColor: palette.surfaceElevated,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
-                color: AppColors.primarySoft,
+                color: palette.primarySoft,
                 borderRadius: BorderRadius.circular(16),
               ),
               alignment: Alignment.center,
@@ -177,7 +171,7 @@ class _TimetableTile extends StatelessWidget {
                 formatArabicTime(item.startsAt),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
               ),
             ),
@@ -198,7 +192,7 @@ class _TimetableTile extends StatelessWidget {
                       ),
                       AppBadge(
                         label: item.typeLabel,
-                        backgroundColor: Colors.white,
+                        backgroundColor: palette.surfaceAlt,
                         foregroundColor: AppColors.primary,
                       ),
                     ],
@@ -207,11 +201,16 @@ class _TimetableTile extends StatelessWidget {
                   Text(item.subjectName, style: Theme.of(context).textTheme.bodySmall),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    '${item.locationLabel} - ${item.hostName}',
+                    '${item.locationLabel} • ${item.hostName}',
                     style: Theme.of(context).textTheme.labelLarge,
                   ),
                   const SizedBox(height: AppSpacing.xs),
-                  Text(_statusBadge(item), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.indigo)),
+                  Text(
+                    _statusBadge(item),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.indigo,
+                        ),
+                  ),
                 ],
               ),
             ),

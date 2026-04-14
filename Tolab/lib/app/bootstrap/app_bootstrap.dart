@@ -52,6 +52,14 @@ class UnifiedAppBootstrap {
     final authController = AuthController(authRepository);
     final themeController = ThemeModeController();
 
+    doctorDependencies.apiClient.setUnauthorizedHandler((message) {
+      return authController.expireSession(
+        message: message == 'Unauthenticated.'
+            ? 'Your session has expired. Please sign in again.'
+            : message,
+      );
+    });
+
     void syncLegacyStores() {
       final session = authController.state.session;
       if (session == null) {

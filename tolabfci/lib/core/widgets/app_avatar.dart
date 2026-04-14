@@ -17,6 +17,7 @@ class AppAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     final initials = name
         .trim()
         .split(' ')
@@ -31,8 +32,8 @@ class AppAvatar extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: const BoxDecoration(
-        color: AppColors.primarySoft,
+      decoration: BoxDecoration(
+        color: palette.primarySoft,
         shape: BoxShape.circle,
       ),
       clipBehavior: Clip.antiAlias,
@@ -54,7 +55,7 @@ class AppAvatar extends StatelessWidget {
               child: Text(
                 initials,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w700,
                     ),
               ),

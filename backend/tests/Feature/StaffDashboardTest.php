@@ -30,6 +30,53 @@ class StaffDashboardTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_staff_dashboard_accepts_bearer_token_from_staff_portal_login(): void
+    {
+        $doctor = User::factory()->doctor()->create([
+            'full_name' => 'Dr. Token Ready',
+            'university_email' => 'doctor@tolab.edu',
+            'password_hash' => 'Admin@123',
+        ]);
+        $this->grantPermissions($doctor, ['tasks.view']);
+
+        $login = $this->postJson('/api/staff-portal/auth/login', [
+            'university_email' => 'doctor@tolab.edu',
+            'password' => 'Admin@123',
+            'device_name' => 'phpunit',
+        ]);
+
+        $login->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    'user',
+                    'tokens' => ['access_token', 'refresh_token'],
+                ],
+            ]);
+
+        $response = $this
+            ->withHeader(
+                'Authorization',
+                'Bearer '.$login->json('data.tokens.access_token'),
+            )
+            ->getJson('/api/staff/dashboard');
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.header.user.role', 'DOCTOR');
+    }
+
+    public function test_staff_dashboard_requires_authentication(): void
+    {
+        $response = $this->getJson('/api/staff/dashboard');
+
+        $response->assertUnauthorized()
+            ->assertJsonPath('success', false)
+            ->assertJsonPath('message', 'Unauthenticated.');
+    }
+
     public function test_doctor_receives_structured_dashboard_from_canonical_and_legacy_routes(): void
     {
         $doctor = User::factory()->doctor()->create([

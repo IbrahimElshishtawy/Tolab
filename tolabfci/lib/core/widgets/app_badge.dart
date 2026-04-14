@@ -7,25 +7,29 @@ class AppBadge extends StatelessWidget {
   const AppBadge({
     super.key,
     required this.label,
-    this.backgroundColor = AppColors.primarySoft,
-    this.foregroundColor = AppColors.textPrimary,
+    this.backgroundColor,
+    this.foregroundColor,
   });
 
   final String label;
-  final Color backgroundColor;
-  final Color foregroundColor;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: backgroundColor,
+        color: backgroundColor ?? palette.primarySoft,
         borderRadius: BorderRadius.circular(AppRadii.pill),
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(color: foregroundColor),
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: foregroundColor ?? palette.textPrimary,
+            ),
       ),
     );
   }

@@ -40,8 +40,11 @@ class StudentHomeViewModel {
     required this.timelineGroups,
     required this.academicSnapshot,
     required this.courseActivities,
+    required this.upcomingQuizzes,
+    required this.nearbyTasks,
     required this.notificationsPreview,
     required this.studyInsights,
+    required this.dailyTip,
   });
 
   factory StudentHomeViewModel.fromDashboard(
@@ -96,6 +99,11 @@ class StudentHomeViewModel {
     final delayedSubjects = dashboard.subjects
         .where((subject) => subject.status == 'مطلوب تسليم')
         .toList();
+    final academicTips = _buildAcademicTips(
+      dashboard: dashboard,
+      openQuiz: openQuiz,
+      missingTask: missingTask,
+    );
 
     return StudentHomeViewModel(
       profile: dashboard.profile,
@@ -111,34 +119,34 @@ class StudentHomeViewModel {
           target: openQuiz != null
               ? _quizTarget(openQuiz)
               : const StudentActionTarget(routeName: RouteNames.quizzes),
-          helperText: openQuiz != null ? 'يوجد كويز متاح الآن' : 'راجع الكويزات القادمة',
+          helperText: openQuiz != null ? 'يوجد كويز متاح الآن' : 'راجعي الكويزات القادمة',
         ),
         StudentQuickActionItem(
           type: StudentQuickActionType.uploadAssignment,
           target: missingTask != null
               ? _assignmentTarget(missingTask)
               : nearestTaskDeadline != null
-              ? _assignmentTarget(nearestTaskDeadline)
-              : null,
+                  ? _assignmentTarget(nearestTaskDeadline)
+                  : null,
           helperText: missingTask != null
-              ? 'لديك شيت يحتاج رفع'
+              ? 'لديك شيت يحتاج إلى رفع'
               : nearestTaskDeadline != null
-              ? nearestTaskDeadline.title
-              : 'لا يوجد رفع عاجل الآن',
+                  ? nearestTaskDeadline.title
+                  : 'لا يوجد رفع عاجل الآن',
         ),
         StudentQuickActionItem(
           type: StudentQuickActionType.openCourse,
           target: nextLecture != null
               ? _subjectTarget(nextLecture.subjectId)
               : dashboard.subjects.isEmpty
-              ? null
-              : _subjectTarget(dashboard.subjects.first.id),
+                  ? null
+                  : _subjectTarget(dashboard.subjects.first.id),
           helperText: nextLecture?.subjectName ?? dashboard.subjects.firstOrNull?.name,
         ),
         const StudentQuickActionItem(
           type: StudentQuickActionType.checkResults,
           target: StudentActionTarget(routeName: RouteNames.results),
-          helperText: 'اعرف مستواك ومواد التحسين',
+          helperText: 'اعرفي مستواك ومواد التحسين',
         ),
       ],
       requiredTodayItems: [
@@ -177,7 +185,9 @@ class StudentHomeViewModel {
               ? 'مغلق الآن'
               : 'يغلق ${formatTimeUntilArabic(openQuiz.closesAt, reference: now)}',
           ctaLabel: 'فتح',
-          target: openQuiz == null ? const StudentActionTarget(routeName: RouteNames.quizzes) : _quizTarget(openQuiz),
+          target: openQuiz == null
+              ? const StudentActionTarget(routeName: RouteNames.quizzes)
+              : _quizTarget(openQuiz),
           priority: openQuiz == null ? StudentPriority.safe : StudentPriority.urgent,
           icon: Icons.quiz_outlined,
         ),
@@ -190,7 +200,8 @@ class StudentHomeViewModel {
               ? 'ممتاز'
               : formatTimeUntilArabic(nearestTaskDeadline.dueAt, reference: now),
           ctaLabel: 'رفع',
-          target: nearestTaskDeadline == null ? null : _assignmentTarget(nearestTaskDeadline),
+          target:
+              nearestTaskDeadline == null ? null : _assignmentTarget(nearestTaskDeadline),
           priority: nearestTaskDeadline == null
               ? StudentPriority.safe
               : _priorityFromDate(nearestTaskDeadline.dueAt, now),
@@ -220,10 +231,43 @@ class StudentHomeViewModel {
       ),
       courseActivities: [...dashboard.courseActivities]
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt)),
+      upcomingQuizzes: quizzes
+          .where(
+            (quiz) => !quiz.isSubmitted && (quiz.startsAt?.isAfter(now) ?? false),
+          )
+          .take(3)
+          .map(
+            (quiz) => StudentUpcomingItem(
+              title: quiz.title,
+              subtitle: quiz.subjectName ?? quiz.typeLabel,
+              meta: quiz.startAtLabel,
+              auxiliary: quiz.durationLabel,
+              kind: StudentUpcomingKind.quiz,
+              target: _quizTarget(quiz),
+            ),
+          )
+          .toList(),
+      nearbyTasks: tasks
+          .where(
+            (task) => !task.isCompleted && (task.dueAt?.isAfter(now) ?? false),
+          )
+          .take(3)
+          .map(
+            (task) => StudentUpcomingItem(
+              title: task.title,
+              subtitle: task.subjectName ?? task.status,
+              meta: task.dueDateLabel,
+              auxiliary: task.gradeLabel ?? task.status,
+              kind: StudentUpcomingKind.task,
+              target: _assignmentTarget(task),
+            ),
+          )
+          .toList(),
       notificationsPreview: notifications.take(3).toList(),
       studyInsights: StudentStudyInsightsModel(
-        headline:
-            totalTasks == 0 ? 'ابدئي أسبوعك بخطة واضحة' : 'أكملت ${dashboard.studyInsights.completedTasks} من $totalTasks مهام هذا الأسبوع',
+        headline: totalTasks == 0
+            ? 'ابدئي أسبوعك بخطة واضحة'
+            : 'أكملت ${dashboard.studyInsights.completedTasks} من $totalTasks مهام هذا الأسبوع',
         summary: delayedSubjects.isNotEmpty
             ? 'تحتاج ${delayedSubjects.first.name} إلى تركيز أكبر بسبب قرب التسليمات.'
             : 'أداؤك جيد، ووتيرة الإنجاز مستقرة هذا الأسبوع.',
@@ -232,12 +276,10 @@ class StudentHomeViewModel {
         viewedLectures: dashboard.studyInsights.viewedLectures,
         engagementLabel: dashboard.studyInsights.engagementLabel,
         engagementScore: dashboard.studyInsights.engagementScore,
-        tips: _buildAcademicTips(
-          dashboard: dashboard,
-          openQuiz: openQuiz,
-          missingTask: missingTask,
-        ),
+        tips: academicTips,
       ),
+      dailyTip:
+          academicTips.firstOrNull ?? 'رتّبي أولويتك بين الكويزات والتسليمات قبل بدء يومك الدراسي.',
     );
   }
 
@@ -248,8 +290,11 @@ class StudentHomeViewModel {
   final List<StudentTimelineGroup> timelineGroups;
   final StudentAcademicSnapshot academicSnapshot;
   final List<CourseActivityItem> courseActivities;
+  final List<StudentUpcomingItem> upcomingQuizzes;
+  final List<StudentUpcomingItem> nearbyTasks;
   final List<AppNotificationItem> notificationsPreview;
   final StudentStudyInsightsModel studyInsights;
+  final String dailyTip;
 }
 
 class StudentQuickActionItem {
@@ -332,6 +377,26 @@ class StudentTimelineItem {
 }
 
 enum StudentTimelineKind { lecture, section, quiz, task }
+
+class StudentUpcomingItem {
+  const StudentUpcomingItem({
+    required this.title,
+    required this.subtitle,
+    required this.meta,
+    required this.auxiliary,
+    required this.kind,
+    required this.target,
+  });
+
+  final String title;
+  final String subtitle;
+  final String meta;
+  final String auxiliary;
+  final StudentUpcomingKind kind;
+  final StudentActionTarget target;
+}
+
+enum StudentUpcomingKind { quiz, task }
 
 class StudentAcademicSnapshot {
   const StudentAcademicSnapshot({
@@ -420,8 +485,7 @@ List<StudentTimelineItem> _buildTimelineItems({
           (quiz) => StudentTimelineItem(
             title: quiz.title,
             subtitle: quiz.subjectName ?? quiz.typeLabel,
-            timeLabel:
-                _isQuizOpen(quiz, now) ? 'مفتوح الآن' : quiz.startAtLabel,
+            timeLabel: _isQuizOpen(quiz, now) ? 'مفتوح الآن' : quiz.startAtLabel,
             scheduledAt: quiz.startsAt,
             kind: StudentTimelineKind.quiz,
             priority: _isQuizOpen(quiz, now)
@@ -517,9 +581,10 @@ List<String> _buildAcademicTips({
   return [
     if (missingTask != null) 'لديك تأخر في تسليم "${missingTask.title}".',
     if (openQuiz != null) 'لديك كويز اليوم في ${openQuiz.subjectName}.',
-    if (dashboard.studyInsights.engagementScore >= 0.8) 'أداؤك جيد هذا الأسبوع واستمرارك ممتاز.',
+    if (dashboard.studyInsights.engagementScore >= 0.8)
+      'أداؤك جيد هذا الأسبوع واستمرارك ممتاز.',
     if (weakestSubject.isNotEmpty)
-      'راجع مادة ${weakestSubject.first.name} اليوم لأنها الأقل تقدمًا لديك.',
+      'راجعي مادة ${weakestSubject.first.name} اليوم لأنها الأقل تقدمًا لديك.',
   ];
 }
 

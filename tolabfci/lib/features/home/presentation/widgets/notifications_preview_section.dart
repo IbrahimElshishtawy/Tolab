@@ -21,17 +21,21 @@ class NotificationsPreviewSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
+
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppSectionHeader(
             title: 'آخر التنبيهات',
-            subtitle: 'أحدث 3 تنبيهات مرتبطة بموادك ومهامك الحالية.',
+            subtitle: 'أحدث التنبيهات المرتبطة بموادك ومهامك الحالية.',
             trailing: AppBadge(
               label: unreadCount == 0 ? 'مقروءة' : '$unreadCount غير مقروء',
-              backgroundColor: unreadCount == 0 ? AppColors.surfaceAlt : AppColors.primarySoft,
-              foregroundColor: unreadCount == 0 ? AppColors.textSecondary : AppColors.primary,
+              backgroundColor: unreadCount == 0 ? palette.surfaceAlt : palette.primarySoft,
+              foregroundColor: unreadCount == 0
+                  ? palette.textSecondary
+                  : Theme.of(context).colorScheme.primary,
             ),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -39,7 +43,7 @@ class NotificationsPreviewSection extends StatelessWidget {
             const StudentSectionEmptyState(
               icon: Icons.notifications_none_rounded,
               title: 'لا توجد تنبيهات جديدة',
-              message: 'ستظهر هنا تحديثات المحاضرات والكويزات والدرجات أولاً بأول.',
+              message: 'ستظهر هنا تحديثات المحاضرات والكويزات والدرجات أولًا بأول.',
             )
           else
             ...items.map((item) => _NotificationTile(item: item)),
@@ -56,6 +60,8 @@ class _NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
+
     return InkWell(
       borderRadius: BorderRadius.circular(16),
       onTap: () => context.goNamed(
@@ -66,12 +72,12 @@ class _NotificationTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: AppSpacing.sm),
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: item.isRead ? AppColors.surfaceAlt : AppColors.primarySoft,
+          color: item.isRead ? palette.surfaceAlt : palette.primarySoft,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: item.isImportant
                 ? AppColors.error.withValues(alpha: 0.20)
-                : AppColors.border,
+                : palette.border,
           ),
         ),
         child: Column(
@@ -81,8 +87,9 @@ class _NotificationTile extends StatelessWidget {
               children: [
                 AppBadge(
                   label: item.category,
-                  backgroundColor: Colors.white,
-                  foregroundColor: item.isImportant ? AppColors.error : AppColors.primary,
+                  backgroundColor: palette.surface,
+                  foregroundColor:
+                      item.isImportant ? AppColors.error : AppColors.primary,
                 ),
                 const Spacer(),
                 Text(item.createdAtLabel, style: Theme.of(context).textTheme.labelLarge),

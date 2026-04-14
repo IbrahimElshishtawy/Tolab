@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:go_router/go_router.dart';
 import 'package:redux/redux.dart';
 
+import '../../../../app/routing/app_routes.dart' as unified_routes;
 import '../../../../app/core/app_scope.dart';
 import '../../../core/models/session_user.dart';
 import '../../../core/navigation/app_routes.dart';
@@ -9,6 +11,7 @@ import '../../../presentation/widgets/doctor_assistant_shell.dart';
 import '../../../state/app_state.dart';
 import '../../auth/state/session_selectors.dart';
 import '../state/dashboard_actions.dart';
+import '../state/dashboard_state.dart';
 import '../state/dashboard_view_model.dart';
 import 'doctor_dashboard_page.dart';
 import 'widgets/doctor_home_empty.dart';
@@ -44,12 +47,30 @@ class DoctorHomeContainer extends StatelessWidget {
         }
 
         if (vm.dashboard.isFailure && !vm.dashboard.hasData) {
+          final isAuthFailure =
+              vm.dashboard.failureType == DashboardFailureType.authentication;
           return DoctorAssistantShell(
             user: user,
             activeRoute: AppRoutes.dashboard,
             child: DoctorHomeError(
-              message: vm.dashboard.error ?? 'Unexpected dashboard error.',
-              onRetry: () => vm.dashboard.load(force: true),
+              title: isAuthFailure
+                  ? 'Session expired'
+                  : 'Unable to load dashboard',
+              message:
+                  vm.dashboard.error ??
+                  (isAuthFailure
+                      ? 'Your session has expired. Please sign in again.'
+                      : 'Unexpected dashboard error.'),
+              primaryActionLabel: isAuthFailure ? 'Go to Login' : 'Retry',
+              icon: isAuthFailure
+                  ? Icons.login_rounded
+                  : Icons.wifi_tethering_error_rounded,
+              primaryActionIcon: isAuthFailure
+                  ? Icons.arrow_forward_rounded
+                  : Icons.refresh_rounded,
+              onPrimaryAction: isAuthFailure
+                  ? () => context.go(unified_routes.UnifiedAppRoutes.login)
+                  : () => vm.dashboard.load(force: true),
             ),
           );
         }

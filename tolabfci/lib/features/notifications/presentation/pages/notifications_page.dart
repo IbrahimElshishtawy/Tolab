@@ -44,9 +44,9 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
             final today = DateTime.now();
             final todayStart = DateTime(today.year, today.month, today.day);
             final weekStart = todayStart.subtract(Duration(days: today.weekday - 1));
-            final todayItems = filtered
-                .where((item) => item.createdAt.isAfter(todayStart))
-                .toList();
+
+            final todayItems =
+                filtered.where((item) => item.createdAt.isAfter(todayStart)).toList();
             final weekItems = filtered
                 .where(
                   (item) =>
@@ -54,18 +54,20 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                       item.createdAt.isBefore(todayStart),
                 )
                 .toList();
+            final olderItems =
+                filtered.where((item) => item.createdAt.isBefore(weekStart)).toList();
 
             return ListView(
               children: [
                 const AppSectionHeader(
                   title: 'التنبيهات',
-                  subtitle: 'تنبيهات أكاديمية وكويزات وشيتات ودرجات مع وصول مباشر للوجهة.',
+                  subtitle: 'تنبيهات أكاديمية وكويزات وشيتات ودرجات مع وصول مباشر.',
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 Wrap(
                   spacing: AppSpacing.sm,
                   runSpacing: AppSpacing.sm,
-                  children: ['الكل', 'أكاديمي', 'كويزات', 'شيتات', 'درجات', 'الجروب', 'عام']
+                  children: ['الكل', 'أكاديمي', 'كويزات', 'شيتات', 'درجات', 'عام']
                       .map(
                         (filter) => ChoiceChip(
                           label: Text(filter),
@@ -93,6 +95,14 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                     _NotificationGroup(
                       title: 'هذا الأسبوع',
                       items: weekItems,
+                      onOpen: _openNotification,
+                    ),
+                  ],
+                  if (olderItems.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.lg),
+                    _NotificationGroup(
+                      title: 'أقدم',
+                      items: olderItems,
                       onOpen: _openNotification,
                     ),
                   ],
@@ -142,65 +152,79 @@ class _NotificationGroup extends StatelessWidget {
             child: InkWell(
               borderRadius: BorderRadius.circular(18),
               onTap: () => onOpen(context, item),
-              child: AppCard(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 12,
-                      height: 12,
-                      margin: const EdgeInsets.only(top: 6),
-                      decoration: BoxDecoration(
-                        color: item.isRead ? AppColors.border : AppColors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              AppBadge(
-                                label: item.category,
-                                backgroundColor: AppColors.surfaceAlt,
-                                foregroundColor:
-                                    item.isImportant ? AppColors.error : AppColors.primary,
-                              ),
-                              const SizedBox(width: AppSpacing.sm),
-                              if (item.isImportant)
-                                const AppBadge(
-                                  label: 'مهم',
-                                  backgroundColor: Color(0xFFFFF1F1),
-                                  foregroundColor: AppColors.error,
-                                ),
-                              const Spacer(),
-                              Text(
-                                item.createdAtLabel,
-                                style: Theme.of(context).textTheme.labelLarge,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          Text(
-                            item.title,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                ),
-                          ),
-                          const SizedBox(height: AppSpacing.xs),
-                          Text(item.body, style: Theme.of(context).textTheme.bodySmall),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              child: _NotificationCard(item: item),
             ),
           ),
         ),
       ],
+    );
+  }
+}
+
+class _NotificationCard extends StatelessWidget {
+  const _NotificationCard({required this.item});
+
+  final AppNotificationItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appColors;
+    final priorityColor = item.isImportant ? AppColors.error : AppColors.primary;
+
+    return AppCard(
+      backgroundColor: item.isRead ? palette.surface : palette.surfaceElevated,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 12,
+            height: 12,
+            margin: const EdgeInsets.only(top: 6),
+            decoration: BoxDecoration(
+              color: item.isRead ? palette.border : priorityColor,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    AppBadge(
+                      label: item.category,
+                      backgroundColor: palette.surfaceAlt,
+                      foregroundColor: priorityColor,
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    if (item.isImportant)
+                      AppBadge(
+                        label: 'مهم',
+                        backgroundColor: palette.errorSoft,
+                        foregroundColor: AppColors.error,
+                      ),
+                    const Spacer(),
+                    Text(
+                      item.createdAtLabel,
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  item.title,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(item.body, style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

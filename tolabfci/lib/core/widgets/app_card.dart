@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_radii.dart';
-import '../theme/app_shadows.dart';
 
 class AppCard extends StatelessWidget {
   const AppCard({
@@ -18,12 +17,22 @@ class AppCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
+    final shadowAlpha =
+        Theme.of(context).brightness == Brightness.dark ? 0.22 : 0.06;
+
     return Container(
       decoration: BoxDecoration(
-        color: backgroundColor ?? AppColors.surface,
+        color: backgroundColor ?? palette.surface,
         borderRadius: BorderRadius.circular(AppRadii.lg),
-        border: Border.all(color: AppColors.border),
-        boxShadow: AppShadows.card,
+        border: Border.all(color: palette.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: shadowAlpha),
+            blurRadius: 28,
+            offset: const Offset(0, 14),
+          ),
+        ],
       ),
       child: Padding(
         padding: padding,

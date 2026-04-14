@@ -132,6 +132,18 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+  Future<void> expireSession({
+    String message = 'Your session has expired. Please sign in again.',
+  }) async {
+    await _repository.clearPersistedSession();
+    _state = _state.copyWith(
+      status: AuthFlowStatus.unauthenticated,
+      errorMessage: message,
+      clearSession: true,
+    );
+    notifyListeners();
+  }
+
   Future<void> forgotPassword(String email) async {
     await _repository.forgotPassword(email);
   }

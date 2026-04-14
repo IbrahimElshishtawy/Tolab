@@ -20,7 +20,7 @@ class QuickActionsSection extends StatelessWidget {
         children: [
           const AppSectionHeader(
             title: 'إجراءات سريعة',
-            subtitle: 'اختصارات مباشرة لأكثر الأدوات استخدامًا داخل يومك الدراسي.',
+            subtitle: 'اختصارات مباشرة لأكثر الأدوات استخدامًا خلال يومك الدراسي.',
           ),
           const SizedBox(height: AppSpacing.md),
           SingleChildScrollView(
@@ -48,6 +48,7 @@ class _QuickActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     final spec = _QuickActionSpec.fromType(action.type);
     final enabled = action.isEnabled;
 
@@ -60,13 +61,13 @@ class _QuickActionTile extends StatelessWidget {
               )
           : null,
       child: Ink(
-        width: 142,
+        width: 148,
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: enabled ? spec.color.withValues(alpha: 0.10) : AppColors.surfaceAlt,
+          color: enabled ? spec.color.withValues(alpha: 0.10) : palette.surfaceAlt,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: enabled ? spec.color.withValues(alpha: 0.20) : AppColors.border,
+            color: enabled ? spec.color.withValues(alpha: 0.20) : palette.border,
           ),
         ),
         child: Column(
@@ -76,11 +77,14 @@ class _QuickActionTile extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: palette.surface,
                 borderRadius: BorderRadius.circular(14),
               ),
               alignment: Alignment.center,
-              child: Icon(spec.icon, color: enabled ? spec.color : AppColors.textSecondary),
+              child: Icon(
+                spec.icon,
+                color: enabled ? spec.color : palette.textSecondary,
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
             Text(spec.label, style: Theme.of(context).textTheme.bodyMedium),
@@ -118,28 +122,28 @@ class _QuickActionSpec {
       case StudentQuickActionType.openQuiz:
         return const _QuickActionSpec(
           label: 'دخول الكويز',
-          helperText: 'ابدأ الكويز الحالي',
+          helperText: 'ابدئي الكويز الحالي',
           icon: Icons.quiz_outlined,
           color: AppColors.error,
         );
       case StudentQuickActionType.uploadAssignment:
         return const _QuickActionSpec(
           label: 'رفع الشيت',
-          helperText: 'ارفع الحل بسرعة',
+          helperText: 'ارفعي الحل بسرعة',
           icon: Icons.upload_file_outlined,
           color: AppColors.warning,
         );
       case StudentQuickActionType.openCourse:
         return const _QuickActionSpec(
           label: 'فتح المادة',
-          helperText: 'اذهب لمساحة المادة',
+          helperText: 'اذهبي لمساحة المادة',
           icon: Icons.menu_book_outlined,
           color: AppColors.teal,
         );
       case StudentQuickActionType.checkResults:
         return const _QuickActionSpec(
           label: 'عرض النتائج',
-          helperText: 'تابع تقدمك',
+          helperText: 'تابعي تقدمك',
           icon: Icons.insights_outlined,
           color: AppColors.success,
         );

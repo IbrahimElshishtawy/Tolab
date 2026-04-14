@@ -117,6 +117,10 @@ class UnifiedAuthRepository {
       await _doctorRepository.logout();
     } catch (_) {}
 
+    await clearPersistedSession();
+  }
+
+  Future<void> clearPersistedSession() async {
     await _doctorTokenStorage.clear();
     await _adminAuthService.clearSession();
     await _sessionStorage.clear();

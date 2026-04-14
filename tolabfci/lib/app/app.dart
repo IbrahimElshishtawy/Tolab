@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/router/app_router.dart';
 import '../core/theme/app_theme.dart';
+import '../features/settings/presentation/widgets/settings_notifier.dart';
 
 class TolabApp extends ConsumerWidget {
   const TolabApp({super.key});
@@ -11,13 +12,16 @@ class TolabApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+    final settings = ref.watch(settingsNotifierProvider);
 
     return MaterialApp.router(
-      title: 'تطبيق طلاب',
+      title: 'تطبيق الطلاب',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
-      locale: const Locale('ar'),
-      supportedLocales: const [Locale('ar')],
+      darkTheme: AppTheme.dark(),
+      themeMode: settings.themeMode,
+      locale: Locale(settings.languageCode),
+      supportedLocales: const [Locale('ar'), Locale('en')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

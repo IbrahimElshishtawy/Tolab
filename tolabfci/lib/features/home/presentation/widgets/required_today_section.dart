@@ -15,13 +15,12 @@ class RequiredTodaySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
-      backgroundColor: AppColors.surfaceAlt,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const AppSectionHeader(
             title: 'المطلوب منك اليوم',
-            subtitle: 'أهم ما يحتاج انتباهك الآن بشكل واضح ومباشر.',
+            subtitle: 'أهم ما يحتاج انتباهك الآن بشكل واضح وسريع.',
           ),
           const SizedBox(height: AppSpacing.md),
           Column(
@@ -49,27 +48,33 @@ class _RequiredActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     final color = switch (item.priority) {
       StudentPriority.urgent => AppColors.error,
       StudentPriority.soon => AppColors.warning,
       StudentPriority.safe => AppColors.success,
     };
+    final softColor = switch (item.priority) {
+      StudentPriority.urgent => palette.errorSoft,
+      StudentPriority.soon => palette.warningSoft,
+      StudentPriority.safe => palette.successSoft,
+    };
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        color: softColor,
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: color.withValues(alpha: 0.18)),
       ),
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 46,
+            height: 46,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(16),
             ),
             alignment: Alignment.center,
             child: Icon(item.icon, color: color),
@@ -79,12 +84,7 @@ class _RequiredActionTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  item.title,
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                ),
+                Text(item.title, style: Theme.of(context).textTheme.labelLarge),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   item.subtitle,

@@ -11,16 +11,20 @@ DashboardState dashboardReducer(DashboardState state, dynamic action) {
         status: ViewStatus.loading,
         data: state.data,
         error: state.error,
+        failureType: DashboardFailureType.none,
       );
     case LoadDashboardSuccessAction:
       return DashboardState(
         status: ViewStatus.success,
         data: (action as LoadDashboardSuccessAction).data,
+        failureType: DashboardFailureType.none,
       );
     case LoadDashboardFailureAction:
+      final failureAction = action as LoadDashboardFailureAction;
       return DashboardState(
         status: ViewStatus.failure,
-        error: (action as LoadDashboardFailureAction).message,
+        error: failureAction.message,
+        failureType: failureAction.failureType,
       );
     default:
       return state;

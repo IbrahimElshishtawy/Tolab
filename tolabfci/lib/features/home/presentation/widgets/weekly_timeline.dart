@@ -5,8 +5,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_section_header.dart';
-import 'empty_states.dart';
 import '../providers/home_providers.dart';
+import 'empty_states.dart';
 
 class WeeklyTimeline extends StatelessWidget {
   const WeeklyTimeline({super.key, required this.groups});
@@ -20,8 +20,8 @@ class WeeklyTimeline extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const AppSectionHeader(
-            title: 'معاينة الجدول',
-            subtitle: 'محاضرات وسكاشن وكويزات وتسليمات مجمعة حسب الوقت الأقرب.',
+            title: 'جدول اليوم والأسبوع',
+            subtitle: 'محاضرات وسكاشن وكويزات وتسليمات مجمعة حسب الأقرب.',
           ),
           const SizedBox(height: AppSpacing.md),
           if (groups.isEmpty)
@@ -74,10 +74,11 @@ class _TimelineTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     final color = _priorityColor(item.priority);
 
     return InkWell(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(18),
       onTap: item.target == null
           ? null
           : () => context.goNamed(
@@ -88,8 +89,8 @@ class _TimelineTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: AppSpacing.sm),
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: AppColors.surfaceAlt,
-          borderRadius: BorderRadius.circular(16),
+          color: palette.surfaceAlt,
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(color: color.withValues(alpha: 0.18)),
         ),
         child: Row(

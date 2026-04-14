@@ -1,22 +1,22 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/auth/presentation/providers/auth_providers.dart';
+import '../../features/assignments/presentation/pages/assignment_upload_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/auth/presentation/pages/verify_national_id_page.dart';
+import '../../features/auth/presentation/providers/auth_providers.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/home/presentation/widgets/home_navigation_shell.dart';
 import '../../features/notifications/presentation/pages/notifications_page.dart';
-import '../../features/assignments/presentation/pages/assignment_upload_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/quizzes/presentation/pages/quiz_entry_page.dart';
 import '../../features/quizzes/presentation/pages/quizzes_page.dart';
 import '../../features/results/presentation/pages/results_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/subject_details/presentation/pages/subject_details_page.dart';
-import '../../features/summaries/presentation/pages/add_summary_page.dart';
 import '../../features/subjects/presentation/pages/subjects_page.dart';
+import '../../features/summaries/presentation/pages/add_summary_page.dart';
 import '../../features/timetable/presentation/pages/timetable_page.dart';
 import 'route_names.dart';
 
@@ -54,11 +54,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 name: RouteNames.home,
                 builder: (context, state) => const HomePage(),
                 routes: [
-                  GoRoute(
-                    path: 'timetable',
-                    name: RouteNames.timetable,
-                    builder: (context, state) => const TimetablePage(),
-                  ),
                   GoRoute(
                     path: 'quizzes',
                     name: RouteNames.quizzes,
@@ -115,18 +110,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/notifications',
-                name: RouteNames.notifications,
-                builder: (context, state) => const NotificationsPage(),
+                path: '/timetable',
+                name: RouteNames.timetable,
+                builder: (context, state) => const TimetablePage(),
               ),
             ],
           ),
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/results',
-                name: RouteNames.results,
-                builder: (context, state) => const ResultsPage(),
+                path: '/notifications',
+                name: RouteNames.notifications,
+                builder: (context, state) => const NotificationsPage(),
               ),
             ],
           ),
@@ -137,6 +132,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 name: RouteNames.profile,
                 builder: (context, state) => const ProfilePage(),
                 routes: [
+                  GoRoute(
+                    path: 'results',
+                    name: RouteNames.results,
+                    builder: (context, state) => const ResultsPage(),
+                  ),
                   GoRoute(
                     path: 'settings',
                     name: RouteNames.settings,

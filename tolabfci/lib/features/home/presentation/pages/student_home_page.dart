@@ -6,8 +6,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/adaptive_page_container.dart';
 import '../providers/home_providers.dart';
 import '../widgets/academic_overview_card.dart';
-import '../widgets/course_activity_section.dart';
-import '../widgets/empty_states.dart';
+import '../widgets/focus_panels_section.dart';
 import '../widgets/loading_states.dart';
 import '../widgets/notifications_preview_section.dart';
 import '../widgets/quick_actions_section.dart';
@@ -29,6 +28,7 @@ class StudentHomePage extends ConsumerWidget {
           data: (viewModel) => LayoutBuilder(
             builder: (context, constraints) {
               final columnCount = constraints.maxWidth >= 900 ? 2 : 1;
+
               return ListView(
                 children: [
                   StudentHomeHeader(
@@ -44,22 +44,26 @@ class StudentHomePage extends ConsumerWidget {
                     columnCount: columnCount,
                     children: [
                       WeeklyTimeline(groups: viewModel.timelineGroups),
-                      AcademicOverviewCard(snapshot: viewModel.academicSnapshot),
+                      FocusPanelsSection(
+                        quizzes: viewModel.upcomingQuizzes,
+                        tasks: viewModel.nearbyTasks,
+                        dailyTip: viewModel.dailyTip,
+                      ),
                     ],
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   _SectionGrid(
                     columnCount: columnCount,
                     children: [
+                      AcademicOverviewCard(snapshot: viewModel.academicSnapshot),
                       StudyInsightsSection(model: viewModel.studyInsights),
-                      NotificationsPreviewSection(
-                        items: viewModel.notificationsPreview,
-                        unreadCount: viewModel.unreadCount,
-                      ),
                     ],
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  CourseActivitySection(items: viewModel.courseActivities),
+                  NotificationsPreviewSection(
+                    items: viewModel.notificationsPreview,
+                    unreadCount: viewModel.unreadCount,
+                  ),
                 ],
               );
             },

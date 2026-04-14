@@ -7,16 +7,28 @@ import '../theme/dashboard_theme_tokens.dart';
 class DoctorHomeError extends StatelessWidget {
   const DoctorHomeError({
     super.key,
+    required this.title,
     required this.message,
-    required this.onRetry,
+    required this.primaryActionLabel,
+    required this.onPrimaryAction,
+    this.icon = Icons.wifi_tethering_error_rounded,
+    this.primaryActionIcon = Icons.refresh_rounded,
+    this.accentColor,
   });
 
+  final String title;
   final String message;
-  final VoidCallback onRetry;
+  final String primaryActionLabel;
+  final VoidCallback onPrimaryAction;
+  final IconData icon;
+  final IconData primaryActionIcon;
+  final Color? accentColor;
 
   @override
   Widget build(BuildContext context) {
     final tokens = DashboardThemeTokens.of(context);
+    final tone = accentColor ?? tokens.danger;
+
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 540),
@@ -31,17 +43,11 @@ class DoctorHomeError extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 30,
-              backgroundColor: tokens.danger.withValues(alpha: 0.12),
-              child: Icon(
-                Icons.wifi_tethering_error_rounded,
-                color: tokens.danger,
-              ),
+              backgroundColor: tone.withValues(alpha: 0.12),
+              child: Icon(icon, color: tone),
             ),
             const SizedBox(height: DashboardAppSpacing.md),
-            Text(
-              'Unable to load dashboard',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text(title, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: DashboardAppSpacing.sm),
             Text(
               message,
@@ -50,9 +56,9 @@ class DoctorHomeError extends StatelessWidget {
             ),
             const SizedBox(height: DashboardAppSpacing.lg),
             FilledButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Try again'),
+              onPressed: onPrimaryAction,
+              icon: Icon(primaryActionIcon),
+              label: Text(primaryActionLabel),
             ),
           ],
         ),
