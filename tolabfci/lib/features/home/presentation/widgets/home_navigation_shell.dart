@@ -22,12 +22,12 @@ class HomeNavigationShell extends ConsumerWidget {
       const NavigationDestination(
         icon: Icon(Icons.home_outlined),
         selectedIcon: Icon(Icons.home_rounded),
-        label: 'Home',
+        label: 'الرئيسية',
       ),
       const NavigationDestination(
         icon: Icon(Icons.menu_book_outlined),
         selectedIcon: Icon(Icons.menu_book_rounded),
-        label: 'Subjects',
+        label: 'المواد الدراسية',
       ),
       NavigationDestination(
         icon: Badge.count(
@@ -40,17 +40,17 @@ class HomeNavigationShell extends ConsumerWidget {
           isLabelVisible: unreadCount > 0,
           child: const Icon(Icons.notifications_rounded),
         ),
-        label: 'Alerts',
+        label: 'التنبيهات',
       ),
       const NavigationDestination(
         icon: Icon(Icons.insert_chart_outlined_rounded),
         selectedIcon: Icon(Icons.insert_chart_rounded),
-        label: 'Results',
+        label: 'النتائج',
       ),
       const NavigationDestination(
         icon: Icon(Icons.person_outline_rounded),
         selectedIcon: Icon(Icons.person_rounded),
-        label: 'Profile',
+        label: 'الملف الشخصي',
       ),
     ];
 

@@ -138,7 +138,7 @@ class StaffDashboardTest extends TestCase
             ->assertJsonPath('data.pending_grading.can_manage', true)
             ->assertJsonPath('data.pending_grading.count', 1)
             ->assertJsonPath('data.student_activity_insights.missing_submissions', 1)
-            ->assertJsonPath('data.performance_analytics.average_score', 40.0)
+            ->assertJsonPath('data.performance_analytics.average_score', 40)
             ->assertJsonStructure([
                 'success',
                 'message',

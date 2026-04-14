@@ -21,18 +21,13 @@ class QuizzesTab extends ConsumerWidget {
     return quizzesAsync.when(
       data: (quizzes) => quizzes.isEmpty
           ? const EmptyStateWidget(
-              title: 'No quizzes scheduled',
-              subtitle: 'Online and offline quizzes will appear here.',
+              title: 'لا توجد كويزات',
+              subtitle: 'ستظهر الكويزات المفتوحة والقادمة هنا.',
             )
-          : Column(
-              children: quizzes
-                  .map(
-                    (quiz) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: QuizListTile(quiz: quiz),
-                    ),
-                  )
-                  .toList(),
+          : ListView.separated(
+              itemCount: quizzes.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
+              itemBuilder: (context, index) => QuizListTile(quiz: quizzes[index]),
             ),
       loading: () => const LoadingWidget(),
       error: (error, stackTrace) => Text(error.toString()),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/widgets/app_list_tile.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/app_badge.dart';
+import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../subjects/presentation/providers/subjects_providers.dart';
@@ -21,22 +23,41 @@ class SectionsTab extends ConsumerWidget {
     return sectionsAsync.when(
       data: (sections) => sections.isEmpty
           ? const EmptyStateWidget(
-              title: 'No sections available',
-              subtitle: 'Section details will appear here.',
+              title: 'لا توجد سكاشن',
+              subtitle: 'ستظهر السكاشن العملية هنا عند توفرها.',
             )
-          : Column(
-              children: sections
-                  .map(
-                    (section) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: AppListTile(
-                        title: section.title,
-                        subtitle: '${section.scheduleLabel} • ${section.location}',
-                        leading: const Icon(Icons.layers_outlined),
+          : ListView.separated(
+              itemCount: sections.length,
+              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
+              itemBuilder: (context, index) {
+                final section = sections[index];
+                return AppCard(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.co_present_outlined),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              section.title,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                            ),
+                            const SizedBox(height: AppSpacing.xs),
+                            Text(section.scheduleLabel),
+                            const SizedBox(height: AppSpacing.xs),
+                            Text('${section.assistantName} - ${section.location}'),
+                          ],
+                        ),
                       ),
-                    ),
-                  )
-                  .toList(),
+                      AppBadge(label: section.isOnline ? 'أونلاين' : 'حضوري'),
+                    ],
+                  ),
+                );
+              },
             ),
       loading: () => const LoadingWidget(),
       error: (error, stackTrace) => Text(error.toString()),

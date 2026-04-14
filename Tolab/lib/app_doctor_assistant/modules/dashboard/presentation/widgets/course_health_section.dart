@@ -4,10 +4,7 @@ import '../../../../core/models/dashboard_models.dart';
 import 'dashboard_section_primitives.dart';
 
 class CourseHealthSection extends StatelessWidget {
-  const CourseHealthSection({
-    super.key,
-    required this.health,
-  });
+  const CourseHealthSection({super.key, required this.health});
 
   final DashboardCourseHealth health;
 

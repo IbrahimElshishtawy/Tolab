@@ -1131,7 +1131,7 @@ class DashboardService
             }
 
             $pendingGradingCount = $pendingGradingByTask
-                ->only($subjectTaskIds->all())
+                ->filter(fn (Collection $items, $taskId) => $subjectTaskIds->contains((int) $taskId))
                 ->sum(fn (Collection $items) => $items->count());
             if ($pendingGradingCount > 0) {
                 $score -= min(20, $pendingGradingCount * 3);

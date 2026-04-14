@@ -38,9 +38,9 @@ class SmartHeaderSection extends StatelessWidget {
                 backgroundColor: tokens.primary.withValues(alpha: .18),
                 child: Text(
                   header.user.name.isEmpty ? '?' : header.user.name[0],
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: tokens.textPrimary,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(color: tokens.textPrimary),
                 ),
               ),
               const SizedBox(width: DashboardAppSpacing.md),

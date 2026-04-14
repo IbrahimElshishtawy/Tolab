@@ -38,7 +38,9 @@ class PendingGradingCenterSection extends StatelessWidget {
               (item) => ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(item.title),
-                subtitle: Text('${item.subjectName} • ${item.pendingCount} waiting'),
+                subtitle: Text(
+                  '${item.subjectName} • ${item.pendingCount} waiting',
+                ),
                 trailing: DashboardInlineAction(
                   label: item.ctaLabel,
                   onTap: () => onOpenRoute(item.route),

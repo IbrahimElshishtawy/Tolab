@@ -25,7 +25,7 @@ class ErrorStateWidget extends StatelessWidget {
             Text(message, textAlign: TextAlign.center),
             if (onRetry != null) ...[
               const SizedBox(height: 16),
-              AppButton(label: 'Try again', onPressed: onRetry, isExpanded: false),
+              AppButton(label: 'إعادة المحاولة', onPressed: onRetry, isExpanded: false),
             ],
           ],
         ),

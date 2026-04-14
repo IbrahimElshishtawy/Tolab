@@ -5,10 +5,7 @@ import 'dashboard_section_primitives.dart';
 import 'dashboard_view_helpers.dart';
 
 class PerformanceAnalyticsSection extends StatelessWidget {
-  const PerformanceAnalyticsSection({
-    super.key,
-    required this.analytics,
-  });
+  const PerformanceAnalyticsSection({super.key, required this.analytics});
 
   final DashboardPerformanceAnalytics analytics;
 

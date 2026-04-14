@@ -51,7 +51,10 @@ class ActionCenterSection extends StatelessWidget {
                         tokens,
                         item.priority,
                       ).withValues(alpha: .14),
-                      foregroundColor: dashboardToneColor(tokens, item.priority),
+                      foregroundColor: dashboardToneColor(
+                        tokens,
+                        item.priority,
+                      ),
                       child: Icon(dashboardIconForActionType(item.type)),
                     ),
                     const SizedBox(width: DashboardAppSpacing.md),

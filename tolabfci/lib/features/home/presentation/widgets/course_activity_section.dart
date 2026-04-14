@@ -5,6 +5,7 @@ import '../../../../core/models/home_dashboard.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import 'empty_states.dart';
@@ -21,20 +22,18 @@ class CourseActivitySection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const AppSectionHeader(
-            title: 'Course activity',
-            subtitle:
-                'Recent updates from your courses so nothing important stays buried.',
+            title: 'نشاط المواد',
+            subtitle: 'آخر ما تم رفعه أو فتحه داخل المواد الدراسية والمجموعة.',
           ),
           const SizedBox(height: AppSpacing.md),
           if (items.isEmpty)
             const StudentSectionEmptyState(
               icon: Icons.auto_stories_outlined,
-              title: 'No recent course activity',
-              message:
-                  'New uploads, tasks, and announcements will appear here.',
+              title: 'لا يوجد نشاط حديث',
+              message: 'ستظهر هنا المحاضرات الجديدة والكويزات والمنشورات فور إضافتها.',
             )
           else
-            ...items.take(3).map((item) => _ActivityTile(item: item)),
+            ...items.take(4).map((item) => _ActivityTile(item: item)),
         ],
       ),
     );
@@ -51,7 +50,7 @@ class _ActivityTile extends StatelessWidget {
     final color = _activityColor(item.type);
 
     return InkWell(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(16),
       onTap: () => context.goNamed(
         RouteNames.subjectDetails,
         pathParameters: {'subjectId': item.subjectId},
@@ -61,18 +60,18 @@ class _ActivityTile extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           color: AppColors.surfaceAlt,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.18)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
               ),
               alignment: Alignment.center,
               child: Icon(_activityIcon(item.type), color: color),
@@ -82,31 +81,29 @@ class _ActivityTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    item.title,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item.title,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                        ),
+                      ),
+                      AppBadge(
+                        label: item.subjectName,
+                        backgroundColor: Colors.white,
+                        foregroundColor: color,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    item.subjectName,
-                    style: Theme.of(context).textTheme.labelLarge,
-                  ),
+                  Text(item.description, style: Theme.of(context).textTheme.bodySmall),
                   const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    item.description,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
+                  Text(item.createdAtLabel, style: Theme.of(context).textTheme.labelLarge),
                 ],
               ),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Text(
-              item.createdAtLabel,
-              style: Theme.of(context).textTheme.labelLarge,
             ),
           ],
         ),
@@ -119,8 +116,12 @@ IconData _activityIcon(CourseActivityType type) {
   switch (type) {
     case CourseActivityType.lecture:
       return Icons.play_lesson_outlined;
-    case CourseActivityType.task:
+    case CourseActivityType.quiz:
+      return Icons.quiz_outlined;
+    case CourseActivityType.assignment:
       return Icons.assignment_outlined;
+    case CourseActivityType.groupPost:
+      return Icons.groups_outlined;
     case CourseActivityType.announcement:
       return Icons.campaign_outlined;
   }
@@ -130,9 +131,13 @@ Color _activityColor(CourseActivityType type) {
   switch (type) {
     case CourseActivityType.lecture:
       return AppColors.primary;
-    case CourseActivityType.task:
+    case CourseActivityType.quiz:
+      return AppColors.error;
+    case CourseActivityType.assignment:
       return AppColors.warning;
-    case CourseActivityType.announcement:
+    case CourseActivityType.groupPost:
       return AppColors.teal;
+    case CourseActivityType.announcement:
+      return AppColors.indigo;
   }
 }

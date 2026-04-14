@@ -19,7 +19,8 @@ class SmartSuggestionsSection extends StatelessWidget {
       return const DashboardSectionCard(
         title: 'Smart Suggestions',
         child: DashboardSectionEmpty(
-          message: 'Suggestions will appear when the dashboard detects patterns worth acting on.',
+          message:
+              'Suggestions will appear when the dashboard detects patterns worth acting on.',
         ),
       );
     }

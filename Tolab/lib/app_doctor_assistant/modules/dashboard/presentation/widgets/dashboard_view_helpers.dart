@@ -116,6 +116,8 @@ String dashboardFormattedPercent(double? value) {
   return '${value.toStringAsFixed(value.truncateToDouble() == value ? 0 : 1)}%';
 }
 
-List<DashboardTimelineGroup> nonEmptyTimelineGroups(DashboardTimeline timeline) {
+List<DashboardTimelineGroup> nonEmptyTimelineGroups(
+  DashboardTimeline timeline,
+) {
   return timeline.groups.where((group) => group.items.isNotEmpty).toList();
 }

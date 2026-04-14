@@ -52,7 +52,10 @@ class DashboardSnapshot {
   factory DashboardSnapshot.fromJson(Map<String, dynamic> json) {
     return DashboardSnapshot(
       header: DashboardHeader.fromJson(_map(json['header'])),
-      quickActions: _mapList(json['quick_actions'], DashboardQuickAction.fromJson),
+      quickActions: _mapList(
+        json['quick_actions'],
+        DashboardQuickAction.fromJson,
+      ),
       actionCenter: DashboardActionCenter.fromJson(_map(json['action_center'])),
       todayFocus: DashboardTodayFocus.fromJson(_map(json['today_focus'])),
       timeline: DashboardTimeline.fromJson(_map(json['timeline'])),
@@ -413,10 +416,7 @@ class DashboardSubjectOverviewItem {
 }
 
 class DashboardSubjectQuickAction {
-  const DashboardSubjectQuickAction({
-    required this.label,
-    required this.route,
-  });
+  const DashboardSubjectQuickAction({required this.label, required this.route});
 
   final String label;
   final String route;
@@ -760,10 +760,7 @@ class DashboardPerformanceAnalytics {
 }
 
 class DashboardChartPoint {
-  const DashboardChartPoint({
-    required this.label,
-    required this.value,
-  });
+  const DashboardChartPoint({required this.label, required this.value});
 
   final String label;
   final double value;

@@ -4,10 +4,7 @@ import '../../../../core/models/dashboard_models.dart';
 import 'dashboard_section_primitives.dart';
 
 class StudentActivityInsightsSection extends StatelessWidget {
-  const StudentActivityInsightsSection({
-    super.key,
-    required this.insights,
-  });
+  const StudentActivityInsightsSection({super.key, required this.insights});
 
   final DashboardStudentActivityInsights insights;
 

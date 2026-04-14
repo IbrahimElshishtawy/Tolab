@@ -4,10 +4,7 @@ import '../../../../core/models/dashboard_models.dart';
 import 'dashboard_section_primitives.dart';
 
 class WeeklySummarySection extends StatelessWidget {
-  const WeeklySummarySection({
-    super.key,
-    required this.summary,
-  });
+  const WeeklySummarySection({super.key, required this.summary});
 
   final DashboardWeeklySummary summary;
 

@@ -23,7 +23,8 @@ class SmartTimelineSection extends StatelessWidget {
       return const DashboardSectionCard(
         title: 'Smart Timeline',
         child: DashboardSectionEmpty(
-          message: 'No timeline events are scheduled across today and this week.',
+          message:
+              'No timeline events are scheduled across today and this week.',
         ),
       );
     }

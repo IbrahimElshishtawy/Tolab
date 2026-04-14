@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/widgets/app_list_tile.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/app_badge.dart';
+import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../subjects/presentation/providers/subjects_providers.dart';
@@ -21,25 +23,41 @@ class LecturesTab extends ConsumerWidget {
     return lecturesAsync.when(
       data: (lectures) => lectures.isEmpty
           ? const EmptyStateWidget(
-              title: 'No lectures yet',
-              subtitle: 'Upcoming lectures will appear here.',
+              title: 'لا توجد محاضرات',
+              subtitle: 'ستظهر محاضرات المادة هنا فور إضافتها.',
             )
-          : Column(
-              children: lectures
-                  .map(
-                    (lecture) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: AppListTile(
-                        title: lecture.title,
-                        subtitle: lecture.scheduleLabel,
-                        leading: Icon(
-                          lecture.isOnline ? Icons.videocam_outlined : Icons.room_outlined,
+          : ListView.separated(
+              itemCount: lectures.length,
+              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
+              itemBuilder: (context, index) {
+                final lecture = lectures[index];
+                return AppCard(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.play_circle_outline_rounded),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              lecture.title,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                            ),
+                            const SizedBox(height: AppSpacing.xs),
+                            Text(lecture.scheduleLabel),
+                            const SizedBox(height: AppSpacing.xs),
+                            Text(lecture.locationLabel ?? 'قاعة المحاضرة'),
+                          ],
                         ),
-                        trailing: Text(lecture.isOnline ? 'Online' : 'Campus'),
                       ),
-                    ),
-                  )
-                  .toList(),
+                      AppBadge(label: lecture.isOnline ? 'أونلاين' : 'داخل الجامعة'),
+                    ],
+                  ),
+                );
+              },
             ),
       loading: () => const LoadingWidget(),
       error: (error, stackTrace) => Text(error.toString()),

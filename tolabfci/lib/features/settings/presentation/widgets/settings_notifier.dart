@@ -12,7 +12,7 @@ class SettingsNotifier extends Notifier<SettingsState> {
   SettingsState build() {
     final preferences = ref.watch(preferencesServiceProvider);
     return SettingsState(
-      languageCode: preferences.getString(StorageKeys.preferredLocale) ?? 'en',
+      languageCode: preferences.getString(StorageKeys.preferredLocale) ?? 'ar',
       notificationsEnabled:
           preferences.getBool(StorageKeys.notificationsEnabled, fallback: true),
     );

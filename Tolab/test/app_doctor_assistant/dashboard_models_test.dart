@@ -29,7 +29,8 @@ void main() {
         },
       ],
       'action_center': {
-        'summary': '1 high-priority and 0 medium-priority decisions are ready for action.',
+        'summary':
+            '1 high-priority and 0 medium-priority decisions are ready for action.',
         'items': [
           {
             'id': 'grading_pending_1',
@@ -186,7 +187,8 @@ void main() {
       },
       'performance_analytics': {
         'is_limited': false,
-        'summary': 'Average graded performance is 71.5% across 12 grade records.',
+        'summary':
+            'Average graded performance is 71.5% across 12 grade records.',
         'average_score': 71.5,
         'trend': [
           {'label': 'Software Engineering', 'value': 71.5},
@@ -212,7 +214,8 @@ void main() {
         ],
       },
       'weekly_summary': {
-        'headline': '2 sessions, 1 quiz, and 1 task deadline are scheduled this week.',
+        'headline':
+            '2 sessions, 1 quiz, and 1 task deadline are scheduled this week.',
         'items': [
           {
             'label': 'Sessions',
@@ -227,7 +230,8 @@ void main() {
           {
             'id': 'grading_sprint',
             'title': 'Run a grading sprint today',
-            'explanation': 'Clearing the grading queue first will improve feedback speed.',
+            'explanation':
+                'Clearing the grading queue first will improve feedback speed.',
             'cta_label': 'Open grading queue',
             'route': '/workspace/tasks',
           },
@@ -266,7 +270,12 @@ void main() {
       'course_health': {},
       'group_activity_feed': {'items': []},
       'notifications_preview': {'unread_count': 0, 'items': []},
-      'pending_grading': {'can_manage': false, 'count': 0, 'summary': '', 'items': []},
+      'pending_grading': {
+        'can_manage': false,
+        'count': 0,
+        'summary': '',
+        'items': [],
+      },
       'performance_analytics': {'is_limited': true, 'summary': ''},
       'risk_alerts': {'count': 0, 'items': []},
       'weekly_summary': {'headline': '', 'items': []},

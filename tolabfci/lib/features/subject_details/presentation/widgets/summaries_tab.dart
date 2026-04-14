@@ -25,7 +25,7 @@ class SummariesTab extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppButton(
-          label: 'Add summary',
+          label: 'إضافة ملخص',
           onPressed: () => context.goNamed(
             RouteNames.addSummary,
             pathParameters: {'subjectId': subjectId},
@@ -33,24 +33,22 @@ class SummariesTab extends ConsumerWidget {
           isExpanded: false,
         ),
         const SizedBox(height: 16),
-        summariesAsync.when(
-          data: (summaries) => summaries.isEmpty
-              ? const EmptyStateWidget(
-                  title: 'No summaries yet',
-                  subtitle: 'Start the collection with a concise summary or media attachment.',
-                )
-              : Column(
-                  children: summaries
-                      .map(
-                        (summary) => Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: SummaryTile(summary: summary),
-                        ),
-                      )
-                      .toList(),
-                ),
-          loading: () => const LoadingWidget(),
-          error: (error, stackTrace) => Text(error.toString()),
+        Expanded(
+          child: summariesAsync.when(
+            data: (summaries) => summaries.isEmpty
+                ? const EmptyStateWidget(
+                    title: 'لا توجد ملخصات',
+                    subtitle: 'ابدأ بإضافة أول ملخص مختصر أو ملف مساعد للمادة.',
+                  )
+                : ListView.separated(
+                    itemCount: summaries.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) =>
+                        SummaryTile(summary: summaries[index]),
+                  ),
+            loading: () => const LoadingWidget(),
+            error: (error, stackTrace) => Text(error.toString()),
+          ),
         ),
       ],
     );

@@ -54,9 +54,8 @@ class DashboardSectionCard extends StatelessWidget {
                         const SizedBox(height: DashboardAppSpacing.xs),
                         Text(
                           subtitle!,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: tokens.textSecondary,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: tokens.textSecondary),
                         ),
                       ],
                     ],
@@ -110,10 +109,7 @@ class DashboardToneBadge extends StatelessWidget {
 }
 
 class DashboardSectionEmpty extends StatelessWidget {
-  const DashboardSectionEmpty({
-    super.key,
-    required this.message,
-  });
+  const DashboardSectionEmpty({super.key, required this.message});
 
   final String message;
 
@@ -139,10 +135,7 @@ class DashboardSectionEmpty extends StatelessWidget {
 }
 
 class DashboardMetricWrap extends StatelessWidget {
-  const DashboardMetricWrap({
-    super.key,
-    required this.children,
-  });
+  const DashboardMetricWrap({super.key, required this.children});
 
   final List<Widget> children;
 

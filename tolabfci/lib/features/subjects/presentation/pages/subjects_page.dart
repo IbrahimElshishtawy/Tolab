@@ -41,27 +41,29 @@ class _SubjectsPageState extends ConsumerState<SubjectsPage> {
             final filtered = subjects
                 .where(
                   (subject) =>
-                      subject.name.toLowerCase().contains(_query.toLowerCase()) ||
-                      subject.code.toLowerCase().contains(_query.toLowerCase()),
+                      subject.name.contains(_query) ||
+                      subject.code.toLowerCase().contains(_query.toLowerCase()) ||
+                      subject.instructor.contains(_query),
                 )
                 .toList();
 
             return ListView(
               children: [
                 const AppSectionHeader(
-                  title: 'Subjects',
-                  subtitle: 'Browse all enrolled courses and open each subject workspace.',
+                  title: 'المواد الدراسية',
+                  subtitle: 'بطاقات منظمة توضح المحتوى والنشاط والتقدم داخل كل مادة.',
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 AppSearchField(
                   controller: _searchController,
+                  hintText: 'ابحث باسم المادة أو الكود أو اسم الدكتور',
                   onChanged: (value) => setState(() => _query = value),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 if (filtered.isEmpty)
                   const EmptyStateWidget(
-                    title: 'No subjects found',
-                    subtitle: 'Try a different search keyword.',
+                    title: 'لا توجد مواد مطابقة',
+                    subtitle: 'جرّب كلمة بحث مختلفة.',
                     icon: Icons.search_off_rounded,
                   )
                 else
@@ -80,7 +82,7 @@ class _SubjectsPageState extends ConsumerState<SubjectsPage> {
               ],
             );
           },
-          loading: () => const LoadingWidget(label: 'Loading subjects...'),
+          loading: () => const LoadingWidget(label: 'جاري تحميل المواد...'),
           error: (error, stackTrace) => ErrorStateWidget(
             message: error.toString(),
             onRetry: () => ref.invalidate(subjectsProvider),

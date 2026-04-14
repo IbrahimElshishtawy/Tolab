@@ -101,10 +101,16 @@ class _DashboardContent {
     final items = _sections(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: items
-          .expand((widget) => [widget, const SizedBox(height: DashboardAppSpacing.lg)])
-          .toList()
-        ..removeLast(),
+      children:
+          items
+              .expand(
+                (widget) => [
+                  widget,
+                  const SizedBox(height: DashboardAppSpacing.lg),
+                ],
+              )
+              .toList()
+            ..removeLast(),
     );
   }
 
@@ -122,12 +128,7 @@ class _DashboardContent {
           runSpacing: DashboardAppSpacing.lg,
           children: items
               .skip(2)
-              .map(
-                (child) => SizedBox(
-                  width: 420,
-                  child: child,
-                ),
-              )
+              .map((child) => SizedBox(width: 420, child: child))
               .toList(),
         ),
       ],
@@ -264,7 +265,9 @@ class _DashboardContent {
         section: snapshot.studentsAttention,
         onOpenRoute: (route) => _open(context, route),
       ),
-      StudentActivityInsightsSection(insights: snapshot.studentActivityInsights),
+      StudentActivityInsightsSection(
+        insights: snapshot.studentActivityInsights,
+      ),
       CourseHealthSection(health: snapshot.courseHealth),
       GroupActivityFeedSection(
         feed: snapshot.groupActivityFeed,

@@ -23,17 +23,17 @@ class StudentSectionEmptyState extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: AppColors.surfaceAlt,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
       ),
       child: Column(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 46,
+            height: 46,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
             ),
             alignment: Alignment.center,
             child: Icon(icon, color: AppColors.textSecondary),
@@ -41,9 +41,9 @@ class StudentSectionEmptyState extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           Text(
             title,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
@@ -74,8 +74,8 @@ class StudentHomeErrorState extends StatelessWidget {
         children: [
           const StudentSectionEmptyState(
             icon: Icons.cloud_off_outlined,
-            title: 'Unable to load the dashboard',
-            message: 'We could not prepare your home dashboard right now.',
+            title: 'تعذر تحميل الرئيسية',
+            message: 'حدثت مشكلة أثناء تجهيز لوحة الطالب. حاول مرة أخرى.',
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
@@ -84,7 +84,7 @@ class StudentHomeErrorState extends StatelessWidget {
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: AppSpacing.md),
-          FilledButton(onPressed: onRetry, child: const Text('Try again')),
+          FilledButton(onPressed: onRetry, child: const Text('إعادة المحاولة')),
         ],
       ),
     );

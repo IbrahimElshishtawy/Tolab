@@ -21,17 +21,19 @@ class StudyInsightsSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const AppSectionHeader(
-            title: 'Study insights',
-            subtitle: 'A quick read on momentum, completion, and engagement.',
+            title: 'الدعم الأكاديمي الذكي',
+            subtitle: 'مؤشرات سريعة تساعدك على فهم مستواك وما يحتاج متابعة.',
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
-            model.summary,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+            model.headline,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
           ),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: AppSpacing.xs),
+          Text(model.summary, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: AppSpacing.md),
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
             child: LinearProgressIndicator(
@@ -45,22 +47,41 @@ class StudyInsightsSection extends StatelessWidget {
             spacing: AppSpacing.md,
             runSpacing: AppSpacing.md,
             children: [
+              _InsightMetric(label: 'المكتمل', value: '${model.completedTasks}'),
+              _InsightMetric(label: 'المعلق', value: '${model.pendingTasks}'),
+              _InsightMetric(label: 'المشاهد', value: '${model.viewedLectures}'),
               _InsightMetric(
-                label: 'Completed',
-                value: '${model.completedTasks}',
-              ),
-              _InsightMetric(label: 'Pending', value: '${model.pendingTasks}'),
-              _InsightMetric(
-                label: 'Viewed lectures',
-                value: '${model.viewedLectures}',
-              ),
-              _InsightMetric(
-                label: 'Engagement',
+                label: 'التفاعل',
                 value: '${(model.engagementScore * 100).round()}%',
                 caption: model.engagementLabel,
               ),
             ],
           ),
+          if (model.tips.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.lg),
+            ...model.tips.map(
+              (tip) => Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(top: 2),
+                      child: Icon(
+                        Icons.tips_and_updates_outlined,
+                        size: 18,
+                        color: AppColors.indigo,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Text(tip, style: Theme.of(context).textTheme.bodySmall),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -81,11 +102,11 @@ class _InsightMetric extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 140,
+      width: 132,
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.surfaceAlt,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
       ),
       child: Column(
@@ -95,9 +116,9 @@ class _InsightMetric extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             value,
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontSize: 22),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
           ),
           if (caption != null) ...[
             const SizedBox(height: AppSpacing.xs),
