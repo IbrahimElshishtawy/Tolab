@@ -42,7 +42,9 @@ class _SubjectsPageState extends ConsumerState<SubjectsPage> {
                 .where(
                   (subject) =>
                       subject.name.contains(_query) ||
-                      subject.code.toLowerCase().contains(_query.toLowerCase()) ||
+                      subject.code.toLowerCase().contains(
+                        _query.toLowerCase(),
+                      ) ||
                       subject.instructor.contains(_query),
                 )
                 .toList();
@@ -51,7 +53,8 @@ class _SubjectsPageState extends ConsumerState<SubjectsPage> {
               children: [
                 const AppSectionHeader(
                   title: 'المواد الدراسية',
-                  subtitle: 'بطاقات منظمة توضّح المحتوى، المتابعة، والتقدم داخل كل مادة.',
+                  subtitle:
+                      'بطاقات منظمة توضّح المحتوى، المتابعة، والتقدم داخل كل مادة.',
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 AppSearchField(
@@ -72,8 +75,8 @@ class _SubjectsPageState extends ConsumerState<SubjectsPage> {
                       final columns = constraints.maxWidth >= 1000
                           ? 2
                           : constraints.maxWidth >= 680
-                              ? 2
-                              : 1;
+                          ? 2
+                          : 1;
                       final spacing = AppSpacing.lg;
                       final itemWidth = columns == 1
                           ? constraints.maxWidth

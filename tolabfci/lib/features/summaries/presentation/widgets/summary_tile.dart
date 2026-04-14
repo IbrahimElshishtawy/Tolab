@@ -6,10 +6,7 @@ import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_card.dart';
 
 class SummaryTile extends StatelessWidget {
-  const SummaryTile({
-    super.key,
-    required this.summary,
-  });
+  const SummaryTile({super.key, required this.summary});
 
   final SummaryItem summary;
 
@@ -22,7 +19,10 @@ class SummaryTile extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(summary.title, style: Theme.of(context).textTheme.titleLarge),
+                child: Text(
+                  summary.title,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
               ),
               if (summary.attachmentName != null)
                 AppBadge(label: summary.attachmentName!),
@@ -32,7 +32,10 @@ class SummaryTile extends StatelessWidget {
           Text('By ${summary.authorName} • ${summary.createdAtLabel}'),
           if (summary.videoUrl != null) ...[
             const SizedBox(height: AppSpacing.sm),
-            Text(summary.videoUrl!, style: Theme.of(context).textTheme.bodySmall),
+            Text(
+              summary.videoUrl!,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ],
         ],
       ),

@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppChip extends StatelessWidget {
-  const AppChip({
-    super.key,
-    required this.label,
-    this.icon,
-  });
+  const AppChip({super.key, required this.label, this.icon});
 
   final String label;
   final IconData? icon;

@@ -12,12 +12,15 @@ class SettingsNotifier extends Notifier<SettingsState> {
   @override
   SettingsState build() {
     final preferences = ref.watch(preferencesServiceProvider);
-    final languageCode = preferences.getString(StorageKeys.preferredLocale) ?? 'ar';
+    final languageCode =
+        preferences.getString(StorageKeys.preferredLocale) ?? 'ar';
 
     return SettingsState(
       languageCode: languageCode == 'en' ? 'en' : 'ar',
-      notificationsEnabled:
-          preferences.getBool(StorageKeys.notificationsEnabled, fallback: true),
+      notificationsEnabled: preferences.getBool(
+        StorageKeys.notificationsEnabled,
+        fallback: true,
+      ),
       themeMode: _themeModeFromStorage(
         preferences.getString(StorageKeys.themeMode),
       ),
@@ -25,26 +28,23 @@ class SettingsNotifier extends Notifier<SettingsState> {
   }
 
   Future<void> updateLanguage(String languageCode) async {
-    await ref.read(preferencesServiceProvider).setString(
-          StorageKeys.preferredLocale,
-          languageCode,
-        );
+    await ref
+        .read(preferencesServiceProvider)
+        .setString(StorageKeys.preferredLocale, languageCode);
     state = state.copyWith(languageCode: languageCode);
   }
 
   Future<void> updateThemeMode(ThemeMode themeMode) async {
-    await ref.read(preferencesServiceProvider).setString(
-          StorageKeys.themeMode,
-          themeMode.name,
-        );
+    await ref
+        .read(preferencesServiceProvider)
+        .setString(StorageKeys.themeMode, themeMode.name);
     state = state.copyWith(themeMode: themeMode);
   }
 
   Future<void> updateNotifications(bool enabled) async {
-    await ref.read(preferencesServiceProvider).setBool(
-          StorageKeys.notificationsEnabled,
-          enabled,
-        );
+    await ref
+        .read(preferencesServiceProvider)
+        .setBool(StorageKeys.notificationsEnabled, enabled);
     state = state.copyWith(notificationsEnabled: enabled);
   }
 

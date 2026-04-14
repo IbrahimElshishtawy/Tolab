@@ -27,7 +27,10 @@ class ProfileInfoSection extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(entry.key, style: Theme.of(context).textTheme.labelLarge),
+                    child: Text(
+                      entry.key,
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
                   ),
                   Expanded(child: Text(entry.value)),
                 ],

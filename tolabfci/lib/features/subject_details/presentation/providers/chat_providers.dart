@@ -37,8 +37,8 @@ class ChatState {
 
 final chatControllerProvider =
     AsyncNotifierProvider.family<ChatController, ChatState, String>(
-  ChatController.new,
-);
+      ChatController.new,
+    );
 
 class ChatController extends AsyncNotifier<ChatState> {
   ChatController(this._subjectId);
@@ -47,8 +47,9 @@ class ChatController extends AsyncNotifier<ChatState> {
 
   @override
   Future<ChatState> build() async {
-    final messages =
-        await ref.watch(subjectsRepositoryProvider).fetchChatMessages(_subjectId, pageSize: _pageSize);
+    final messages = await ref
+        .watch(subjectsRepositoryProvider)
+        .fetchChatMessages(_subjectId, pageSize: _pageSize);
     return ChatState(
       messages: messages,
       page: 0,
@@ -63,11 +64,9 @@ class ChatController extends AsyncNotifier<ChatState> {
     }
     state = AsyncData(current.copyWith(isLoadingMore: true));
     final nextPage = current.page + 1;
-    final olderMessages = await ref.read(subjectsRepositoryProvider).fetchChatMessages(
-          _subjectId,
-          page: nextPage,
-          pageSize: _pageSize,
-        );
+    final olderMessages = await ref
+        .read(subjectsRepositoryProvider)
+        .fetchChatMessages(_subjectId, page: nextPage, pageSize: _pageSize);
     state = AsyncData(
       current.copyWith(
         messages: [...olderMessages, ...current.messages],
@@ -84,12 +83,12 @@ class ChatController extends AsyncNotifier<ChatState> {
       return;
     }
     state = AsyncData(current.copyWith(isSending: true));
-    await ref.read(subjectsRepositoryProvider).sendChatMessage(
-          subjectId: _subjectId,
-          content: content,
-        );
-    final refreshed =
-        await ref.read(subjectsRepositoryProvider).fetchChatMessages(_subjectId, pageSize: _pageSize);
+    await ref
+        .read(subjectsRepositoryProvider)
+        .sendChatMessage(subjectId: _subjectId, content: content);
+    final refreshed = await ref
+        .read(subjectsRepositoryProvider)
+        .fetchChatMessages(_subjectId, pageSize: _pageSize);
     state = AsyncData(
       ChatState(
         messages: refreshed,

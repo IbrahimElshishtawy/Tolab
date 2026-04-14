@@ -12,10 +12,7 @@ String formatNow(String pattern, {String locale = 'ar'}) {
   return DateFormat(pattern, locale).format(DateTime.now());
 }
 
-String formatArabicDate(
-  DateTime dateTime, {
-  String pattern = 'd MMM',
-}) {
+String formatArabicDate(DateTime dateTime, {String pattern = 'd MMM'}) {
   return DateFormat(pattern, 'ar').format(dateTime);
 }
 

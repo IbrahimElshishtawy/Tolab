@@ -7,10 +7,7 @@ import '../../../../core/widgets/app_section_header.dart';
 import '../providers/home_providers.dart';
 
 class AcademicOverviewCard extends StatelessWidget {
-  const AcademicOverviewCard({
-    super.key,
-    required this.snapshot,
-  });
+  const AcademicOverviewCard({super.key, required this.snapshot});
 
   final StudentAcademicSnapshot snapshot;
 
@@ -81,9 +78,9 @@ class _OverviewTile extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             value,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),

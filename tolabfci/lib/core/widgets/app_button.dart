@@ -66,10 +66,7 @@ class AppButton extends StatelessWidget {
           child: content,
         );
       case AppButtonVariant.ghost:
-        return TextButton(
-          onPressed: onPressed,
-          child: content,
-        );
+        return TextButton(onPressed: onPressed, child: content);
     }
   }
 }

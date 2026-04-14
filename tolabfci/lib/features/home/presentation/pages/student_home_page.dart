@@ -6,6 +6,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/adaptive_page_container.dart';
 import '../providers/home_providers.dart';
 import '../widgets/academic_overview_card.dart';
+import '../widgets/empty_states.dart';
 import '../widgets/focus_panels_section.dart';
 import '../widgets/loading_states.dart';
 import '../widgets/notifications_preview_section.dart';
@@ -55,7 +56,9 @@ class StudentHomePage extends ConsumerWidget {
                   _SectionGrid(
                     columnCount: columnCount,
                     children: [
-                      AcademicOverviewCard(snapshot: viewModel.academicSnapshot),
+                      AcademicOverviewCard(
+                        snapshot: viewModel.academicSnapshot,
+                      ),
                       StudyInsightsSection(model: viewModel.studyInsights),
                     ],
                   ),

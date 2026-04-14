@@ -3,11 +3,7 @@ import 'package:flutter/material.dart';
 import 'app_button.dart';
 
 class ErrorStateWidget extends StatelessWidget {
-  const ErrorStateWidget({
-    super.key,
-    required this.message,
-    this.onRetry,
-  });
+  const ErrorStateWidget({super.key, required this.message, this.onRetry});
 
   final String message;
   final VoidCallback? onRetry;
@@ -25,7 +21,11 @@ class ErrorStateWidget extends StatelessWidget {
             Text(message, textAlign: TextAlign.center),
             if (onRetry != null) ...[
               const SizedBox(height: 16),
-              AppButton(label: 'إعادة المحاولة', onPressed: onRetry, isExpanded: false),
+              AppButton(
+                label: 'إعادة المحاولة',
+                onPressed: onRetry,
+                isExpanded: false,
+              ),
             ],
           ],
         ),

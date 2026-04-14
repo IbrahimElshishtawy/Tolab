@@ -28,8 +28,8 @@ class AppBadge extends StatelessWidget {
       child: Text(
         label,
         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: foregroundColor ?? palette.textPrimary,
-            ),
+          color: foregroundColor ?? palette.textPrimary,
+        ),
       ),
     );
   }

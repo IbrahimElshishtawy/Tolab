@@ -14,5 +14,6 @@ class MockHomeRepository implements HomeRepository {
   final MockBackendService _backendService;
 
   @override
-  Future<HomeDashboardData> fetchDashboard() => _backendService.fetchHomeDashboard();
+  Future<HomeDashboardData> fetchDashboard() =>
+      _backendService.fetchHomeDashboard();
 }

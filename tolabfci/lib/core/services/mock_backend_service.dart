@@ -67,7 +67,8 @@ class MockBackendService {
       assistantName: 'م. نورا سامح',
       creditHours: 3,
       accentHex: '#4E7CF5',
-      description: 'معمارية التطبيقات، الأداء، وبناء منتجات موبايل جاهزة للإطلاق.',
+      description:
+          'معمارية التطبيقات، الأداء، وبناء منتجات موبايل جاهزة للإطلاق.',
       lecturesCount: 12,
       sectionsCount: 8,
       quizCount: 3,
@@ -84,7 +85,8 @@ class MockBackendService {
       assistantName: 'م. كريم راضي',
       creditHours: 3,
       accentHex: '#3DB6B0',
-      description: 'النظم الموزعة، النشر السحابي، وأمن الخدمات على البيئات الحديثة.',
+      description:
+          'النظم الموزعة، النشر السحابي، وأمن الخدمات على البيئات الحديثة.',
       lecturesCount: 10,
       sectionsCount: 7,
       quizCount: 2,
@@ -456,7 +458,8 @@ class MockBackendService {
   Stream<List<AppNotificationItem>> watchNotifications() =>
       _notificationsController.stream;
 
-  Future<List<AppNotificationItem>> fetchNotifications() async => _notifications;
+  Future<List<AppNotificationItem>> fetchNotifications() async =>
+      _notifications;
 
   Future<void> markNotificationAsRead(String notificationId) async {
     _notifications = _notifications
@@ -575,7 +578,8 @@ class MockBackendService {
         subjectId: 'subject-2',
         subjectName: 'الحوسبة السحابية',
         title: 'شيت Service Mesh',
-        description: 'ارفع ملف PDF يشرح خطوات النشر والـ traffic policy المستخدمة.',
+        description:
+            'ارفع ملف PDF يشرح خطوات النشر والـ traffic policy المستخدمة.',
         dueDateLabel: formatDueLabelArabic(urgentDeadline, reference: now),
         dueAt: urgentDeadline,
         status: 'لم يتم الرفع',
@@ -587,7 +591,8 @@ class MockBackendService {
         subjectId: 'subject-1',
         subjectName: 'تطوير تطبيقات الهاتف المتقدمة',
         title: 'ورقة مراجعة المعمارية',
-        description: 'اكتب مقارنة مختصرة بين Clean Architecture وFeature-first layers.',
+        description:
+            'اكتب مقارنة مختصرة بين Clean Architecture وFeature-first layers.',
         dueDateLabel: formatDueLabelArabic(tomorrowDeadline, reference: now),
         dueAt: tomorrowDeadline,
         status: 'تم الرفع',
@@ -611,7 +616,8 @@ class MockBackendService {
         subjectId: 'subject-1',
         subjectName: 'تطوير تطبيقات الهاتف المتقدمة',
         title: 'Checkpoint الأسبوعي',
-        description: 'تمت مراجعة التسليم مع ملاحظات على جودة الـ architecture diagram.',
+        description:
+            'تمت مراجعة التسليم مع ملاحظات على جودة الـ architecture diagram.',
         dueDateLabel: formatArabicDate(gradedDeadline),
         dueAt: gradedDeadline,
         status: 'تم التقييم',
@@ -699,7 +705,9 @@ class MockBackendService {
         title: 'شرائح المحاضرة الخامسة',
         fileName: 'mobile-architecture-week5.pdf',
         typeLabel: 'محاضرة',
-        createdAtLabel: formatRelativeArabic(now.subtract(const Duration(hours: 1))),
+        createdAtLabel: formatRelativeArabic(
+          now.subtract(const Duration(hours: 1)),
+        ),
       ),
       SubjectFileItem(
         id: 'file-2',
@@ -707,7 +715,9 @@ class MockBackendService {
         title: 'متطلبات الشيت الثاني',
         fileName: 'service-mesh-assignment.docx',
         typeLabel: 'شيت',
-        createdAtLabel: formatRelativeArabic(now.subtract(const Duration(days: 1))),
+        createdAtLabel: formatRelativeArabic(
+          now.subtract(const Duration(days: 1)),
+        ),
       ),
       SubjectFileItem(
         id: 'file-3',
@@ -715,7 +725,9 @@ class MockBackendService {
         title: 'Checklist التقييم',
         fileName: 'ux-evaluation-checklist.pdf',
         typeLabel: 'ملف إضافي',
-        createdAtLabel: formatRelativeArabic(now.subtract(const Duration(days: 2))),
+        createdAtLabel: formatRelativeArabic(
+          now.subtract(const Duration(days: 2)),
+        ),
       ),
     ];
   }
@@ -727,10 +739,12 @@ class MockBackendService {
         subjectId: 'subject-1',
         subjectName: 'تطوير تطبيقات الهاتف المتقدمة',
         title: 'تم رفع محاضرة جديدة',
-        description: 'التسجيل والشرائح الخاصة بمحاضرة معمارية الحالة متاحة الآن.',
+        description:
+            'التسجيل والشرائح الخاصة بمحاضرة معمارية الحالة متاحة الآن.',
         type: CourseActivityType.lecture,
-        createdAtLabel:
-            formatRelativeArabic(now.subtract(const Duration(minutes: 35))),
+        createdAtLabel: formatRelativeArabic(
+          now.subtract(const Duration(minutes: 35)),
+        ),
         createdAt: now.subtract(const Duration(minutes: 35)),
       ),
       CourseActivityItem(
@@ -740,8 +754,9 @@ class MockBackendService {
         title: 'تم فتح كويز جديد',
         description: 'كويز Async Flows متاح حاليًا ويغلق خلال أقل من ساعة.',
         type: CourseActivityType.quiz,
-        createdAtLabel:
-            formatRelativeArabic(now.subtract(const Duration(minutes: 10))),
+        createdAtLabel: formatRelativeArabic(
+          now.subtract(const Duration(minutes: 10)),
+        ),
         createdAt: now.subtract(const Duration(minutes: 10)),
       ),
       CourseActivityItem(
@@ -751,8 +766,9 @@ class MockBackendService {
         title: 'تسليم شيت قريب',
         description: 'شيت Service Mesh يحتاج رفع قبل نهاية اليوم.',
         type: CourseActivityType.assignment,
-        createdAtLabel:
-            formatRelativeArabic(now.subtract(const Duration(hours: 2))),
+        createdAtLabel: formatRelativeArabic(
+          now.subtract(const Duration(hours: 2)),
+        ),
         createdAt: now.subtract(const Duration(hours: 2)),
       ),
       CourseActivityItem(
@@ -762,8 +778,9 @@ class MockBackendService {
         title: 'آخر منشور في الجروب',
         description: 'تم تعديل توزيع المجموعات داخل سكشن قابلية الوصول.',
         type: CourseActivityType.groupPost,
-        createdAtLabel:
-            formatRelativeArabic(now.subtract(const Duration(days: 1))),
+        createdAtLabel: formatRelativeArabic(
+          now.subtract(const Duration(days: 1)),
+        ),
         createdAt: now.subtract(const Duration(days: 1)),
       ),
     ];
@@ -789,7 +806,9 @@ class MockBackendService {
         title: 'لديك كويز مفتوح الآن',
         body: 'كويز Async Flows متاح لمدة 50 دقيقة من الآن.',
         createdAt: now.subtract(const Duration(minutes: 10)),
-        createdAtLabel: formatRelativeArabic(now.subtract(const Duration(minutes: 10))),
+        createdAtLabel: formatRelativeArabic(
+          now.subtract(const Duration(minutes: 10)),
+        ),
         category: 'كويزات',
         isRead: false,
         routeName: RouteNames.quizEntry,
@@ -801,7 +820,9 @@ class MockBackendService {
         title: 'محاضرة تبدأ بعد قليل',
         body: 'محاضرة معمارية إدارة الحالة تبدأ خلال ساعة و15 دقيقة.',
         createdAt: now.subtract(const Duration(hours: 1)),
-        createdAtLabel: formatRelativeArabic(now.subtract(const Duration(hours: 1))),
+        createdAtLabel: formatRelativeArabic(
+          now.subtract(const Duration(hours: 1)),
+        ),
         category: 'أكاديمي',
         isRead: false,
         routeName: RouteNames.subjectDetails,
@@ -824,7 +845,9 @@ class MockBackendService {
         title: 'تم تحديث النتائج',
         body: 'درجات مادة التفاعل بين الإنسان والحاسوب أصبحت متاحة الآن.',
         createdAt: now.subtract(const Duration(days: 2)),
-        createdAtLabel: formatRelativeArabic(now.subtract(const Duration(days: 2))),
+        createdAtLabel: formatRelativeArabic(
+          now.subtract(const Duration(days: 2)),
+        ),
         category: 'درجات',
         isRead: true,
         routeName: RouteNames.results,
@@ -834,7 +857,9 @@ class MockBackendService {
         title: 'منشور جديد في الجروب',
         body: 'تم نشر تعديل على مجموعات السكشن داخل مادة HCI.',
         createdAt: now.subtract(const Duration(hours: 6)),
-        createdAtLabel: formatRelativeArabic(now.subtract(const Duration(hours: 6))),
+        createdAtLabel: formatRelativeArabic(
+          now.subtract(const Duration(hours: 6)),
+        ),
         category: 'الجروب',
         isRead: false,
         routeName: RouteNames.subjectDetails,

@@ -12,10 +12,7 @@ class LoadingWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const CircularProgressIndicator(),
-          if (label != null) ...[
-            const SizedBox(height: 12),
-            Text(label!),
-          ],
+          if (label != null) ...[const SizedBox(height: 12), Text(label!)],
         ],
       ),
     );

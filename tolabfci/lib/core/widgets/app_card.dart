@@ -18,8 +18,9 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.appColors;
-    final shadowAlpha =
-        Theme.of(context).brightness == Brightness.dark ? 0.22 : 0.06;
+    final shadowAlpha = Theme.of(context).brightness == Brightness.dark
+        ? 0.22
+        : 0.06;
 
     return Container(
       decoration: BoxDecoration(
@@ -34,10 +35,7 @@ class AppCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Padding(
-        padding: padding,
-        child: child,
-      ),
+      child: Padding(padding: padding, child: child),
     );
   }
 }

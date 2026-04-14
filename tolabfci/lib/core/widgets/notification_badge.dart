@@ -35,7 +35,9 @@ class NotificationBadge extends StatelessWidget {
             alignment: Alignment.center,
             child: Text(
               count > 9 ? '9+' : '$count',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.white),
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(color: Colors.white),
             ),
           ),
         ),

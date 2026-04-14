@@ -161,7 +161,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         case AuthStage.unauthenticated:
           return location == '/login' ? null : '/login';
         case AuthStage.awaitingNationalId:
-          return location == '/verify-national-id' ? null : '/verify-national-id';
+          return location == '/verify-national-id'
+              ? null
+              : '/verify-national-id';
         case AuthStage.authenticated:
           if (location == '/splash' ||
               location == '/login' ||

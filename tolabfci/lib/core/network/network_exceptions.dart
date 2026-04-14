@@ -15,11 +15,15 @@ class NetworkExceptions {
       case DioExceptionType.badResponse:
         final statusCode = error.response?.statusCode;
         if (statusCode == 401) {
-          return const AppException(UserMessages.unauthorized, code: 'unauthorized');
+          return const AppException(
+            UserMessages.unauthorized,
+            code: 'unauthorized',
+          );
         }
         return AppException(
           error.response?.data is Map<String, dynamic>
-              ? error.response?.data['message']?.toString() ?? UserMessages.genericError
+              ? error.response?.data['message']?.toString() ??
+                    UserMessages.genericError
               : UserMessages.genericError,
           code: 'server_error',
         );

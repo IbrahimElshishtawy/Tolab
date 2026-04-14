@@ -9,10 +9,7 @@ import '../../../../core/widgets/loading_widget.dart';
 import '../../../subjects/presentation/providers/subjects_providers.dart';
 
 class SectionsTab extends ConsumerWidget {
-  const SectionsTab({
-    super.key,
-    required this.subjectId,
-  });
+  const SectionsTab({super.key, required this.subjectId});
 
   final String subjectId;
 
@@ -42,14 +39,15 @@ class SectionsTab extends ConsumerWidget {
                           children: [
                             Text(
                               section.title,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w700),
                             ),
                             const SizedBox(height: AppSpacing.xs),
                             Text(section.scheduleLabel),
                             const SizedBox(height: AppSpacing.xs),
-                            Text('${section.assistantName} - ${section.location}'),
+                            Text(
+                              '${section.assistantName} - ${section.location}',
+                            ),
                           ],
                         ),
                       ),

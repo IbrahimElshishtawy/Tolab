@@ -21,19 +21,16 @@ class MockAuthRepository implements AuthRepository {
     required MockBackendService backendService,
     required SecureStorageService secureStorageService,
     required PreferencesService preferencesService,
-  })  : _backendService = backendService,
-        _secureStorageService = secureStorageService,
-        _preferencesService = preferencesService;
+  }) : _backendService = backendService,
+       _secureStorageService = secureStorageService,
+       _preferencesService = preferencesService;
 
   final MockBackendService _backendService;
   final SecureStorageService _secureStorageService;
   final PreferencesService _preferencesService;
 
   @override
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> login({required String email, required String password}) async {
     final token = await _backendService.login(email: email, password: password);
     await _secureStorageService.write(StorageKeys.authToken, token);
     await _preferencesService.setBool(StorageKeys.hasVerifiedNationalId, false);
@@ -45,7 +42,9 @@ class MockAuthRepository implements AuthRepository {
     if (token == null || token.isEmpty) {
       return AuthStage.unauthenticated;
     }
-    final hasVerified = _preferencesService.getBool(StorageKeys.hasVerifiedNationalId);
+    final hasVerified = _preferencesService.getBool(
+      StorageKeys.hasVerifiedNationalId,
+    );
     return hasVerified ? AuthStage.authenticated : AuthStage.awaitingNationalId;
   }
 

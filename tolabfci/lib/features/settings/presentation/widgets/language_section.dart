@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core\widgets/app_card.dart';
+import '../../../../core/widgets/app_card.dart';
 import 'settings_notifier.dart';
 
 class LanguageSection extends ConsumerWidget {
@@ -82,7 +82,9 @@ class _LanguageOption extends StatelessWidget {
           color: selected ? palette.primarySoft : palette.surfaceAlt,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: selected ? Theme.of(context).colorScheme.primary : palette.border,
+            color: selected
+                ? Theme.of(context).colorScheme.primary
+                : palette.border,
           ),
         ),
         child: Column(

@@ -41,9 +41,9 @@ class StudentSectionEmptyState extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           Text(
             title,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(

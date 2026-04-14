@@ -78,7 +78,10 @@ class StudentHomeHeader extends StatelessWidget {
             runSpacing: AppSpacing.sm,
             children: [
               AppBadge(label: 'GPA ${profile.gpa.toStringAsFixed(2)}'),
-              AppBadge(label: profile.faculty, backgroundColor: palette.surfaceAlt),
+              AppBadge(
+                label: profile.faculty,
+                backgroundColor: palette.surfaceAlt,
+              ),
               AppBadge(
                 label: 'المستوى ${profile.level}',
                 backgroundColor: palette.surfaceAlt,

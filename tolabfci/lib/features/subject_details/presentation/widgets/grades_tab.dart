@@ -10,10 +10,7 @@ import '../../../../core/widgets/loading_widget.dart';
 import '../../../results/presentation/providers/results_providers.dart';
 
 class GradesTab extends ConsumerWidget {
-  const GradesTab({
-    super.key,
-    required this.subjectId,
-  });
+  const GradesTab({super.key, required this.subjectId});
 
   final String subjectId;
 
@@ -23,7 +20,9 @@ class GradesTab extends ConsumerWidget {
 
     return resultsAsync.when(
       data: (results) {
-        final result = results.where((item) => item.subjectId == subjectId).firstOrNull;
+        final result = results
+            .where((item) => item.subjectId == subjectId)
+            .firstOrNull;
         if (result == null) {
           return const EmptyStateWidget(
             title: 'لا توجد درجات',
@@ -49,15 +48,23 @@ class GradesTab extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: AppSpacing.md),
-                  Text('الإجمالي: ${result.totalGrade}', style: Theme.of(context).textTheme.bodyMedium),
+                  Text(
+                    'الإجمالي: ${result.totalGrade}',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
                   const SizedBox(height: AppSpacing.sm),
                   Text('الكويزات: ${result.quizGrade}'),
                   Text('الشيتات: ${result.assignmentGrade}'),
-                  if (result.midtermGrade != null) Text('الميدترم: ${result.midtermGrade}'),
-                  if (result.finalGrade != null) Text('الفاينل: ${result.finalGrade}'),
+                  if (result.midtermGrade != null)
+                    Text('الميدترم: ${result.midtermGrade}'),
+                  if (result.finalGrade != null)
+                    Text('الفاينل: ${result.finalGrade}'),
                   if (result.notes != null) ...[
                     const SizedBox(height: AppSpacing.md),
-                    Text(result.notes!, style: Theme.of(context).textTheme.bodySmall),
+                    Text(
+                      result.notes!,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ],
                 ],
               ),

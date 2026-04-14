@@ -97,12 +97,7 @@ class _AssetFallback extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: [
-        SvgPicture.asset(
-          assetPath,
-          width: width,
-          height: height,
-          fit: fit,
-        ),
+        SvgPicture.asset(assetPath, width: width, height: height, fit: fit),
         if (icon != null)
           Container(
             width: (width ?? 80) * 0.28,

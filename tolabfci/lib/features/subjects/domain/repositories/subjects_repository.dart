@@ -40,10 +40,7 @@ abstract class SubjectsRepository {
     required String content,
   });
 
-  Future<void> reactToPost({
-    required String subjectId,
-    required String postId,
-  });
+  Future<void> reactToPost({required String subjectId, required String postId});
 
   Future<List<ChatMessage>> fetchChatMessages(
     String subjectId, {

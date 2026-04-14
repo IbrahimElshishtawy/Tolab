@@ -95,7 +95,8 @@ class StudentHomeViewModel {
     );
 
     final totalTasks =
-        dashboard.studyInsights.completedTasks + dashboard.studyInsights.pendingTasks;
+        dashboard.studyInsights.completedTasks +
+        dashboard.studyInsights.pendingTasks;
     final delayedSubjects = dashboard.subjects
         .where((subject) => subject.status == 'مطلوب تسليم')
         .toList();
@@ -119,29 +120,32 @@ class StudentHomeViewModel {
           target: openQuiz != null
               ? _quizTarget(openQuiz)
               : const StudentActionTarget(routeName: RouteNames.quizzes),
-          helperText: openQuiz != null ? 'يوجد كويز متاح الآن' : 'راجعي الكويزات القادمة',
+          helperText: openQuiz != null
+              ? 'يوجد كويز متاح الآن'
+              : 'راجعي الكويزات القادمة',
         ),
         StudentQuickActionItem(
           type: StudentQuickActionType.uploadAssignment,
           target: missingTask != null
               ? _assignmentTarget(missingTask)
               : nearestTaskDeadline != null
-                  ? _assignmentTarget(nearestTaskDeadline)
-                  : null,
+              ? _assignmentTarget(nearestTaskDeadline)
+              : null,
           helperText: missingTask != null
               ? 'لديك شيت يحتاج إلى رفع'
               : nearestTaskDeadline != null
-                  ? nearestTaskDeadline.title
-                  : 'لا يوجد رفع عاجل الآن',
+              ? nearestTaskDeadline.title
+              : 'لا يوجد رفع عاجل الآن',
         ),
         StudentQuickActionItem(
           type: StudentQuickActionType.openCourse,
           target: nextLecture != null
               ? _subjectTarget(nextLecture.subjectId)
               : dashboard.subjects.isEmpty
-                  ? null
-                  : _subjectTarget(dashboard.subjects.first.id),
-          helperText: nextLecture?.subjectName ?? dashboard.subjects.firstOrNull?.name,
+              ? null
+              : _subjectTarget(dashboard.subjects.first.id),
+          helperText:
+              nextLecture?.subjectName ?? dashboard.subjects.firstOrNull?.name,
         ),
         const StudentQuickActionItem(
           type: StudentQuickActionType.checkResults,
@@ -159,8 +163,12 @@ class StudentHomeViewModel {
               ? 'لا يوجد'
               : formatTimeUntilArabic(nextLecture.startsAt, reference: now),
           ctaLabel: 'دخول',
-          target: nextLecture == null ? null : _subjectTarget(nextLecture.subjectId),
-          priority: nextLecture == null ? StudentPriority.safe : StudentPriority.soon,
+          target: nextLecture == null
+              ? null
+              : _subjectTarget(nextLecture.subjectId),
+          priority: nextLecture == null
+              ? StudentPriority.safe
+              : StudentPriority.soon,
           icon: Icons.play_circle_outline_rounded,
         ),
         StudentRequiredActionItem(
@@ -172,8 +180,12 @@ class StudentHomeViewModel {
               ? 'لا يوجد'
               : formatTimeUntilArabic(nextSection.startsAt, reference: now),
           ctaLabel: 'عرض',
-          target: nextSection == null ? null : _subjectTarget(nextSection.subjectId),
-          priority: nextSection == null ? StudentPriority.safe : StudentPriority.soon,
+          target: nextSection == null
+              ? null
+              : _subjectTarget(nextSection.subjectId),
+          priority: nextSection == null
+              ? StudentPriority.safe
+              : StudentPriority.soon,
           icon: Icons.co_present_outlined,
         ),
         StudentRequiredActionItem(
@@ -188,7 +200,9 @@ class StudentHomeViewModel {
           target: openQuiz == null
               ? const StudentActionTarget(routeName: RouteNames.quizzes)
               : _quizTarget(openQuiz),
-          priority: openQuiz == null ? StudentPriority.safe : StudentPriority.urgent,
+          priority: openQuiz == null
+              ? StudentPriority.safe
+              : StudentPriority.urgent,
           icon: Icons.quiz_outlined,
         ),
         StudentRequiredActionItem(
@@ -198,10 +212,14 @@ class StudentHomeViewModel {
               : '${nearestTaskDeadline.title} - ${nearestTaskDeadline.subjectName}',
           meta: nearestTaskDeadline == null
               ? 'ممتاز'
-              : formatTimeUntilArabic(nearestTaskDeadline.dueAt, reference: now),
+              : formatTimeUntilArabic(
+                  nearestTaskDeadline.dueAt,
+                  reference: now,
+                ),
           ctaLabel: 'رفع',
-          target:
-              nearestTaskDeadline == null ? null : _assignmentTarget(nearestTaskDeadline),
+          target: nearestTaskDeadline == null
+              ? null
+              : _assignmentTarget(nearestTaskDeadline),
           priority: nearestTaskDeadline == null
               ? StudentPriority.safe
               : _priorityFromDate(nearestTaskDeadline.dueAt, now),
@@ -215,7 +233,9 @@ class StudentHomeViewModel {
           meta: missingTask == null ? 'مستقر' : 'متأخر',
           ctaLabel: 'عرض',
           target: missingTask == null ? null : _assignmentTarget(missingTask),
-          priority: missingTask == null ? StudentPriority.safe : StudentPriority.urgent,
+          priority: missingTask == null
+              ? StudentPriority.safe
+              : StudentPriority.urgent,
           icon: Icons.warning_amber_rounded,
         ),
       ],
@@ -233,7 +253,8 @@ class StudentHomeViewModel {
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt)),
       upcomingQuizzes: quizzes
           .where(
-            (quiz) => !quiz.isSubmitted && (quiz.startsAt?.isAfter(now) ?? false),
+            (quiz) =>
+                !quiz.isSubmitted && (quiz.startsAt?.isAfter(now) ?? false),
           )
           .take(3)
           .map(
@@ -279,7 +300,8 @@ class StudentHomeViewModel {
         tips: academicTips,
       ),
       dailyTip:
-          academicTips.firstOrNull ?? 'رتّبي أولويتك بين الكويزات والتسليمات قبل بدء يومك الدراسي.',
+          academicTips.firstOrNull ??
+          'رتّبي أولويتك بين الكويزات والتسليمات قبل بدء يومك الدراسي.',
     );
   }
 
@@ -485,7 +507,9 @@ List<StudentTimelineItem> _buildTimelineItems({
           (quiz) => StudentTimelineItem(
             title: quiz.title,
             subtitle: quiz.subjectName ?? quiz.typeLabel,
-            timeLabel: _isQuizOpen(quiz, now) ? 'مفتوح الآن' : quiz.startAtLabel,
+            timeLabel: _isQuizOpen(quiz, now)
+                ? 'مفتوح الآن'
+                : quiz.startAtLabel,
             scheduledAt: quiz.startsAt,
             kind: StudentTimelineKind.quiz,
             priority: _isQuizOpen(quiz, now)
@@ -515,7 +539,9 @@ List<StudentTimelineItem> _buildTimelineItems({
   return items;
 }
 
-List<StudentTimelineGroup> _groupTimelineItems(List<StudentTimelineItem> items) {
+List<StudentTimelineGroup> _groupTimelineItems(
+  List<StudentTimelineItem> items,
+) {
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
   final todayItems = <StudentTimelineItem>[];

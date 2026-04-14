@@ -9,10 +9,7 @@ import '../../../../core/widgets/loading_widget.dart';
 import '../../../subjects/presentation/providers/subjects_providers.dart';
 
 class LecturesTab extends ConsumerWidget {
-  const LecturesTab({
-    super.key,
-    required this.subjectId,
-  });
+  const LecturesTab({super.key, required this.subjectId});
 
   final String subjectId;
 
@@ -42,9 +39,8 @@ class LecturesTab extends ConsumerWidget {
                           children: [
                             Text(
                               lecture.title,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w700),
                             ),
                             const SizedBox(height: AppSpacing.xs),
                             Text(lecture.scheduleLabel),
@@ -53,7 +49,9 @@ class LecturesTab extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      AppBadge(label: lecture.isOnline ? 'أونلاين' : 'داخل الجامعة'),
+                      AppBadge(
+                        label: lecture.isOnline ? 'أونلاين' : 'داخل الجامعة',
+                      ),
                     ],
                   ),
                 );

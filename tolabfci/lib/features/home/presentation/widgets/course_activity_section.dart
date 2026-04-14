@@ -30,7 +30,8 @@ class CourseActivitySection extends StatelessWidget {
             const StudentSectionEmptyState(
               icon: Icons.auto_stories_outlined,
               title: 'لا يوجد نشاط حديث',
-              message: 'ستظهر هنا المحاضرات الجديدة والكويزات والمنشورات فور إضافتها.',
+              message:
+                  'ستظهر هنا المحاضرات الجديدة والكويزات والمنشورات فور إضافتها.',
             )
           else
             ...items.take(4).map((item) => _ActivityTile(item: item)),
@@ -86,9 +87,8 @@ class _ActivityTile extends StatelessWidget {
                       Expanded(
                         child: Text(
                           item.title,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w700,
-                              ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w700),
                         ),
                       ),
                       AppBadge(
@@ -99,9 +99,15 @@ class _ActivityTile extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: AppSpacing.xs),
-                  Text(item.description, style: Theme.of(context).textTheme.bodySmall),
+                  Text(
+                    item.description,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                   const SizedBox(height: AppSpacing.xs),
-                  Text(item.createdAtLabel, style: Theme.of(context).textTheme.labelLarge),
+                  Text(
+                    item.createdAtLabel,
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
                 ],
               ),
             ),

@@ -30,18 +30,28 @@ class ProfilePage extends ConsumerWidget {
           data: (profile) => ListView(
             children: [
               AppCard(
-                backgroundColor: AppColors.surfaceAlt,
+                backgroundColor: context.appColors.surfaceElevated,
                 child: Row(
                   children: [
-                    AppAvatar(name: profile.fullName, imageUrl: profile.avatarUrl, radius: 34),
+                    AppAvatar(
+                      name: profile.fullName,
+                      imageUrl: profile.avatarUrl,
+                      radius: 34,
+                    ),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(profile.fullName, style: Theme.of(context).textTheme.titleLarge),
+                          Text(
+                            profile.fullName,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
                           const SizedBox(height: AppSpacing.xs),
-                          Text(profile.email, style: Theme.of(context).textTheme.bodySmall),
+                          Text(
+                            profile.email,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
                           const SizedBox(height: AppSpacing.xs),
                           AppBadge(label: profile.academicStatus),
                         ],
@@ -55,74 +65,101 @@ class ProfilePage extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),
-              _InfoCard(
-                title: 'البيانات الأساسية',
-                items: {
-                  'الاسم': profile.fullName,
-                  'الرقم الجامعي': profile.studentNumber,
-                  'القسم': profile.department,
-                  'المستوى': profile.level,
-                  'البريد الجامعي': profile.email,
-                  'المرشد الأكاديمي': profile.academicAdvisor,
-                },
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              _InfoCard(
-                title: 'ملفي الأكاديمي',
-                items: {
-                  'GPA': profile.gpa.toStringAsFixed(2),
-                  'الحالة الأكاديمية': profile.academicStatus,
-                  'عدد الساعات المنجزة': '${profile.completedHours}',
-                  'عدد الساعات المسجلة': '${profile.registeredHours}',
-                  'رقم الجلوس': profile.seatNumber,
-                  'الرقم القومي': maskNationalId(profile.nationalId),
-                },
-              ),
-              const SizedBox(height: AppSpacing.lg),
               AppCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const AppSectionHeader(title: 'الإعدادات السريعة'),
+                    const AppSectionHeader(title: 'اختصارات الحساب'),
                     const SizedBox(height: AppSpacing.md),
-                    _SettingTile(
-                      title: 'إعدادات اللغة',
-                      subtitle: settings.languageCode == 'ar' ? 'العربية' : settings.languageCode,
+                    _ActionTile(
+                      icon: Icons.bar_chart_rounded,
+                      title: 'النتائج والتحليل',
+                      subtitle: 'GPA ودرجات المواد والرؤية الأكاديمية',
+                      onTap: () => context.goNamed(RouteNames.results),
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    _SettingTile(
-                      title: 'إعدادات التنبيهات',
-                      subtitle: settings.notificationsEnabled ? 'مفعلة' : 'متوقفة',
+                    _ActionTile(
+                      icon: Icons.language_rounded,
+                      title: 'اللغة',
+                      subtitle: settings.languageCode == 'ar'
+                          ? 'العربية'
+                          : 'English',
+                      onTap: () => context.goNamed(RouteNames.settings),
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    const _SettingTile(
-                      title: 'الأمان',
-                      subtitle: 'يمكنك تحديث كلمة المرور من الإعدادات',
+                    _ActionTile(
+                      icon: Icons.notifications_active_outlined,
+                      title: 'التنبيهات',
+                      subtitle: settings.notificationsEnabled
+                          ? 'مفعلة'
+                          : 'متوقفة',
+                      onTap: () => context.goNamed(RouteNames.settings),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    _ActionTile(
+                      icon: Icons.dark_mode_outlined,
+                      title: 'المظهر',
+                      subtitle: _themeModeLabel(settings.themeMode),
+                      onTap: () => context.goNamed(RouteNames.settings),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(height: AppSpacing.lg),
+              _InfoCard(
+                title: 'البيانات الشخصية',
+                items: {
+                  'الاسم': profile.fullName,
+                  'الرقم الجامعي': profile.studentNumber,
+                  'البريد الجامعي': profile.email,
+                  'الرقم القومي': maskNationalId(profile.nationalId),
+                  'المؤهل السابق': profile.previousQualification,
+                },
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              _InfoCard(
+                title: 'البيانات الأكاديمية',
+                items: {
+                  'الكلية': profile.faculty,
+                  'القسم': profile.department,
+                  'المستوى': profile.level,
+                  'GPA': profile.gpa.toStringAsFixed(2),
+                  'المرشد الأكاديمي': profile.academicAdvisor,
+                  'الساعات المنجزة': '${profile.completedHours}',
+                  'الساعات المسجلة': '${profile.registeredHours}',
+                  'رقم الجلوس': profile.seatNumber,
+                },
+              ),
             ],
           ),
-          loading: () => const LoadingWidget(label: 'جاري تحميل الملف الشخصي...'),
-          error: (error, stackTrace) => ErrorStateWidget(message: error.toString()),
+          loading: () =>
+              const LoadingWidget(label: 'جاري تحميل الملف الشخصي...'),
+          error: (error, stackTrace) =>
+              ErrorStateWidget(message: error.toString()),
         ),
       ),
     );
   }
+
+  String _themeModeLabel(ThemeMode mode) {
+    return switch (mode) {
+      ThemeMode.system => 'تلقائي',
+      ThemeMode.light => 'فاتح',
+      ThemeMode.dark => 'داكن',
+    };
+  }
 }
 
 class _InfoCard extends StatelessWidget {
-  const _InfoCard({
-    required this.title,
-    required this.items,
-  });
+  const _InfoCard({required this.title, required this.items});
 
   final String title;
   final Map<String, String> items;
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
+
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,21 +169,25 @@ class _InfoCard extends StatelessWidget {
           ...items.entries.map(
             (entry) => Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.md),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      entry.key,
-                      style: Theme.of(context).textTheme.labelLarge,
+              child: Container(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: palette.surfaceAlt,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        entry.key,
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      entry.value,
-                      textAlign: TextAlign.end,
+                    Expanded(
+                      child: Text(entry.value, textAlign: TextAlign.end),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -156,29 +197,59 @@ class _InfoCard extends StatelessWidget {
   }
 }
 
-class _SettingTile extends StatelessWidget {
-  const _SettingTile({
+class _ActionTile extends StatelessWidget {
+  const _ActionTile({
+    required this.icon,
     required this.title,
     required this.subtitle,
+    required this.onTap,
   });
 
+  final IconData icon;
   final String title;
   final String subtitle;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceAlt,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Expanded(child: Text(title)),
-          Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
-        ],
+    final palette = context.appColors;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: palette.surfaceAlt,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: palette.border),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: palette.primarySoft,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              alignment: Alignment.center,
+              child: Icon(icon, color: AppColors.primary),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: Theme.of(context).textTheme.bodyMedium),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded),
+          ],
+        ),
       ),
     );
   }

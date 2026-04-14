@@ -66,7 +66,9 @@ class _QuizEntryPageState extends ConsumerState<QuizEntryPage> {
                           setState(() => _isSubmitting = false);
                           messenger.showSnackBar(
                             const SnackBar(
-                              content: Text('تم تسجيل دخولك للكويز وتسليمه تجريبيًا بنجاح.'),
+                              content: Text(
+                                'تم تسجيل دخولك للكويز وتسليمه تجريبيًا بنجاح.',
+                              ),
                             ),
                           );
                         },
@@ -84,8 +86,10 @@ class _QuizEntryPageState extends ConsumerState<QuizEntryPage> {
               ],
             );
           },
-          loading: () => const LoadingWidget(label: 'جاري تحميل بيانات الكويز...'),
-          error: (error, stackTrace) => ErrorStateWidget(message: error.toString()),
+          loading: () =>
+              const LoadingWidget(label: 'جاري تحميل بيانات الكويز...'),
+          error: (error, stackTrace) =>
+              ErrorStateWidget(message: error.toString()),
         ),
       ),
     );

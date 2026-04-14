@@ -28,9 +28,9 @@ class StudyInsightsSection extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           Text(
             model.headline,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(model.summary, style: Theme.of(context).textTheme.bodySmall),
@@ -49,9 +49,15 @@ class StudyInsightsSection extends StatelessWidget {
             spacing: AppSpacing.md,
             runSpacing: AppSpacing.md,
             children: [
-              _InsightMetric(label: 'المكتمل', value: '${model.completedTasks}'),
+              _InsightMetric(
+                label: 'المكتمل',
+                value: '${model.completedTasks}',
+              ),
               _InsightMetric(label: 'المعلق', value: '${model.pendingTasks}'),
-              _InsightMetric(label: 'المشاهد', value: '${model.viewedLectures}'),
+              _InsightMetric(
+                label: 'المشاهد',
+                value: '${model.viewedLectures}',
+              ),
               _InsightMetric(
                 label: 'التفاعل',
                 value: '${(model.engagementScore * 100).round()}%',
@@ -77,7 +83,10 @@ class StudyInsightsSection extends StatelessWidget {
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     Expanded(
-                      child: Text(tip, style: Theme.of(context).textTheme.bodySmall),
+                      child: Text(
+                        tip,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ),
                   ],
                 ),
@@ -120,9 +129,9 @@ class _InsightMetric extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             value,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           if (caption != null) ...[
             const SizedBox(height: AppSpacing.xs),

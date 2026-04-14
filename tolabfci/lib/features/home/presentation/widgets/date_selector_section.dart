@@ -10,7 +10,10 @@ class DateSelectorSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final today = DateTime.now();
-    final dates = List.generate(5, (index) => today.add(Duration(days: index - 1)));
+    final dates = List.generate(
+      5,
+      (index) => today.add(Duration(days: index - 1)),
+    );
 
     return AppCard(
       child: Column(
@@ -43,4 +46,3 @@ class DateSelectorSection extends StatelessWidget {
     return days[value - 1];
   }
 }
-

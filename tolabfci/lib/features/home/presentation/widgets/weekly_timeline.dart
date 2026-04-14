@@ -28,20 +28,22 @@ class WeeklyTimeline extends StatelessWidget {
             const StudentSectionEmptyState(
               icon: Icons.event_available_outlined,
               title: 'لا توجد أحداث قادمة',
-              message: 'سيظهر هنا جدولك اليومي والأسبوعي فور توفر مواعيد جديدة.',
+              message:
+                  'سيظهر هنا جدولك اليومي والأسبوعي فور توفر مواعيد جديدة.',
             )
           else
             Column(
-              children: groups
-                  .map((group) => _TimelineGroup(group: group))
-                  .expand(
-                    (widget) => [
-                      widget,
-                      const SizedBox(height: AppSpacing.md),
-                    ],
-                  )
-                  .toList()
-                ..removeLast(),
+              children:
+                  groups
+                      .map((group) => _TimelineGroup(group: group))
+                      .expand(
+                        (widget) => [
+                          widget,
+                          const SizedBox(height: AppSpacing.md),
+                        ],
+                      )
+                      .toList()
+                    ..removeLast(),
             ),
         ],
       ),
@@ -82,9 +84,9 @@ class _TimelineTile extends StatelessWidget {
       onTap: item.target == null
           ? null
           : () => context.goNamed(
-                item.target!.routeName,
-                pathParameters: item.target!.pathParameters,
-              ),
+              item.target!.routeName,
+              pathParameters: item.target!.pathParameters,
+            ),
       child: Container(
         margin: const EdgeInsets.only(bottom: AppSpacing.sm),
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -113,11 +115,14 @@ class _TimelineTile extends StatelessWidget {
                   Text(
                     item.title,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.xs),
-                  Text(item.subtitle, style: Theme.of(context).textTheme.bodySmall),
+                  Text(
+                    item.subtitle,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ],
               ),
             ),
@@ -125,7 +130,9 @@ class _TimelineTile extends StatelessWidget {
             Text(
               item.timeLabel,
               textAlign: TextAlign.end,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(color: color),
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(color: color),
             ),
           ],
         ),

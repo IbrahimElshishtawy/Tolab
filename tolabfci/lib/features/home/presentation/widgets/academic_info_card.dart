@@ -5,10 +5,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 
 class AcademicInfoCard extends StatelessWidget {
-  const AcademicInfoCard({
-    super.key,
-    required this.profile,
-  });
+  const AcademicInfoCard({super.key, required this.profile});
 
   final StudentProfile profile;
 
@@ -18,7 +15,10 @@ class AcademicInfoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Academic overview', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            'Academic overview',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: AppSpacing.md),
           Wrap(
             spacing: AppSpacing.lg,
@@ -57,4 +57,3 @@ class _Meta extends StatelessWidget {
     );
   }
 }
-

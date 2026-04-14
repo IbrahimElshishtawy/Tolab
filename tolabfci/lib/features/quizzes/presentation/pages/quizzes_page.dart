@@ -58,7 +58,8 @@ class _QuizzesPageState extends ConsumerState<QuizzesPage> {
               children: [
                 const AppSectionHeader(
                   title: 'الكويزات',
-                  subtitle: 'تابع الكويزات المفتوحة والقريبة والمنتهية من مكان واحد.',
+                  subtitle:
+                      'تابع الكويزات المفتوحة والقريبة والمنتهية من مكان واحد.',
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 Wrap(
@@ -92,7 +93,8 @@ class _QuizzesPageState extends ConsumerState<QuizzesPage> {
             );
           },
           loading: () => const LoadingWidget(label: 'جاري تحميل الكويزات...'),
-          error: (error, stackTrace) => ErrorStateWidget(message: error.toString()),
+          error: (error, stackTrace) =>
+              ErrorStateWidget(message: error.toString()),
         ),
       ),
     );

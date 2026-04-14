@@ -17,7 +17,9 @@ final timetableItemsProvider = Provider<AsyncValue<List<TimetableItem>>>((ref) {
             subjectName: lecture.subjectName ?? 'المادة',
             title: lecture.title,
             typeLabel: 'محاضرة',
-            locationLabel: lecture.locationLabel ?? (lecture.isOnline ? 'أونلاين' : 'القاعة'),
+            locationLabel:
+                lecture.locationLabel ??
+                (lecture.isOnline ? 'أونلاين' : 'القاعة'),
             hostName: lecture.instructorName ?? 'الدكتور',
             startsAt: lecture.startsAt!,
             endsAt: lecture.endsAt!,
@@ -80,8 +82,12 @@ final timetableItemsProvider = Provider<AsyncValue<List<TimetableItem>>>((ref) {
           ),
         );
 
-    final items = [...lectures, ...sections, ...quizzes, ...assignments].toList()
-      ..sort((a, b) => a.startsAt.compareTo(b.startsAt));
+    final items = [
+      ...lectures,
+      ...sections,
+      ...quizzes,
+      ...assignments,
+    ].toList()..sort((a, b) => a.startsAt.compareTo(b.startsAt));
 
     return items;
   });

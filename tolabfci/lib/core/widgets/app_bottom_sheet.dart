@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import 'app_card.dart';
 
 class AppBottomSheet extends StatelessWidget {
-  const AppBottomSheet({
-    super.key,
-    required this.child,
-  });
+  const AppBottomSheet({super.key, required this.child});
 
   final Widget child;
 

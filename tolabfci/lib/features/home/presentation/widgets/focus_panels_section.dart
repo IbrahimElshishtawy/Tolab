@@ -143,11 +143,14 @@ class _UpcomingTile extends StatelessWidget {
                   Text(
                     item.title,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.xs),
-                  Text(item.subtitle, style: Theme.of(context).textTheme.bodySmall),
+                  Text(
+                    item.subtitle,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ],
               ),
             ),
@@ -159,7 +162,9 @@ class _UpcomingTile extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   item.auxiliary,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: color),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: color),
                 ),
               ],
             ),

@@ -10,10 +10,7 @@ import '../../../summaries/presentation/providers/summaries_providers.dart';
 import '../../../summaries/presentation/widgets/summary_tile.dart';
 
 class SummariesTab extends ConsumerWidget {
-  const SummariesTab({
-    super.key,
-    required this.subjectId,
-  });
+  const SummariesTab({super.key, required this.subjectId});
 
   final String subjectId;
 

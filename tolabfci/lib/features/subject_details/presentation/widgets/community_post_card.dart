@@ -30,7 +30,10 @@ class CommunityPostCard extends ConsumerWidget {
           const SizedBox(height: AppSpacing.md),
           Text(post.content),
           const SizedBox(height: AppSpacing.md),
-          Text(post.createdAtLabel, style: Theme.of(context).textTheme.bodySmall),
+          Text(
+            post.createdAtLabel,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
           PostReactionsRow(
             reactions: post.reactions,
             commentCount: post.comments.length,
@@ -41,7 +44,8 @@ class CommunityPostCard extends ConsumerWidget {
               showModalBottomSheet<void>(
                 context: context,
                 isScrollControlled: true,
-                builder: (context) => CommentsSheet(subjectId: subjectId, post: post),
+                builder: (context) =>
+                    CommentsSheet(subjectId: subjectId, post: post),
               );
             },
           ),

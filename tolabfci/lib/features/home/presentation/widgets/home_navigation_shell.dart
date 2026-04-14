@@ -8,10 +8,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../notifications/presentation/providers/notifications_providers.dart';
 
 class HomeNavigationShell extends ConsumerWidget {
-  const HomeNavigationShell({
-    super.key,
-    required this.navigationShell,
-  });
+  const HomeNavigationShell({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
 
@@ -82,7 +79,10 @@ class HomeNavigationShell extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(18),
                   ),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.school_rounded, color: AppColors.primary),
+                  child: const Icon(
+                    Icons.school_rounded,
+                    color: AppColors.primary,
+                  ),
                 ),
                 destinations: destinations
                     .map(
@@ -118,7 +118,9 @@ class HomeNavigationShell extends ConsumerWidget {
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(
-                  alpha: Theme.of(context).brightness == Brightness.dark ? 0.24 : 0.08,
+                  alpha: Theme.of(context).brightness == Brightness.dark
+                      ? 0.24
+                      : 0.08,
                 ),
                 blurRadius: 22,
                 offset: const Offset(0, 10),

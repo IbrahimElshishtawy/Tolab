@@ -11,7 +11,8 @@ class VerifyNationalIdForm extends ConsumerStatefulWidget {
   const VerifyNationalIdForm({super.key});
 
   @override
-  ConsumerState<VerifyNationalIdForm> createState() => _VerifyNationalIdFormState();
+  ConsumerState<VerifyNationalIdForm> createState() =>
+      _VerifyNationalIdFormState();
 }
 
 class _VerifyNationalIdFormState extends ConsumerState<VerifyNationalIdForm> {
@@ -34,7 +35,10 @@ class _VerifyNationalIdFormState extends ConsumerState<VerifyNationalIdForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Verify National ID', style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              'Verify National ID',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             const SizedBox(height: AppSpacing.sm),
             Text(
               'For account protection, confirm your National ID before entering the student workspace.',
@@ -65,7 +69,9 @@ class _VerifyNationalIdFormState extends ConsumerState<VerifyNationalIdForm> {
             ],
             const SizedBox(height: AppSpacing.lg),
             AppButton(
-              label: authState.isSubmitting ? 'Verifying...' : 'Verify and continue',
+              label: authState.isSubmitting
+                  ? 'Verifying...'
+                  : 'Verify and continue',
               onPressed: authState.isSubmitting
                   ? null
                   : () async {
@@ -82,4 +88,3 @@ class _VerifyNationalIdFormState extends ConsumerState<VerifyNationalIdForm> {
     );
   }
 }
-

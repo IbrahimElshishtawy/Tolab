@@ -13,10 +13,7 @@ import '../../../../core/widgets/loading_widget.dart';
 import '../../../subjects/presentation/providers/subjects_providers.dart';
 
 class TasksTab extends ConsumerWidget {
-  const TasksTab({
-    super.key,
-    required this.subjectId,
-  });
+  const TasksTab({super.key, required this.subjectId});
 
   final String subjectId;
 
@@ -47,9 +44,8 @@ class TasksTab extends ConsumerWidget {
                           Expanded(
                             child: Text(
                               task.title,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w700),
                             ),
                           ),
                           AppBadge(
@@ -64,9 +60,15 @@ class TasksTab extends ConsumerWidget {
                         ],
                       ),
                       const SizedBox(height: AppSpacing.xs),
-                      Text(task.description, style: Theme.of(context).textTheme.bodySmall),
+                      Text(
+                        task.description,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                       const SizedBox(height: AppSpacing.sm),
-                      Text(task.dueDateLabel, style: Theme.of(context).textTheme.labelLarge),
+                      Text(
+                        task.dueDateLabel,
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
                       if (task.uploadedFileName != null) ...[
                         const SizedBox(height: AppSpacing.xs),
                         Text('الملف المرفوع: ${task.uploadedFileName}'),
@@ -75,7 +77,8 @@ class TasksTab extends ConsumerWidget {
                         const SizedBox(height: AppSpacing.xs),
                         Text(
                           'التقييم: ${task.gradeLabel}',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
                                 color: AppColors.success,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -87,7 +90,9 @@ class TasksTab extends ConsumerWidget {
                         runSpacing: AppSpacing.sm,
                         children: [
                           AppButton(
-                            label: task.uploadedFileName == null ? 'رفع الحل' : 'مشاهدة الملف المرفوع',
+                            label: task.uploadedFileName == null
+                                ? 'رفع الحل'
+                                : 'مشاهدة الملف المرفوع',
                             onPressed: () => context.goNamed(
                               RouteNames.assignmentUpload,
                               pathParameters: {
@@ -99,15 +104,17 @@ class TasksTab extends ConsumerWidget {
                           ),
                           if (task.uploadedFileName != null)
                             AppButton(
-                              label: canResubmit ? 'إعادة التسليم' : 'تعديل الرفع',
+                              label: canResubmit
+                                  ? 'إعادة التسليم'
+                                  : 'تعديل الرفع',
                               onPressed: canResubmit
                                   ? () => context.goNamed(
-                                        RouteNames.assignmentUpload,
-                                        pathParameters: {
-                                          'subjectId': subjectId,
-                                          'taskId': task.id,
-                                        },
-                                      )
+                                      RouteNames.assignmentUpload,
+                                      pathParameters: {
+                                        'subjectId': subjectId,
+                                        'taskId': task.id,
+                                      },
+                                    )
                                   : null,
                               isExpanded: false,
                               variant: AppButtonVariant.secondary,

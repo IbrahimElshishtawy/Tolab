@@ -16,7 +16,9 @@ class LoginForm extends ConsumerStatefulWidget {
 
 class _LoginFormState extends ConsumerState<LoginForm> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: 'mariam.hassan@tolab.edu');
+  final _emailController = TextEditingController(
+    text: 'mariam.hassan@tolab.edu',
+  );
   final _passwordController = TextEditingController(text: 'student123');
 
   @override
@@ -79,7 +81,9 @@ class _LoginFormState extends ConsumerState<LoginForm> {
               isLoading: authState.isSubmitting,
               onPressed: () async {
                 if (_formKey.currentState?.validate() ?? false) {
-                  await ref.read(authNotifierProvider.notifier).login(
+                  await ref
+                      .read(authNotifierProvider.notifier)
+                      .login(
                         email: _emailController.text,
                         password: _passwordController.text,
                       );

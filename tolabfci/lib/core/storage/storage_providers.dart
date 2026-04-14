@@ -5,13 +5,17 @@ import 'preferences_service.dart';
 import 'secure_storage_service.dart';
 
 final sharedPreferencesProvider = Provider<SharedPreferences>(
-  (ref) => throw UnimplementedError('sharedPreferencesProvider must be overridden'),
+  (ref) =>
+      throw UnimplementedError('sharedPreferencesProvider must be overridden'),
 );
 
 final preferencesServiceProvider = Provider<PreferencesService>(
-  (ref) => throw UnimplementedError('preferencesServiceProvider must be overridden'),
+  (ref) =>
+      throw UnimplementedError('preferencesServiceProvider must be overridden'),
 );
 
 final secureStorageServiceProvider = Provider<SecureStorageService>(
-  (ref) => throw UnimplementedError('secureStorageServiceProvider must be overridden'),
+  (ref) => throw UnimplementedError(
+    'secureStorageServiceProvider must be overridden',
+  ),
 );

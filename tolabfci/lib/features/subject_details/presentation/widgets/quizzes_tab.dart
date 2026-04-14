@@ -7,10 +7,7 @@ import '../../../quizzes/presentation/providers/quizzes_providers.dart';
 import '../../../quizzes/presentation/widgets/quiz_list_tile.dart';
 
 class QuizzesTab extends ConsumerWidget {
-  const QuizzesTab({
-    super.key,
-    required this.subjectId,
-  });
+  const QuizzesTab({super.key, required this.subjectId});
 
   final String subjectId;
 
@@ -27,7 +24,8 @@ class QuizzesTab extends ConsumerWidget {
           : ListView.separated(
               itemCount: quizzes.length,
               separatorBuilder: (_, _) => const SizedBox(height: 12),
-              itemBuilder: (context, index) => QuizListTile(quiz: quizzes[index]),
+              itemBuilder: (context, index) =>
+                  QuizListTile(quiz: quizzes[index]),
             ),
       loading: () => const LoadingWidget(),
       error: (error, stackTrace) => Text(error.toString()),

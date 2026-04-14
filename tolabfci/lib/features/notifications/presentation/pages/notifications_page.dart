@@ -38,15 +38,17 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                 return true;
               }
               return item.category == _filter;
-            }).toList()
-              ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+            }).toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
             final today = DateTime.now();
             final todayStart = DateTime(today.year, today.month, today.day);
-            final weekStart = todayStart.subtract(Duration(days: today.weekday - 1));
+            final weekStart = todayStart.subtract(
+              Duration(days: today.weekday - 1),
+            );
 
-            final todayItems =
-                filtered.where((item) => item.createdAt.isAfter(todayStart)).toList();
+            final todayItems = filtered
+                .where((item) => item.createdAt.isAfter(todayStart))
+                .toList();
             final weekItems = filtered
                 .where(
                   (item) =>
@@ -54,28 +56,32 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                       item.createdAt.isBefore(todayStart),
                 )
                 .toList();
-            final olderItems =
-                filtered.where((item) => item.createdAt.isBefore(weekStart)).toList();
+            final olderItems = filtered
+                .where((item) => item.createdAt.isBefore(weekStart))
+                .toList();
 
             return ListView(
               children: [
                 const AppSectionHeader(
                   title: 'التنبيهات',
-                  subtitle: 'تنبيهات أكاديمية وكويزات وشيتات ودرجات مع وصول مباشر.',
+                  subtitle:
+                      'تنبيهات أكاديمية وكويزات وشيتات ودرجات مع وصول مباشر.',
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 Wrap(
                   spacing: AppSpacing.sm,
                   runSpacing: AppSpacing.sm,
-                  children: ['الكل', 'أكاديمي', 'كويزات', 'شيتات', 'درجات', 'عام']
-                      .map(
-                        (filter) => ChoiceChip(
-                          label: Text(filter),
-                          selected: _filter == filter,
-                          onSelected: (_) => setState(() => _filter = filter),
-                        ),
-                      )
-                      .toList(),
+                  children:
+                      ['الكل', 'أكاديمي', 'كويزات', 'شيتات', 'درجات', 'عام']
+                          .map(
+                            (filter) => ChoiceChip(
+                              label: Text(filter),
+                              selected: _filter == filter,
+                              onSelected: (_) =>
+                                  setState(() => _filter = filter),
+                            ),
+                          )
+                          .toList(),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 if (filtered.isEmpty)
@@ -111,13 +117,17 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
             );
           },
           loading: () => const LoadingWidget(label: 'جاري تحميل التنبيهات...'),
-          error: (error, stackTrace) => ErrorStateWidget(message: error.toString()),
+          error: (error, stackTrace) =>
+              ErrorStateWidget(message: error.toString()),
         ),
       ),
     );
   }
 
-  Future<void> _openNotification(BuildContext context, AppNotificationItem item) async {
+  Future<void> _openNotification(
+    BuildContext context,
+    AppNotificationItem item,
+  ) async {
     if (!item.isRead) {
       await ref.read(notificationsRepositoryProvider).markAsRead(item.id);
     }
@@ -137,7 +147,8 @@ class _NotificationGroup extends StatelessWidget {
 
   final String title;
   final List<AppNotificationItem> items;
-  final Future<void> Function(BuildContext context, AppNotificationItem item) onOpen;
+  final Future<void> Function(BuildContext context, AppNotificationItem item)
+  onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +180,9 @@ class _NotificationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.appColors;
-    final priorityColor = item.isImportant ? AppColors.error : AppColors.primary;
+    final priorityColor = item.isImportant
+        ? AppColors.error
+        : AppColors.primary;
 
     return AppCard(
       backgroundColor: item.isRead ? palette.surface : palette.surfaceElevated,
@@ -214,9 +227,9 @@ class _NotificationCard extends StatelessWidget {
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   item.title,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(item.body, style: Theme.of(context).textTheme.bodySmall),

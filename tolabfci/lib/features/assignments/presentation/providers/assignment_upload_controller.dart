@@ -37,15 +37,16 @@ class AssignmentUploadState {
 }
 
 final assignmentUploadControllerProvider =
-    NotifierProvider<AssignmentUploadController, Map<String, AssignmentUploadState>>(
-  AssignmentUploadController.new,
-);
+    NotifierProvider<
+      AssignmentUploadController,
+      Map<String, AssignmentUploadState>
+    >(AssignmentUploadController.new);
 
 final assignmentUploadStateProvider =
     Provider.family<AssignmentUploadState, AssignmentUploadKey>((ref, key) {
-  final stateMap = ref.watch(assignmentUploadControllerProvider);
-  return stateMap[_encodeKey(key)] ?? const AssignmentUploadState();
-});
+      final stateMap = ref.watch(assignmentUploadControllerProvider);
+      return stateMap[_encodeKey(key)] ?? const AssignmentUploadState();
+    });
 
 class AssignmentUploadController
     extends Notifier<Map<String, AssignmentUploadState>> {
@@ -76,21 +77,24 @@ class AssignmentUploadController
   Future<TaskItem?> upload(AssignmentUploadKey key) async {
     final fileName = _readState(key).selectedFileName;
     if (fileName == null) {
-      _setState(key, _readState(key).copyWith(errorMessage: 'اختر ملفًا أولاً قبل الرفع.'));
+      _setState(
+        key,
+        _readState(key).copyWith(errorMessage: 'اختر ملفًا أولاً قبل الرفع.'),
+      );
       return null;
     }
 
     _setState(
       key,
-      _readState(key).copyWith(
-        isUploading: true,
-        errorMessage: null,
-        isSuccess: false,
-      ),
+      _readState(
+        key,
+      ).copyWith(isUploading: true, errorMessage: null, isSuccess: false),
     );
 
     try {
-      final updatedTask = await ref.read(subjectsRepositoryProvider).uploadAssignment(
+      final updatedTask = await ref
+          .read(subjectsRepositoryProvider)
+          .uploadAssignment(
             subjectId: key.subjectId,
             taskId: key.taskId,
             fileName: fileName,
@@ -121,10 +125,7 @@ class AssignmentUploadController
   }
 
   void _setState(AssignmentUploadKey key, AssignmentUploadState next) {
-    state = {
-      ...state,
-      _encodeKey(key): next,
-    };
+    state = {...state, _encodeKey(key): next};
   }
 }
 

@@ -20,7 +20,8 @@ class QuickActionsSection extends StatelessWidget {
         children: [
           const AppSectionHeader(
             title: 'إجراءات سريعة',
-            subtitle: 'اختصارات مباشرة لأكثر الأدوات استخدامًا خلال يومك الدراسي.',
+            subtitle:
+                'اختصارات مباشرة لأكثر الأدوات استخدامًا خلال يومك الدراسي.',
           ),
           const SizedBox(height: AppSpacing.md),
           SingleChildScrollView(
@@ -56,18 +57,22 @@ class _QuickActionTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(18),
       onTap: enabled
           ? () => context.goNamed(
-                action.target!.routeName,
-                pathParameters: action.target!.pathParameters,
-              )
+              action.target!.routeName,
+              pathParameters: action.target!.pathParameters,
+            )
           : null,
       child: Ink(
         width: 148,
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: enabled ? spec.color.withValues(alpha: 0.10) : palette.surfaceAlt,
+          color: enabled
+              ? spec.color.withValues(alpha: 0.10)
+              : palette.surfaceAlt,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: enabled ? spec.color.withValues(alpha: 0.20) : palette.border,
+            color: enabled
+                ? spec.color.withValues(alpha: 0.20)
+                : palette.border,
           ),
         ),
         child: Column(

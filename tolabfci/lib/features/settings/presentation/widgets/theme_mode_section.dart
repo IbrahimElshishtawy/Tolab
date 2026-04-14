@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core\widgets/app_card.dart';
-import '../../../../core\widgets/app_segmented_control.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_segmented_control.dart';
 import 'settings_notifier.dart';
 
 class ThemeModeSection extends ConsumerWidget {
@@ -26,8 +26,9 @@ class ThemeModeSection extends ConsumerWidget {
           const SizedBox(height: AppSpacing.md),
           AppSegmentedControl<ThemeMode>(
             groupValue: state.themeMode,
-            onValueChanged: (value) =>
-                ref.read(settingsNotifierProvider.notifier).updateThemeMode(value),
+            onValueChanged: (value) => ref
+                .read(settingsNotifierProvider.notifier)
+                .updateThemeMode(value),
             children: const {
               ThemeMode.system: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),

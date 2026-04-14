@@ -31,10 +31,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
     return Row(
       children: [
         Expanded(
-          child: AppTextField(
-            controller: _controller,
-            label: 'Message',
-          ),
+          child: AppTextField(controller: _controller, label: 'Message'),
         ),
         const SizedBox(width: 12),
         AppButton(

@@ -10,10 +10,7 @@ import 'chat_input_bar.dart';
 import 'chat_message_bubble.dart';
 
 class ChatPanel extends ConsumerWidget {
-  const ChatPanel({
-    super.key,
-    required this.subjectId,
-  });
+  const ChatPanel({super.key, required this.subjectId});
 
   final String subjectId;
 
@@ -29,21 +26,28 @@ class ChatPanel extends ConsumerWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: AppButton(
-                  label: chatState.isLoadingMore ? 'Loading...' : 'Load earlier messages',
+                  label: chatState.isLoadingMore
+                      ? 'Loading...'
+                      : 'Load earlier messages',
                   onPressed: chatState.isLoadingMore
                       ? null
-                      : () => ref.read(chatControllerProvider(subjectId).notifier).loadMore(),
+                      : () => ref
+                            .read(chatControllerProvider(subjectId).notifier)
+                            .loadMore(),
                   variant: AppButtonVariant.ghost,
                   isExpanded: false,
                 ),
               ),
             const SizedBox(height: AppSpacing.md),
-            ...chatState.messages.map((message) => ChatMessageBubble(message: message)),
+            ...chatState.messages.map(
+              (message) => ChatMessageBubble(message: message),
+            ),
             const SizedBox(height: AppSpacing.md),
             ChatInputBar(
               isSending: chatState.isSending,
-              onSend: (content) =>
-                  ref.read(chatControllerProvider(subjectId).notifier).sendMessage(content),
+              onSend: (content) => ref
+                  .read(chatControllerProvider(subjectId).notifier)
+                  .sendMessage(content),
             ),
           ],
         ),

@@ -4,7 +4,9 @@ import '../../../../core/errors/app_exception.dart';
 import '../../data/repositories/mock_auth_repository.dart';
 import '../state/auth_state.dart';
 
-final authNotifierProvider = NotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);
+final authNotifierProvider = NotifierProvider<AuthNotifier, AuthState>(
+  AuthNotifier.new,
+);
 
 final sessionBootstrapProvider = FutureProvider<void>((ref) async {
   await ref.read(authNotifierProvider.notifier).restoreSession();
@@ -19,13 +21,12 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(stage: stage, clearError: true);
   }
 
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> login({required String email, required String password}) async {
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {
-      await ref.read(authRepositoryProvider).login(email: email, password: password);
+      await ref
+          .read(authRepositoryProvider)
+          .login(email: email, password: password);
       state = state.copyWith(
         stage: AuthStage.awaitingNationalId,
         isSubmitting: false,

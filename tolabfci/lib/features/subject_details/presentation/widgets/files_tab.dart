@@ -9,10 +9,7 @@ import '../../../../core/widgets/loading_widget.dart';
 import '../../../subjects/presentation/providers/subjects_providers.dart';
 
 class FilesTab extends ConsumerWidget {
-  const FilesTab({
-    super.key,
-    required this.subjectId,
-  });
+  const FilesTab({super.key, required this.subjectId});
 
   final String subjectId;
 
@@ -42,9 +39,8 @@ class FilesTab extends ConsumerWidget {
                           children: [
                             Text(
                               file.title,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w700),
                             ),
                             const SizedBox(height: AppSpacing.xs),
                             Text(file.fileName),

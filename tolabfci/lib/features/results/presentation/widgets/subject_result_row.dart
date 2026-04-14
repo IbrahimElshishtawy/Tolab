@@ -5,10 +5,7 @@ import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_card.dart';
 
 class SubjectResultRow extends StatelessWidget {
-  const SubjectResultRow({
-    super.key,
-    required this.result,
-  });
+  const SubjectResultRow({super.key, required this.result});
 
   final SubjectResult result;
 

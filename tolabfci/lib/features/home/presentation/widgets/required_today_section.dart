@@ -24,16 +24,17 @@ class RequiredTodaySection extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           Column(
-            children: items
-                .map((item) => _RequiredActionTile(item: item))
-                .expand(
-                  (widget) => [
-                    widget,
-                    const SizedBox(height: AppSpacing.sm),
-                  ],
-                )
-                .toList()
-              ..removeLast(),
+            children:
+                items
+                    .map((item) => _RequiredActionTile(item: item))
+                    .expand(
+                      (widget) => [
+                        widget,
+                        const SizedBox(height: AppSpacing.sm),
+                      ],
+                    )
+                    .toList()
+                  ..removeLast(),
           ),
         ],
       ),
@@ -88,17 +89,17 @@ class _RequiredActionTile extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   item.subtitle,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   item.meta,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: color,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -108,9 +109,9 @@ class _RequiredActionTile extends StatelessWidget {
             onPressed: item.target == null
                 ? null
                 : () => context.goNamed(
-                      item.target!.routeName,
-                      pathParameters: item.target!.pathParameters,
-                    ),
+                    item.target!.routeName,
+                    pathParameters: item.target!.pathParameters,
+                  ),
             child: Text(item.ctaLabel),
           ),
         ],

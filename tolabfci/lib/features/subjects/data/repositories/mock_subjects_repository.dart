@@ -49,7 +49,11 @@ class MockSubjectsRepository implements SubjectsRepository {
     int page = 0,
     int pageSize = 15,
   }) {
-    return _backendService.fetchChatMessages(subjectId, page: page, pageSize: pageSize);
+    return _backendService.fetchChatMessages(
+      subjectId,
+      page: page,
+      pageSize: pageSize,
+    );
   }
 
   @override
@@ -77,14 +81,16 @@ class MockSubjectsRepository implements SubjectsRepository {
       _backendService.fetchSubjectById(subjectId);
 
   @override
-  Future<List<SubjectOverview>> fetchSubjects() => _backendService.fetchSubjects();
+  Future<List<SubjectOverview>> fetchSubjects() =>
+      _backendService.fetchSubjects();
 
   @override
   Future<List<SummaryItem>> fetchSummaries(String subjectId) =>
       _backendService.fetchSummaries(subjectId);
 
   @override
-  Future<List<TaskItem>> fetchTasks(String subjectId) => _backendService.fetchTasks(subjectId);
+  Future<List<TaskItem>> fetchTasks(String subjectId) =>
+      _backendService.fetchTasks(subjectId);
 
   @override
   Future<TaskItem> uploadAssignment({
@@ -100,7 +106,10 @@ class MockSubjectsRepository implements SubjectsRepository {
   }
 
   @override
-  Future<void> reactToPost({required String subjectId, required String postId}) {
+  Future<void> reactToPost({
+    required String subjectId,
+    required String postId,
+  }) {
     return _backendService.reactToPost(subjectId: subjectId, postId: postId);
   }
 
@@ -109,6 +118,9 @@ class MockSubjectsRepository implements SubjectsRepository {
     required String subjectId,
     required String content,
   }) {
-    return _backendService.sendChatMessage(subjectId: subjectId, content: content);
+    return _backendService.sendChatMessage(
+      subjectId: subjectId,
+      content: content,
+    );
   }
 }

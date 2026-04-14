@@ -41,9 +41,15 @@ class AssignmentUploadPage extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(task.title, style: Theme.of(context).textTheme.titleLarge),
+                      Text(
+                        task.title,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
                       const SizedBox(height: AppSpacing.sm),
-                      Text(task.description, style: Theme.of(context).textTheme.bodySmall),
+                      Text(
+                        task.description,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                       const SizedBox(height: AppSpacing.md),
                       Wrap(
                         spacing: AppSpacing.sm,
@@ -55,7 +61,8 @@ class AssignmentUploadPage extends ConsumerWidget {
                             backgroundColor: Colors.white,
                           ),
                           AppBadge(
-                            label: 'الأنواع: ${task.supportedTypes.join(' / ')}',
+                            label:
+                                'الأنواع: ${task.supportedTypes.join(' / ')}',
                             backgroundColor: Colors.white,
                           ),
                         ],
@@ -71,7 +78,8 @@ class AssignmentUploadPage extends ConsumerWidget {
                         const SizedBox(height: AppSpacing.xs),
                         Text(
                           'التقييم: ${task.gradeLabel}',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
                                 color: AppColors.success,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -85,7 +93,10 @@ class AssignmentUploadPage extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('رفع الحل', style: TextStyle(fontWeight: FontWeight.w700)),
+                      const Text(
+                        'رفع الحل',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
                       const SizedBox(height: AppSpacing.sm),
                       Container(
                         width: double.infinity,
@@ -105,16 +116,16 @@ class AssignmentUploadPage extends ConsumerWidget {
                         const SizedBox(height: AppSpacing.sm),
                         Text(
                           uploadState.errorMessage!,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.error,
-                              ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: AppColors.error),
                         ),
                       ],
                       if (uploadState.isSuccess) ...[
                         const SizedBox(height: AppSpacing.sm),
                         Text(
                           'تم رفع الحل بنجاح.',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
                                 color: AppColors.success,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -122,23 +133,31 @@ class AssignmentUploadPage extends ConsumerWidget {
                       ],
                       const SizedBox(height: AppSpacing.lg),
                       AppButton(
-                        label: uploadState.selectedFileName == null ? 'اختيار ملف' : 'تعديل الاختيار',
+                        label: uploadState.selectedFileName == null
+                            ? 'اختيار ملف'
+                            : 'تعديل الاختيار',
                         onPressed: () => controller.pickFile(key),
                         variant: AppButtonVariant.secondary,
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       AppButton(
-                        label: uploadState.isUploading ? 'جارٍ الرفع...' : 'رفع الحل',
+                        label: uploadState.isUploading
+                            ? 'جارٍ الرفع...'
+                            : 'رفع الحل',
                         onPressed: uploadState.isUploading
                             ? null
                             : () async {
-                                final updatedTask = await controller.upload(key);
+                                final updatedTask = await controller.upload(
+                                  key,
+                                );
                                 if (updatedTask == null || !context.mounted) {
                                   return;
                                 }
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('تم تحديث حالة "${updatedTask.title}" إلى ${updatedTask.status}.'),
+                                    content: Text(
+                                      'تم تحديث حالة "${updatedTask.title}" إلى ${updatedTask.status}.',
+                                    ),
                                   ),
                                 );
                               },
@@ -149,8 +168,10 @@ class AssignmentUploadPage extends ConsumerWidget {
               ],
             );
           },
-          loading: () => const LoadingWidget(label: 'جاري تحميل بيانات الشيت...'),
-          error: (error, stackTrace) => ErrorStateWidget(message: error.toString()),
+          loading: () =>
+              const LoadingWidget(label: 'جاري تحميل بيانات الشيت...'),
+          error: (error, stackTrace) =>
+              ErrorStateWidget(message: error.toString()),
         ),
       ),
     );

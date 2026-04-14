@@ -22,11 +22,7 @@ class NotificationTile extends StatelessWidget {
       leading: AppBadge(label: notification.category),
       trailing: notification.isRead
           ? const Icon(Icons.done_rounded)
-          : TextButton(
-              onPressed: onMarkAsRead,
-              child: const Text('Mark read'),
-            ),
+          : TextButton(onPressed: onMarkAsRead, child: const Text('Mark read')),
     );
   }
 }
-

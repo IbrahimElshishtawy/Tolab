@@ -7,10 +7,7 @@ import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_card.dart';
 
 class SubjectDetailsHeader extends StatelessWidget {
-  const SubjectDetailsHeader({
-    super.key,
-    required this.subject,
-  });
+  const SubjectDetailsHeader({super.key, required this.subject});
 
   final SubjectOverview subject;
 
@@ -29,9 +26,15 @@ class SubjectDetailsHeader extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(subject.name, style: Theme.of(context).textTheme.displaySmall),
+                    Text(
+                      subject.name,
+                      style: Theme.of(context).textTheme.displaySmall,
+                    ),
                     const SizedBox(height: AppSpacing.xs),
-                    Text(subject.description, style: Theme.of(context).textTheme.bodySmall),
+                    Text(
+                      subject.description,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ],
                 ),
               ),
@@ -48,9 +51,18 @@ class SubjectDetailsHeader extends StatelessWidget {
             runSpacing: AppSpacing.sm,
             children: [
               AppBadge(label: subject.code, backgroundColor: Colors.white),
-              AppBadge(label: subject.instructor, backgroundColor: Colors.white),
-              AppBadge(label: 'المعيد: ${subject.assistantName}', backgroundColor: Colors.white),
-              AppBadge(label: '${subject.creditHours} ساعات', backgroundColor: Colors.white),
+              AppBadge(
+                label: subject.instructor,
+                backgroundColor: Colors.white,
+              ),
+              AppBadge(
+                label: 'المعيد: ${subject.assistantName}',
+                backgroundColor: Colors.white,
+              ),
+              AppBadge(
+                label: '${subject.creditHours} ساعات',
+                backgroundColor: Colors.white,
+              ),
             ],
           ),
         ],

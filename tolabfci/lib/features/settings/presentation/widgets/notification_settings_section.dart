@@ -15,10 +15,13 @@ class NotificationSettingsSection extends ConsumerWidget {
       child: SwitchListTile.adaptive(
         contentPadding: EdgeInsets.zero,
         value: state.notificationsEnabled,
-        onChanged: (value) =>
-            ref.read(settingsNotifierProvider.notifier).updateNotifications(value),
+        onChanged: (value) => ref
+            .read(settingsNotifierProvider.notifier)
+            .updateNotifications(value),
         title: const Text('التنبيهات'),
-        subtitle: const Text('تفعيل تنبيهات المحاضرات والكويزات والشيتات والدرجات'),
+        subtitle: const Text(
+          'تفعيل تنبيهات المحاضرات والكويزات والشيتات والدرجات',
+        ),
       ),
     );
   }

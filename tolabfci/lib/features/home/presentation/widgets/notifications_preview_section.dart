@@ -32,7 +32,9 @@ class NotificationsPreviewSection extends StatelessWidget {
             subtitle: 'أحدث التنبيهات المرتبطة بموادك ومهامك الحالية.',
             trailing: AppBadge(
               label: unreadCount == 0 ? 'مقروءة' : '$unreadCount غير مقروء',
-              backgroundColor: unreadCount == 0 ? palette.surfaceAlt : palette.primarySoft,
+              backgroundColor: unreadCount == 0
+                  ? palette.surfaceAlt
+                  : palette.primarySoft,
               foregroundColor: unreadCount == 0
                   ? palette.textSecondary
                   : Theme.of(context).colorScheme.primary,
@@ -43,7 +45,8 @@ class NotificationsPreviewSection extends StatelessWidget {
             const StudentSectionEmptyState(
               icon: Icons.notifications_none_rounded,
               title: 'لا توجد تنبيهات جديدة',
-              message: 'ستظهر هنا تحديثات المحاضرات والكويزات والدرجات أولًا بأول.',
+              message:
+                  'ستظهر هنا تحديثات المحاضرات والكويزات والدرجات أولًا بأول.',
             )
           else
             ...items.map((item) => _NotificationTile(item: item)),
@@ -64,10 +67,8 @@ class _NotificationTile extends StatelessWidget {
 
     return InkWell(
       borderRadius: BorderRadius.circular(16),
-      onTap: () => context.goNamed(
-        item.routeName,
-        pathParameters: item.pathParameters,
-      ),
+      onTap: () =>
+          context.goNamed(item.routeName, pathParameters: item.pathParameters),
       child: Container(
         margin: const EdgeInsets.only(bottom: AppSpacing.sm),
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -88,19 +89,23 @@ class _NotificationTile extends StatelessWidget {
                 AppBadge(
                   label: item.category,
                   backgroundColor: palette.surface,
-                  foregroundColor:
-                      item.isImportant ? AppColors.error : AppColors.primary,
+                  foregroundColor: item.isImportant
+                      ? AppColors.error
+                      : AppColors.primary,
                 ),
                 const Spacer(),
-                Text(item.createdAtLabel, style: Theme.of(context).textTheme.labelLarge),
+                Text(
+                  item.createdAtLabel,
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
               item.title,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(item.body, style: Theme.of(context).textTheme.bodySmall),

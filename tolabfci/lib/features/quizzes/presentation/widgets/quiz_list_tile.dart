@@ -9,10 +9,7 @@ import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_card.dart';
 
 class QuizListTile extends StatelessWidget {
-  const QuizListTile({
-    super.key,
-    required this.quiz,
-  });
+  const QuizListTile({super.key, required this.quiz});
 
   final QuizItem quiz;
 
@@ -51,8 +48,8 @@ class QuizListTile extends StatelessWidget {
                       child: Text(
                         quiz.title,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                     AppBadge(
@@ -79,10 +76,7 @@ class QuizListTile extends StatelessWidget {
           FilledButton.tonal(
             onPressed: () => context.goNamed(
               RouteNames.quizEntry,
-              pathParameters: {
-                'subjectId': quiz.subjectId,
-                'quizId': quiz.id,
-              },
+              pathParameters: {'subjectId': quiz.subjectId, 'quizId': quiz.id},
             ),
             child: const Text('عرض'),
           ),

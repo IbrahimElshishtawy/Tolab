@@ -16,7 +16,9 @@ class LoginPage extends StatelessWidget {
         child: AdaptivePageContainer(
           child: Center(
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: context.isDesktop ? 560 : 460),
+              constraints: BoxConstraints(
+                maxWidth: context.isDesktop ? 560 : 460,
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,4 +35,3 @@ class LoginPage extends StatelessWidget {
     );
   }
 }
-

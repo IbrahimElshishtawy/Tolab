@@ -24,25 +24,30 @@ class AppTheme {
     required Brightness brightness,
     required AppColorsScheme palette,
   }) {
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
-      brightness: brightness,
-    ).copyWith(
-      primary: AppColors.primary,
-      onPrimary: Colors.white,
-      secondary: AppColors.teal,
-      tertiary: AppColors.indigo,
-      error: AppColors.error,
-      surface: palette.surface,
-      onSurface: palette.textPrimary,
-      outline: palette.border,
-      outlineVariant: palette.border,
-      surfaceContainerHighest: palette.surfaceAlt,
-    );
+    final colorScheme =
+        ColorScheme.fromSeed(
+          seedColor: AppColors.primary,
+          brightness: brightness,
+        ).copyWith(
+          primary: AppColors.primary,
+          onPrimary: Colors.white,
+          secondary: AppColors.teal,
+          tertiary: AppColors.indigo,
+          error: AppColors.error,
+          surface: palette.surface,
+          onSurface: palette.textPrimary,
+          outline: palette.border,
+          outlineVariant: palette.border,
+          surfaceContainerHighest: palette.surfaceAlt,
+        );
 
     final textTheme = TextTheme(
-      displaySmall: AppTextStyles.titleLarge.copyWith(color: palette.textPrimary),
-      headlineSmall: AppTextStyles.titleMedium.copyWith(color: palette.textPrimary),
+      displaySmall: AppTextStyles.titleLarge.copyWith(
+        color: palette.textPrimary,
+      ),
+      headlineSmall: AppTextStyles.titleMedium.copyWith(
+        color: palette.textPrimary,
+      ),
       titleLarge: AppTextStyles.heading.copyWith(color: palette.textPrimary),
       bodyLarge: AppTextStyles.body.copyWith(color: palette.textPrimary),
       bodyMedium: AppTextStyles.body.copyWith(color: palette.textPrimary),
@@ -92,7 +97,10 @@ class AppTheme {
         filled: true,
         fillColor: palette.surfaceElevated,
         hintStyle: textTheme.bodySmall,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadii.md),
           borderSide: BorderSide(color: palette.border),
@@ -114,7 +122,9 @@ class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
-          textStyle: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+          textStyle: textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadii.md),
@@ -124,7 +134,9 @@ class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
-          textStyle: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+          textStyle: textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(

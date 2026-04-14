@@ -87,7 +87,8 @@ class SubjectDetailsPage extends ConsumerWidget {
             );
           },
           loading: () => const LoadingWidget(label: 'جاري تحميل المادة...'),
-          error: (error, stackTrace) => ErrorStateWidget(message: error.toString()),
+          error: (error, stackTrace) =>
+              ErrorStateWidget(message: error.toString()),
         ),
       ),
     );
@@ -107,7 +108,9 @@ class _CurrentRequiredActions extends StatelessWidget {
   Widget build(BuildContext context) {
     final tasks = tasksAsync.asData?.value ?? const [];
     final quizzes = quizzesAsync.asData?.value ?? const [];
-    final pendingTask = tasks.where((task) => task.isCompleted == false).firstOrNull;
+    final pendingTask = tasks
+        .where((task) => task.isCompleted == false)
+        .firstOrNull;
     final openQuiz = quizzes
         .where(
           (quiz) =>

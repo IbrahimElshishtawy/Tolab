@@ -8,11 +8,7 @@ import 'add_comment_field.dart';
 import '../providers/community_providers.dart';
 
 class CommentsSheet extends ConsumerWidget {
-  const CommentsSheet({
-    super.key,
-    required this.subjectId,
-    required this.post,
-  });
+  const CommentsSheet({super.key, required this.subjectId, required this.post});
 
   final String subjectId;
   final CommunityPost post;
@@ -35,11 +31,17 @@ class CommentsSheet extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(comment.authorName, style: Theme.of(context).textTheme.labelLarge),
+                    Text(
+                      comment.authorName,
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(comment.content),
                     const SizedBox(height: AppSpacing.xs),
-                    Text(comment.createdAtLabel, style: Theme.of(context).textTheme.bodySmall),
+                    Text(
+                      comment.createdAtLabel,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ],
                 ),
               ),
@@ -47,10 +49,9 @@ class CommentsSheet extends ConsumerWidget {
           const SizedBox(height: AppSpacing.lg),
           AddCommentField(
             onSubmit: (value) async {
-              await ref.read(communityControllerProvider(subjectId).notifier).addComment(
-                    postId: post.id,
-                    content: value,
-                  );
+              await ref
+                  .read(communityControllerProvider(subjectId).notifier)
+                  .addComment(postId: post.id, content: value);
               if (context.mounted) {
                 Navigator.of(context).pop();
               }

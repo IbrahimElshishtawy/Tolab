@@ -4,10 +4,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_radii.dart';
 
 class SectionPlaceholderSkeletons extends StatelessWidget {
-  const SectionPlaceholderSkeletons({
-    super.key,
-    this.count = 3,
-  });
+  const SectionPlaceholderSkeletons({super.key, this.count = 3});
 
   final int count;
 

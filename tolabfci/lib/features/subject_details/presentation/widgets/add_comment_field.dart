@@ -4,10 +4,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 
 class AddCommentField extends StatefulWidget {
-  const AddCommentField({
-    super.key,
-    required this.onSubmit,
-  });
+  const AddCommentField({super.key, required this.onSubmit});
 
   final Future<void> Function(String value) onSubmit;
 
@@ -30,10 +27,7 @@ class _AddCommentFieldState extends State<AddCommentField> {
     return Row(
       children: [
         Expanded(
-          child: AppTextField(
-            controller: _controller,
-            label: 'Add a comment',
-          ),
+          child: AppTextField(controller: _controller, label: 'Add a comment'),
         ),
         const SizedBox(width: 12),
         AppButton(

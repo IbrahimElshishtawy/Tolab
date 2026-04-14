@@ -41,7 +41,8 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
               children: [
                 const AppSectionHeader(
                   title: 'الجدول الدراسي',
-                  subtitle: 'عرض اليوم أو الأسبوع مع فتح الوجهة المرتبطة مباشرة.',
+                  subtitle:
+                      'عرض اليوم أو الأسبوع مع فتح الوجهة المرتبطة مباشرة.',
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 AppSegmentedControl<String>(
@@ -49,11 +50,17 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                   onValueChanged: (value) => setState(() => _view = value),
                   children: const {
                     'today': Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       child: Text('اليوم'),
                     ),
                     'week': Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       child: Text('الأسبوع'),
                     ),
                   },
@@ -69,14 +76,18 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                   ...grouped.entries.map(
                     (entry) => Padding(
                       padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                      child: _TimetableGroup(title: entry.key, items: entry.value),
+                      child: _TimetableGroup(
+                        title: entry.key,
+                        items: entry.value,
+                      ),
                     ),
                   ),
               ],
             );
           },
           loading: () => const LoadingWidget(label: 'جاري تحميل الجدول...'),
-          error: (error, stackTrace) => ErrorStateWidget(message: error.toString()),
+          error: (error, stackTrace) =>
+              ErrorStateWidget(message: error.toString()),
         ),
       ),
     );
@@ -89,7 +100,11 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
 
     if (_view == 'today') {
       return items.where((item) {
-        final date = DateTime(item.startsAt.year, item.startsAt.month, item.startsAt.day);
+        final date = DateTime(
+          item.startsAt.year,
+          item.startsAt.month,
+          item.startsAt.day,
+        );
         return date == today;
       }).toList();
     }
@@ -104,12 +119,16 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
     final tomorrow = today.add(const Duration(days: 1));
 
     for (final item in items) {
-      final itemDate = DateTime(item.startsAt.year, item.startsAt.month, item.startsAt.day);
+      final itemDate = DateTime(
+        item.startsAt.year,
+        item.startsAt.month,
+        item.startsAt.day,
+      );
       final key = itemDate == today
           ? 'اليوم'
           : itemDate == tomorrow
-              ? 'غدًا'
-              : formatArabicDate(item.startsAt, pattern: 'EEEE d MMM');
+          ? 'غدًا'
+          : formatArabicDate(item.startsAt, pattern: 'EEEE d MMM');
       grouped.putIfAbsent(key, () => []).add(item);
     }
 
@@ -118,10 +137,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
 }
 
 class _TimetableGroup extends StatelessWidget {
-  const _TimetableGroup({
-    required this.title,
-    required this.items,
-  });
+  const _TimetableGroup({required this.title, required this.items});
 
   final String title;
   final List<TimetableItem> items;
@@ -150,10 +166,8 @@ class _TimetableTile extends StatelessWidget {
 
     return InkWell(
       borderRadius: BorderRadius.circular(18),
-      onTap: () => context.goNamed(
-        item.routeName,
-        pathParameters: item.pathParameters,
-      ),
+      onTap: () =>
+          context.goNamed(item.routeName, pathParameters: item.pathParameters),
       child: AppCard(
         backgroundColor: palette.surfaceElevated,
         child: Row(
@@ -171,8 +185,8 @@ class _TimetableTile extends StatelessWidget {
                 formatArabicTime(item.startsAt),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
             ),
             const SizedBox(width: AppSpacing.md),
@@ -185,9 +199,8 @@ class _TimetableTile extends StatelessWidget {
                       Expanded(
                         child: Text(
                           item.title,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w700,
-                              ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w700),
                         ),
                       ),
                       AppBadge(
@@ -198,7 +211,10 @@ class _TimetableTile extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: AppSpacing.xs),
-                  Text(item.subjectName, style: Theme.of(context).textTheme.bodySmall),
+                  Text(
+                    item.subjectName,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
                     '${item.locationLabel} • ${item.hostName}',
@@ -207,9 +223,9 @@ class _TimetableTile extends StatelessWidget {
                   const SizedBox(height: AppSpacing.xs),
                   Text(
                     _statusBadge(item),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.indigo,
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: AppColors.indigo),
                   ),
                 ],
               ),

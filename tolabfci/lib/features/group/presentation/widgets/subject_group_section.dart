@@ -6,10 +6,7 @@ import '../../../chat/presentation/widgets/chat_panel.dart';
 import '../../../subject_details/presentation/widgets/community_feed.dart';
 
 class SubjectGroupSection extends StatefulWidget {
-  const SubjectGroupSection({
-    super.key,
-    required this.subjectId,
-  });
+  const SubjectGroupSection({super.key, required this.subjectId});
 
   final String subjectId;
 

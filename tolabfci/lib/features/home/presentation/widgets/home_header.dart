@@ -22,13 +22,19 @@ class HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        AppAvatar(name: dashboard.profile.fullName, imageUrl: dashboard.profile.avatarUrl),
+        AppAvatar(
+          name: dashboard.profile.fullName,
+          imageUrl: dashboard.profile.avatarUrl,
+        ),
         const SizedBox(width: AppSpacing.md),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Hello, ${dashboard.profile.fullName.split(' ').first}', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'Hello, ${dashboard.profile.fullName.split(' ').first}',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: AppSpacing.xs),
               Text(
                 '${dashboard.profile.department} • ${dashboard.profile.level}',
@@ -50,4 +56,3 @@ class HomeHeader extends StatelessWidget {
     );
   }
 }
-

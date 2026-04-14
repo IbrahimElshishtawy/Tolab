@@ -10,11 +10,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 
 class SubjectCard extends StatelessWidget {
-  const SubjectCard({
-    super.key,
-    required this.subject,
-    required this.onTap,
-  });
+  const SubjectCard({super.key, required this.subject, required this.onTap});
 
   final SubjectOverview subject;
   final VoidCallback onTap;
@@ -46,9 +42,15 @@ class SubjectCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(subject.name, style: Theme.of(context).textTheme.titleLarge),
+                    Text(
+                      subject.name,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     const SizedBox(height: AppSpacing.xs),
-                    Text(subject.code, style: Theme.of(context).textTheme.labelLarge),
+                    Text(
+                      subject.code,
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       'د. ${subject.instructor}',
@@ -70,7 +72,10 @@ class SubjectCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          Text(subject.description, style: Theme.of(context).textTheme.bodySmall),
+          Text(
+            subject.description,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
           const SizedBox(height: AppSpacing.md),
           Wrap(
             spacing: AppSpacing.sm,
@@ -96,11 +101,16 @@ class SubjectCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text('آخر نشاط', style: Theme.of(context).textTheme.labelLarge),
+                    Text(
+                      'آخر نشاط',
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
                     const Spacer(),
                     Text(
                       'التقدم ${(subject.progress * 100).round()}%',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: accent),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: accent),
                     ),
                   ],
                 ),
@@ -124,7 +134,11 @@ class SubjectCard extends StatelessWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
-              AppButton(label: 'فتح المادة', onPressed: onTap, isExpanded: false),
+              AppButton(
+                label: 'فتح المادة',
+                onPressed: onTap,
+                isExpanded: false,
+              ),
               AppButton(
                 label: 'الجروب',
                 onPressed: () => _openTab(context, 'group'),
@@ -160,10 +174,7 @@ class SubjectCard extends StatelessWidget {
 }
 
 class _MetaChip extends StatelessWidget {
-  const _MetaChip({
-    required this.label,
-    required this.value,
-  });
+  const _MetaChip({required this.label, required this.value});
 
   final String label;
   final String value;
@@ -181,7 +192,10 @@ class _MetaChip extends StatelessWidget {
         color: palette.surfaceAlt,
         borderRadius: BorderRadius.circular(999),
       ),
-      child: Text('$label: $value', style: Theme.of(context).textTheme.labelLarge),
+      child: Text(
+        '$label: $value',
+        style: Theme.of(context).textTheme.labelLarge,
+      ),
     );
   }
 }

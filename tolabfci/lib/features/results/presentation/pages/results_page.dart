@@ -69,8 +69,10 @@ class _ResultsPageState extends ConsumerState<ResultsPage> {
       );
     }
 
-    final strongest = [...results]..sort((a, b) => b.totalGrade.compareTo(a.totalGrade));
-    final weakest = [...results]..sort((a, b) => a.totalGrade.compareTo(b.totalGrade));
+    final strongest = [...results]
+      ..sort((a, b) => b.totalGrade.compareTo(a.totalGrade));
+    final weakest = [...results]
+      ..sort((a, b) => a.totalGrade.compareTo(b.totalGrade));
     final passed = results.where((item) => item.totalGrade >= 60).length;
 
     return SafeArea(
@@ -79,7 +81,8 @@ class _ResultsPageState extends ConsumerState<ResultsPage> {
           children: [
             AppSectionHeader(
               title: 'النتائج',
-              subtitle: 'الموقف الأكاديمي: ${academicStandingLabel(profile.gpa)}',
+              subtitle:
+                  'الموقف الأكاديمي: ${academicStandingLabel(profile.gpa)}',
             ),
             const SizedBox(height: AppSpacing.lg),
             _OverviewStrip(
@@ -167,10 +170,7 @@ class _OverviewStrip extends StatelessWidget {
 }
 
 class _MetricCard extends StatelessWidget {
-  const _MetricCard({
-    required this.label,
-    required this.value,
-  });
+  const _MetricCard({required this.label, required this.value});
 
   final String label;
   final String value;
@@ -190,9 +190,9 @@ class _MetricCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.xs),
             Text(
               value,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -234,9 +234,9 @@ class _InsightCard extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   body,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -265,9 +265,9 @@ class _ResultCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   result.subjectName,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               AppBadge(
@@ -302,10 +302,7 @@ class _ResultCard extends StatelessWidget {
 }
 
 class _GradeTile extends StatelessWidget {
-  const _GradeTile({
-    required this.label,
-    required this.value,
-  });
+  const _GradeTile({required this.label, required this.value});
 
   final String label;
   final String value;
@@ -323,7 +320,10 @@ class _GradeTile extends StatelessWidget {
         color: palette.surfaceAlt,
         borderRadius: BorderRadius.circular(14),
       ),
-      child: Text('$label: $value', style: Theme.of(context).textTheme.labelLarge),
+      child: Text(
+        '$label: $value',
+        style: Theme.of(context).textTheme.labelLarge,
+      ),
     );
   }
 }

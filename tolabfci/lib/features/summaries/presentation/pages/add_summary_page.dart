@@ -9,10 +9,7 @@ import '../providers/summaries_providers.dart';
 import '../widgets/summary_upload_section.dart';
 
 class AddSummaryPage extends ConsumerStatefulWidget {
-  const AddSummaryPage({
-    super.key,
-    required this.subjectId,
-  });
+  const AddSummaryPage({super.key, required this.subjectId});
 
   final String subjectId;
 
@@ -71,7 +68,8 @@ class _AddSummaryPageState extends ConsumerState<AddSummaryPage> {
               const SizedBox(height: AppSpacing.lg),
               SummaryUploadSection(
                 attachmentName: _attachmentName,
-                onFileSelected: (value) => setState(() => _attachmentName = value),
+                onFileSelected: (value) =>
+                    setState(() => _attachmentName = value),
               ),
               const SizedBox(height: AppSpacing.lg),
               AppButton(
@@ -84,7 +82,13 @@ class _AddSummaryPageState extends ConsumerState<AddSummaryPage> {
                         }
                         final navigator = Navigator.of(context);
                         setState(() => _isSubmitting = true);
-                        await ref.read(summariesControllerProvider(widget.subjectId).notifier).addSummary(
+                        await ref
+                            .read(
+                              summariesControllerProvider(
+                                widget.subjectId,
+                              ).notifier,
+                            )
+                            .addSummary(
                               title: _titleController.text.trim(),
                               videoUrl: _videoController.text.trim().isEmpty
                                   ? null

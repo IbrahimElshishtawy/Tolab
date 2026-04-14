@@ -36,7 +36,9 @@ class QuizRulesCard extends StatelessWidget {
               AppBadge(
                 label: statusLabel,
                 backgroundColor: AppColors.surfaceAlt,
-                foregroundColor: statusLabel == 'مفتوح' ? AppColors.error : AppColors.primary,
+                foregroundColor: statusLabel == 'مفتوح'
+                    ? AppColors.error
+                    : AppColors.primary,
               ),
             ],
           ),
@@ -46,8 +48,14 @@ class QuizRulesCard extends StatelessWidget {
             runSpacing: AppSpacing.sm,
             children: [
               AppBadge(label: 'البداية: ${quiz.startAtLabel}'),
-              AppBadge(label: 'المدة: ${quiz.durationLabel}', backgroundColor: Colors.white),
-              AppBadge(label: 'المتبقي: $remainingLabel', backgroundColor: Colors.white),
+              AppBadge(
+                label: 'المدة: ${quiz.durationLabel}',
+                backgroundColor: Colors.white,
+              ),
+              AppBadge(
+                label: 'المتبقي: $remainingLabel',
+                backgroundColor: Colors.white,
+              ),
               AppBadge(
                 label: 'المحاولات: ${quiz.attemptsUsed}/${quiz.maxAttempts}',
                 backgroundColor: Colors.white,
@@ -56,10 +64,16 @@ class QuizRulesCard extends StatelessWidget {
           ),
           if (quiz.description != null) ...[
             const SizedBox(height: AppSpacing.md),
-            Text(quiz.description!, style: Theme.of(context).textTheme.bodySmall),
+            Text(
+              quiz.description!,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ],
           const SizedBox(height: AppSpacing.lg),
-          const Text('التعليمات', style: TextStyle(fontWeight: FontWeight.w700)),
+          const Text(
+            'التعليمات',
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
           const SizedBox(height: AppSpacing.sm),
           ...quiz.instructions.map(
             (instruction) => Padding(
@@ -85,14 +99,16 @@ class QuizRulesCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.success.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.success.withValues(alpha: 0.18)),
+                border: Border.all(
+                  color: AppColors.success.withValues(alpha: 0.18),
+                ),
               ),
               child: Text(
                 '${quiz.submissionStateLabel}${quiz.scoreLabel == null ? '' : ' - ${quiz.scoreLabel}'}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.success,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  color: AppColors.success,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],
