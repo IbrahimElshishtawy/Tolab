@@ -26,6 +26,10 @@ class LectureItem {
     required this.scheduleLabel,
     required this.meetingUrl,
     required this.isOnline,
+    this.subjectName,
+    this.startsAt,
+    this.endsAt,
+    this.locationLabel,
   });
 
   final String id;
@@ -34,6 +38,10 @@ class LectureItem {
   final String scheduleLabel;
   final String meetingUrl;
   final bool isOnline;
+  final String? subjectName;
+  final DateTime? startsAt;
+  final DateTime? endsAt;
+  final String? locationLabel;
 }
 
 class SectionItem {
@@ -59,6 +67,10 @@ class TaskItem {
     required this.title,
     required this.dueDateLabel,
     required this.status,
+    this.subjectName,
+    this.dueAt,
+    this.isCompleted = false,
+    this.isMissingSubmission = false,
   });
 
   final String id;
@@ -66,6 +78,10 @@ class TaskItem {
   final String title;
   final String dueDateLabel;
   final String status;
+  final String? subjectName;
+  final DateTime? dueAt;
+  final bool isCompleted;
+  final bool isMissingSubmission;
 }
 
 class SummaryItem {

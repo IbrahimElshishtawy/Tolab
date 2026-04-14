@@ -8,6 +8,9 @@ class QuizItem {
     required this.durationLabel,
     required this.isOnline,
     required this.instructions,
+    this.subjectName,
+    this.startsAt,
+    this.closesAt,
   });
 
   final String id;
@@ -18,4 +21,7 @@ class QuizItem {
   final String durationLabel;
   final bool isOnline;
   final List<String> instructions;
+  final String? subjectName;
+  final DateTime? startsAt;
+  final DateTime? closesAt;
 }

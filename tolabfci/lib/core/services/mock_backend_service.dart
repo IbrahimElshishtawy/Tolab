@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../errors/app_exception.dart';
 import '../models/community_models.dart';
@@ -18,10 +19,12 @@ final mockBackendServiceProvider = Provider<MockBackendService>((ref) {
 
 class MockBackendService {
   MockBackendService() {
+    _notifications = _buildNotifications(DateTime.now());
     _notificationsController.add(_notifications);
   }
 
-  final _notificationsController = StreamController<List<AppNotificationItem>>.broadcast();
+  final _notificationsController =
+      StreamController<List<AppNotificationItem>>.broadcast();
 
   final StudentProfile _profile = const StudentProfile(
     id: 'student-1',
@@ -46,7 +49,8 @@ class MockBackendService {
       instructor: 'Dr. Omar Nabil',
       creditHours: 3,
       accentHex: '#4E7CF5',
-      description: 'Architecture, performance, and production delivery for mobile apps.',
+      description:
+          'Architecture, performance, and production delivery for mobile apps.',
     ),
     SubjectOverview(
       id: 'subject-2',
@@ -55,7 +59,8 @@ class MockBackendService {
       instructor: 'Dr. Heba Mostafa',
       creditHours: 3,
       accentHex: '#3DB6B0',
-      description: 'Distributed systems fundamentals with cloud deployment practices.',
+      description:
+          'Distributed systems fundamentals with cloud deployment practices.',
     ),
     SubjectOverview(
       id: 'subject-3',
@@ -64,34 +69,8 @@ class MockBackendService {
       instructor: 'Dr. Nourhan Fawzy',
       creditHours: 2,
       accentHex: '#6D73F8',
-      description: 'Interaction design, usability, and interface evaluation methods.',
-    ),
-  ];
-
-  final List<LectureItem> _lectures = const [
-    LectureItem(
-      id: 'lecture-1',
-      subjectId: 'subject-1',
-      title: 'State orchestration patterns',
-      scheduleLabel: 'Today, 11:30 AM',
-      meetingUrl: 'https://meet.tolab.edu/mobile',
-      isOnline: true,
-    ),
-    LectureItem(
-      id: 'lecture-2',
-      subjectId: 'subject-2',
-      title: 'Container scheduling',
-      scheduleLabel: 'Tomorrow, 9:00 AM',
-      meetingUrl: 'https://meet.tolab.edu/cloud',
-      isOnline: true,
-    ),
-    LectureItem(
-      id: 'lecture-3',
-      subjectId: 'subject-3',
-      title: 'Accessibility review lab',
-      scheduleLabel: 'Tue, 1:00 PM',
-      meetingUrl: '',
-      isOnline: false,
+      description:
+          'Interaction design, usability, and interface evaluation methods.',
     ),
   ];
 
@@ -119,30 +98,6 @@ class MockBackendService {
     ),
   ];
 
-  final List<TaskItem> _tasks = const [
-    TaskItem(
-      id: 'task-1',
-      subjectId: 'subject-1',
-      title: 'Submit architecture review',
-      dueDateLabel: 'Due in 2 days',
-      status: 'Pending',
-    ),
-    TaskItem(
-      id: 'task-2',
-      subjectId: 'subject-2',
-      title: 'Deploy service mesh lab',
-      dueDateLabel: 'Due this week',
-      status: 'In progress',
-    ),
-    TaskItem(
-      id: 'task-3',
-      subjectId: 'subject-3',
-      title: 'Heuristic evaluation report',
-      dueDateLabel: 'Submitted',
-      status: 'Completed',
-    ),
-  ];
-
   List<SummaryItem> _summaries = const [
     SummaryItem(
       id: 'summary-1',
@@ -163,43 +118,14 @@ class MockBackendService {
     ),
   ];
 
-  final List<QuizItem> _quizzes = const [
-    QuizItem(
-      id: 'quiz-1',
-      subjectId: 'subject-1',
-      title: 'Async flows quiz',
-      typeLabel: 'Online quiz',
-      startAtLabel: 'Today, 6:00 PM',
-      durationLabel: '20 min',
-      isOnline: true,
-      instructions: [
-        'Use a stable connection before starting.',
-        'Submit before the timer expires.',
-        'Keep the quiz screen active throughout the attempt.',
-      ],
-    ),
-    QuizItem(
-      id: 'quiz-2',
-      subjectId: 'subject-2',
-      title: 'Cloud security check',
-      typeLabel: 'Offline quiz',
-      startAtLabel: 'Thu, 10:00 AM',
-      durationLabel: '30 min',
-      isOnline: false,
-      instructions: [
-        'Bring your university ID card.',
-        'Arrive 15 minutes early.',
-      ],
-    ),
-  ];
-
   List<CommunityPost> _posts = const [
     CommunityPost(
       id: 'post-1',
       subjectId: 'subject-1',
       authorName: 'Dr. Omar Nabil',
       authorRole: 'Instructor',
-      content: 'Please review the clean architecture walkthrough before the next live session.',
+      content:
+          'Please review the clean architecture walkthrough before the next live session.',
       createdAtLabel: '2h ago',
       reactions: 18,
       comments: [
@@ -216,7 +142,8 @@ class MockBackendService {
       subjectId: 'subject-2',
       authorName: 'Mona Tarek',
       authorRole: 'Student',
-      content: 'I shared a short note set for container scheduling and autoscaling.',
+      content:
+          'I shared a short note set for container scheduling and autoscaling.',
       createdAtLabel: 'Yesterday',
       reactions: 11,
       comments: [],
@@ -250,32 +177,7 @@ class MockBackendService {
     ),
   ];
 
-  List<AppNotificationItem> _notifications = const [
-    AppNotificationItem(
-      id: 'notification-1',
-      title: 'Quiz opens tonight',
-      body: 'Async flows quiz starts at 6:00 PM.',
-      createdAtLabel: '10 min ago',
-      category: 'Quiz',
-      isRead: false,
-    ),
-    AppNotificationItem(
-      id: 'notification-2',
-      title: 'New summary added',
-      body: 'Mona uploaded notes for Cloud Computing.',
-      createdAtLabel: '1h ago',
-      category: 'Summary',
-      isRead: false,
-    ),
-    AppNotificationItem(
-      id: 'notification-3',
-      title: 'Section room updated',
-      body: 'HCI research discussion moved to Room B201.',
-      createdAtLabel: 'Yesterday',
-      category: 'Section',
-      isRead: true,
-    ),
-  ];
+  late List<AppNotificationItem> _notifications;
 
   final List<SubjectResult> _results = const [
     SubjectResult(
@@ -306,7 +208,8 @@ class MockBackendService {
     required String password,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 700));
-    if (email.trim().toLowerCase() == _profile.email && password == 'student123') {
+    if (email.trim().toLowerCase() == _profile.email &&
+        password == 'student123') {
       return 'mock-access-token';
     }
     throw const AppException(
@@ -334,7 +237,10 @@ class MockBackendService {
   }
 
   Future<List<LectureItem>> fetchLectures({String? subjectId}) async {
-    return _lectures.where((item) => subjectId == null || item.subjectId == subjectId).toList();
+    final lectures = _buildLectures(DateTime.now());
+    return lectures
+        .where((item) => subjectId == null || item.subjectId == subjectId)
+        .toList();
   }
 
   Future<List<SectionItem>> fetchSections(String subjectId) async {
@@ -342,7 +248,9 @@ class MockBackendService {
   }
 
   Future<List<TaskItem>> fetchTasks(String subjectId) async {
-    return _tasks.where((item) => item.subjectId == subjectId).toList();
+    return _buildTasks(
+      DateTime.now(),
+    ).where((item) => item.subjectId == subjectId).toList();
   }
 
   Future<List<SummaryItem>> fetchSummaries(String subjectId) async {
@@ -370,15 +278,27 @@ class MockBackendService {
   }
 
   Future<List<QuizItem>> fetchQuizzes({String? subjectId}) async {
-    return _quizzes.where((item) => subjectId == null || item.subjectId == subjectId).toList();
+    final quizzes = _buildQuizzes(DateTime.now());
+    return quizzes
+        .where((item) => subjectId == null || item.subjectId == subjectId)
+        .toList();
   }
 
   Future<HomeDashboardData> fetchHomeDashboard() async {
+    final now = DateTime.now();
+    final lectures = _buildLectures(now);
+    final quizzes = _buildQuizzes(now);
+    final tasks = _buildTasks(now);
+
     return HomeDashboardData(
       profile: _profile,
       notifications: _notifications,
-      upcomingLectures: _lectures.take(2).toList(),
-      upcomingQuizzes: _quizzes.take(2).toList(),
+      subjects: _subjects,
+      upcomingLectures: lectures,
+      upcomingQuizzes: quizzes,
+      tasks: tasks,
+      courseActivities: _buildCourseActivities(now),
+      studyInsights: _buildStudyInsights(tasks),
     );
   }
 
@@ -426,7 +346,9 @@ class MockBackendService {
     int page = 0,
     int pageSize = 15,
   }) async {
-    final scoped = _chatMessages.where((message) => message.subjectId == subjectId).toList();
+    final scoped = _chatMessages
+        .where((message) => message.subjectId == subjectId)
+        .toList();
     final end = scoped.length - (page * pageSize);
     if (end <= 0) {
       return [];
@@ -452,9 +374,11 @@ class MockBackendService {
     ];
   }
 
-  Stream<List<AppNotificationItem>> watchNotifications() => _notificationsController.stream;
+  Stream<List<AppNotificationItem>> watchNotifications() =>
+      _notificationsController.stream;
 
-  Future<List<AppNotificationItem>> fetchNotifications() async => _notifications;
+  Future<List<AppNotificationItem>> fetchNotifications() async =>
+      _notifications;
 
   Future<void> markNotificationAsRead(String notificationId) async {
     _notifications = _notifications
@@ -468,4 +392,279 @@ class MockBackendService {
   }
 
   Future<List<SubjectResult>> fetchResults() async => _results;
+
+  List<LectureItem> _buildLectures(DateTime now) {
+    final firstLectureStart = now.add(const Duration(hours: 1, minutes: 15));
+    final secondLectureStart = now.add(const Duration(days: 1, hours: 3));
+    final thirdLectureStart = now.add(const Duration(days: 3, hours: 2));
+
+    return [
+      LectureItem(
+        id: 'lecture-1',
+        subjectId: 'subject-1',
+        subjectName: 'Advanced Mobile Systems',
+        title: 'State orchestration studio',
+        scheduleLabel: _formatSchedule(firstLectureStart),
+        startsAt: firstLectureStart,
+        endsAt: firstLectureStart.add(const Duration(hours: 1, minutes: 30)),
+        meetingUrl: 'https://meet.tolab.edu/mobile',
+        isOnline: true,
+        locationLabel: 'Live on Tolab Meet',
+      ),
+      LectureItem(
+        id: 'lecture-2',
+        subjectId: 'subject-2',
+        subjectName: 'Cloud Computing',
+        title: 'Container scheduling review',
+        scheduleLabel: _formatSchedule(secondLectureStart),
+        startsAt: secondLectureStart,
+        endsAt: secondLectureStart.add(const Duration(hours: 1)),
+        meetingUrl: 'https://meet.tolab.edu/cloud',
+        isOnline: true,
+        locationLabel: 'Live on Tolab Meet',
+      ),
+      LectureItem(
+        id: 'lecture-3',
+        subjectId: 'subject-3',
+        subjectName: 'Human Computer Interaction',
+        title: 'Accessibility critique lab',
+        scheduleLabel: _formatSchedule(thirdLectureStart),
+        startsAt: thirdLectureStart,
+        endsAt: thirdLectureStart.add(const Duration(hours: 2)),
+        meetingUrl: '',
+        isOnline: false,
+        locationLabel: 'Room B201',
+      ),
+    ];
+  }
+
+  List<TaskItem> _buildTasks(DateTime now) {
+    final urgentDeadline = now.add(const Duration(hours: 6));
+    final tomorrowDeadline = now.add(const Duration(days: 1, hours: 5));
+    final laterDeadline = now.add(const Duration(days: 3, hours: 2));
+
+    return [
+      TaskItem(
+        id: 'task-1',
+        subjectId: 'subject-2',
+        subjectName: 'Cloud Computing',
+        title: 'Submit service mesh lab',
+        dueDateLabel: _formatDueLabel(urgentDeadline, now),
+        dueAt: urgentDeadline,
+        status: 'Missing submission',
+        isMissingSubmission: true,
+      ),
+      TaskItem(
+        id: 'task-2',
+        subjectId: 'subject-1',
+        subjectName: 'Advanced Mobile Systems',
+        title: 'Architecture review memo',
+        dueDateLabel: _formatDueLabel(tomorrowDeadline, now),
+        dueAt: tomorrowDeadline,
+        status: 'Pending',
+      ),
+      TaskItem(
+        id: 'task-3',
+        subjectId: 'subject-3',
+        subjectName: 'Human Computer Interaction',
+        title: 'Heuristic evaluation report',
+        dueDateLabel: _formatDueLabel(laterDeadline, now),
+        dueAt: laterDeadline,
+        status: 'In progress',
+      ),
+      TaskItem(
+        id: 'task-4',
+        subjectId: 'subject-1',
+        subjectName: 'Advanced Mobile Systems',
+        title: 'Weekly architecture checkpoint',
+        dueDateLabel: 'Submitted',
+        dueAt: now.subtract(const Duration(days: 1, hours: 2)),
+        status: 'Completed',
+        isCompleted: true,
+      ),
+    ];
+  }
+
+  List<QuizItem> _buildQuizzes(DateTime now) {
+    final openQuizStart = now.subtract(const Duration(minutes: 25));
+    final openQuizClose = now.add(const Duration(minutes: 50));
+    final upcomingQuizStart = now.add(const Duration(days: 1, hours: 4));
+
+    return [
+      QuizItem(
+        id: 'quiz-1',
+        subjectId: 'subject-1',
+        subjectName: 'Advanced Mobile Systems',
+        title: 'Async flows checkpoint',
+        typeLabel: 'Online quiz',
+        startAtLabel: _formatSchedule(openQuizStart),
+        startsAt: openQuizStart,
+        closesAt: openQuizClose,
+        durationLabel: '20 min',
+        isOnline: true,
+        instructions: const [
+          'Use a stable connection before starting.',
+          'Submit before the timer expires.',
+          'Keep the quiz screen active throughout the attempt.',
+        ],
+      ),
+      QuizItem(
+        id: 'quiz-2',
+        subjectId: 'subject-2',
+        subjectName: 'Cloud Computing',
+        title: 'Cloud security readiness',
+        typeLabel: 'Offline quiz',
+        startAtLabel: _formatSchedule(upcomingQuizStart),
+        startsAt: upcomingQuizStart,
+        closesAt: upcomingQuizStart.add(const Duration(minutes: 45)),
+        durationLabel: '45 min',
+        isOnline: false,
+        instructions: const [
+          'Bring your university ID card.',
+          'Arrive 15 minutes early.',
+        ],
+      ),
+    ];
+  }
+
+  List<CourseActivityItem> _buildCourseActivities(DateTime now) {
+    return [
+      CourseActivityItem(
+        id: 'activity-1',
+        subjectId: 'subject-1',
+        subjectName: 'Advanced Mobile Systems',
+        title: 'New lecture uploaded',
+        description:
+            'System design recap slides and recording are ready to review.',
+        type: CourseActivityType.lecture,
+        createdAtLabel: _formatRelativeTimestamp(
+          now.subtract(const Duration(minutes: 35)),
+          now,
+        ),
+        createdAt: now.subtract(const Duration(minutes: 35)),
+      ),
+      CourseActivityItem(
+        id: 'activity-2',
+        subjectId: 'subject-2',
+        subjectName: 'Cloud Computing',
+        title: 'New task assigned',
+        description:
+            'Complete the service mesh deployment worksheet before tomorrow night.',
+        type: CourseActivityType.task,
+        createdAtLabel: _formatRelativeTimestamp(
+          now.subtract(const Duration(hours: 2, minutes: 15)),
+          now,
+        ),
+        createdAt: now.subtract(const Duration(hours: 2, minutes: 15)),
+      ),
+      CourseActivityItem(
+        id: 'activity-3',
+        subjectId: 'subject-3',
+        subjectName: 'Human Computer Interaction',
+        title: 'New announcement',
+        description:
+            'Lab seating was updated for the accessibility critique session.',
+        type: CourseActivityType.announcement,
+        createdAtLabel: _formatRelativeTimestamp(
+          now.subtract(const Duration(days: 1, hours: 1)),
+          now,
+        ),
+        createdAt: now.subtract(const Duration(days: 1, hours: 1)),
+      ),
+    ];
+  }
+
+  StudyInsightsData _buildStudyInsights(List<TaskItem> tasks) {
+    final completedTasks = tasks.where((task) => task.isCompleted).length;
+    final pendingTasks = tasks.where((task) => !task.isCompleted).length;
+
+    return StudyInsightsData(
+      completedTasks: completedTasks,
+      pendingTasks: pendingTasks,
+      viewedLectures: 8,
+      engagementScore: 0.82,
+      engagementLabel: 'Strong engagement',
+    );
+  }
+
+  List<AppNotificationItem> _buildNotifications(DateTime now) {
+    return [
+      AppNotificationItem(
+        id: 'notification-1',
+        title: 'Quiz is live now',
+        body: 'Async flows checkpoint is open for the next 50 minutes.',
+        createdAtLabel: _formatRelativeTimestamp(
+          now.subtract(const Duration(minutes: 10)),
+          now,
+        ),
+        category: 'Quiz',
+        isRead: false,
+      ),
+      AppNotificationItem(
+        id: 'notification-2',
+        title: 'Lecture starts soon',
+        body: 'State orchestration studio begins in a little over an hour.',
+        createdAtLabel: _formatRelativeTimestamp(
+          now.subtract(const Duration(hours: 1)),
+          now,
+        ),
+        category: 'Lecture',
+        isRead: false,
+      ),
+      AppNotificationItem(
+        id: 'notification-3',
+        title: 'Deadline moved to top priority',
+        body: 'Submit service mesh lab before the portal closes tonight.',
+        createdAtLabel: _formatRelativeTimestamp(
+          now.subtract(const Duration(days: 1)),
+          now,
+        ),
+        category: 'Task',
+        isRead: true,
+      ),
+    ];
+  }
+
+  String _formatSchedule(DateTime dateTime) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final target = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    final differenceInDays = target.difference(today).inDays;
+
+    final prefix = switch (differenceInDays) {
+      0 => 'Today',
+      1 => 'Tomorrow',
+      _ => DateFormat('EEE, MMM d').format(dateTime),
+    };
+
+    return '$prefix, ${DateFormat('h:mm a').format(dateTime)}';
+  }
+
+  String _formatDueLabel(DateTime dueAt, DateTime now) {
+    final hours = dueAt.difference(now).inHours;
+    if (hours < 24) {
+      return 'Due in ${hours.clamp(1, 23)}h';
+    }
+
+    final days = dueAt.difference(now).inDays;
+    if (days == 1) {
+      return 'Due tomorrow';
+    }
+
+    return 'Due in $days days';
+  }
+
+  String _formatRelativeTimestamp(DateTime dateTime, DateTime now) {
+    final difference = now.difference(dateTime);
+    if (difference.inMinutes < 60) {
+      return '${difference.inMinutes.clamp(1, 59)} min ago';
+    }
+    if (difference.inHours < 24) {
+      return '${difference.inHours}h ago';
+    }
+    if (difference.inDays == 1) {
+      return 'Yesterday';
+    }
+    return DateFormat('MMM d').format(dateTime);
+  }
 }
