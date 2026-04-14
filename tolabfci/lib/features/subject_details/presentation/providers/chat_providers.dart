@@ -36,19 +36,19 @@ class ChatState {
 }
 
 final chatControllerProvider =
-    AsyncNotifierProviderFamily<ChatController, ChatState, String>(
+    AsyncNotifierProvider.family<ChatController, ChatState, String>(
   ChatController.new,
 );
 
-class ChatController extends FamilyAsyncNotifier<ChatState, String> {
+class ChatController extends AsyncNotifier<ChatState> {
+  ChatController(this._subjectId);
+  final String _subjectId;
   static const _pageSize = 15;
-  late final String _subjectId;
 
   @override
-  Future<ChatState> build(String arg) async {
-    _subjectId = arg;
+  Future<ChatState> build() async {
     final messages =
-        await ref.watch(subjectsRepositoryProvider).fetchChatMessages(arg, pageSize: _pageSize);
+        await ref.watch(subjectsRepositoryProvider).fetchChatMessages(_subjectId, pageSize: _pageSize);
     return ChatState(
       messages: messages,
       page: 0,
@@ -57,7 +57,7 @@ class ChatController extends FamilyAsyncNotifier<ChatState, String> {
   }
 
   Future<void> loadMore() async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null || current.isLoadingMore || !current.hasMore) {
       return;
     }
@@ -79,7 +79,7 @@ class ChatController extends FamilyAsyncNotifier<ChatState, String> {
   }
 
   Future<void> sendMessage(String content) async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) {
       return;
     }

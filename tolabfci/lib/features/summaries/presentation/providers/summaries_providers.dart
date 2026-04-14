@@ -4,17 +4,17 @@ import '../../../../core/models/subject_models.dart';
 import '../../data/repositories/mock_summaries_repository.dart';
 
 final summariesControllerProvider =
-    AsyncNotifierProviderFamily<SummariesController, List<SummaryItem>, String>(
+    AsyncNotifierProvider.family<SummariesController, List<SummaryItem>, String>(
   SummariesController.new,
 );
 
-class SummariesController extends FamilyAsyncNotifier<List<SummaryItem>, String> {
-  late final String _subjectId;
+class SummariesController extends AsyncNotifier<List<SummaryItem>> {
+  SummariesController(this._subjectId);
+  final String _subjectId;
 
   @override
-  Future<List<SummaryItem>> build(String arg) async {
-    _subjectId = arg;
-    return ref.watch(summariesRepositoryProvider).fetchSummaries(arg);
+  Future<List<SummaryItem>> build() async {
+    return ref.watch(summariesRepositoryProvider).fetchSummaries(_subjectId);
   }
 
   Future<void> addSummary({

@@ -4,17 +4,17 @@ import '../../../../core/models/community_models.dart';
 import '../../../subjects/data/repositories/mock_subjects_repository.dart';
 
 final communityControllerProvider =
-    AsyncNotifierProviderFamily<CommunityController, List<CommunityPost>, String>(
+    AsyncNotifierProvider.family<CommunityController, List<CommunityPost>, String>(
   CommunityController.new,
 );
 
-class CommunityController extends FamilyAsyncNotifier<List<CommunityPost>, String> {
-  late final String _subjectId;
+class CommunityController extends AsyncNotifier<List<CommunityPost>> {
+  CommunityController(this._subjectId);
+  final String _subjectId;
 
   @override
-  Future<List<CommunityPost>> build(String arg) async {
-    _subjectId = arg;
-    return ref.watch(subjectsRepositoryProvider).fetchCommunityPosts(arg);
+  Future<List<CommunityPost>> build() async {
+    return ref.watch(subjectsRepositoryProvider).fetchCommunityPosts(_subjectId);
   }
 
   Future<void> addComment({

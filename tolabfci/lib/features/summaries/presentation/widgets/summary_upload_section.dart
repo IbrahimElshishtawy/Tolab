@@ -33,7 +33,7 @@ class SummaryUploadSection extends StatelessWidget {
               AppButton(
                 label: 'Choose file',
                 onPressed: () async {
-                  final result = await FilePicker.platform.pickFiles(
+                  final result = await FilePicker.pickFiles(
                     type: FileType.custom,
                     allowedExtensions: ['pdf', 'png', 'jpg', 'jpeg'],
                   );

@@ -8,6 +8,6 @@ final notificationsStreamProvider = StreamProvider<List<AppNotificationItem>>((r
 });
 
 final unreadNotificationsCountProvider = Provider<int>((ref) {
-  final notifications = ref.watch(notificationsStreamProvider).valueOrNull ?? const [];
+  final notifications = ref.watch(notificationsStreamProvider).value ?? const [];
   return notifications.where((item) => !item.isRead).length;
 });
