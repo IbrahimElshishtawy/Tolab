@@ -9,6 +9,7 @@ class HomeDashboardData {
     required this.notifications,
     required this.subjects,
     required this.upcomingLectures,
+    required this.upcomingSections,
     required this.upcomingQuizzes,
     required this.tasks,
     required this.courseActivities,
@@ -19,6 +20,7 @@ class HomeDashboardData {
   final List<AppNotificationItem> notifications;
   final List<SubjectOverview> subjects;
   final List<LectureItem> upcomingLectures;
+  final List<SectionItem> upcomingSections;
   final List<QuizItem> upcomingQuizzes;
   final List<TaskItem> tasks;
   final List<CourseActivityItem> courseActivities;
@@ -47,7 +49,7 @@ class CourseActivityItem {
   final DateTime createdAt;
 }
 
-enum CourseActivityType { lecture, task, announcement }
+enum CourseActivityType { lecture, quiz, assignment, groupPost, announcement }
 
 class StudyInsightsData {
   const StudyInsightsData({

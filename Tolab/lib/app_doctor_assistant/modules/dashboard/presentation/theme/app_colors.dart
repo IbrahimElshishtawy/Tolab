@@ -3,33 +3,33 @@ import 'package:flutter/material.dart';
 class DashboardExecutiveColors {
   const DashboardExecutiveColors._();
 
-  static const page = Color(0xFF08111F);
-  static const surface = Color(0xFF101C2E);
-  static const surfaceAlt = Color(0xFF13243A);
-  static const border = Color(0xFF23354D);
-  static const primary = Color(0xFF4DA3FF);
-  static const secondary = Color(0xFF19C1C8);
-  static const success = Color(0xFF3DD598);
-  static const warning = Color(0xFFF6B44D);
-  static const danger = Color(0xFFFF6B6B);
-  static const textPrimary = Color(0xFFF7FBFF);
-  static const textSecondary = Color(0xFF9EB2C8);
-  static const glow = Color(0xFF133E7A);
+  static const page = Color(0xFF07121D);
+  static const surface = Color(0xFF0F1A27);
+  static const surfaceAlt = Color(0xFF142233);
+  static const border = Color(0xFF22364A);
+  static const primary = Color(0xFF5DA8FF);
+  static const secondary = Color(0xFF42C4D6);
+  static const success = Color(0xFF43C78B);
+  static const warning = Color(0xFFF4B35E);
+  static const danger = Color(0xFFFF7272);
+  static const textPrimary = Color(0xFFF4F8FC);
+  static const textSecondary = Color(0xFF97AFC4);
+  static const glow = Color(0xFF14375A);
 }
 
 class DashboardSoftColors {
   const DashboardSoftColors._();
 
-  static const page = Color(0xFFF5F7FB);
-  static const surface = Color(0xFFFFFFFF);
-  static const surfaceAlt = Color(0xFFF9FBFF);
-  static const border = Color(0xFFDCE5F0);
-  static const primary = Color(0xFF2B6BFF);
-  static const secondary = Color(0xFF1A9FB1);
-  static const success = Color(0xFF1FA971);
-  static const warning = Color(0xFFE79A26);
-  static const danger = Color(0xFFE05959);
-  static const textPrimary = Color(0xFF162338);
-  static const textSecondary = Color(0xFF64748B);
-  static const glow = Color(0xFFDDE9FF);
+  static const page = Color(0xFFF4F1EA);
+  static const surface = Color(0xFFFFFCF7);
+  static const surfaceAlt = Color(0xFFF8F5EF);
+  static const border = Color(0xFFD9D7CE);
+  static const primary = Color(0xFF14798A);
+  static const secondary = Color(0xFF2BA7A1);
+  static const success = Color(0xFF228B66);
+  static const warning = Color(0xFFD88B21);
+  static const danger = Color(0xFFD35C57);
+  static const textPrimary = Color(0xFF17303A);
+  static const textSecondary = Color(0xFF6C7A80);
+  static const glow = Color(0xFFDCEDEB);
 }

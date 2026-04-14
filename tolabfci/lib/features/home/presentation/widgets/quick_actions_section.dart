@@ -19,8 +19,8 @@ class QuickActionsSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const AppSectionHeader(
-            title: 'Quick actions',
-            subtitle: 'Jump straight into the next thing you need.',
+            title: 'إجراءات سريعة',
+            subtitle: 'اختصارات مباشرة لأكثر الأدوات استخدامًا داخل يومك الدراسي.',
           ),
           const SizedBox(height: AppSpacing.md),
           SingleChildScrollView(
@@ -52,38 +52,38 @@ class _QuickActionTile extends StatelessWidget {
     final enabled = action.isEnabled;
 
     return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: enabled ? () => _openTarget(context, action.target!) : null,
+      borderRadius: BorderRadius.circular(18),
+      onTap: enabled
+          ? () => context.goNamed(
+                action.target!.routeName,
+                pathParameters: action.target!.pathParameters,
+              )
+          : null,
       child: Ink(
-        width: 122,
+        width: 142,
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: enabled ? AppColors.primarySoft : AppColors.surfaceAlt,
-          borderRadius: BorderRadius.circular(12),
+          color: enabled ? spec.color.withValues(alpha: 0.10) : AppColors.surfaceAlt,
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: enabled
-                ? AppColors.primary.withValues(alpha: 0.12)
-                : AppColors.border,
+            color: enabled ? spec.color.withValues(alpha: 0.20) : AppColors.border,
           ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
-                color: enabled ? Colors.white : AppColors.surface,
-                borderRadius: BorderRadius.circular(12),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
               ),
               alignment: Alignment.center,
-              child: Icon(
-                spec.icon,
-                color: enabled ? spec.color : AppColors.textSecondary,
-              ),
+              child: Icon(spec.icon, color: enabled ? spec.color : AppColors.textSecondary),
             ),
             const SizedBox(height: AppSpacing.md),
-            Text(spec.label, style: Theme.of(context).textTheme.labelLarge),
+            Text(spec.label, style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: AppSpacing.xs),
             Text(
               action.helperText ?? spec.helperText,
@@ -108,38 +108,38 @@ class _QuickActionSpec {
 
   factory _QuickActionSpec.fromType(StudentQuickActionType type) {
     switch (type) {
-      case StudentQuickActionType.joinLecture:
+      case StudentQuickActionType.viewTimetable:
         return const _QuickActionSpec(
-          label: 'Join Lecture',
-          helperText: 'Open the next live session',
-          icon: Icons.play_circle_outline_rounded,
+          label: 'عرض الجدول',
+          helperText: 'اليوم وغدًا',
+          icon: Icons.calendar_month_outlined,
           color: AppColors.primary,
         );
       case StudentQuickActionType.openQuiz:
         return const _QuickActionSpec(
-          label: 'Open Quiz',
-          helperText: 'Start your active quiz',
-          icon: Icons.edit_note_rounded,
+          label: 'دخول الكويز',
+          helperText: 'ابدأ الكويز الحالي',
+          icon: Icons.quiz_outlined,
           color: AppColors.error,
         );
-      case StudentQuickActionType.viewSchedule:
+      case StudentQuickActionType.uploadAssignment:
         return const _QuickActionSpec(
-          label: 'View Schedule',
-          helperText: 'Check what is coming next',
-          icon: Icons.calendar_today_outlined,
-          color: AppColors.indigo,
+          label: 'رفع الشيت',
+          helperText: 'ارفع الحل بسرعة',
+          icon: Icons.upload_file_outlined,
+          color: AppColors.warning,
         );
       case StudentQuickActionType.openCourse:
         return const _QuickActionSpec(
-          label: 'Open Course',
-          helperText: 'Continue your current course',
+          label: 'فتح المادة',
+          helperText: 'اذهب لمساحة المادة',
           icon: Icons.menu_book_outlined,
           color: AppColors.teal,
         );
       case StudentQuickActionType.checkResults:
         return const _QuickActionSpec(
-          label: 'Check Results',
-          helperText: 'Review grades and performance',
+          label: 'عرض النتائج',
+          helperText: 'تابع تقدمك',
           icon: Icons.insights_outlined,
           color: AppColors.success,
         );
@@ -150,8 +150,4 @@ class _QuickActionSpec {
   final String helperText;
   final IconData icon;
   final Color color;
-}
-
-void _openTarget(BuildContext context, StudentActionTarget target) {
-  context.goNamed(target.routeName, pathParameters: target.pathParameters);
 }

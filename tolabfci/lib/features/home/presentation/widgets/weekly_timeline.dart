@@ -20,30 +20,28 @@ class WeeklyTimeline extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const AppSectionHeader(
-            title: 'Weekly timeline',
-            subtitle: 'Everything coming up, grouped by when it matters.',
+            title: 'معاينة الجدول',
+            subtitle: 'محاضرات وسكاشن وكويزات وتسليمات مجمعة حسب الوقت الأقرب.',
           ),
           const SizedBox(height: AppSpacing.md),
           if (groups.isEmpty)
             const StudentSectionEmptyState(
               icon: Icons.event_available_outlined,
-              title: 'No events lined up',
-              message:
-                  'Your lectures, quizzes, and tasks will appear here as soon as they are scheduled.',
+              title: 'لا توجد أحداث قادمة',
+              message: 'سيظهر هنا جدولك اليومي والأسبوعي فور توفر مواعيد جديدة.',
             )
           else
             Column(
-              children:
-                  groups
-                      .map((group) => _TimelineGroup(group: group))
-                      .expand(
-                        (widget) => [
-                          widget,
-                          const SizedBox(height: AppSpacing.md),
-                        ],
-                      )
-                      .toList()
-                    ..removeLast(),
+              children: groups
+                  .map((group) => _TimelineGroup(group: group))
+                  .expand(
+                    (widget) => [
+                      widget,
+                      const SizedBox(height: AppSpacing.md),
+                    ],
+                  )
+                  .toList()
+                ..removeLast(),
             ),
         ],
       ),
@@ -61,7 +59,7 @@ class _TimelineGroup extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(group.title, style: Theme.of(context).textTheme.titleMedium),
+        Text(group.title, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.sm),
         ...group.items.map((item) => _TimelineTile(item: item)),
       ],
@@ -79,27 +77,29 @@ class _TimelineTile extends StatelessWidget {
     final color = _priorityColor(item.priority);
 
     return InkWell(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(16),
       onTap: item.target == null
           ? null
-          : () => _openTarget(context, item.target!),
+          : () => context.goNamed(
+                item.target!.routeName,
+                pathParameters: item.target!.pathParameters,
+              ),
       child: Container(
         margin: const EdgeInsets.only(bottom: AppSpacing.sm),
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           color: AppColors.surfaceAlt,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.18)),
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
               ),
               alignment: Alignment.center,
               child: Icon(_kindIcon(item.kind), color: color),
@@ -112,23 +112,19 @@ class _TimelineTile extends StatelessWidget {
                   Text(
                     item.title,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                          fontWeight: FontWeight.w700,
+                        ),
                   ),
                   const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    item.subtitle,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
+                  Text(item.subtitle, style: Theme.of(context).textTheme.bodySmall),
                 ],
               ),
             ),
             const SizedBox(width: AppSpacing.md),
             Text(
               item.timeLabel,
-              style: Theme.of(
-                context,
-              ).textTheme.labelLarge?.copyWith(color: color),
+              textAlign: TextAlign.end,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(color: color),
             ),
           ],
         ),
@@ -141,8 +137,10 @@ IconData _kindIcon(StudentTimelineKind kind) {
   switch (kind) {
     case StudentTimelineKind.lecture:
       return Icons.play_circle_outline_rounded;
+    case StudentTimelineKind.section:
+      return Icons.co_present_outlined;
     case StudentTimelineKind.quiz:
-      return Icons.edit_note_rounded;
+      return Icons.quiz_outlined;
     case StudentTimelineKind.task:
       return Icons.assignment_outlined;
   }
@@ -157,8 +155,4 @@ Color _priorityColor(StudentPriority priority) {
     case StudentPriority.safe:
       return AppColors.success;
   }
-}
-
-void _openTarget(BuildContext context, StudentActionTarget target) {
-  context.goNamed(target.routeName, pathParameters: target.pathParameters);
 }

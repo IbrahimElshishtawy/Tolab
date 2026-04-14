@@ -9,6 +9,7 @@ use App\Modules\Academic\Models\CourseOffering;
 use App\Modules\Academic\Models\Subject;
 use App\Modules\Content\Models\Lecture;
 use App\Modules\Enrollment\Models\Enrollment;
+use App\Modules\Grades\Models\GradeItem;
 use App\Modules\Group\Models\Comment;
 use App\Modules\Group\Models\Message;
 use App\Modules\Group\Models\Post;
@@ -27,12 +28,35 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DashboardService
 {
+    protected const NOTIFICATIONS_PREVIEW_LIMIT = 5;
+
+    protected const ACTIVITY_PREVIEW_LIMIT = 5;
+
+    protected const SUBJECTS_PREVIEW_LIMIT = 4;
+
+    protected const ACTION_CENTER_LIMIT = 8;
+
+    protected const ATTENTION_LIMIT = 6;
+
+    protected const PENDING_GRADING_LIMIT = 5;
+
+    protected const RISK_ALERT_LIMIT = 5;
+
+    protected const SUGGESTIONS_LIMIT = 5;
+
     public function dashboard(User $user): array
     {
         $this->ensureStaffRole($user);
 
+        $permissionHash = md5(implode('|', [
+            ...$user->effectivePermissions(),
+            'grades:'.($user->canManageGrades() ? '1' : '0'),
+            'content:'.($user->canManageContent() ? '1' : '0'),
+            'schedule:'.($user->canManageSchedule() ? '1' : '0'),
+        ]));
+
         return Cache::remember(
-            sprintf('staff-dashboard:%d', $user->id),
+            sprintf('staff-dashboard:%d:%s:%s', $user->id, $user->role?->value ?? 'unknown', $permissionHash),
             now()->addSeconds(45),
             fn () => $this->buildDashboard($user),
         );
@@ -41,7 +65,11 @@ class DashboardService
     protected function buildDashboard(User $user): array
     {
         $today = CarbonImmutable::now();
+        $tomorrow = $today->addDay();
+        $weekEnd = $today->endOfWeek();
+        $canManageGrades = $user->canManageGrades();
         $managedOfferings = $this->managedOfferings($user);
+        $offeringIds = $managedOfferings->pluck('id')->filter()->values();
         $subjectIds = $managedOfferings->pluck('subject_id')
             ->merge($user->staffAssignments()->pluck('subject_id'))
             ->filter()
@@ -101,12 +129,19 @@ class DashboardService
             ->whereIn('course_offering_id', $managedOfferings->pluck('id'))
             ->get();
 
-        $notifications = UserNotification::query()
+        $notificationsBaseQuery = UserNotification::query()
             ->where(function ($query) use ($user) {
                 $query->where('target_user_id', $user->id)
                     ->orWhere('is_global', true);
-            })
+            });
+
+        $notificationUnreadCount = (clone $notificationsBaseQuery)
+            ->where('is_read', false)
+            ->count();
+
+        $notifications = (clone $notificationsBaseQuery)
             ->latest()
+            ->limit(10)
             ->get();
 
         $groupIds = $managedOfferings->pluck('group_id')->filter()->values();
@@ -132,47 +167,174 @@ class DashboardService
             ->limit(12)
             ->get();
 
+        $gradeItems = $canManageGrades
+            ? GradeItem::query()
+                ->with(['courseOffering.subject', 'student'])
+                ->whereIn('course_offering_id', $offeringIds)
+                ->get()
+            : new EloquentCollection();
+
         $todaySchedule = $scheduleEvents
             ->filter(fn (ScheduleEvent $event) => $this->eventMatchesDate($event, $today))
             ->sortBy(fn (ScheduleEvent $event) => $this->timeSortKey($event))
             ->values();
+        $todayStats = $this->buildTodayStats($todaySchedule, $quizzes, $tasks, $today);
+        $todayScheduleItems = $this->buildTodaySchedule($todaySchedule, $today);
+        $upcomingItems = $this->buildUpcoming($scheduleEvents, $tasks, $today);
 
+        $missingSubmissionsByTask = $this->missingSubmissionsByTask(
+            $tasks,
+            $taskSubmissions,
+            $enrollments,
+        );
         $missingSubmissionsByStudent = $this->missingSubmissionsByStudent(
             $tasks,
             $taskSubmissions,
             $enrollments,
         );
 
+        $studentInsights = $this->buildStudentInsights(
+            $user,
+            $enrollments,
+            $posts,
+            $comments,
+            $messages,
+            $missingSubmissionsByStudent,
+            $today,
+        );
+
+        $pendingGradingByTask = $taskSubmissions
+            ->filter(fn (TaskSubmission $submission) => $submission->submitted_at !== null && $submission->graded_at === null)
+            ->groupBy('task_id');
+
+        $subjectHealth = $this->subjectHealthScores(
+            $subjects,
+            $scheduleEvents,
+            $lectures,
+            $sectionContents,
+            $quizzes,
+            $tasks,
+            $missingSubmissionsByTask,
+            $pendingGradingByTask,
+            $posts,
+            $comments,
+            $messages,
+            $today,
+        );
+
+        $actionCenterItems = $this->buildActionRequired(
+            $user,
+            $subjects,
+            $scheduleEvents,
+            $lectures,
+            $sectionContents,
+            $quizzes,
+            $tasks,
+            $taskSubmissions,
+            $enrollments,
+            $today,
+        );
+
+        $studentsAttention = $this->buildStudentsAttention(
+            $studentInsights['items'],
+            $subjectIds,
+        );
+        $pendingGrading = $this->buildPendingGrading(
+            $tasks,
+            $pendingGradingByTask,
+            $canManageGrades,
+        );
+        $performanceAnalytics = $this->buildPerformanceAnalytics($gradeItems, $canManageGrades);
+        $courseHealth = $this->buildCourseHealth($subjectHealth, $performanceAnalytics);
+        $subjectsOverview = $this->buildSubjectsOverview(
+            $subjects,
+            $managedOfferings,
+            $enrollments,
+            $subjectHealth,
+            $user,
+        );
+        $subjectsPreview = $this->buildSubjectsPreview($subjects, $managedOfferings, $enrollments);
+        $groupActivityItems = $this->buildGroupActivity($posts, $comments, $messages);
+        $riskAlerts = $this->buildRiskAlerts(
+            $actionCenterItems,
+            $studentInsights['items'],
+            $subjectHealth,
+            $performanceAnalytics,
+        );
+        $notificationsPreview = $this->buildNotifications($notifications, $notificationUnreadCount);
+        $weeklySummary = $this->buildWeeklySummary(
+            $scheduleEvents,
+            $quizzes,
+            $tasks,
+            $posts,
+            $comments,
+            $today,
+            $weekEnd,
+        );
+        $smartSuggestions = $this->buildSmartSuggestions(
+            $actionCenterItems,
+            $riskAlerts,
+            $courseHealth,
+            $pendingGrading,
+            $studentInsights,
+            $user,
+            $performanceAnalytics,
+        );
+
         return [
-            'user' => $this->buildUserSummary($user, $subjects, $today),
-            'quick_actions' => $this->buildQuickActions($user),
-            'notifications' => $this->buildNotifications($notifications),
-            'today_stats' => $this->buildTodayStats($todaySchedule, $quizzes, $tasks, $today),
-            'action_required' => $this->buildActionRequired(
-                $user,
-                $subjects,
+            'header' => [
+                'user' => $this->buildUserSummary($user, $subjects, $today),
+                'notification_badge' => $notificationUnreadCount,
+                'generated_at' => $today->toIso8601String(),
+            ],
+            'quick_actions' => $this->buildQuickActions($user, $subjects),
+            'action_center' => [
+                'summary' => $this->actionCenterSummary($actionCenterItems),
+                'items' => $actionCenterItems,
+            ],
+            'today_focus' => $this->buildTodayFocus(
+                $todaySchedule,
+                $actionCenterItems,
+                $pendingGrading,
+                $notificationUnreadCount,
+            ),
+            'timeline' => $this->buildTimeline(
                 $scheduleEvents,
-                $lectures,
-                $sectionContents,
                 $quizzes,
                 $tasks,
-                $taskSubmissions,
-                $enrollments,
                 $today,
+                $tomorrow,
+                $weekEnd,
             ),
-            'today_schedule' => $this->buildTodaySchedule($todaySchedule, $today),
-            'upcoming' => $this->buildUpcoming($scheduleEvents, $tasks, $today),
-            'subjects_preview' => $this->buildSubjectsPreview($subjects, $managedOfferings, $enrollments),
-            'group_activity' => $this->buildGroupActivity($posts, $comments, $messages),
-            'student_insights' => $this->buildStudentInsights(
-                $user,
-                $enrollments,
-                $posts,
-                $comments,
-                $messages,
-                $missingSubmissionsByStudent,
-                $today,
-            ),
+            'subjects_overview' => $subjectsOverview,
+            'students_attention' => $studentsAttention,
+            'student_activity_insights' => $studentInsights,
+            'course_health' => $courseHealth,
+            'group_activity_feed' => [
+                'items' => $groupActivityItems,
+            ],
+            'notifications_preview' => $notificationsPreview,
+            'pending_grading' => $pendingGrading,
+            'performance_analytics' => $performanceAnalytics,
+            'risk_alerts' => $riskAlerts,
+            'weekly_summary' => $weeklySummary,
+            'smart_suggestions' => $smartSuggestions,
+            'user' => $this->buildUserSummary($user, $subjects, $today),
+            'notifications' => [
+                'unread_count' => $notificationsPreview['unread_count'] ?? 0,
+                'latest' => $notificationsPreview['items'] ?? [],
+            ],
+            'today_stats' => $todayStats,
+            'action_required' => $actionCenterItems,
+            'today_schedule' => $todayScheduleItems,
+            'upcoming' => $upcomingItems,
+            'subjects_preview' => $subjectsPreview,
+            'group_activity' => $groupActivityItems,
+            'student_insights' => [
+                ...$studentInsights,
+                'students_needing_attention' => count($studentInsights['items'] ?? []),
+                'needs_attention' => $studentInsights['items'] ?? [],
+            ],
         ];
     }
 
@@ -215,33 +377,37 @@ class DashboardService
         ];
     }
 
-    protected function buildQuickActions(User $user): array
+    protected function buildQuickActions(User $user, Collection $subjects): array
     {
+        $announcementRoute = $subjects->isNotEmpty()
+            ? $this->subjectWorkspaceRoute((int) $subjects->first()->id)
+            : '/workspace/subjects';
+
         $actions = [
-            ['id' => 'add_lecture', 'label' => 'Add Lecture', 'description' => 'Publish a lecture item for your subject.', 'route' => '/workspace/lectures', 'permission' => 'lectures.create'],
-            ['id' => 'add_section', 'label' => 'Add Section', 'description' => 'Upload section or lab content quickly.', 'route' => '/workspace/sections', 'permission' => 'section_content.create'],
-            ['id' => 'add_quiz', 'label' => 'Add Quiz', 'description' => 'Prepare an assessment or quiz window.', 'route' => '/workspace/quizzes', 'permission' => 'quizzes.create'],
-            ['id' => 'add_task', 'label' => 'Add Task', 'description' => 'Create a task with a student deadline.', 'route' => '/workspace/tasks', 'permission' => 'tasks.create'],
-            ['id' => 'add_post', 'label' => 'Add Post', 'description' => 'Open a subject workspace to post an update.', 'route' => '/workspace/subjects', 'permission' => 'community.post'],
+            ['id' => 'add_lecture', 'label' => 'Add Lecture', 'description' => 'Publish lecture content before the next session.', 'route' => '/workspace/lectures', 'permission' => 'lectures.create', 'icon' => 'lecture', 'tone' => 'primary'],
+            ['id' => 'add_section', 'label' => 'Add Section', 'description' => 'Upload section or lab content for assistants.', 'route' => '/workspace/sections', 'permission' => 'section_content.create', 'icon' => 'section', 'tone' => 'secondary'],
+            ['id' => 'add_quiz', 'label' => 'Add Quiz', 'description' => 'Create or publish an assessment window.', 'route' => '/workspace/quizzes', 'permission' => 'quizzes.create', 'icon' => 'quiz', 'tone' => 'warning'],
+            ['id' => 'add_task', 'label' => 'Add Task', 'description' => 'Create a student task with a due date.', 'route' => '/workspace/tasks', 'permission' => 'tasks.create', 'icon' => 'task', 'tone' => 'success'],
+            ['id' => 'send_announcement', 'label' => 'Send Announcement', 'description' => 'Open the subject workspace and post an update.', 'route' => $announcementRoute, 'permission' => 'community.post', 'icon' => 'announcement', 'tone' => 'danger'],
         ];
 
         return collect($actions)
-            ->filter(fn (array $action) => $action['id'] === 'add_post' || $user->hasPermission($action['permission']))
+            ->filter(fn (array $action) => $user->hasPermission($action['permission']) && ($action['id'] !== 'send_announcement' || $subjects->isNotEmpty()))
             ->values()
             ->all();
     }
 
-    protected function buildNotifications(EloquentCollection $notifications): array
+    protected function buildNotifications(EloquentCollection $notifications, int $unreadCount): array
     {
         return [
-            'unread_count' => $notifications->where('is_read', false)->count(),
-            'latest' => $notifications->take(5)->map(fn (UserNotification $notification) => [
+            'unread_count' => $unreadCount,
+            'items' => $notifications->take(self::NOTIFICATIONS_PREVIEW_LIMIT)->map(fn (UserNotification $notification) => [
                 'id' => $notification->id,
                 'title' => $notification->title,
                 'body' => $notification->body,
                 'time' => optional($notification->created_at)->toIso8601String(),
                 'is_unread' => ! $notification->is_read,
-                'category' => $notification->category ?: $notification->type?->value,
+                'category' => $notification->category ?: (string) ($notification->type?->value ?? $notification->type ?? 'SYSTEM'),
                 'route' => '/workspace/notifications',
             ])->values()->all(),
         ];
@@ -279,6 +445,12 @@ class DashboardService
     ): array {
         $items = collect();
         $windowEnd = $today->addDays(2)->endOfDay();
+        $canCreateLectures = $user->hasPermission('lectures.create');
+        $canCreateSectionContent = $user->hasPermission('section_content.create');
+        $canManageQuizzes = $user->hasPermission('quizzes.create');
+        $canViewTasks = $user->hasPermission('tasks.view');
+        $canManageTasks = $user->hasPermission('tasks.create');
+        $canManageGrades = $user->canManageGrades();
 
         foreach ($scheduleEvents as $event) {
             $startAt = $this->nextOccurrence($event, $today);
@@ -290,7 +462,7 @@ class DashboardService
             $subjectId = (int) ($event->subject_id ?: $event->courseOffering?->subject_id);
             $subjectName = $event->courseOffering?->subject?->name ?: $subjects->firstWhere('id', $subjectId)?->name;
 
-            if ($eventType === 'LECTURE' && $user->role === UserRole::DOCTOR) {
+            if ($eventType === 'LECTURE' && $user->role === UserRole::DOCTOR && $canCreateLectures) {
                 $recentLecture = $lectures
                     ->where('subject_id', $subjectId)
                     ->where('is_published', true)
@@ -310,7 +482,7 @@ class DashboardService
                 }
             }
 
-            if ($eventType === 'SECTION' && $user->role === UserRole::TA) {
+            if ($eventType === 'SECTION' && $user->role === UserRole::TA && $canCreateSectionContent) {
                 $recentSection = $sectionContents
                     ->where('subject_id', $subjectId)
                     ->where('is_published', true)
@@ -332,6 +504,10 @@ class DashboardService
         }
 
         foreach ($quizzes as $quiz) {
+            if (! $canManageQuizzes) {
+                continue;
+            }
+
             if (! $quiz->is_published && $quiz->quiz_date !== null && $quiz->quiz_date->between($today->startOfDay(), $today->addDays(7)->endOfDay())) {
                 $items->push($this->actionItem(
                     'quiz_unpublished_'.$quiz->id,
@@ -347,7 +523,7 @@ class DashboardService
         }
 
         foreach ($tasks as $task) {
-            if (! $task->is_published) {
+            if (! $task->is_published && $canManageTasks) {
                 $items->push($this->actionItem(
                     'task_unpublished_'.$task->id,
                     'TASK_UNPUBLISHED',
@@ -358,7 +534,7 @@ class DashboardService
                     '/workspace/tasks',
                     ['subject_id' => $task->subject_id, 'task_id' => $task->id],
                 ));
-            } elseif ($task->due_date !== null && $task->due_date->between($today->startOfDay(), $today->addDays(3)->endOfDay())) {
+            } elseif ($task->due_date !== null && $task->due_date->between($today->startOfDay(), $today->addDays(3)->endOfDay()) && $canViewTasks) {
                 $items->push($this->actionItem(
                     'task_deadline_'.$task->id,
                     'TASK_NEARING_DEADLINE',
@@ -376,40 +552,44 @@ class DashboardService
             ->filter(fn (TaskSubmission $submission) => $submission->submitted_at !== null && $submission->graded_at === null)
             ->groupBy('task_id');
 
-        foreach ($pendingGrading as $taskId => $submissions) {
-            $task = $tasks->firstWhere('id', (int) $taskId);
-            if (! $task) {
-                continue;
-            }
+        if ($canManageGrades) {
+            foreach ($pendingGrading as $taskId => $submissions) {
+                $task = $tasks->firstWhere('id', (int) $taskId);
+                if (! $task) {
+                    continue;
+                }
 
-            $items->push($this->actionItem(
-                'grading_pending_'.$taskId,
-                'PENDING_GRADING',
-                'HIGH',
-                sprintf('%d submissions need grading', $submissions->count()),
-                sprintf('Task "%s" still has work waiting for review.', $task->title),
-                'Review',
-                '/workspace/tasks',
-                ['subject_id' => $task->subject_id, 'task_id' => $task->id],
-            ));
+                $items->push($this->actionItem(
+                    'grading_pending_'.$taskId,
+                    'PENDING_GRADING',
+                    'HIGH',
+                    sprintf('%d submissions need grading', $submissions->count()),
+                    sprintf('Task "%s" still has work waiting for review.', $task->title),
+                    'Review',
+                    '/workspace/tasks',
+                    ['subject_id' => $task->subject_id, 'task_id' => $task->id],
+                ));
+            }
         }
 
-        foreach ($this->missingSubmissionsByTask($tasks, $taskSubmissions, $enrollments) as $taskId => $missingCount) {
-            $task = $tasks->firstWhere('id', (int) $taskId);
-            if (! $task || $missingCount < 1) {
-                continue;
-            }
+        if ($canViewTasks) {
+            foreach ($this->missingSubmissionsByTask($tasks, $taskSubmissions, $enrollments) as $taskId => $missingCount) {
+                $task = $tasks->firstWhere('id', (int) $taskId);
+                if (! $task || $missingCount < 1) {
+                    continue;
+                }
 
-            $items->push($this->actionItem(
-                'missing_submissions_'.$taskId,
-                'MISSING_SUBMISSIONS',
-                'HIGH',
-                sprintf('%d students did not submit', $missingCount),
-                sprintf('Task "%s" still has missing student submissions.', $task->title),
-                'Open',
-                '/workspace/tasks',
-                ['subject_id' => $task->subject_id, 'task_id' => $task->id],
-            ));
+                $items->push($this->actionItem(
+                    'missing_submissions_'.$taskId,
+                    'MISSING_SUBMISSIONS',
+                    'HIGH',
+                    sprintf('%d students did not submit', $missingCount),
+                    sprintf('Task "%s" still has missing student submissions.', $task->title),
+                    'Open',
+                    '/workspace/tasks',
+                    ['subject_id' => $task->subject_id, 'task_id' => $task->id],
+                ));
+            }
         }
 
         $priorityOrder = ['HIGH' => 0, 'MEDIUM' => 1, 'LOW' => 2];
@@ -417,7 +597,7 @@ class DashboardService
         return $items
             ->unique('id')
             ->sortBy(fn (array $item) => $priorityOrder[$item['priority']] ?? 9)
-            ->take(8)
+            ->take(self::ACTION_CENTER_LIMIT)
             ->values()
             ->all();
     }
@@ -494,7 +674,7 @@ class DashboardService
 
     protected function buildSubjectsPreview(Collection $subjects, EloquentCollection $managedOfferings, EloquentCollection $enrollments): array
     {
-        return $subjects->take(4)->map(function (Subject $subject) use ($managedOfferings, $enrollments) {
+        return $subjects->take(self::SUBJECTS_PREVIEW_LIMIT)->map(function (Subject $subject) use ($managedOfferings, $enrollments) {
             $subjectOfferings = $managedOfferings->where('subject_id', $subject->id);
             $studentCount = $subjectOfferings->sum(
                 fn (CourseOffering $offering) => $enrollments->where('course_offering_id', $offering->id)->count(),
@@ -563,7 +743,7 @@ class DashboardService
         return $items
             ->filter(fn (array $item) => ! empty($item['timestamp']))
             ->sortByDesc('timestamp')
-            ->take(5)
+            ->take(self::ACTIVITY_PREVIEW_LIMIT)
             ->values()
             ->all();
     }
@@ -607,16 +787,26 @@ class DashboardService
         $needsAttention = $students
             ->map(function (User $student) use ($today, $recentActivity, $missingSubmissionsByStudent) {
                 $reasons = [];
+                $severity = 'LOW';
                 $missingCount = (int) ($missingSubmissionsByStudent[$student->id] ?? 0);
                 if ($missingCount > 0) {
                     $reasons[] = sprintf('Missed %d task submissions', $missingCount);
+                    $severity = $missingCount >= 2 ? 'HIGH' : 'MEDIUM';
                 }
                 if ($student->last_login_at === null || $student->last_login_at->lessThan($today->subDays(10))) {
                     $days = $student->last_login_at?->diffInDays($today) ?? 999;
                     $reasons[] = sprintf('No login in %d days', $days);
+                    if ($days >= 14) {
+                        $severity = 'HIGH';
+                    } elseif ($severity === 'LOW') {
+                        $severity = 'MEDIUM';
+                    }
                 }
                 if (($recentActivity[$student->id] ?? 0) === 0) {
                     $reasons[] = 'Low group engagement this week';
+                    if ($severity === 'LOW') {
+                        $severity = 'MEDIUM';
+                    }
                 }
 
                 if ($reasons === []) {
@@ -628,27 +818,649 @@ class DashboardService
                     'name' => $student->full_name ?: $student->username,
                     'reason' => $reasons[0],
                     'details' => $reasons,
+                    'severity' => $severity,
+                    'last_seen' => $student->last_login_at?->toIso8601String(),
                 ];
             })
             ->filter()
-            ->take(5)
+            ->take(self::ATTENTION_LIMIT)
             ->values();
 
         $reference = $staffUser->last_login_at ?? $today->subDay();
         $unreadMessages = $messages
             ->filter(fn (Message $message) => $message->created_at?->greaterThan($reference) && $message->sender_user_id !== $staffUser->id)
             ->count();
+        $lowEngagementCount = $students->filter(fn (User $student) => ($recentActivity[$student->id] ?? 0) === 0)->count();
+        $engagementRate = $students->isEmpty()
+            ? 0
+            : (int) round((($students->count() - $lowEngagementCount) / $students->count()) * 100);
 
         return [
+            'summary' => sprintf('%d of %d students showed recent activity this week.', $students->count() - $inactiveStudents, $students->count()),
             'active_students' => $activeStudents,
             'inactive_students' => $inactiveStudents,
-            'missing_submissions' => $missingSubmissionsByStudent->sum(),
+            'missing_submissions' => (int) $missingSubmissionsByStudent->sum(),
             'new_comments' => $comments->filter(fn (Comment $comment) => $comment->created_at?->greaterThanOrEqualTo($today->subDay()))->count(),
             'unread_messages' => $unreadMessages,
-            'low_engagement_count' => $students->filter(fn (User $student) => ($recentActivity[$student->id] ?? 0) === 0)->count(),
+            'low_engagement_count' => $lowEngagementCount,
+            'engagement_rate' => $engagementRate,
             'students_needing_attention' => $needsAttention->count(),
-            'needs_attention' => $needsAttention->all(),
+            'items' => $needsAttention->all(),
         ];
+    }
+
+    protected function actionCenterSummary(array $items): string
+    {
+        $high = collect($items)->where('priority', 'HIGH')->count();
+        $medium = collect($items)->where('priority', 'MEDIUM')->count();
+
+        if ($high === 0 && $medium === 0) {
+            return 'No urgent blockers are open right now.';
+        }
+
+        return sprintf('%d high-priority and %d medium-priority decisions are ready for action.', $high, $medium);
+    }
+
+    protected function buildTodayFocus(
+        Collection $todaySchedule,
+        array $actionCenterItems,
+        array $pendingGrading,
+        int $notificationUnreadCount,
+    ): array {
+        $primaryAction = $actionCenterItems[0] ?? null;
+        $sessionsToday = $todaySchedule->count();
+        $gradingCount = (int) ($pendingGrading['count'] ?? 0);
+        $highPriorityCount = collect($actionCenterItems)->where('priority', 'HIGH')->count();
+
+        $headline = match (true) {
+            $highPriorityCount > 0 => sprintf('%d urgent items need attention first.', $highPriorityCount),
+            $sessionsToday > 0 => sprintf('%d teaching blocks are on today.', $sessionsToday),
+            $gradingCount > 0 => sprintf('%d submissions are waiting for grading.', $gradingCount),
+            default => 'Your workspace is under control today.',
+        };
+
+        $summary = match (true) {
+            $primaryAction !== null => $primaryAction['explanation'],
+            $notificationUnreadCount > 0 => sprintf('You still have %d unread notifications to clear.', $notificationUnreadCount),
+            default => 'Use the quick actions and smart suggestions to stay ahead of the week.',
+        };
+
+        return [
+            'headline' => $headline,
+            'summary' => $summary,
+            'primary_action' => $primaryAction,
+            'metrics' => [
+                ['label' => 'Sessions today', 'value' => $sessionsToday, 'tone' => 'primary'],
+                ['label' => 'Urgent actions', 'value' => $highPriorityCount, 'tone' => $highPriorityCount > 0 ? 'danger' : 'success'],
+                ['label' => 'Pending grading', 'value' => $gradingCount, 'tone' => $gradingCount > 0 ? 'warning' : 'success'],
+                ['label' => 'Unread notifications', 'value' => $notificationUnreadCount, 'tone' => $notificationUnreadCount > 0 ? 'secondary' : 'success'],
+            ],
+        ];
+    }
+
+    protected function buildTimeline(
+        Collection $scheduleEvents,
+        EloquentCollection $quizzes,
+        EloquentCollection $tasks,
+        CarbonImmutable $today,
+        CarbonImmutable $tomorrow,
+        CarbonImmutable $weekEnd,
+    ): array {
+        $timelineItems = collect();
+
+        foreach ($scheduleEvents as $event) {
+            $when = $this->nextOccurrence($event, $today);
+            if ($when === null || $when->greaterThan($weekEnd->endOfDay())) {
+                continue;
+            }
+
+            $timelineItems->push([
+                'id' => 'schedule_'.$event->id,
+                'bucket' => $this->timelineBucket($when, $today, $tomorrow),
+                'type' => strtoupper((string) ($event->event_type ?: $event->type?->value ?: $event->type)),
+                'title' => $event->title ?: ($event->courseOffering?->subject?->name ?: $event->subject?->name ?: 'Session'),
+                'subject_name' => $event->courseOffering?->subject?->name ?: $event->subject?->name,
+                'when_label' => $when->format('D, g:i A'),
+                'status' => $event->location ? 'Room' : 'Online',
+                'route' => '/workspace/schedule',
+            ]);
+        }
+
+        foreach ($quizzes as $quiz) {
+            if ($quiz->quiz_date === null || $quiz->quiz_date->greaterThan($weekEnd->endOfDay())) {
+                continue;
+            }
+
+            $timelineItems->push([
+                'id' => 'quiz_'.$quiz->id,
+                'bucket' => $this->timelineBucket($quiz->quiz_date->toImmutable(), $today, $tomorrow),
+                'type' => 'QUIZ',
+                'title' => $quiz->title,
+                'subject_name' => $quiz->subject?->name,
+                'when_label' => $quiz->quiz_date->format('D, M j'),
+                'status' => $quiz->is_published ? 'Published' : 'Draft',
+                'route' => '/workspace/quizzes',
+            ]);
+        }
+
+        foreach ($tasks as $task) {
+            if ($task->due_date === null || $task->due_date->greaterThan($weekEnd->endOfDay())) {
+                continue;
+            }
+
+            $timelineItems->push([
+                'id' => 'task_'.$task->id,
+                'bucket' => $this->timelineBucket($task->due_date->toImmutable(), $today, $tomorrow),
+                'type' => 'TASK',
+                'title' => $task->title,
+                'subject_name' => $task->subject?->name,
+                'when_label' => $task->due_date->format('D, M j'),
+                'status' => $task->is_published ? 'Open' : 'Draft',
+                'route' => '/workspace/tasks',
+            ]);
+        }
+
+        return [
+            'groups' => [
+                [
+                    'id' => 'today',
+                    'label' => 'Today',
+                    'items' => $timelineItems->where('bucket', 'today')->values()->all(),
+                ],
+                [
+                    'id' => 'tomorrow',
+                    'label' => 'Tomorrow',
+                    'items' => $timelineItems->where('bucket', 'tomorrow')->values()->all(),
+                ],
+                [
+                    'id' => 'this_week',
+                    'label' => 'This Week',
+                    'items' => $timelineItems->where('bucket', 'this_week')->values()->all(),
+                ],
+            ],
+        ];
+    }
+
+    protected function timelineBucket(CarbonImmutable $when, CarbonImmutable $today, CarbonImmutable $tomorrow): string
+    {
+        if ($when->isSameDay($today)) {
+            return 'today';
+        }
+
+        if ($when->isSameDay($tomorrow)) {
+            return 'tomorrow';
+        }
+
+        return 'this_week';
+    }
+
+    protected function buildSubjectsOverview(
+        Collection $subjects,
+        EloquentCollection $managedOfferings,
+        EloquentCollection $enrollments,
+        Collection $subjectHealth,
+        User $user,
+    ): array {
+        return [
+            'summary' => sprintf('%d active subjects are assigned to this workspace.', $subjects->count()),
+            'items' => $subjects->take(4)->map(function (Subject $subject) use ($managedOfferings, $enrollments, $subjectHealth, $user) {
+                $subjectOfferings = $managedOfferings->where('subject_id', $subject->id);
+                $studentCount = $subjectOfferings->sum(
+                    fn (CourseOffering $offering) => $enrollments->where('course_offering_id', $offering->id)->count(),
+                );
+                $health = $subjectHealth->get($subject->id, ['score' => 88, 'status' => 'HEALTHY']);
+
+                return [
+                    'id' => $subject->id,
+                    'name' => $subject->name,
+                    'code' => $subject->code,
+                    'department' => $subject->department?->name,
+                    'academic_year' => $subject->academicYear?->name ?: (string) $subject->grade_year,
+                    'batch' => 'Level '.($subject->grade_year ?: $subject->academicYear?->level ?: 1),
+                    'student_count' => $studentCount,
+                    'groups_count' => $subjectOfferings->whereNotNull('group_id')->count(),
+                    'sections_count' => $subjectOfferings->pluck('section_id')->filter()->unique()->count(),
+                    'health_score' => $health['score'],
+                    'risk_level' => $health['status'],
+                    'quick_actions' => $this->subjectQuickActions($user, (int) $subject->id),
+                ];
+            })->values()->all(),
+        ];
+    }
+
+    protected function subjectQuickActions(User $user, int $subjectId): array
+    {
+        $actions = [
+            ['label' => 'Open Subject', 'route' => $this->subjectWorkspaceRoute($subjectId)],
+            ['label' => 'Send Announcement', 'route' => $this->subjectWorkspaceRoute($subjectId)],
+        ];
+
+        if ($user->hasPermission('lectures.create')) {
+            $actions[] = ['label' => 'Add Lecture', 'route' => '/workspace/lectures'];
+        }
+
+        if ($user->hasPermission('section_content.create')) {
+            $actions[] = ['label' => 'Add Section', 'route' => '/workspace/sections'];
+        }
+
+        if ($user->hasPermission('quizzes.create')) {
+            $actions[] = ['label' => 'Add Quiz', 'route' => '/workspace/quizzes'];
+        }
+
+        return $actions;
+    }
+
+    protected function buildStudentsAttention(array $items, Collection $subjectIds): array
+    {
+        $subjectId = (int) ($subjectIds->first() ?? 0);
+
+        return [
+            'count' => count($items),
+            'items' => collect($items)->take(6)->map(fn (array $item) => [
+                ...$item,
+                'cta_label' => 'Review',
+                'route' => $subjectId > 0 ? $this->subjectWorkspaceRoute($subjectId) : '/workspace/subjects',
+            ])->values()->all(),
+        ];
+    }
+
+    protected function subjectHealthScores(
+        Collection $subjects,
+        Collection $scheduleEvents,
+        EloquentCollection $lectures,
+        EloquentCollection $sectionContents,
+        EloquentCollection $quizzes,
+        EloquentCollection $tasks,
+        Collection $missingSubmissionsByTask,
+        Collection $pendingGradingByTask,
+        EloquentCollection $posts,
+        EloquentCollection $comments,
+        EloquentCollection $messages,
+        CarbonImmutable $today,
+    ): Collection {
+        return $subjects->mapWithKeys(function (Subject $subject) use (
+            $scheduleEvents,
+            $lectures,
+            $sectionContents,
+            $quizzes,
+            $tasks,
+            $missingSubmissionsByTask,
+            $pendingGradingByTask,
+            $posts,
+            $comments,
+            $messages,
+            $today,
+        ) {
+            $score = 100;
+
+            $subjectEvents = $scheduleEvents->filter(function (ScheduleEvent $event) use ($subject, $today) {
+                $subjectId = (int) ($event->subject_id ?: $event->courseOffering?->subject_id);
+                $next = $this->nextOccurrence($event, $today);
+
+                return $subjectId === $subject->id
+                    && $next !== null
+                    && $next->between($today->startOfDay(), $today->addDays(7)->endOfDay());
+            });
+
+            $recentLecture = $lectures
+                ->where('subject_id', $subject->id)
+                ->first(fn (Lecture $lecture) => $lecture->is_published && $lecture->published_at?->greaterThanOrEqualTo($today->subDays(14)));
+            if ($subjectEvents->contains(fn (ScheduleEvent $event) => strtoupper((string) ($event->event_type ?: $event->type?->value ?: $event->type)) === 'LECTURE') && ! $recentLecture) {
+                $score -= 20;
+            }
+
+            $recentSection = $sectionContents
+                ->where('subject_id', $subject->id)
+                ->first(fn (AcademicSectionContent $content) => $content->is_published && $content->published_at?->greaterThanOrEqualTo($today->subDays(14)));
+            if ($subjectEvents->contains(fn (ScheduleEvent $event) => strtoupper((string) ($event->event_type ?: $event->type?->value ?: $event->type)) === 'SECTION') && ! $recentSection) {
+                $score -= 15;
+            }
+
+            $draftQuizCount = $quizzes
+                ->where('subject_id', $subject->id)
+                ->filter(fn (Quiz $quiz) => ! $quiz->is_published && $quiz->quiz_date !== null && $quiz->quiz_date->between($today->startOfDay(), $today->addDays(7)->endOfDay()))
+                ->count();
+            if ($draftQuizCount > 0) {
+                $score -= min(20, $draftQuizCount * 8);
+            }
+
+            $subjectTaskIds = $tasks->where('subject_id', $subject->id)->pluck('id')->map(fn ($id) => (int) $id);
+            $missingCount = $missingSubmissionsByTask->only($subjectTaskIds->all())->sum();
+            if ($missingCount > 0) {
+                $score -= min(25, $missingCount * 4);
+            }
+
+            $pendingGradingCount = $pendingGradingByTask
+                ->only($subjectTaskIds->all())
+                ->sum(fn (Collection $items) => $items->count());
+            if ($pendingGradingCount > 0) {
+                $score -= min(20, $pendingGradingCount * 3);
+            }
+
+            $recentSignals = $posts->filter(fn (Post $post) => $post->group?->courseOffering?->subject_id === $subject->id)->count()
+                + $comments->filter(fn (Comment $comment) => $comment->post?->group?->courseOffering?->subject_id === $subject->id)->count()
+                + $messages->filter(fn (Message $message) => $message->group?->courseOffering?->subject_id === $subject->id)->count();
+            if ($recentSignals === 0) {
+                $score -= 10;
+            }
+
+            $score = max(36, min(100, $score));
+
+            return [
+                $subject->id => [
+                    'score' => $score,
+                    'status' => $this->healthStatus($score),
+                    'name' => $subject->name,
+                ],
+            ];
+        });
+    }
+
+    protected function healthStatus(int $score): string
+    {
+        return match (true) {
+            $score >= 85 => 'HEALTHY',
+            $score >= 70 => 'WATCH',
+            default => 'AT_RISK',
+        };
+    }
+
+    protected function buildCourseHealth(Collection $subjectHealth, array $performanceAnalytics): array
+    {
+        $scores = $subjectHealth->pluck('score');
+        $overall = $scores->isEmpty() ? 92 : (int) round($scores->avg());
+        $averageScore = $performanceAnalytics['average_score'] ?? null;
+        $metrics = collect([
+            ['label' => 'Healthy subjects', 'value' => $subjectHealth->where('status', 'HEALTHY')->count(), 'tone' => 'success'],
+            ['label' => 'Watchlist', 'value' => $subjectHealth->where('status', 'WATCH')->count(), 'tone' => 'warning'],
+            ['label' => 'At risk', 'value' => $subjectHealth->where('status', 'AT_RISK')->count(), 'tone' => 'danger'],
+        ]);
+
+        if ($averageScore !== null) {
+            $metrics->push([
+                'label' => 'Average grade',
+                'value' => sprintf('%s%%', $averageScore),
+                'tone' => $averageScore >= 70 ? 'success' : 'warning',
+            ]);
+        }
+
+        return [
+            'overall_score' => $overall,
+            'status' => $this->healthStatus($overall),
+            'summary' => $subjectHealth->where('status', 'AT_RISK')->isNotEmpty()
+                ? sprintf('%d subject areas need intervention this week.', $subjectHealth->where('status', 'AT_RISK')->count())
+                : 'Course delivery and student follow-up are trending well.',
+            'metrics' => $metrics->all(),
+            'subjects' => $subjectHealth
+                ->sortBy('score')
+                ->take(self::SUBJECTS_PREVIEW_LIMIT)
+                ->map(fn (array $item, int $subjectId) => [
+                    'subject_id' => $subjectId,
+                    'subject_name' => $item['name'],
+                    'score' => $item['score'],
+                    'status' => $item['status'],
+                ])
+                ->values()
+                ->all(),
+        ];
+    }
+
+    protected function buildPendingGrading(
+        EloquentCollection $tasks,
+        Collection $pendingGradingByTask,
+        bool $canManageGrades,
+    ): array {
+        if (! $canManageGrades) {
+            return [
+                'can_manage' => false,
+                'count' => 0,
+                'summary' => 'Grading insights are hidden for this role.',
+                'items' => [],
+            ];
+        }
+
+        $items = $pendingGradingByTask
+            ->map(function (Collection $submissions, $taskId) use ($tasks) {
+                $task = $tasks->firstWhere('id', (int) $taskId);
+                if (! $task) {
+                    return null;
+                }
+
+                return [
+                    'task_id' => $task->id,
+                    'title' => $task->title,
+                    'subject_name' => $task->subject?->name,
+                    'pending_count' => $submissions->count(),
+                    'cta_label' => 'Grade',
+                    'route' => '/workspace/tasks',
+                ];
+            })
+            ->filter()
+            ->sortByDesc('pending_count')
+            ->take(self::PENDING_GRADING_LIMIT)
+            ->values();
+
+        return [
+            'can_manage' => true,
+            'count' => (int) $items->sum('pending_count'),
+            'summary' => $items->isEmpty()
+                ? 'No grading backlog is waiting right now.'
+                : sprintf('%d submissions are waiting across %d tasks.', $items->sum('pending_count'), $items->count()),
+            'items' => $items->all(),
+        ];
+    }
+
+    protected function buildPerformanceAnalytics(EloquentCollection $gradeItems, bool $canManageGrades): array
+    {
+        if (! $canManageGrades || $gradeItems->isEmpty()) {
+            return [
+                'is_limited' => ! $canManageGrades,
+                'summary' => $canManageGrades
+                    ? 'Performance analytics will appear when graded records exist.'
+                    : 'Performance analytics are hidden for this role.',
+                'average_score' => null,
+                'trend' => [],
+                'top_performers' => [],
+                'low_performers' => [],
+            ];
+        }
+
+        $normalized = $gradeItems
+            ->filter(fn (GradeItem $item) => (float) $item->max_score > 0)
+            ->map(fn (GradeItem $item) => [
+                'student_id' => $item->student_user_id,
+                'student_name' => $item->student?->full_name ?: $item->student?->username,
+                'subject_name' => $item->courseOffering?->subject?->name,
+                'percentage' => round((((float) $item->score) / ((float) $item->max_score)) * 100, 1),
+            ]);
+
+        $byStudent = $normalized
+            ->groupBy('student_id')
+            ->map(fn (Collection $items) => [
+                'student_name' => $items->first()['student_name'],
+                'average_score' => round($items->avg('percentage'), 1),
+            ]);
+
+        return [
+            'is_limited' => false,
+            'summary' => sprintf('Average graded performance is %s%% across %d grade records.', round($normalized->avg('percentage'), 1), $normalized->count()),
+            'average_score' => round($normalized->avg('percentage'), 1),
+            'trend' => $normalized->groupBy('subject_name')->map(fn (Collection $items, string $subjectName) => [
+                'label' => $subjectName,
+                'value' => round($items->avg('percentage'), 1),
+            ])->values()->take(5)->all(),
+            'top_performers' => $byStudent->sortByDesc('average_score')->take(3)->values()->all(),
+            'low_performers' => $byStudent->sortBy('average_score')->take(3)->values()->all(),
+        ];
+    }
+
+    protected function buildRiskAlerts(
+        array $actionCenterItems,
+        array $studentsAttention,
+        Collection $subjectHealth,
+        array $performanceAnalytics,
+    ): array
+    {
+        $alerts = collect();
+
+        foreach ($actionCenterItems as $item) {
+            if ($item['priority'] !== 'HIGH') {
+                continue;
+            }
+
+            $alerts->push([
+                'id' => 'action_'.$item['id'],
+                'severity' => 'HIGH',
+                'title' => $item['title'],
+                'explanation' => $item['explanation'],
+                'cta_label' => $item['cta_label'],
+                'route' => $item['route'],
+            ]);
+        }
+
+        foreach ($studentsAttention as $student) {
+            if (($student['severity'] ?? 'LOW') === 'LOW') {
+                continue;
+            }
+
+            $alerts->push([
+                'id' => 'student_'.$student['student_id'],
+                'severity' => $student['severity'],
+                'title' => sprintf('%s needs follow-up', $student['name']),
+                'explanation' => $student['reason'],
+                'cta_label' => 'Review',
+                'route' => '/workspace/subjects',
+            ]);
+        }
+
+        foreach ($subjectHealth->where('status', 'AT_RISK') as $subjectId => $health) {
+            $alerts->push([
+                'id' => 'health_'.$subjectId,
+                'severity' => 'HIGH',
+                'title' => sprintf('%s is at risk', $health['name']),
+                'explanation' => sprintf('Health score dropped to %d.', $health['score']),
+                'cta_label' => 'Open Subject',
+                'route' => $this->subjectWorkspaceRoute((int) $subjectId),
+            ]);
+        }
+
+        $averageScore = $performanceAnalytics['average_score'] ?? null;
+        if ($averageScore !== null && $averageScore < 65) {
+            $alerts->push([
+                'id' => 'performance_average_low',
+                'severity' => 'HIGH',
+                'title' => 'Average grade trend is below target',
+                'explanation' => sprintf('Recent graded work is averaging %s%%, which signals a widening performance gap.', $averageScore),
+                'cta_label' => 'Review analytics',
+                'route' => '/workspace/tasks',
+            ]);
+        }
+
+        return [
+            'count' => $alerts->count(),
+            'items' => $alerts->unique('id')->take(self::RISK_ALERT_LIMIT)->values()->all(),
+        ];
+    }
+
+    protected function buildWeeklySummary(
+        Collection $scheduleEvents,
+        EloquentCollection $quizzes,
+        EloquentCollection $tasks,
+        EloquentCollection $posts,
+        EloquentCollection $comments,
+        CarbonImmutable $today,
+        CarbonImmutable $weekEnd,
+    ): array {
+        $weekEvents = $scheduleEvents
+            ->map(fn (ScheduleEvent $event) => ['event' => $event, 'when' => $this->nextOccurrence($event, $today)])
+            ->filter(fn (array $payload) => $payload['when'] !== null && $payload['when']->between($today->startOfDay(), $weekEnd->endOfDay()));
+
+        return [
+            'headline' => sprintf(
+                '%d sessions, %d quizzes, and %d task deadlines are scheduled this week.',
+                $weekEvents->count(),
+                $quizzes->filter(fn (Quiz $quiz) => $quiz->quiz_date !== null && $quiz->quiz_date->between($today->startOfDay(), $weekEnd->endOfDay()))->count(),
+                $tasks->filter(fn (Task $task) => $task->due_date !== null && $task->due_date->between($today->startOfDay(), $weekEnd->endOfDay()))->count(),
+            ),
+            'items' => [
+                ['label' => 'Sessions', 'value' => $weekEvents->count(), 'caption' => 'Lectures and sections on the timetable'],
+                ['label' => 'Assessments', 'value' => $quizzes->filter(fn (Quiz $quiz) => $quiz->quiz_date !== null && $quiz->quiz_date->between($today->startOfDay(), $weekEnd->endOfDay()))->count(), 'caption' => 'Quizzes scheduled this week'],
+                ['label' => 'Deadlines', 'value' => $tasks->filter(fn (Task $task) => $task->due_date !== null && $task->due_date->between($today->startOfDay(), $weekEnd->endOfDay()))->count(), 'caption' => 'Task due dates coming up'],
+                ['label' => 'Discussion signals', 'value' => $posts->count() + $comments->count(), 'caption' => 'Recent group posts and comments'],
+            ],
+        ];
+    }
+
+    protected function buildSmartSuggestions(
+        array $actionCenterItems,
+        array $riskAlerts,
+        array $courseHealth,
+        array $pendingGrading,
+        array $studentInsights,
+        User $user,
+        array $performanceAnalytics,
+    ): array {
+        $items = collect();
+
+        if (($pendingGrading['count'] ?? 0) > 0 && $user->canManageGrades()) {
+            $items->push([
+                'id' => 'grading_sprint',
+                'title' => 'Run a grading sprint today',
+                'explanation' => 'Clearing the grading queue first will improve feedback speed and reduce hidden risk.',
+                'cta_label' => 'Open grading queue',
+                'route' => '/workspace/tasks',
+            ]);
+        }
+
+        if (($studentInsights['low_engagement_count'] ?? 0) > 0) {
+            $items->push([
+                'id' => 'engagement_followup',
+                'title' => 'Post a group reminder',
+                'explanation' => 'Low activity students are increasing. A short clarification or reminder could improve participation quickly.',
+                'cta_label' => 'Send announcement',
+                'route' => '/workspace/subjects',
+            ]);
+        }
+
+        if (($courseHealth['overall_score'] ?? 100) < 80) {
+            $items->push([
+                'id' => 'health_recovery',
+                'title' => 'Stabilize the weakest subject first',
+                'explanation' => 'One or more subjects are trending toward risk. Resolve missing content and deadlines before expanding new work.',
+                'cta_label' => 'Review subjects',
+                'route' => '/workspace/subjects',
+            ]);
+        }
+
+        $averageScore = $performanceAnalytics['average_score'] ?? null;
+        if ($averageScore !== null && $averageScore < 70 && $user->canManageGrades()) {
+            $items->push([
+                'id' => 'grade_recovery',
+                'title' => 'Review low performers before the next session',
+                'explanation' => 'Recent grade averages are soft. A quick pass on weak performers can help you intervene before the next deadline.',
+                'cta_label' => 'Open analytics',
+                'route' => '/workspace/tasks',
+            ]);
+        }
+
+        if (($riskAlerts['count'] ?? 0) === 0 && count($actionCenterItems) <= 2) {
+            $items->push([
+                'id' => 'proactive_build',
+                'title' => 'Prepare next week early',
+                'explanation' => 'The board is relatively clear. This is a good window to draft the next lecture or quiz.',
+                'cta_label' => 'Use quick actions',
+                'route' => '/workspace/home',
+            ]);
+        }
+
+        return [
+            'items' => $items->take(self::SUGGESTIONS_LIMIT)->values()->all(),
+        ];
+    }
+
+    protected function subjectWorkspaceRoute(int $subjectId): string
+    {
+        return sprintf('/workspace/subjects/%d', $subjectId);
     }
 
     protected function missingSubmissionsByTask(
@@ -669,10 +1481,6 @@ class DashboardService
                     ->pluck('student_user_id')
                     ->filter()
                     ->unique();
-
-                if ($submittedStudentIds->isEmpty()) {
-                    return [$task->id => 0];
-                }
 
                 return [$task->id => max($subjectStudentIds->count() - $submittedStudentIds->count(), 0)];
             });
@@ -698,10 +1506,6 @@ class DashboardService
                 ->pluck('student_user_id')
                 ->filter()
                 ->unique();
-
-            if ($submittedIds->isEmpty()) {
-                continue;
-            }
 
             $studentIdsBySubject->get($task->subject_id, collect())
                 ->diff($submittedIds)
@@ -776,10 +1580,10 @@ class DashboardService
             'type' => $type,
             'priority' => $priority,
             'title' => $title,
-            'description' => $description,
-            'cta' => $cta,
+            'explanation' => $description,
+            'cta_label' => $cta,
             'route' => $route,
-            'route_meta' => ['route' => $route, ...$routeMeta],
+            'meta' => ['route' => $route, ...$routeMeta],
         ];
     }
 

@@ -1,11 +1,13 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/models/home_dashboard.dart';
 import '../../../../core/models/notification_item.dart';
 import '../../../../core/models/quiz_models.dart';
-import '../../../../core/router/route_names.dart';
 import '../../../../core/models/student_profile.dart';
 import '../../../../core/models/subject_models.dart';
+import '../../../../core/router/route_names.dart';
+import '../../../../core/utils/formatters.dart';
 import '../../../notifications/presentation/providers/notifications_providers.dart';
 import '../../data/repositories/mock_home_repository.dart';
 
@@ -33,13 +35,10 @@ class StudentHomeViewModel {
   StudentHomeViewModel({
     required this.profile,
     required this.unreadCount,
-    required this.courseCount,
     required this.quickActions,
-    required this.todayFocus,
+    required this.requiredTodayItems,
     required this.timelineGroups,
-    required this.upcomingLectures,
-    required this.upcomingQuizzes,
-    required this.deadlines,
+    required this.academicSnapshot,
     required this.courseActivities,
     required this.notificationsPreview,
     required this.studyInsights,
@@ -53,6 +52,8 @@ class StudentHomeViewModel {
     final now = DateTime.now();
     final lectures = [...dashboard.upcomingLectures]
       ..sort((a, b) => _compareDates(a.startsAt, b.startsAt));
+    final sections = [...dashboard.upcomingSections]
+      ..sort((a, b) => _compareDates(a.startsAt, b.startsAt));
     final quizzes = [...dashboard.upcomingQuizzes]
       ..sort((a, b) => _compareDates(a.startsAt, b.startsAt));
     final tasks = [...dashboard.tasks]
@@ -62,13 +63,12 @@ class StudentHomeViewModel {
       (lecture) => lecture?.startsAt?.isAfter(now) ?? false,
       orElse: () => null,
     );
-    final openQuiz = quizzes.cast<QuizItem?>().firstWhere(
-      (quiz) => _isQuizOpen(quiz, now),
+    final nextSection = sections.cast<SectionItem?>().firstWhere(
+      (section) => section?.startsAt?.isAfter(now) ?? false,
       orElse: () => null,
     );
-    final nextQuiz = quizzes.cast<QuizItem?>().firstWhere(
-      (quiz) =>
-          (quiz?.startsAt?.isAfter(now) ?? false) && !_isQuizOpen(quiz, now),
+    final openQuiz = quizzes.cast<QuizItem?>().firstWhere(
+      (quiz) => _isQuizOpen(quiz, now),
       orElse: () => null,
     );
     final nearestTaskDeadline = tasks.cast<TaskItem?>().firstWhere(
@@ -78,53 +78,53 @@ class StudentHomeViewModel {
           task!.dueAt!.isAfter(now),
       orElse: () => null,
     );
+    final missingTask = tasks.cast<TaskItem?>().firstWhere(
+      (task) => task?.isMissingSubmission == true,
+      orElse: () => null,
+    );
 
     final timelineItems = _buildTimelineItems(
       lectures: lectures,
+      sections: sections,
       quizzes: quizzes,
       tasks: tasks,
       now: now,
     );
 
-    final deadlineItems = _buildDeadlineItems(
-      quizzes: quizzes,
-      tasks: tasks,
-      now: now,
-    );
-
-    final studySummary =
-        'You completed ${dashboard.studyInsights.completedTasks}/${dashboard.studyInsights.completedTasks + dashboard.studyInsights.pendingTasks} tasks this week';
+    final totalTasks =
+        dashboard.studyInsights.completedTasks + dashboard.studyInsights.pendingTasks;
+    final delayedSubjects = dashboard.subjects
+        .where((subject) => subject.status == 'مطلوب تسليم')
+        .toList();
 
     return StudentHomeViewModel(
       profile: dashboard.profile,
       unreadCount: unreadCount,
-      courseCount: dashboard.subjects.length,
       quickActions: [
-        StudentQuickActionItem(
-          type: StudentQuickActionType.joinLecture,
-          target: nextLecture == null
-              ? null
-              : _subjectTarget(nextLecture.subjectId),
-          helperText: nextLecture == null
-              ? 'No lecture queued'
-              : _timeUntil(nextLecture.startsAt, now),
+        const StudentQuickActionItem(
+          type: StudentQuickActionType.viewTimetable,
+          target: StudentActionTarget(routeName: RouteNames.timetable),
+          helperText: 'اليوم وغدًا وهذا الأسبوع',
         ),
         StudentQuickActionItem(
           type: StudentQuickActionType.openQuiz,
           target: openQuiz != null
               ? _quizTarget(openQuiz)
-              : nextQuiz == null
-              ? null
-              : _quizTarget(nextQuiz),
-          helperText: openQuiz != null
-              ? 'Open now'
-              : nextQuiz == null
-              ? 'No active quiz'
-              : 'Next up',
+              : const StudentActionTarget(routeName: RouteNames.quizzes),
+          helperText: openQuiz != null ? 'يوجد كويز متاح الآن' : 'راجع الكويزات القادمة',
         ),
-        const StudentQuickActionItem(
-          type: StudentQuickActionType.viewSchedule,
-          target: StudentActionTarget(routeName: RouteNames.subjects),
+        StudentQuickActionItem(
+          type: StudentQuickActionType.uploadAssignment,
+          target: missingTask != null
+              ? _assignmentTarget(missingTask)
+              : nearestTaskDeadline != null
+              ? _assignmentTarget(nearestTaskDeadline)
+              : null,
+          helperText: missingTask != null
+              ? 'لديك شيت يحتاج رفع'
+              : nearestTaskDeadline != null
+              ? nearestTaskDeadline.title
+              : 'لا يوجد رفع عاجل الآن',
         ),
         StudentQuickActionItem(
           type: StudentQuickActionType.openCourse,
@@ -133,67 +133,120 @@ class StudentHomeViewModel {
               : dashboard.subjects.isEmpty
               ? null
               : _subjectTarget(dashboard.subjects.first.id),
-          helperText:
-              nextLecture?.subjectName ?? dashboard.subjects.firstOrNull?.name,
+          helperText: nextLecture?.subjectName ?? dashboard.subjects.firstOrNull?.name,
         ),
         const StudentQuickActionItem(
           type: StudentQuickActionType.checkResults,
           target: StudentActionTarget(routeName: RouteNames.results),
+          helperText: 'اعرف مستواك ومواد التحسين',
         ),
       ],
-      todayFocus: _buildTodayFocus(
-        now: now,
-        openQuiz: openQuiz,
-        nextLecture: nextLecture,
-        nearestTaskDeadline: nearestTaskDeadline,
-      ),
+      requiredTodayItems: [
+        StudentRequiredActionItem(
+          title: 'المحاضرة التالية',
+          subtitle: nextLecture == null
+              ? 'لا توجد محاضرات قريبة'
+              : '${nextLecture.title} - ${nextLecture.subjectName}',
+          meta: nextLecture == null
+              ? 'لا يوجد'
+              : formatTimeUntilArabic(nextLecture.startsAt, reference: now),
+          ctaLabel: 'دخول',
+          target: nextLecture == null ? null : _subjectTarget(nextLecture.subjectId),
+          priority: nextLecture == null ? StudentPriority.safe : StudentPriority.soon,
+          icon: Icons.play_circle_outline_rounded,
+        ),
+        StudentRequiredActionItem(
+          title: 'السكشن القادم',
+          subtitle: nextSection == null
+              ? 'لا يوجد سكشن قريب'
+              : '${nextSection.title} - ${nextSection.subjectName}',
+          meta: nextSection == null
+              ? 'لا يوجد'
+              : formatTimeUntilArabic(nextSection.startsAt, reference: now),
+          ctaLabel: 'عرض',
+          target: nextSection == null ? null : _subjectTarget(nextSection.subjectId),
+          priority: nextSection == null ? StudentPriority.safe : StudentPriority.soon,
+          icon: Icons.co_present_outlined,
+        ),
+        StudentRequiredActionItem(
+          title: 'الكويز المفتوح',
+          subtitle: openQuiz == null
+              ? 'لا يوجد كويز مفتوح حاليًا'
+              : '${openQuiz.title} - ${openQuiz.subjectName}',
+          meta: openQuiz == null
+              ? 'مغلق الآن'
+              : 'يغلق ${formatTimeUntilArabic(openQuiz.closesAt, reference: now)}',
+          ctaLabel: 'فتح',
+          target: openQuiz == null ? const StudentActionTarget(routeName: RouteNames.quizzes) : _quizTarget(openQuiz),
+          priority: openQuiz == null ? StudentPriority.safe : StudentPriority.urgent,
+          icon: Icons.quiz_outlined,
+        ),
+        StudentRequiredActionItem(
+          title: 'أقرب موعد تسليم',
+          subtitle: nearestTaskDeadline == null
+              ? 'لا يوجد تسليم قريب'
+              : '${nearestTaskDeadline.title} - ${nearestTaskDeadline.subjectName}',
+          meta: nearestTaskDeadline == null
+              ? 'ممتاز'
+              : formatTimeUntilArabic(nearestTaskDeadline.dueAt, reference: now),
+          ctaLabel: 'رفع',
+          target: nearestTaskDeadline == null ? null : _assignmentTarget(nearestTaskDeadline),
+          priority: nearestTaskDeadline == null
+              ? StudentPriority.safe
+              : _priorityFromDate(nearestTaskDeadline.dueAt, now),
+          icon: Icons.upload_file_outlined,
+        ),
+        StudentRequiredActionItem(
+          title: 'مهام ناقصة',
+          subtitle: missingTask == null
+              ? 'لا يوجد تأخير حالي'
+              : '${missingTask.title} تحتاج إلى رفع الآن',
+          meta: missingTask == null ? 'مستقر' : 'متأخر',
+          ctaLabel: 'عرض',
+          target: missingTask == null ? null : _assignmentTarget(missingTask),
+          priority: missingTask == null ? StudentPriority.safe : StudentPriority.urgent,
+          icon: Icons.warning_amber_rounded,
+        ),
+      ],
       timelineGroups: _groupTimelineItems(timelineItems),
-      upcomingLectures: lectures
-          .map(
-            (lecture) => StudentLectureCardModel(
-              lecture: lecture,
-              isNext: nextLecture?.id == lecture.id,
-              statusLabel: lecture.isOnline ? 'Online' : 'On campus',
-              timeLabel: lecture.scheduleLabel,
-              target: _subjectTarget(lecture.subjectId),
-            ),
-          )
-          .toList(),
-      upcomingQuizzes: quizzes
-          .map(
-            (quiz) => StudentQuizCardModel(
-              quiz: quiz,
-              isOpen: _isQuizOpen(quiz, now),
-              statusLabel: _isQuizOpen(quiz, now) ? 'Open' : 'Upcoming',
-              timeLabel: quiz.startAtLabel,
-              target: _quizTarget(quiz),
-            ),
-          )
-          .toList(),
-      deadlines: deadlineItems,
+      academicSnapshot: StudentAcademicSnapshot(
+        gpa: dashboard.profile.gpa,
+        courseCount: dashboard.subjects.length,
+        completedTasks: dashboard.studyInsights.completedTasks,
+        pendingTasks: dashboard.studyInsights.pendingTasks,
+        viewedLectures: dashboard.studyInsights.viewedLectures,
+        engagementSummary: dashboard.studyInsights.engagementLabel,
+        academicStatus: dashboard.profile.academicStatus,
+      ),
       courseActivities: [...dashboard.courseActivities]
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt)),
       notificationsPreview: notifications.take(3).toList(),
       studyInsights: StudentStudyInsightsModel(
-        summary: studySummary,
+        headline:
+            totalTasks == 0 ? 'ابدئي أسبوعك بخطة واضحة' : 'أكملت ${dashboard.studyInsights.completedTasks} من $totalTasks مهام هذا الأسبوع',
+        summary: delayedSubjects.isNotEmpty
+            ? 'تحتاج ${delayedSubjects.first.name} إلى تركيز أكبر بسبب قرب التسليمات.'
+            : 'أداؤك جيد، ووتيرة الإنجاز مستقرة هذا الأسبوع.',
         completedTasks: dashboard.studyInsights.completedTasks,
         pendingTasks: dashboard.studyInsights.pendingTasks,
         viewedLectures: dashboard.studyInsights.viewedLectures,
         engagementLabel: dashboard.studyInsights.engagementLabel,
         engagementScore: dashboard.studyInsights.engagementScore,
+        tips: _buildAcademicTips(
+          dashboard: dashboard,
+          openQuiz: openQuiz,
+          missingTask: missingTask,
+        ),
       ),
     );
   }
 
   final StudentProfile profile;
   final int unreadCount;
-  final int courseCount;
   final List<StudentQuickActionItem> quickActions;
-  final StudentTodayFocusModel todayFocus;
+  final List<StudentRequiredActionItem> requiredTodayItems;
   final List<StudentTimelineGroup> timelineGroups;
-  final List<StudentLectureCardModel> upcomingLectures;
-  final List<StudentQuizCardModel> upcomingQuizzes;
-  final List<StudentDeadlineItem> deadlines;
+  final StudentAcademicSnapshot academicSnapshot;
   final List<CourseActivityItem> courseActivities;
   final List<AppNotificationItem> notificationsPreview;
   final StudentStudyInsightsModel studyInsights;
@@ -214,50 +267,31 @@ class StudentQuickActionItem {
 }
 
 enum StudentQuickActionType {
-  joinLecture,
+  viewTimetable,
   openQuiz,
-  viewSchedule,
+  uploadAssignment,
   openCourse,
   checkResults,
 }
 
-class StudentTodayFocusModel {
-  const StudentTodayFocusModel({
-    required this.state,
+class StudentRequiredActionItem {
+  const StudentRequiredActionItem({
     required this.title,
-    required this.message,
-    required this.highlights,
-    this.primaryCta,
-    this.secondaryCta,
-  });
-
-  final StudentTodayFocusState state;
-  final String title;
-  final String message;
-  final List<StudentTodayHighlight> highlights;
-  final StudentActionCta? primaryCta;
-  final StudentActionCta? secondaryCta;
-}
-
-enum StudentTodayFocusState { urgent, busy, empty }
-
-class StudentTodayHighlight {
-  const StudentTodayHighlight({
-    required this.label,
-    required this.value,
+    required this.subtitle,
+    required this.meta,
+    required this.ctaLabel,
+    required this.target,
     required this.priority,
+    required this.icon,
   });
 
-  final String label;
-  final String value;
+  final String title;
+  final String subtitle;
+  final String meta;
+  final String ctaLabel;
+  final StudentActionTarget? target;
   final StudentPriority priority;
-}
-
-class StudentActionCta {
-  const StudentActionCta({required this.label, required this.target});
-
-  final String label;
-  final StudentActionTarget target;
+  final IconData icon;
 }
 
 class StudentActionTarget {
@@ -297,204 +331,55 @@ class StudentTimelineItem {
   final StudentActionTarget? target;
 }
 
-enum StudentTimelineKind { lecture, quiz, task }
+enum StudentTimelineKind { lecture, section, quiz, task }
 
-class StudentLectureCardModel {
-  const StudentLectureCardModel({
-    required this.lecture,
-    required this.isNext,
-    required this.statusLabel,
-    required this.timeLabel,
-    required this.target,
+class StudentAcademicSnapshot {
+  const StudentAcademicSnapshot({
+    required this.gpa,
+    required this.courseCount,
+    required this.completedTasks,
+    required this.pendingTasks,
+    required this.viewedLectures,
+    required this.engagementSummary,
+    required this.academicStatus,
   });
 
-  final LectureItem lecture;
-  final bool isNext;
-  final String statusLabel;
-  final String timeLabel;
-  final StudentActionTarget target;
-}
-
-class StudentQuizCardModel {
-  const StudentQuizCardModel({
-    required this.quiz,
-    required this.isOpen,
-    required this.statusLabel,
-    required this.timeLabel,
-    required this.target,
-  });
-
-  final QuizItem quiz;
-  final bool isOpen;
-  final String statusLabel;
-  final String timeLabel;
-  final StudentActionTarget target;
-}
-
-class StudentDeadlineItem {
-  const StudentDeadlineItem({
-    required this.title,
-    required this.subtitle,
-    required this.meta,
-    required this.priority,
-    this.target,
-  });
-
-  final String title;
-  final String subtitle;
-  final String meta;
-  final StudentPriority priority;
-  final StudentActionTarget? target;
+  final double gpa;
+  final int courseCount;
+  final int completedTasks;
+  final int pendingTasks;
+  final int viewedLectures;
+  final String engagementSummary;
+  final String academicStatus;
 }
 
 class StudentStudyInsightsModel {
   const StudentStudyInsightsModel({
+    required this.headline,
     required this.summary,
     required this.completedTasks,
     required this.pendingTasks,
     required this.viewedLectures,
     required this.engagementLabel,
     required this.engagementScore,
+    required this.tips,
   });
 
+  final String headline;
   final String summary;
   final int completedTasks;
   final int pendingTasks;
   final int viewedLectures;
   final String engagementLabel;
   final double engagementScore;
+  final List<String> tips;
 }
 
 enum StudentPriority { urgent, soon, safe }
 
-StudentTodayFocusModel _buildTodayFocus({
-  required DateTime now,
-  required QuizItem? openQuiz,
-  required LectureItem? nextLecture,
-  required TaskItem? nearestTaskDeadline,
-}) {
-  final highlights = <StudentTodayHighlight>[
-    StudentTodayHighlight(
-      label: 'Next lecture',
-      value: nextLecture == null
-          ? 'No lecture scheduled'
-          : _timeUntil(nextLecture.startsAt, now),
-      priority: nextLecture == null
-          ? StudentPriority.safe
-          : StudentPriority.soon,
-    ),
-    StudentTodayHighlight(
-      label: 'Quiz status',
-      value: openQuiz == null
-          ? 'No quiz open now'
-          : 'Open for ${_timeUntil(openQuiz.closesAt, now)}',
-      priority: openQuiz == null
-          ? StudentPriority.safe
-          : StudentPriority.urgent,
-    ),
-    StudentTodayHighlight(
-      label: 'Nearest deadline',
-      value: nearestTaskDeadline == null
-          ? 'Nothing urgent'
-          : _timeUntil(nearestTaskDeadline.dueAt, now),
-      priority: nearestTaskDeadline == null
-          ? StudentPriority.safe
-          : _priorityFromDate(nearestTaskDeadline.dueAt, now),
-    ),
-  ];
-
-  if (openQuiz != null) {
-    return StudentTodayFocusModel(
-      state: StudentTodayFocusState.urgent,
-      title: '${openQuiz.title} is open right now',
-      message:
-          '${openQuiz.subjectName ?? 'Your course'} closes ${_timeUntil(openQuiz.closesAt, now)}. This is the most time-sensitive task on your dashboard.',
-      highlights: highlights,
-      primaryCta: StudentActionCta(
-        label: 'Open Quiz',
-        target: _quizTarget(openQuiz),
-      ),
-      secondaryCta: StudentActionCta(
-        label: 'Open Course',
-        target: _subjectTarget(openQuiz.subjectId),
-      ),
-    );
-  }
-
-  if (nearestTaskDeadline != null &&
-      _priorityFromDate(nearestTaskDeadline.dueAt, now) ==
-          StudentPriority.urgent) {
-    return StudentTodayFocusModel(
-      state: StudentTodayFocusState.urgent,
-      title: '${nearestTaskDeadline.title} needs attention today',
-      message:
-          '${nearestTaskDeadline.subjectName ?? 'Course task'} is due ${_timeUntil(nearestTaskDeadline.dueAt, now)}. Wrap this up before you move on to lower-priority work.',
-      highlights: highlights,
-      primaryCta: StudentActionCta(
-        label: 'Open Course',
-        target: _subjectTarget(nearestTaskDeadline.subjectId),
-      ),
-      secondaryCta: const StudentActionCta(
-        label: 'View Schedule',
-        target: StudentActionTarget(routeName: RouteNames.subjects),
-      ),
-    );
-  }
-
-  if (nextLecture != null) {
-    return StudentTodayFocusModel(
-      state: StudentTodayFocusState.busy,
-      title:
-          '${nextLecture.title} starts ${_timeUntil(nextLecture.startsAt, now)}',
-      message:
-          '${nextLecture.subjectName ?? 'Your lecture'} is the next live event on your calendar. Join from the course space and review materials before it begins.',
-      highlights: highlights,
-      primaryCta: StudentActionCta(
-        label: 'Join Lecture',
-        target: _subjectTarget(nextLecture.subjectId),
-      ),
-      secondaryCta: const StudentActionCta(
-        label: 'View Schedule',
-        target: StudentActionTarget(routeName: RouteNames.subjects),
-      ),
-    );
-  }
-
-  return const StudentTodayFocusModel(
-    state: StudentTodayFocusState.empty,
-    title: 'You are clear for now',
-    message:
-        'No urgent quizzes, lectures, or deadlines are competing for attention. This is a good moment to review course updates.',
-    highlights: [
-      StudentTodayHighlight(
-        label: 'Focus',
-        value: 'Catch up on recent activity',
-        priority: StudentPriority.safe,
-      ),
-      StudentTodayHighlight(
-        label: 'Next step',
-        value: 'Review your course stream',
-        priority: StudentPriority.safe,
-      ),
-      StudentTodayHighlight(
-        label: 'Status',
-        value: 'Calendar is under control',
-        priority: StudentPriority.safe,
-      ),
-    ],
-    primaryCta: StudentActionCta(
-      label: 'Open Course',
-      target: StudentActionTarget(routeName: RouteNames.subjects),
-    ),
-    secondaryCta: StudentActionCta(
-      label: 'Check Results',
-      target: StudentActionTarget(routeName: RouteNames.results),
-    ),
-  );
-}
-
 List<StudentTimelineItem> _buildTimelineItems({
   required List<LectureItem> lectures,
+  required List<SectionItem> sections,
   required List<QuizItem> quizzes,
   required List<TaskItem> tasks,
   required DateTime now,
@@ -505,12 +390,25 @@ List<StudentTimelineItem> _buildTimelineItems({
         .map(
           (lecture) => StudentTimelineItem(
             title: lecture.title,
-            subtitle: lecture.subjectName ?? 'Lecture',
+            subtitle: lecture.subjectName ?? 'محاضرة',
             timeLabel: lecture.scheduleLabel,
             scheduledAt: lecture.startsAt,
             kind: StudentTimelineKind.lecture,
             priority: _priorityFromDate(lecture.startsAt, now),
             target: _subjectTarget(lecture.subjectId),
+          ),
+        ),
+    ...sections
+        .where((section) => section.startsAt?.isAfter(now) ?? false)
+        .map(
+          (section) => StudentTimelineItem(
+            title: section.title,
+            subtitle: section.subjectName ?? section.assistantName,
+            timeLabel: section.scheduleLabel,
+            scheduledAt: section.startsAt,
+            kind: StudentTimelineKind.section,
+            priority: _priorityFromDate(section.startsAt, now),
+            target: _subjectTarget(section.subjectId),
           ),
         ),
     ...quizzes
@@ -522,7 +420,8 @@ List<StudentTimelineItem> _buildTimelineItems({
           (quiz) => StudentTimelineItem(
             title: quiz.title,
             subtitle: quiz.subjectName ?? quiz.typeLabel,
-            timeLabel: _isQuizOpen(quiz, now) ? 'Open now' : quiz.startAtLabel,
+            timeLabel:
+                _isQuizOpen(quiz, now) ? 'مفتوح الآن' : quiz.startAtLabel,
             scheduledAt: quiz.startsAt,
             kind: StudentTimelineKind.quiz,
             priority: _isQuizOpen(quiz, now)
@@ -543,7 +442,7 @@ List<StudentTimelineItem> _buildTimelineItems({
             scheduledAt: task.dueAt,
             kind: StudentTimelineKind.task,
             priority: _priorityFromDate(task.dueAt, now),
-            target: _subjectTarget(task.subjectId),
+            target: _assignmentTarget(task),
           ),
         ),
   ];
@@ -552,19 +451,17 @@ List<StudentTimelineItem> _buildTimelineItems({
   return items;
 }
 
-List<StudentTimelineGroup> _groupTimelineItems(
-  List<StudentTimelineItem> items,
-) {
+List<StudentTimelineGroup> _groupTimelineItems(List<StudentTimelineItem> items) {
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
   final todayItems = <StudentTimelineItem>[];
   final tomorrowItems = <StudentTimelineItem>[];
-  final laterItems = <StudentTimelineItem>[];
+  final weekItems = <StudentTimelineItem>[];
 
   for (final item in items) {
     final referenceDate = item.scheduledAt;
     if (referenceDate == null) {
-      laterItems.add(item);
+      weekItems.add(item);
       continue;
     }
 
@@ -580,67 +477,18 @@ List<StudentTimelineGroup> _groupTimelineItems(
     } else if (difference == 1) {
       tomorrowItems.add(item);
     } else {
-      laterItems.add(item);
+      weekItems.add(item);
     }
   }
 
   return [
     if (todayItems.isNotEmpty)
-      StudentTimelineGroup(title: 'Today', items: todayItems),
+      StudentTimelineGroup(title: 'اليوم', items: todayItems),
     if (tomorrowItems.isNotEmpty)
-      StudentTimelineGroup(title: 'Tomorrow', items: tomorrowItems),
-    if (laterItems.isNotEmpty)
-      StudentTimelineGroup(title: 'Later', items: laterItems),
+      StudentTimelineGroup(title: 'غدًا', items: tomorrowItems),
+    if (weekItems.isNotEmpty)
+      StudentTimelineGroup(title: 'هذا الأسبوع', items: weekItems),
   ];
-}
-
-List<StudentDeadlineItem> _buildDeadlineItems({
-  required List<QuizItem> quizzes,
-  required List<TaskItem> tasks,
-  required DateTime now,
-}) {
-  final items = <StudentDeadlineItem>[
-    ...tasks
-        .where(
-          (task) => !task.isCompleted && (task.dueAt?.isAfter(now) ?? false),
-        )
-        .map(
-          (task) => StudentDeadlineItem(
-            title: task.title,
-            subtitle: task.subjectName ?? task.status,
-            meta: task.isMissingSubmission
-                ? 'Missing submission'
-                : task.dueDateLabel,
-            priority: _priorityFromDate(task.dueAt, now),
-            target: _subjectTarget(task.subjectId),
-          ),
-        ),
-    ...quizzes
-        .where((quiz) => quiz.closesAt?.isAfter(now) ?? false)
-        .map(
-          (quiz) => StudentDeadlineItem(
-            title: quiz.title,
-            subtitle: quiz.subjectName ?? quiz.typeLabel,
-            meta: _isQuizOpen(quiz, now)
-                ? 'Closes ${_timeUntil(quiz.closesAt, now)}'
-                : 'Starts ${_timeUntil(quiz.startsAt, now)}',
-            priority: _isQuizOpen(quiz, now)
-                ? StudentPriority.urgent
-                : _priorityFromDate(quiz.startsAt, now),
-            target: _quizTarget(quiz),
-          ),
-        ),
-  ];
-
-  items.sort((a, b) {
-    final priorityOrder = a.priority.index.compareTo(b.priority.index);
-    if (priorityOrder != 0) {
-      return priorityOrder;
-    }
-    return a.title.compareTo(b.title);
-  });
-
-  return items.take(4).toList();
 }
 
 StudentPriority _priorityFromDate(DateTime? date, DateTime now) {
@@ -658,30 +506,29 @@ StudentPriority _priorityFromDate(DateTime? date, DateTime now) {
   return StudentPriority.safe;
 }
 
-String _timeUntil(DateTime? date, DateTime now) {
-  if (date == null) {
-    return 'soon';
-  }
+List<String> _buildAcademicTips({
+  required HomeDashboardData dashboard,
+  required QuizItem? openQuiz,
+  required TaskItem? missingTask,
+}) {
+  final weakestSubject = [...dashboard.subjects]
+    ..sort((a, b) => a.progress.compareTo(b.progress));
 
-  final difference = date.difference(now);
-  if (difference.inMinutes <= 59) {
-    return 'in ${difference.inMinutes.clamp(1, 59)} min';
-  }
-  if (difference.inHours <= 23) {
-    return 'in ${difference.inHours}h';
-  }
-  if (difference.inDays == 1) {
-    return 'tomorrow';
-  }
-  return 'in ${difference.inDays} days';
+  return [
+    if (missingTask != null) 'لديك تأخر في تسليم "${missingTask.title}".',
+    if (openQuiz != null) 'لديك كويز اليوم في ${openQuiz.subjectName}.',
+    if (dashboard.studyInsights.engagementScore >= 0.8) 'أداؤك جيد هذا الأسبوع واستمرارك ممتاز.',
+    if (weakestSubject.isNotEmpty)
+      'راجع مادة ${weakestSubject.first.name} اليوم لأنها الأقل تقدمًا لديك.',
+  ];
 }
 
 bool _isQuizOpen(QuizItem? quiz, DateTime now) {
-  if (quiz?.startsAt == null || quiz?.closesAt == null) {
+  if (quiz?.startsAt == null || quiz?.closesAt == null || quiz!.isSubmitted) {
     return false;
   }
 
-  return !quiz!.startsAt!.isAfter(now) && quiz.closesAt!.isAfter(now);
+  return !quiz.startsAt!.isAfter(now) && quiz.closesAt!.isAfter(now);
 }
 
 StudentActionTarget _subjectTarget(String subjectId) {
@@ -695,6 +542,13 @@ StudentActionTarget _quizTarget(QuizItem quiz) {
   return StudentActionTarget(
     routeName: RouteNames.quizEntry,
     pathParameters: {'subjectId': quiz.subjectId, 'quizId': quiz.id},
+  );
+}
+
+StudentActionTarget _assignmentTarget(TaskItem task) {
+  return StudentActionTarget(
+    routeName: RouteNames.assignmentUpload,
+    pathParameters: {'subjectId': task.subjectId, 'taskId': task.id},
   );
 }
 

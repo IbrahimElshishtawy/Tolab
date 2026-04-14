@@ -10,7 +10,7 @@ import '../../../state/app_state.dart';
 import '../../auth/state/session_selectors.dart';
 import '../state/dashboard_actions.dart';
 import '../state/dashboard_view_model.dart';
-import 'doctor_home_page.dart';
+import 'doctor_dashboard_page.dart';
 import 'widgets/doctor_home_empty.dart';
 import 'widgets/doctor_home_error.dart';
 import 'widgets/doctor_home_loading.dart';
@@ -68,7 +68,7 @@ class DoctorHomeContainer extends StatelessWidget {
           );
         }
 
-        return DoctorHomePage(
+        return DoctorDashboardPage(
           user: user,
           vm: vm.dashboard,
           onToggleStyle: AppScope.theme(context).toggle,

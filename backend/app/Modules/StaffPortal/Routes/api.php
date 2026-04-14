@@ -52,3 +52,7 @@ Route::prefix('staff-portal')->group(function () {
         });
     });
 });
+
+Route::prefix('staff')->middleware(['auth:sanctum', 'active', 'throttle:api', 'staff_role'])->group(function () {
+    Route::get('dashboard', [DashboardController::class, 'index']);
+});

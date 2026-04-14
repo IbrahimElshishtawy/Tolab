@@ -6,6 +6,9 @@ class AppNotificationItem {
     required this.createdAtLabel,
     required this.category,
     required this.isRead,
+    required this.routeName,
+    this.pathParameters = const {},
+    this.isImportant = false,
   });
 
   final String id;
@@ -14,6 +17,9 @@ class AppNotificationItem {
   final String createdAtLabel;
   final String category;
   final bool isRead;
+  final String routeName;
+  final Map<String, String> pathParameters;
+  final bool isImportant;
 
   AppNotificationItem copyWith({
     String? id,
@@ -22,6 +28,9 @@ class AppNotificationItem {
     String? createdAtLabel,
     String? category,
     bool? isRead,
+    String? routeName,
+    Map<String, String>? pathParameters,
+    bool? isImportant,
   }) {
     return AppNotificationItem(
       id: id ?? this.id,
@@ -30,6 +39,9 @@ class AppNotificationItem {
       createdAtLabel: createdAtLabel ?? this.createdAtLabel,
       category: category ?? this.category,
       isRead: isRead ?? this.isRead,
+      routeName: routeName ?? this.routeName,
+      pathParameters: pathParameters ?? this.pathParameters,
+      isImportant: isImportant ?? this.isImportant,
     );
   }
 }

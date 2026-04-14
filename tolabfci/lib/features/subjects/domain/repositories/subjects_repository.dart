@@ -13,6 +13,8 @@ abstract class SubjectsRepository {
 
   Future<List<TaskItem>> fetchTasks(String subjectId);
 
+  Future<List<SubjectFileItem>> fetchSubjectFiles(String subjectId);
+
   Future<List<SummaryItem>> fetchSummaries(String subjectId);
 
   Future<void> addSummary({
@@ -23,6 +25,12 @@ abstract class SubjectsRepository {
   });
 
   Future<List<QuizItem>> fetchQuizzes(String subjectId);
+
+  Future<TaskItem> uploadAssignment({
+    required String subjectId,
+    required String taskId,
+    required String fileName,
+  });
 
   Future<List<CommunityPost>> fetchCommunityPosts(String subjectId);
 

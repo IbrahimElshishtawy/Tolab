@@ -61,6 +61,10 @@ class MockSubjectsRepository implements SubjectsRepository {
       _backendService.fetchLectures(subjectId: subjectId);
 
   @override
+  Future<List<SubjectFileItem>> fetchSubjectFiles(String subjectId) =>
+      _backendService.fetchSubjectFiles(subjectId);
+
+  @override
   Future<List<QuizItem>> fetchQuizzes(String subjectId) =>
       _backendService.fetchQuizzes(subjectId: subjectId);
 
@@ -81,6 +85,19 @@ class MockSubjectsRepository implements SubjectsRepository {
 
   @override
   Future<List<TaskItem>> fetchTasks(String subjectId) => _backendService.fetchTasks(subjectId);
+
+  @override
+  Future<TaskItem> uploadAssignment({
+    required String subjectId,
+    required String taskId,
+    required String fileName,
+  }) {
+    return _backendService.uploadAssignment(
+      subjectId: subjectId,
+      taskId: taskId,
+      fileName: fileName,
+    );
+  }
 
   @override
   Future<void> reactToPost({required String subjectId, required String postId}) {

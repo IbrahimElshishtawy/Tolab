@@ -22,8 +22,6 @@ class StudentHomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final firstName = profile.fullName.split(' ').first;
-
     return AppCard(
       backgroundColor: AppColors.surfaceAlt,
       child: Column(
@@ -34,8 +32,8 @@ class StudentHomeHeader extends StatelessWidget {
             children: [
               AppAvatar(
                 name: profile.fullName,
-                radius: 26,
-                imageUrl: profile.avatarUrl.isEmpty ? null : profile.avatarUrl,
+                radius: 28,
+                imageUrl: profile.avatarUrl,
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
@@ -43,13 +41,18 @@ class StudentHomeHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Welcome back, $firstName',
+                      'أهلاً ${profile.fullName}',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      '${profile.department} • ${profile.level}',
+                      '${profile.department} - ${profile.level}',
                       style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'الرقم الجامعي: ${profile.studentNumber}',
+                      style: Theme.of(context).textTheme.labelLarge,
                     ),
                   ],
                 ),
@@ -75,7 +78,11 @@ class StudentHomeHeader extends StatelessWidget {
               AppBadge(label: 'GPA ${profile.gpa.toStringAsFixed(2)}'),
               AppBadge(label: profile.faculty, backgroundColor: Colors.white),
               AppBadge(
-                label: 'Advisor ${profile.academicAdvisor}',
+                label: 'المرشد: ${profile.academicAdvisor}',
+                backgroundColor: Colors.white,
+              ),
+              AppBadge(
+                label: 'الحالة: ${profile.academicStatus}',
                 backgroundColor: Colors.white,
               ),
             ],

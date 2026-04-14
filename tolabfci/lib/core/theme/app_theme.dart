@@ -21,10 +21,19 @@ class AppTheme {
 
     return ThemeData(
       useMaterial3: true,
+      fontFamilyFallback: const [
+        'SF Pro Display',
+        'SF Pro Text',
+        'Noto Sans Arabic',
+        'Segoe UI',
+        'Tahoma',
+        'Arial',
+      ],
       colorScheme: colorScheme,
       scaffoldBackgroundColor: AppColors.background,
       cardColor: AppColors.surface,
       dividerColor: AppColors.border,
+      visualDensity: VisualDensity.comfortable,
       textTheme: const TextTheme(
         displaySmall: AppTextStyles.titleLarge,
         headlineSmall: AppTextStyles.titleMedium,
@@ -67,6 +76,12 @@ class AppTheme {
         backgroundColor: AppColors.surface,
         indicatorColor: AppColors.primarySoft,
         labelTextStyle: WidgetStateProperty.all(AppTextStyles.label),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.lg),
+        ),
       ),
       chipTheme: ChipThemeData(
         shape: RoundedRectangleBorder(

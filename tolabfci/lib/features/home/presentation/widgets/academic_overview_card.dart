@@ -1,56 +1,49 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/models/student_profile.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_section_header.dart';
+import '../providers/home_providers.dart';
 
 class AcademicOverviewCard extends StatelessWidget {
   const AcademicOverviewCard({
     super.key,
-    required this.profile,
-    required this.courseCount,
+    required this.snapshot,
   });
 
-  final StudentProfile profile;
-  final int courseCount;
+  final StudentAcademicSnapshot snapshot;
 
   @override
   Widget build(BuildContext context) {
     final items = [
-      ('Faculty', profile.faculty),
-      ('Department', profile.department),
-      ('Level', profile.level),
-      ('Advisor', profile.academicAdvisor),
-      ('Seat number', profile.seatNumber),
-      ('GPA', profile.gpa.toStringAsFixed(2)),
-      ('Courses', '$courseCount active'),
+      ('GPA', snapshot.gpa.toStringAsFixed(2)),
+      ('المواد', '${snapshot.courseCount}'),
+      ('المهام المكتملة', '${snapshot.completedTasks}'),
+      ('المهام المعلقة', '${snapshot.pendingTasks}'),
+      ('المحاضرات المشاهدة', '${snapshot.viewedLectures}'),
+      ('التفاعل', snapshot.engagementSummary),
     ];
 
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const AppSectionHeader(
-            title: 'Academic overview',
-            subtitle: 'Your current academic snapshot in one place.',
+          AppSectionHeader(
+            title: 'ملخص أكاديمي',
+            subtitle: snapshot.academicStatus,
           ),
           const SizedBox(height: AppSpacing.md),
           LayoutBuilder(
             builder: (context, constraints) {
-              final columns = constraints.maxWidth >= 420 ? 2 : 1;
-              final tileWidth = columns == 1
-                  ? constraints.maxWidth
-                  : (constraints.maxWidth - AppSpacing.md) / 2;
-
+              final width = (constraints.maxWidth - AppSpacing.md) / 2;
               return Wrap(
                 spacing: AppSpacing.md,
                 runSpacing: AppSpacing.md,
                 children: items
                     .map(
                       (item) => SizedBox(
-                        width: tileWidth,
+                        width: width,
                         child: _OverviewTile(label: item.$1, value: item.$2),
                       ),
                     )
@@ -76,7 +69,7 @@ class _OverviewTile extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.surfaceAlt,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
       ),
       child: Column(
@@ -86,9 +79,9 @@ class _OverviewTile extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             value,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
           ),
         ],
       ),

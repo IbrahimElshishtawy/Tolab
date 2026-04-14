@@ -8,7 +8,7 @@ class DashboardRepository {
 
   Future<DashboardSnapshot> fetchDashboard() async {
     final response = await _apiClient.get<Map<String, dynamic>>(
-      '/staff-portal/dashboard',
+      '/staff/dashboard',
       parser: (value) => Map<String, dynamic>.from(value as Map),
     );
 

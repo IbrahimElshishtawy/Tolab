@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import 'app_safe_image.dart';
 
 class AppAvatar extends StatelessWidget {
   const AppAvatar({
@@ -25,12 +26,41 @@ class AppAvatar extends StatelessWidget {
         .join()
         .toUpperCase();
 
-    return CircleAvatar(
-      radius: radius,
-      backgroundColor: AppColors.primarySoft,
-      foregroundColor: AppColors.primary,
-      backgroundImage: imageUrl == null ? null : NetworkImage(imageUrl!),
-      child: imageUrl == null ? Text(initials) : null,
+    final size = radius * 2;
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: const BoxDecoration(
+        color: AppColors.primarySoft,
+        shape: BoxShape.circle,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          AppSafeImage(
+            imageUrl: imageUrl,
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+          ),
+          if (!AppSafeImage.isValidRemoteUrl(imageUrl))
+            Container(
+              width: size,
+              height: size,
+              alignment: Alignment.center,
+              color: Colors.transparent,
+              child: Text(
+                initials,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

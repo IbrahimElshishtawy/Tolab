@@ -7,16 +7,13 @@ import '../../../../core/widgets/adaptive_page_container.dart';
 import '../providers/home_providers.dart';
 import '../widgets/academic_overview_card.dart';
 import '../widgets/course_activity_section.dart';
-import '../widgets/deadline_radar_section.dart';
 import '../widgets/empty_states.dart';
 import '../widgets/loading_states.dart';
 import '../widgets/notifications_preview_section.dart';
 import '../widgets/quick_actions_section.dart';
+import '../widgets/required_today_section.dart';
 import '../widgets/student_home_header.dart';
 import '../widgets/study_insights_section.dart';
-import '../widgets/today_focus_section.dart';
-import '../widgets/upcoming_lectures_section.dart';
-import '../widgets/upcoming_quizzes_section.dart';
 import '../widgets/weekly_timeline.dart';
 
 class StudentHomePage extends ConsumerWidget {
@@ -39,49 +36,30 @@ class StudentHomePage extends ConsumerWidget {
                     unreadCount: viewModel.unreadCount,
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  QuickActionsSection(actions: viewModel.quickActions),
+                  RequiredTodaySection(items: viewModel.requiredTodayItems),
                   const SizedBox(height: AppSpacing.lg),
-                  TodayFocusSection(model: viewModel.todayFocus),
+                  QuickActionsSection(actions: viewModel.quickActions),
                   const SizedBox(height: AppSpacing.lg),
                   _SectionGrid(
                     columnCount: columnCount,
                     children: [
                       WeeklyTimeline(groups: viewModel.timelineGroups),
-                      DeadlineRadarSection(items: viewModel.deadlines),
+                      AcademicOverviewCard(snapshot: viewModel.academicSnapshot),
                     ],
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   _SectionGrid(
                     columnCount: columnCount,
                     children: [
-                      AcademicOverviewCard(
-                        profile: viewModel.profile,
-                        courseCount: viewModel.courseCount,
-                      ),
                       StudyInsightsSection(model: viewModel.studyInsights),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  _SectionGrid(
-                    columnCount: columnCount,
-                    children: [
-                      UpcomingLecturesSection(
-                        items: viewModel.upcomingLectures,
-                      ),
-                      UpcomingQuizzesSection(items: viewModel.upcomingQuizzes),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  _SectionGrid(
-                    columnCount: columnCount,
-                    children: [
-                      CourseActivitySection(items: viewModel.courseActivities),
                       NotificationsPreviewSection(
                         items: viewModel.notificationsPreview,
                         unreadCount: viewModel.unreadCount,
                       ),
                     ],
                   ),
+                  const SizedBox(height: AppSpacing.lg),
+                  CourseActivitySection(items: viewModel.courseActivities),
                 ],
               );
             },

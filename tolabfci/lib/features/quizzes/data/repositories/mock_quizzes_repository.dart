@@ -17,4 +17,9 @@ class MockQuizzesRepository implements QuizzesRepository {
   Future<List<QuizItem>> fetchQuizzes({String? subjectId}) {
     return _backendService.fetchQuizzes(subjectId: subjectId);
   }
+
+  @override
+  Future<void> submitQuiz(String quizId) {
+    return _backendService.submitQuiz(quizId);
+  }
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/models/notification_item.dart';
-import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_badge.dart';
@@ -27,25 +26,20 @@ class NotificationsPreviewSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppSectionHeader(
-            title: 'Notifications',
-            subtitle: 'The latest updates waiting for your attention.',
+            title: 'آخر التنبيهات',
+            subtitle: 'أحدث 3 تنبيهات مرتبطة بموادك ومهامك الحالية.',
             trailing: AppBadge(
-              label: unreadCount == 0 ? 'All read' : '$unreadCount unread',
-              backgroundColor: unreadCount == 0
-                  ? AppColors.surfaceAlt
-                  : AppColors.primarySoft,
-              foregroundColor: unreadCount == 0
-                  ? AppColors.textSecondary
-                  : AppColors.primary,
+              label: unreadCount == 0 ? 'مقروءة' : '$unreadCount غير مقروء',
+              backgroundColor: unreadCount == 0 ? AppColors.surfaceAlt : AppColors.primarySoft,
+              foregroundColor: unreadCount == 0 ? AppColors.textSecondary : AppColors.primary,
             ),
           ),
           const SizedBox(height: AppSpacing.md),
           if (items.isEmpty)
             const StudentSectionEmptyState(
               icon: Icons.notifications_none_rounded,
-              title: 'No notifications',
-              message:
-                  'New alerts and reminders will appear here when something changes.',
+              title: 'لا توجد تنبيهات جديدة',
+              message: 'ستظهر هنا تحديثات المحاضرات والكويزات والدرجات أولاً بأول.',
             )
           else
             ...items.map((item) => _NotificationTile(item: item)),
@@ -63,58 +57,46 @@ class _NotificationTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: () => context.goNamed(RouteNames.notifications),
+      borderRadius: BorderRadius.circular(16),
+      onTap: () => context.goNamed(
+        item.routeName,
+        pathParameters: item.pathParameters,
+      ),
       child: Container(
         margin: const EdgeInsets.only(bottom: AppSpacing.sm),
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           color: item.isRead ? AppColors.surfaceAlt : AppColors.primarySoft,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: item.isRead
-                ? AppColors.border
-                : AppColors.primary.withValues(alpha: 0.14),
+            color: item.isImportant
+                ? AppColors.error.withValues(alpha: 0.20)
+                : AppColors.border,
           ),
         ),
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 10,
-              height: 10,
-              margin: const EdgeInsets.only(top: 6),
-              decoration: BoxDecoration(
-                color: item.isRead ? AppColors.border : AppColors.primary,
-                shape: BoxShape.circle,
-              ),
+            Row(
+              children: [
+                AppBadge(
+                  label: item.category,
+                  backgroundColor: Colors.white,
+                  foregroundColor: item.isImportant ? AppColors.error : AppColors.primary,
+                ),
+                const Spacer(),
+                Text(item.createdAtLabel, style: Theme.of(context).textTheme.labelLarge),
+              ],
             ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.title,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    item.body,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: AppSpacing.md),
+            const SizedBox(height: AppSpacing.sm),
             Text(
-              item.createdAtLabel,
-              style: Theme.of(context).textTheme.labelLarge,
+              item.title,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
             ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(item.body, style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
       ),

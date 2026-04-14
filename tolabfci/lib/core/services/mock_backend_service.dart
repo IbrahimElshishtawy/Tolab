@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../errors/app_exception.dart';
 import '../models/community_models.dart';
@@ -11,6 +10,7 @@ import '../models/quiz_models.dart';
 import '../models/result_item.dart';
 import '../models/student_profile.dart';
 import '../models/subject_models.dart';
+import '../router/route_names.dart';
 import '../utils/formatters.dart';
 
 final mockBackendServiceProvider = Provider<MockBackendService>((ref) {
@@ -19,24 +19,41 @@ final mockBackendServiceProvider = Provider<MockBackendService>((ref) {
 
 class MockBackendService {
   MockBackendService() {
-    _notifications = _buildNotifications(DateTime.now());
+    final now = DateTime.now();
+    _lectures = _buildLectures(now);
+    _sections = _buildSections(now);
+    _tasks = _buildTasks(now);
+    _quizzes = _buildQuizzes(now);
+    _subjectFiles = _buildSubjectFiles(now);
+    _notifications = _buildNotifications(now);
     _notificationsController.add(_notifications);
   }
 
   final _notificationsController =
       StreamController<List<AppNotificationItem>>.broadcast();
 
+  late final List<LectureItem> _lectures;
+  late final List<SectionItem> _sections;
+  late List<TaskItem> _tasks;
+  late List<QuizItem> _quizzes;
+  late final List<SubjectFileItem> _subjectFiles;
+  late List<AppNotificationItem> _notifications;
+
   final StudentProfile _profile = const StudentProfile(
     id: 'student-1',
-    fullName: 'Mariam Hassan',
+    fullName: 'مريم حسن',
     email: 'mariam.hassan@tolab.edu',
     avatarUrl: '',
+    studentNumber: '20241182',
     nationalId: '29801011234567',
-    faculty: 'Faculty of Computer and Information',
-    department: 'Computer Science',
-    level: 'Level 4',
-    academicAdvisor: 'Dr. Salma Adel',
+    faculty: 'كلية الحاسبات والمعلومات',
+    department: 'علوم الحاسب',
+    level: 'الفرقة الرابعة',
+    academicAdvisor: 'د. سلمى عادل',
+    academicStatus: 'منتظم أكاديميًا',
     gpa: 3.72,
+    completedHours: 102,
+    registeredHours: 15,
     seatNumber: 'FCI-24-1182',
     previousQualification: 'STEM High School',
   );
@@ -44,57 +61,54 @@ class MockBackendService {
   final List<SubjectOverview> _subjects = const [
     SubjectOverview(
       id: 'subject-1',
-      name: 'Advanced Mobile Systems',
+      name: 'تطوير تطبيقات الهاتف المتقدمة',
       code: 'CS401',
-      instructor: 'Dr. Omar Nabil',
+      instructor: 'د. عمر نبيل',
+      assistantName: 'م. نورا سامح',
       creditHours: 3,
       accentHex: '#4E7CF5',
-      description:
-          'Architecture, performance, and production delivery for mobile apps.',
+      description: 'معمارية التطبيقات، الأداء، وبناء منتجات موبايل جاهزة للإطلاق.',
+      lecturesCount: 12,
+      sectionsCount: 8,
+      quizCount: 3,
+      sheetCount: 5,
+      lastActivityLabel: 'تم رفع محاضرة جديدة منذ 35 دقيقة',
+      progress: 0.74,
+      status: 'نشطة',
     ),
     SubjectOverview(
       id: 'subject-2',
-      name: 'Cloud Computing',
+      name: 'الحوسبة السحابية',
       code: 'CS409',
-      instructor: 'Dr. Heba Mostafa',
+      instructor: 'د. هبة مصطفى',
+      assistantName: 'م. كريم راضي',
       creditHours: 3,
       accentHex: '#3DB6B0',
-      description:
-          'Distributed systems fundamentals with cloud deployment practices.',
+      description: 'النظم الموزعة، النشر السحابي، وأمن الخدمات على البيئات الحديثة.',
+      lecturesCount: 10,
+      sectionsCount: 7,
+      quizCount: 2,
+      sheetCount: 4,
+      lastActivityLabel: 'موعد تسليم قريب الليلة',
+      progress: 0.48,
+      status: 'مطلوب تسليم',
     ),
     SubjectOverview(
       id: 'subject-3',
-      name: 'Human Computer Interaction',
+      name: 'التفاعل بين الإنسان والحاسوب',
       code: 'IS330',
-      instructor: 'Dr. Nourhan Fawzy',
+      instructor: 'د. نورهان فوزي',
+      assistantName: 'م. منة طارق',
       creditHours: 2,
       accentHex: '#6D73F8',
-      description:
-          'Interaction design, usability, and interface evaluation methods.',
-    ),
-  ];
-
-  final List<SectionItem> _sections = const [
-    SectionItem(
-      id: 'section-1',
-      subjectId: 'subject-1',
-      title: 'Architecture studio',
-      location: 'Lab 3',
-      scheduleLabel: 'Sun, 1:00 PM',
-    ),
-    SectionItem(
-      id: 'section-2',
-      subjectId: 'subject-2',
-      title: 'Kubernetes workshop',
-      location: 'Online',
-      scheduleLabel: 'Mon, 12:00 PM',
-    ),
-    SectionItem(
-      id: 'section-3',
-      subjectId: 'subject-3',
-      title: 'Research discussion',
-      location: 'Room B201',
-      scheduleLabel: 'Wed, 10:30 AM',
+      description: 'التصميم التفاعلي، سهولة الاستخدام، وتقييم واجهات المستخدم.',
+      lecturesCount: 9,
+      sectionsCount: 6,
+      quizCount: 1,
+      sheetCount: 3,
+      lastActivityLabel: 'تم فتح ملخص جديد أمس',
+      progress: 0.82,
+      status: 'جديد',
     ),
   ];
 
@@ -102,18 +116,18 @@ class MockBackendService {
     SummaryItem(
       id: 'summary-1',
       subjectId: 'subject-1',
-      authorName: 'Mariam Hassan',
-      title: 'Riverpod state boundaries',
-      createdAtLabel: 'Today',
+      authorName: 'مريم حسن',
+      title: 'ملخص حدود Riverpod في التطبيق',
+      createdAtLabel: 'اليوم',
       videoUrl: 'https://video.tolab.edu/riverpod',
       attachmentName: 'riverpod-notes.pdf',
     ),
     SummaryItem(
       id: 'summary-2',
       subjectId: 'subject-2',
-      authorName: 'Ali Samir',
-      title: 'Cloud architecture glossary',
-      createdAtLabel: 'Yesterday',
+      authorName: 'علي سمير',
+      title: 'قاموس مصطلحات البنية السحابية',
+      createdAtLabel: 'أمس',
       attachmentName: 'cloud-glossary.png',
     ),
   ];
@@ -122,29 +136,28 @@ class MockBackendService {
     CommunityPost(
       id: 'post-1',
       subjectId: 'subject-1',
-      authorName: 'Dr. Omar Nabil',
-      authorRole: 'Instructor',
+      authorName: 'د. عمر نبيل',
+      authorRole: 'الدكتور',
       content:
-          'Please review the clean architecture walkthrough before the next live session.',
-      createdAtLabel: '2h ago',
+          'راجعوا تسجيل شرح clean architecture قبل محاضرة الأحد، وسيتم حل case study مباشرة في اللقاء.',
+      createdAtLabel: 'منذ ساعتين',
       reactions: 18,
       comments: [
         CommunityComment(
           id: 'comment-1',
-          authorName: 'Mariam Hassan',
-          content: 'Will the case study be discussed in class too?',
-          createdAtLabel: '1h ago',
+          authorName: 'مريم حسن',
+          content: 'هل سيكون الجزء العملي من التسجيل داخل الكويز القادم؟',
+          createdAtLabel: 'منذ ساعة',
         ),
       ],
     ),
     CommunityPost(
       id: 'post-2',
       subjectId: 'subject-2',
-      authorName: 'Mona Tarek',
-      authorRole: 'Student',
-      content:
-          'I shared a short note set for container scheduling and autoscaling.',
-      createdAtLabel: 'Yesterday',
+      authorName: 'منة طارق',
+      authorRole: 'طالبة',
+      content: 'رفعت ملاحظات سريعة عن autoscaling والـ scheduling لمن يحتاجها.',
+      createdAtLabel: 'أمس',
       reactions: 11,
       comments: [],
     ),
@@ -154,52 +167,65 @@ class MockBackendService {
     ChatMessage(
       id: 'chat-1',
       subjectId: 'subject-1',
-      authorName: 'Nour',
-      content: 'Did anyone finish the repository abstraction task?',
-      sentAtLabel: '10:18 AM',
+      authorName: 'نور',
+      content: 'هل انتهى أحد من sheet الـ repository abstraction؟',
+      sentAtLabel: '10:18 ص',
       isMine: false,
     ),
     ChatMessage(
       id: 'chat-2',
       subjectId: 'subject-1',
-      authorName: 'Mariam Hassan',
-      content: 'Yes, I can share my notes after the lecture.',
-      sentAtLabel: '10:20 AM',
+      authorName: 'مريم حسن',
+      content: 'نعم، سأشارك ملاحظاتي بعد المحاضرة مباشرة.',
+      sentAtLabel: '10:20 ص',
       isMine: true,
     ),
     ChatMessage(
       id: 'chat-3',
       subjectId: 'subject-2',
-      authorName: 'Karim',
-      content: 'Reminder: security quiz is offline this week.',
-      sentAtLabel: '8:42 AM',
+      authorName: 'كريم',
+      content: 'تذكير: كويز الأمن غدًا داخل المعمل وليس أونلاين.',
+      sentAtLabel: '8:42 ص',
       isMine: false,
     ),
   ];
 
-  late List<AppNotificationItem> _notifications;
-
   final List<SubjectResult> _results = const [
     SubjectResult(
       subjectId: 'subject-1',
-      subjectName: 'Advanced Mobile Systems',
+      subjectName: 'تطوير تطبيقات الهاتف المتقدمة',
       totalGrade: 91,
       letterGrade: 'A',
-      status: 'Passed',
+      status: 'ناجح',
+      quizGrade: 18,
+      assignmentGrade: 28,
+      midtermGrade: 21,
+      finalGrade: 24,
+      notes: 'مستوى ممتاز في التطبيق العملي، حافظي على نفس الأداء في النهائي.',
     ),
     SubjectResult(
       subjectId: 'subject-2',
-      subjectName: 'Cloud Computing',
-      totalGrade: 88,
-      letterGrade: 'B+',
-      status: 'Passed',
+      subjectName: 'الحوسبة السحابية',
+      totalGrade: 78,
+      letterGrade: 'B',
+      status: 'يحتاج متابعة',
+      quizGrade: 14,
+      assignmentGrade: 20,
+      midtermGrade: 18,
+      finalGrade: 26,
+      notes: 'يوجد تراجع بسيط في الشيتات، ركزي على التسليمات القادمة.',
     ),
     SubjectResult(
       subjectId: 'subject-3',
-      subjectName: 'Human Computer Interaction',
+      subjectName: 'التفاعل بين الإنسان والحاسوب',
       totalGrade: 94,
-      letterGrade: 'A',
-      status: 'Passed',
+      letterGrade: 'A+',
+      status: 'ناجح',
+      quizGrade: 19,
+      assignmentGrade: 29,
+      midtermGrade: 22,
+      finalGrade: 24,
+      notes: 'أداء قوي جدًا في التحليل والتقييم.',
     ),
   ];
 
@@ -213,7 +239,7 @@ class MockBackendService {
       return 'mock-access-token';
     }
     throw const AppException(
-      'Invalid email or password. Please use the assigned student account.',
+      'بيانات الدخول غير صحيحة. استخدم حساب الطالب المعتمد.',
       code: 'invalid_credentials',
     );
   }
@@ -222,7 +248,7 @@ class MockBackendService {
     await Future<void>.delayed(const Duration(milliseconds: 500));
     if (nationalId.trim() != _profile.nationalId) {
       throw const AppException(
-        'National ID verification failed. Please review your number and try again.',
+        'تعذر التحقق من الرقم القومي. راجع الرقم وحاول مرة أخرى.',
         code: 'invalid_national_id',
       );
     }
@@ -237,8 +263,7 @@ class MockBackendService {
   }
 
   Future<List<LectureItem>> fetchLectures({String? subjectId}) async {
-    final lectures = _buildLectures(DateTime.now());
-    return lectures
+    return _lectures
         .where((item) => subjectId == null || item.subjectId == subjectId)
         .toList();
   }
@@ -248,9 +273,11 @@ class MockBackendService {
   }
 
   Future<List<TaskItem>> fetchTasks(String subjectId) async {
-    return _buildTasks(
-      DateTime.now(),
-    ).where((item) => item.subjectId == subjectId).toList();
+    return _tasks.where((item) => item.subjectId == subjectId).toList();
+  }
+
+  Future<List<SubjectFileItem>> fetchSubjectFiles(String subjectId) async {
+    return _subjectFiles.where((item) => item.subjectId == subjectId).toList();
   }
 
   Future<List<SummaryItem>> fetchSummaries(String subjectId) async {
@@ -269,7 +296,7 @@ class MockBackendService {
         subjectId: subjectId,
         authorName: _profile.fullName,
         title: title,
-        createdAtLabel: formatNow('MMM d'),
+        createdAtLabel: formatNow('d MMM', locale: 'ar'),
         videoUrl: videoUrl,
         attachmentName: attachmentName,
       ),
@@ -278,27 +305,78 @@ class MockBackendService {
   }
 
   Future<List<QuizItem>> fetchQuizzes({String? subjectId}) async {
-    final quizzes = _buildQuizzes(DateTime.now());
-    return quizzes
+    return _quizzes
         .where((item) => subjectId == null || item.subjectId == subjectId)
         .toList();
   }
 
-  Future<HomeDashboardData> fetchHomeDashboard() async {
-    final now = DateTime.now();
-    final lectures = _buildLectures(now);
-    final quizzes = _buildQuizzes(now);
-    final tasks = _buildTasks(now);
+  Future<void> submitQuiz(String quizId) async {
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    _quizzes = _quizzes.map((quiz) {
+      if (quiz.id != quizId) {
+        return quiz;
+      }
+      return quiz.copyWith(
+        attemptsUsed: quiz.attemptsUsed + 1,
+        isSubmitted: true,
+        submissionStateLabel: 'تم التسليم',
+        scoreLabel: quiz.subjectId == 'subject-1' ? '18 / 20' : null,
+      );
+    }).toList();
+  }
 
+  Future<TaskItem> uploadAssignment({
+    required String subjectId,
+    required String taskId,
+    required String fileName,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 700));
+
+    late TaskItem updatedTask;
+    _tasks = _tasks.map((task) {
+      if (task.id != taskId || task.subjectId != subjectId) {
+        return task;
+      }
+
+      updatedTask = task.copyWith(
+        status: 'تم الرفع',
+        isCompleted: true,
+        isMissingSubmission: false,
+        allowResubmission: true,
+        uploadedFileName: fileName,
+      );
+      return updatedTask;
+    }).toList();
+
+    _notifications = [
+      AppNotificationItem(
+        id: 'notification-${_notifications.length + 1}',
+        title: 'تم رفع الحل بنجاح',
+        body: 'تم استلام ملف "$fileName" وسيظهر ضمن المادة مباشرة.',
+        createdAtLabel: 'الآن',
+        category: 'شيتات',
+        isRead: false,
+        routeName: RouteNames.assignmentUpload,
+        pathParameters: {'subjectId': subjectId, 'taskId': taskId},
+      ),
+      ..._notifications,
+    ];
+    _notificationsController.add(_notifications);
+
+    return updatedTask;
+  }
+
+  Future<HomeDashboardData> fetchHomeDashboard() async {
     return HomeDashboardData(
       profile: _profile,
       notifications: _notifications,
       subjects: _subjects,
-      upcomingLectures: lectures,
-      upcomingQuizzes: quizzes,
-      tasks: tasks,
-      courseActivities: _buildCourseActivities(now),
-      studyInsights: _buildStudyInsights(tasks),
+      upcomingLectures: _lectures,
+      upcomingSections: _sections,
+      upcomingQuizzes: _quizzes,
+      tasks: _tasks,
+      courseActivities: _buildCourseActivities(DateTime.now()),
+      studyInsights: _buildStudyInsights(_tasks),
     );
   }
 
@@ -322,7 +400,7 @@ class MockBackendService {
             id: 'comment-${post.comments.length + 1}',
             authorName: _profile.fullName,
             content: content,
-            createdAtLabel: 'Just now',
+            createdAtLabel: 'الآن',
           ),
         ],
       );
@@ -368,7 +446,7 @@ class MockBackendService {
         subjectId: subjectId,
         authorName: _profile.fullName,
         content: content,
-        sentAtLabel: formatNow('h:mm a'),
+        sentAtLabel: formatArabicTime(DateTime.now()),
         isMine: true,
       ),
     ];
@@ -377,8 +455,7 @@ class MockBackendService {
   Stream<List<AppNotificationItem>> watchNotifications() =>
       _notificationsController.stream;
 
-  Future<List<AppNotificationItem>> fetchNotifications() async =>
-      _notifications;
+  Future<List<AppNotificationItem>> fetchNotifications() async => _notifications;
 
   Future<void> markNotificationAsRead(String notificationId) async {
     _notifications = _notifications
@@ -402,38 +479,85 @@ class MockBackendService {
       LectureItem(
         id: 'lecture-1',
         subjectId: 'subject-1',
-        subjectName: 'Advanced Mobile Systems',
-        title: 'State orchestration studio',
-        scheduleLabel: _formatSchedule(firstLectureStart),
+        subjectName: 'تطوير تطبيقات الهاتف المتقدمة',
+        title: 'معمارية إدارة الحالة',
+        scheduleLabel: formatArabicSchedule(firstLectureStart, reference: now),
         startsAt: firstLectureStart,
         endsAt: firstLectureStart.add(const Duration(hours: 1, minutes: 30)),
         meetingUrl: 'https://meet.tolab.edu/mobile',
         isOnline: true,
-        locationLabel: 'Live on Tolab Meet',
+        instructorName: 'د. عمر نبيل',
+        locationLabel: 'Tolab Meet',
       ),
       LectureItem(
         id: 'lecture-2',
         subjectId: 'subject-2',
-        subjectName: 'Cloud Computing',
-        title: 'Container scheduling review',
-        scheduleLabel: _formatSchedule(secondLectureStart),
+        subjectName: 'الحوسبة السحابية',
+        title: 'جدولة الخدمات السحابية',
+        scheduleLabel: formatArabicSchedule(secondLectureStart, reference: now),
         startsAt: secondLectureStart,
         endsAt: secondLectureStart.add(const Duration(hours: 1)),
         meetingUrl: 'https://meet.tolab.edu/cloud',
         isOnline: true,
-        locationLabel: 'Live on Tolab Meet',
+        instructorName: 'د. هبة مصطفى',
+        locationLabel: 'Tolab Meet',
       ),
       LectureItem(
         id: 'lecture-3',
         subjectId: 'subject-3',
-        subjectName: 'Human Computer Interaction',
-        title: 'Accessibility critique lab',
-        scheduleLabel: _formatSchedule(thirdLectureStart),
+        subjectName: 'التفاعل بين الإنسان والحاسوب',
+        title: 'تحليل قابلية الوصول',
+        scheduleLabel: formatArabicSchedule(thirdLectureStart, reference: now),
         startsAt: thirdLectureStart,
         endsAt: thirdLectureStart.add(const Duration(hours: 2)),
         meetingUrl: '',
         isOnline: false,
-        locationLabel: 'Room B201',
+        instructorName: 'د. نورهان فوزي',
+        locationLabel: 'قاعة B201',
+      ),
+    ];
+  }
+
+  List<SectionItem> _buildSections(DateTime now) {
+    final firstSectionStart = now.add(const Duration(hours: 3, minutes: 20));
+    final secondSectionStart = now.add(const Duration(days: 1, hours: 1));
+    final thirdSectionStart = now.add(const Duration(days: 2, hours: 5));
+
+    return [
+      SectionItem(
+        id: 'section-1',
+        subjectId: 'subject-1',
+        subjectName: 'تطوير تطبيقات الهاتف المتقدمة',
+        title: 'سكشن معمل الأداء',
+        location: 'معمل 3',
+        scheduleLabel: formatArabicSchedule(firstSectionStart, reference: now),
+        assistantName: 'م. نورا سامح',
+        startsAt: firstSectionStart,
+        endsAt: firstSectionStart.add(const Duration(hours: 2)),
+      ),
+      SectionItem(
+        id: 'section-2',
+        subjectId: 'subject-2',
+        subjectName: 'الحوسبة السحابية',
+        title: 'سكشن Kubernetes',
+        location: 'أونلاين',
+        scheduleLabel: formatArabicSchedule(secondSectionStart, reference: now),
+        assistantName: 'م. كريم راضي',
+        isOnline: true,
+        meetingUrl: 'https://meet.tolab.edu/k8s',
+        startsAt: secondSectionStart,
+        endsAt: secondSectionStart.add(const Duration(hours: 1, minutes: 30)),
+      ),
+      SectionItem(
+        id: 'section-3',
+        subjectId: 'subject-3',
+        subjectName: 'التفاعل بين الإنسان والحاسوب',
+        title: 'نقاش البحث العملي',
+        location: 'قاعة B201',
+        scheduleLabel: formatArabicSchedule(thirdSectionStart, reference: now),
+        assistantName: 'م. منة طارق',
+        startsAt: thirdSectionStart,
+        endsAt: thirdSectionStart.add(const Duration(hours: 1)),
       ),
     ];
   }
@@ -442,45 +566,58 @@ class MockBackendService {
     final urgentDeadline = now.add(const Duration(hours: 6));
     final tomorrowDeadline = now.add(const Duration(days: 1, hours: 5));
     final laterDeadline = now.add(const Duration(days: 3, hours: 2));
+    final gradedDeadline = now.subtract(const Duration(days: 1, hours: 2));
 
     return [
       TaskItem(
         id: 'task-1',
         subjectId: 'subject-2',
-        subjectName: 'Cloud Computing',
-        title: 'Submit service mesh lab',
-        dueDateLabel: _formatDueLabel(urgentDeadline, now),
+        subjectName: 'الحوسبة السحابية',
+        title: 'شيت Service Mesh',
+        description: 'ارفع ملف PDF يشرح خطوات النشر والـ traffic policy المستخدمة.',
+        dueDateLabel: formatDueLabelArabic(urgentDeadline, reference: now),
         dueAt: urgentDeadline,
-        status: 'Missing submission',
+        status: 'لم يتم الرفع',
         isMissingSubmission: true,
+        allowResubmission: true,
       ),
       TaskItem(
         id: 'task-2',
         subjectId: 'subject-1',
-        subjectName: 'Advanced Mobile Systems',
-        title: 'Architecture review memo',
-        dueDateLabel: _formatDueLabel(tomorrowDeadline, now),
+        subjectName: 'تطوير تطبيقات الهاتف المتقدمة',
+        title: 'ورقة مراجعة المعمارية',
+        description: 'اكتب مقارنة مختصرة بين Clean Architecture وFeature-first layers.',
+        dueDateLabel: formatDueLabelArabic(tomorrowDeadline, reference: now),
         dueAt: tomorrowDeadline,
-        status: 'Pending',
+        status: 'تم الرفع',
+        isCompleted: true,
+        allowResubmission: true,
+        uploadedFileName: 'architecture-review.pdf',
       ),
       TaskItem(
         id: 'task-3',
         subjectId: 'subject-3',
-        subjectName: 'Human Computer Interaction',
-        title: 'Heuristic evaluation report',
-        dueDateLabel: _formatDueLabel(laterDeadline, now),
+        subjectName: 'التفاعل بين الإنسان والحاسوب',
+        title: 'تقرير Heuristic Evaluation',
+        description: 'حلل واجهة تعليمية مع 5 ملاحظات أساسية واقتراحات التحسين.',
+        dueDateLabel: formatDueLabelArabic(laterDeadline, reference: now),
         dueAt: laterDeadline,
-        status: 'In progress',
+        status: 'لم يتم الرفع',
+        allowResubmission: false,
       ),
       TaskItem(
         id: 'task-4',
         subjectId: 'subject-1',
-        subjectName: 'Advanced Mobile Systems',
-        title: 'Weekly architecture checkpoint',
-        dueDateLabel: 'Submitted',
-        dueAt: now.subtract(const Duration(days: 1, hours: 2)),
-        status: 'Completed',
+        subjectName: 'تطوير تطبيقات الهاتف المتقدمة',
+        title: 'Checkpoint الأسبوعي',
+        description: 'تمت مراجعة التسليم مع ملاحظات على جودة الـ architecture diagram.',
+        dueDateLabel: formatArabicDate(gradedDeadline),
+        dueAt: gradedDeadline,
+        status: 'تم التقييم',
         isCompleted: true,
+        uploadedFileName: 'weekly-checkpoint.pdf',
+        gradeLabel: '9 / 10',
+        allowResubmission: false,
       ),
     ];
   }
@@ -489,40 +626,95 @@ class MockBackendService {
     final openQuizStart = now.subtract(const Duration(minutes: 25));
     final openQuizClose = now.add(const Duration(minutes: 50));
     final upcomingQuizStart = now.add(const Duration(days: 1, hours: 4));
+    final closedQuizStart = now.subtract(const Duration(days: 3, hours: 2));
 
     return [
       QuizItem(
         id: 'quiz-1',
         subjectId: 'subject-1',
-        subjectName: 'Advanced Mobile Systems',
-        title: 'Async flows checkpoint',
-        typeLabel: 'Online quiz',
-        startAtLabel: _formatSchedule(openQuizStart),
+        subjectName: 'تطوير تطبيقات الهاتف المتقدمة',
+        title: 'كويز Async Flows',
+        typeLabel: 'كويز أونلاين',
+        startAtLabel: formatArabicSchedule(openQuizStart, reference: now),
         startsAt: openQuizStart,
         closesAt: openQuizClose,
-        durationLabel: '20 min',
+        durationLabel: '20 دقيقة',
         isOnline: true,
+        description: 'أسئلة قصيرة حول إدارة الأحداث والـ state transitions.',
+        locationLabel: 'على تطبيق طلاب',
         instructions: const [
-          'Use a stable connection before starting.',
-          'Submit before the timer expires.',
-          'Keep the quiz screen active throughout the attempt.',
+          'تأكد من ثبات الاتصال قبل البدء.',
+          'يجب إنهاء الإجابة قبل انتهاء العداد.',
+          'لا تغلق الشاشة أثناء محاولة الكويز.',
         ],
       ),
       QuizItem(
         id: 'quiz-2',
         subjectId: 'subject-2',
-        subjectName: 'Cloud Computing',
-        title: 'Cloud security readiness',
-        typeLabel: 'Offline quiz',
-        startAtLabel: _formatSchedule(upcomingQuizStart),
+        subjectName: 'الحوسبة السحابية',
+        title: 'كويز Cloud Security',
+        typeLabel: 'كويز حضوري',
+        startAtLabel: formatArabicSchedule(upcomingQuizStart, reference: now),
         startsAt: upcomingQuizStart,
         closesAt: upcomingQuizStart.add(const Duration(minutes: 45)),
-        durationLabel: '45 min',
+        durationLabel: '45 دقيقة',
         isOnline: false,
+        description: 'اختبار قصير على الهوية والصلاحيات وأفضل ممارسات التأمين.',
+        locationLabel: 'معمل 2',
+        maxAttempts: 1,
         instructions: const [
-          'Bring your university ID card.',
-          'Arrive 15 minutes early.',
+          'أحضر البطاقة الجامعية قبل بداية الكويز.',
+          'الحضور قبل الموعد بـ 15 دقيقة.',
         ],
+      ),
+      QuizItem(
+        id: 'quiz-3',
+        subjectId: 'subject-3',
+        subjectName: 'التفاعل بين الإنسان والحاسوب',
+        title: 'كويز Usability Metrics',
+        typeLabel: 'كويز منتهي',
+        startAtLabel: formatArabicSchedule(closedQuizStart, reference: now),
+        startsAt: closedQuizStart,
+        closesAt: closedQuizStart.add(const Duration(minutes: 30)),
+        durationLabel: '30 دقيقة',
+        isOnline: true,
+        description: 'تم إنهاء الكويز السابق واحتساب الدرجة.',
+        locationLabel: 'على تطبيق طلاب',
+        attemptsUsed: 1,
+        maxAttempts: 1,
+        isSubmitted: true,
+        submissionStateLabel: 'تم التسليم',
+        scoreLabel: '19 / 20',
+        instructions: const ['تم غلق هذا الكويز.'],
+      ),
+    ];
+  }
+
+  List<SubjectFileItem> _buildSubjectFiles(DateTime now) {
+    return [
+      SubjectFileItem(
+        id: 'file-1',
+        subjectId: 'subject-1',
+        title: 'شرائح المحاضرة الخامسة',
+        fileName: 'mobile-architecture-week5.pdf',
+        typeLabel: 'محاضرة',
+        createdAtLabel: formatRelativeArabic(now.subtract(const Duration(hours: 1))),
+      ),
+      SubjectFileItem(
+        id: 'file-2',
+        subjectId: 'subject-2',
+        title: 'متطلبات الشيت الثاني',
+        fileName: 'service-mesh-assignment.docx',
+        typeLabel: 'شيت',
+        createdAtLabel: formatRelativeArabic(now.subtract(const Duration(days: 1))),
+      ),
+      SubjectFileItem(
+        id: 'file-3',
+        subjectId: 'subject-3',
+        title: 'Checklist التقييم',
+        fileName: 'ux-evaluation-checklist.pdf',
+        typeLabel: 'ملف إضافي',
+        createdAtLabel: formatRelativeArabic(now.subtract(const Duration(days: 2))),
       ),
     ];
   }
@@ -532,44 +724,46 @@ class MockBackendService {
       CourseActivityItem(
         id: 'activity-1',
         subjectId: 'subject-1',
-        subjectName: 'Advanced Mobile Systems',
-        title: 'New lecture uploaded',
-        description:
-            'System design recap slides and recording are ready to review.',
+        subjectName: 'تطوير تطبيقات الهاتف المتقدمة',
+        title: 'تم رفع محاضرة جديدة',
+        description: 'التسجيل والشرائح الخاصة بمحاضرة معمارية الحالة متاحة الآن.',
         type: CourseActivityType.lecture,
-        createdAtLabel: _formatRelativeTimestamp(
-          now.subtract(const Duration(minutes: 35)),
-          now,
-        ),
+        createdAtLabel:
+            formatRelativeArabic(now.subtract(const Duration(minutes: 35))),
         createdAt: now.subtract(const Duration(minutes: 35)),
       ),
       CourseActivityItem(
         id: 'activity-2',
-        subjectId: 'subject-2',
-        subjectName: 'Cloud Computing',
-        title: 'New task assigned',
-        description:
-            'Complete the service mesh deployment worksheet before tomorrow night.',
-        type: CourseActivityType.task,
-        createdAtLabel: _formatRelativeTimestamp(
-          now.subtract(const Duration(hours: 2, minutes: 15)),
-          now,
-        ),
-        createdAt: now.subtract(const Duration(hours: 2, minutes: 15)),
+        subjectId: 'subject-1',
+        subjectName: 'تطوير تطبيقات الهاتف المتقدمة',
+        title: 'تم فتح كويز جديد',
+        description: 'كويز Async Flows متاح حاليًا ويغلق خلال أقل من ساعة.',
+        type: CourseActivityType.quiz,
+        createdAtLabel:
+            formatRelativeArabic(now.subtract(const Duration(minutes: 10))),
+        createdAt: now.subtract(const Duration(minutes: 10)),
       ),
       CourseActivityItem(
         id: 'activity-3',
+        subjectId: 'subject-2',
+        subjectName: 'الحوسبة السحابية',
+        title: 'تسليم شيت قريب',
+        description: 'شيت Service Mesh يحتاج رفع قبل نهاية اليوم.',
+        type: CourseActivityType.assignment,
+        createdAtLabel:
+            formatRelativeArabic(now.subtract(const Duration(hours: 2))),
+        createdAt: now.subtract(const Duration(hours: 2)),
+      ),
+      CourseActivityItem(
+        id: 'activity-4',
         subjectId: 'subject-3',
-        subjectName: 'Human Computer Interaction',
-        title: 'New announcement',
-        description:
-            'Lab seating was updated for the accessibility critique session.',
-        type: CourseActivityType.announcement,
-        createdAtLabel: _formatRelativeTimestamp(
-          now.subtract(const Duration(days: 1, hours: 1)),
-          now,
-        ),
-        createdAt: now.subtract(const Duration(days: 1, hours: 1)),
+        subjectName: 'التفاعل بين الإنسان والحاسوب',
+        title: 'آخر منشور في الجروب',
+        description: 'تم تعديل توزيع المجموعات داخل سكشن قابلية الوصول.',
+        type: CourseActivityType.groupPost,
+        createdAtLabel:
+            formatRelativeArabic(now.subtract(const Duration(days: 1))),
+        createdAt: now.subtract(const Duration(days: 1)),
       ),
     ];
   }
@@ -583,7 +777,7 @@ class MockBackendService {
       pendingTasks: pendingTasks,
       viewedLectures: 8,
       engagementScore: 0.82,
-      engagementLabel: 'Strong engagement',
+      engagementLabel: 'تفاعل قوي هذا الأسبوع',
     );
   }
 
@@ -591,80 +785,55 @@ class MockBackendService {
     return [
       AppNotificationItem(
         id: 'notification-1',
-        title: 'Quiz is live now',
-        body: 'Async flows checkpoint is open for the next 50 minutes.',
-        createdAtLabel: _formatRelativeTimestamp(
-          now.subtract(const Duration(minutes: 10)),
-          now,
-        ),
-        category: 'Quiz',
+        title: 'لديك كويز مفتوح الآن',
+        body: 'كويز Async Flows متاح لمدة 50 دقيقة من الآن.',
+        createdAtLabel: formatRelativeArabic(now.subtract(const Duration(minutes: 10))),
+        category: 'كويزات',
         isRead: false,
+        routeName: RouteNames.quizEntry,
+        pathParameters: {'subjectId': 'subject-1', 'quizId': 'quiz-1'},
+        isImportant: true,
       ),
       AppNotificationItem(
         id: 'notification-2',
-        title: 'Lecture starts soon',
-        body: 'State orchestration studio begins in a little over an hour.',
-        createdAtLabel: _formatRelativeTimestamp(
-          now.subtract(const Duration(hours: 1)),
-          now,
-        ),
-        category: 'Lecture',
+        title: 'محاضرة تبدأ بعد قليل',
+        body: 'محاضرة معمارية إدارة الحالة تبدأ خلال ساعة و15 دقيقة.',
+        createdAtLabel: formatRelativeArabic(now.subtract(const Duration(hours: 1))),
+        category: 'أكاديمي',
         isRead: false,
+        routeName: RouteNames.subjectDetails,
+        pathParameters: {'subjectId': 'subject-1'},
       ),
       AppNotificationItem(
         id: 'notification-3',
-        title: 'Deadline moved to top priority',
-        body: 'Submit service mesh lab before the portal closes tonight.',
-        createdAtLabel: _formatRelativeTimestamp(
-          now.subtract(const Duration(days: 1)),
-          now,
-        ),
-        category: 'Task',
+        title: 'تسليم يحتاج متابعة',
+        body: 'شيت Service Mesh لم يتم رفعه بعد ويغلق اليوم.',
+        createdAtLabel: 'أمس',
+        category: 'شيتات',
         isRead: true,
+        routeName: RouteNames.assignmentUpload,
+        pathParameters: {'subjectId': 'subject-2', 'taskId': 'task-1'},
+        isImportant: true,
+      ),
+      AppNotificationItem(
+        id: 'notification-4',
+        title: 'تم تحديث النتائج',
+        body: 'درجات مادة التفاعل بين الإنسان والحاسوب أصبحت متاحة الآن.',
+        createdAtLabel: formatRelativeArabic(now.subtract(const Duration(days: 2))),
+        category: 'درجات',
+        isRead: true,
+        routeName: RouteNames.results,
+      ),
+      AppNotificationItem(
+        id: 'notification-5',
+        title: 'منشور جديد في الجروب',
+        body: 'تم نشر تعديل على مجموعات السكشن داخل مادة HCI.',
+        createdAtLabel: formatRelativeArabic(now.subtract(const Duration(hours: 6))),
+        category: 'الجروب',
+        isRead: false,
+        routeName: RouteNames.subjectDetails,
+        pathParameters: {'subjectId': 'subject-3'},
       ),
     ];
-  }
-
-  String _formatSchedule(DateTime dateTime) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final target = DateTime(dateTime.year, dateTime.month, dateTime.day);
-    final differenceInDays = target.difference(today).inDays;
-
-    final prefix = switch (differenceInDays) {
-      0 => 'Today',
-      1 => 'Tomorrow',
-      _ => DateFormat('EEE, MMM d').format(dateTime),
-    };
-
-    return '$prefix, ${DateFormat('h:mm a').format(dateTime)}';
-  }
-
-  String _formatDueLabel(DateTime dueAt, DateTime now) {
-    final hours = dueAt.difference(now).inHours;
-    if (hours < 24) {
-      return 'Due in ${hours.clamp(1, 23)}h';
-    }
-
-    final days = dueAt.difference(now).inDays;
-    if (days == 1) {
-      return 'Due tomorrow';
-    }
-
-    return 'Due in $days days';
-  }
-
-  String _formatRelativeTimestamp(DateTime dateTime, DateTime now) {
-    final difference = now.difference(dateTime);
-    if (difference.inMinutes < 60) {
-      return '${difference.inMinutes.clamp(1, 59)} min ago';
-    }
-    if (difference.inHours < 24) {
-      return '${difference.inHours}h ago';
-    }
-    if (difference.inDays == 1) {
-      return 'Yesterday';
-    }
-    return DateFormat('MMM d').format(dateTime);
   }
 }

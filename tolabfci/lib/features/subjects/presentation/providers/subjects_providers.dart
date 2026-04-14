@@ -22,6 +22,10 @@ final tasksProvider = FutureProvider.family((ref, String subjectId) {
   return ref.watch(subjectsRepositoryProvider).fetchTasks(subjectId);
 });
 
+final subjectFilesProvider = FutureProvider.family((ref, String subjectId) {
+  return ref.watch(subjectsRepositoryProvider).fetchSubjectFiles(subjectId);
+});
+
 final summariesProvider = FutureProvider.family((ref, String subjectId) {
   return ref.watch(subjectsRepositoryProvider).fetchSummaries(subjectId);
 });
