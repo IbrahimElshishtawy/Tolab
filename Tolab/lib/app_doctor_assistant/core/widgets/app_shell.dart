@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/core/app_scope.dart';
+import '../../../app/localization/app_localizations.dart';
+import '../../../app/localization/widgets/language_toggle_button.dart';
 import '../design/app_colors.dart';
 import '../design/app_spacing.dart';
 import '../models/session_user.dart';
@@ -31,7 +33,17 @@ class AppShell extends StatelessWidget {
     final isDesktop = width >= AppBreakpoints.desktop;
     final selectedIndex = items.indexWhere((item) => activePath == item.path);
     final themeController = AppScope.theme(context);
+    final localeController = AppScope.locale(context);
     final authController = AppScope.auth(context);
+    final l10n = context.l10n;
+    final normalizedRole = user.roleType
+        .split('_')
+        .map(
+          (part) => part.isEmpty
+              ? part
+              : '${part[0].toUpperCase()}${part.substring(1)}',
+        )
+        .join(' ');
 
     final header = Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -46,10 +58,13 @@ class AppShell extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: Theme.of(context).textTheme.headlineMedium),
+                Text(
+                  l10n.byValue(title),
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  '${user.fullName} • ${user.roleType.toUpperCase()}',
+                  '${user.fullName} • ${l10n.byValue(normalizedRole)}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -62,15 +77,19 @@ class AppShell extends StatelessWidget {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               if (trailing != null) trailing!,
+              LanguageToggleButton(
+                languageCode: localeController.languageCode,
+                onSelected: localeController.setLanguage,
+              ),
               IconButton(
-                tooltip: 'Toggle theme',
+                tooltip: l10n.t('common.actions.toggle_theme'),
                 onPressed: themeController.toggle,
                 icon: const Icon(Icons.contrast_rounded),
               ),
               TextButton.icon(
                 onPressed: authController.logout,
                 icon: const Icon(Icons.logout_rounded),
-                label: const Text('Logout'),
+                label: Text(l10n.t('common.actions.logout')),
               ),
             ],
           ),
@@ -113,14 +132,14 @@ class AppShell extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Tolab',
+                    l10n.t('layout.doctor.brand.title'),
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       color: AppColors.white,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
-                    'Academic staff workspace',
+                    l10n.t('layout.doctor.brand.subtitle'),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.white.withValues(alpha: .8),
                     ),
@@ -136,7 +155,7 @@ class AppShell extends StatelessWidget {
                         ),
                         leading: Icon(item.icon, color: AppColors.white),
                         title: Text(
-                          item.label,
+                          l10n.t(item.label),
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(color: AppColors.white),
                         ),
@@ -165,7 +184,7 @@ class AppShell extends StatelessWidget {
             .map(
               (item) => NavigationDestination(
                 icon: Icon(item.icon),
-                label: item.label,
+                label: l10n.t(item.label),
               ),
             )
             .toList(),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/app_scope.dart';
+import '../../localization/app_localizations.dart';
 import '../../routing/app_routes.dart';
 
 class UnauthorizedScreen extends StatelessWidget {
@@ -11,6 +12,7 @@ class UnauthorizedScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = AppScope.auth(context);
     final user = auth.currentUser;
+    final l10n = context.l10n;
 
     return Scaffold(
       body: Center(
@@ -26,15 +28,18 @@ class UnauthorizedScreen extends StatelessWidget {
                   const Icon(Icons.gpp_bad_rounded, size: 48),
                   const SizedBox(height: 16),
                   Text(
-                    'Unauthorized',
+                    l10n.t('auth.unauthorized.title'),
                     style: Theme.of(context).textTheme.headlineSmall,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
                   Text(
                     user == null
-                        ? 'You do not have access to this area.'
-                        : 'Your role "${user.role.value}" does not have access to this route.',
+                        ? l10n.t('auth.unauthorized.anonymous')
+                        : l10n.t(
+                            'auth.unauthorized.with_role',
+                            params: <String, String>{'role': user.role.value},
+                          ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
@@ -55,11 +60,11 @@ class UnauthorizedScreen extends StatelessWidget {
                             UnifiedAppRoutes.homeForRole(currentUser.role),
                           );
                         },
-                        child: const Text('Go home'),
+                        child: Text(l10n.t('common.actions.go_home')),
                       ),
                       OutlinedButton(
                         onPressed: auth.logout,
-                        child: const Text('Logout'),
+                        child: Text(l10n.t('common.actions.logout')),
                       ),
                     ],
                   ),

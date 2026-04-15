@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/localization/app_localizations.dart';
+import '../../../app/localization/widgets/language_toggle_button.dart';
 import '../../shared/widgets/status_badge.dart';
 import '../animations/app_motion.dart';
 import '../colors/app_colors.dart';
@@ -34,6 +36,8 @@ class AdaptiveScaffold extends StatefulWidget {
     required this.notificationStatus,
     required this.notificationRoute,
     required this.onToggleTheme,
+    required this.languageCode,
+    required this.onLanguageSelected,
     required this.onLogout,
   });
 
@@ -46,6 +50,8 @@ class AdaptiveScaffold extends StatefulWidget {
   final String notificationStatus;
   final String notificationRoute;
   final VoidCallback onToggleTheme;
+  final String languageCode;
+  final ValueChanged<String> onLanguageSelected;
   final VoidCallback onLogout;
 
   @override
@@ -84,6 +90,7 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
     final screenType = AppBreakpoints.resolve(context);
     final selectedIndex = _selectedIndex();
     final selected = widget.destinations[selectedIndex];
+    final selectedLabel = context.l10n.t(selected.label);
     final isMobile = screenType == DeviceScreenType.mobile;
     final sidebarWidth = _isSidebarCollapsed
         ? AppConstants.collapsedSidebarWidth
@@ -164,8 +171,8 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
                       child: Column(
                         children: [
                           _TopBar(
-                            title: selected.label,
-                            subtitle: _subtitleFor(selected.label),
+                            title: selectedLabel,
+                            subtitle: _subtitleFor(context, selected.label),
                             userName: widget.userName,
                             userRole: widget.userRole,
                             unreadNotifications: widget.unreadNotifications,
@@ -176,6 +183,8 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
                               () => _isSidebarCollapsed = !_isSidebarCollapsed,
                             ),
                             onToggleTheme: widget.onToggleTheme,
+                            languageCode: widget.languageCode,
+                            onLanguageSelected: widget.onLanguageSelected,
                             onLogout: widget.onLogout,
                           ),
                           const SizedBox(height: AppSpacing.md),
@@ -218,17 +227,23 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
     );
   }
 
-  String _subtitleFor(String title) => switch (title) {
-    'Dashboard' =>
-      'Overview, activity, and high-signal academic operations at a glance.',
-    'Students' =>
-      'Enrollment, status, and academic health in one compact workspace.',
-    'Staff' => 'Roles, teaching load, and internal administration.',
-    'Departments' => 'Structure, ownership, and administrative coverage.',
-    'Schedule' => 'Calendar-first planning for lectures, sections, and exams.',
-    'Moderation' => 'Reported posts, messages, and policy review queue.',
-    'Settings' => 'Control the experience, security, and workspace defaults.',
-    _ => 'Premium university administration workspace.',
+  String _subtitleFor(BuildContext context, String titleKey) => switch (
+    titleKey
+  ) {
+    'layout.admin.nav.dashboard' =>
+      context.l10n.t('layout.admin.subtitle.dashboard'),
+    'layout.admin.nav.students' =>
+      context.l10n.t('layout.admin.subtitle.students'),
+    'layout.admin.nav.staff' => context.l10n.t('layout.admin.subtitle.staff'),
+    'layout.admin.nav.departments' =>
+      context.l10n.t('layout.admin.subtitle.departments'),
+    'layout.admin.nav.schedule' =>
+      context.l10n.t('layout.admin.subtitle.schedule'),
+    'layout.admin.nav.moderation' =>
+      context.l10n.t('layout.admin.subtitle.moderation'),
+    'layout.admin.nav.settings' =>
+      context.l10n.t('layout.admin.subtitle.settings'),
+    _ => context.l10n.t('layout.admin.subtitle.default'),
   };
 }
 
@@ -297,14 +312,14 @@ class _Sidebar extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Tolab Admin',
+                            context.l10n.t('layout.admin.brand.title'),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'University control center',
+                            context.l10n.t('layout.admin.brand.subtitle'),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context).textTheme.bodySmall,
@@ -380,14 +395,14 @@ class _Sidebar extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Spring 2026',
+                        context.l10n.t('layout.admin.season.title'),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.titleSmall,
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Registration window closes in 5 days.',
+                        context.l10n.t('layout.admin.season.subtitle'),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall,
@@ -460,7 +475,7 @@ class _SidebarNavTileState extends State<_SidebarNavTile> {
             if (!showExpandedTile) {
               return _CompactSidebarNavTile(
                 icon: widget.item.icon,
-                label: widget.item.label,
+                label: context.l10n.t(widget.item.label),
                 isSelected: isSelected,
                 badgeCount: widget.badgeCount,
                 onTap: widget.onTap,
@@ -479,7 +494,7 @@ class _SidebarNavTileState extends State<_SidebarNavTile> {
                     ? AppColors.primary
                     : Theme.of(context).iconTheme.color,
               ),
-              title: Text(widget.item.label),
+              title: Text(context.l10n.t(widget.item.label)),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -525,7 +540,7 @@ class _CompactSidebarNavTile extends StatelessWidget {
         : Theme.of(context).iconTheme.color;
 
     return Tooltip(
-      message: label,
+      message: context.l10n.byValue(label),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -573,6 +588,8 @@ class _TopBar extends StatelessWidget {
     required this.isMobile,
     required this.onMenuPressed,
     required this.onToggleTheme,
+    required this.languageCode,
+    required this.onLanguageSelected,
     required this.onLogout,
   });
 
@@ -586,6 +603,8 @@ class _TopBar extends StatelessWidget {
   final bool isMobile;
   final VoidCallback onMenuPressed;
   final VoidCallback onToggleTheme;
+  final String languageCode;
+  final ValueChanged<String> onLanguageSelected;
   final VoidCallback onLogout;
 
   @override
@@ -639,7 +658,7 @@ class _TopBar extends StatelessWidget {
                         style: Theme.of(context).textTheme.labelLarge,
                       ),
                       Text(
-                        userRole.replaceAll('_', ' '),
+                        context.l10n.byValue(userRole.replaceAll('_', ' ')),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall,
@@ -708,8 +727,13 @@ class _TopBar extends StatelessWidget {
                               notificationStatus,
                               icon: Icons.radio_button_checked,
                             ),
+                          LanguageToggleButton(
+                            languageCode: languageCode,
+                            onSelected: onLanguageSelected,
+                          ),
                           IconButton(
                             onPressed: onToggleTheme,
+                            tooltip: context.l10n.t('common.actions.toggle_theme'),
                             icon: const Icon(Icons.contrast_rounded),
                           ),
                           _NotificationBellButton(
@@ -720,10 +744,12 @@ class _TopBar extends StatelessWidget {
                             onSelected: (value) {
                               if (value == 'logout') onLogout();
                             },
-                            itemBuilder: (context) => const [
+                            itemBuilder: (context) => [
                               PopupMenuItem(
                                 value: 'logout',
-                                child: Text('Logout'),
+                                child: Text(
+                                  context.l10n.t('common.actions.logout'),
+                                ),
                               ),
                             ],
                             child: profileChip,
@@ -774,8 +800,14 @@ class _TopBar extends StatelessWidget {
                       ),
                       const SizedBox(width: AppSpacing.sm),
                     ],
+                    LanguageToggleButton(
+                      languageCode: languageCode,
+                      onSelected: onLanguageSelected,
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
                     IconButton(
                       onPressed: onToggleTheme,
+                      tooltip: context.l10n.t('common.actions.toggle_theme'),
                       icon: const Icon(Icons.contrast_rounded),
                     ),
                     const SizedBox(width: AppSpacing.xs),
@@ -788,8 +820,11 @@ class _TopBar extends StatelessWidget {
                       onSelected: (value) {
                         if (value == 'logout') onLogout();
                       },
-                      itemBuilder: (context) => const [
-                        PopupMenuItem(value: 'logout', child: Text('Logout')),
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'logout',
+                          child: Text(context.l10n.t('common.actions.logout')),
+                        ),
                       ],
                       child: profileChip,
                     ),
@@ -821,7 +856,7 @@ class _TopBar extends StatelessWidget {
                           const Icon(Icons.auto_awesome_rounded, size: 16),
                           const SizedBox(width: AppSpacing.xs),
                           Text(
-                            'Premium admin workspace',
+                            context.l10n.t('layout.admin.context.workspace'),
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                         ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../design/app_spacing.dart';
 import 'app_card.dart';
 
@@ -55,10 +56,13 @@ class EmptyStateView extends StatelessWidget {
               color: Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(height: AppSpacing.lg),
-            Text(title, style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              context.l10n.byValue(title),
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              message,
+              context.l10n.byValue(message),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
@@ -86,14 +90,14 @@ class ErrorStateView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return EmptyStateView(
-      title: 'Something went wrong',
-      message: message,
+      title: context.l10n.byValue('Something went wrong'),
+      message: context.l10n.byValue(message),
       action: onRetry == null
           ? null
           : FilledButton.tonalIcon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Retry'),
+              label: Text(context.l10n.t('common.actions.retry')),
             ),
     );
   }

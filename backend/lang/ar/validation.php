@@ -1,0 +1,40 @@
+<?php
+
+return [
+    'accepted' => 'يجب قبول :attribute.',
+    'array' => 'يجب أن تكون :attribute مصفوفة.',
+    'boolean' => 'يجب أن تكون قيمة :attribute صحيحة أو خاطئة.',
+    'confirmed' => 'تأكيد :attribute غير متطابق.',
+    'date' => ':attribute ليس تاريخاً صالحاً.',
+    'email' => 'يجب أن يكون :attribute بريداً إلكترونياً صالحاً.',
+    'exists' => ':attribute المحدد غير صالح.',
+    'file' => 'يجب أن يكون :attribute ملفاً.',
+    'image' => 'يجب أن يكون :attribute صورة.',
+    'in' => ':attribute المحدد غير صالح.',
+    'integer' => 'يجب أن تكون :attribute عدداً صحيحاً.',
+    'max' => [
+        'array' => 'يجب ألا تحتوي :attribute على أكثر من :max عناصر.',
+        'file' => 'يجب ألا يزيد حجم :attribute عن :max كيلوبايت.',
+        'numeric' => 'يجب ألا تكون :attribute أكبر من :max.',
+        'string' => 'يجب ألا يزيد :attribute عن :max أحرف.',
+    ],
+    'mimes' => 'يجب أن يكون :attribute ملفاً من النوع: :values.',
+    'min' => [
+        'array' => 'يجب أن تحتوي :attribute على :min عناصر على الأقل.',
+        'file' => 'يجب ألا يقل حجم :attribute عن :min كيلوبايت.',
+        'numeric' => 'يجب ألا تكون :attribute أقل من :min.',
+        'string' => 'يجب ألا يقل :attribute عن :min أحرف.',
+    ],
+    'numeric' => 'يجب أن تكون :attribute رقماً.',
+    'required' => 'حقل :attribute مطلوب.',
+    'string' => 'يجب أن تكون :attribute نصاً.',
+    'unique' => ':attribute مستخدمة من قبل.',
+    'attributes' => [
+        'email' => 'البريد الإلكتروني',
+        'password' => 'كلمة المرور',
+        'name' => 'الاسم',
+        'language' => 'اللغة',
+        'title' => 'العنوان',
+        'description' => 'الوصف',
+    ],
+];

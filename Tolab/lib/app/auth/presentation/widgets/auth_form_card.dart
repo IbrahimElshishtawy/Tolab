@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../localization/app_localizations.dart';
 import '../../../../app_admin/core/colors/app_colors.dart';
 import '../../../../app_admin/core/constants/app_constants.dart';
 import '../../dev/dev_auth_config.dart';
@@ -39,6 +40,7 @@ class UnifiedAuthFormCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final isDark = theme.brightness == Brightness.dark;
     final compact = MediaQuery.sizeOf(context).width < 600;
 
@@ -71,20 +73,20 @@ class UnifiedAuthFormCard extends StatelessWidget {
             Wrap(
               spacing: 10,
               runSpacing: 10,
-              children: const [
+              children: [
                 _SurfaceChip(
                   icon: Icons.lock_outline_rounded,
-                  label: 'Secure sign in',
+                  label: l10n.t('auth.form.chips.secure_sign_in'),
                 ),
                 _SurfaceChip(
                   icon: Icons.hub_outlined,
-                  label: 'Role resolved automatically',
+                  label: l10n.t('auth.form.chips.role_resolved'),
                 ),
               ],
             ),
             const SizedBox(height: 22),
             Text(
-              'Welcome back',
+              l10n.t('auth.form.welcome_back'),
               style: theme.textTheme.headlineMedium?.copyWith(
                 fontSize: compact ? 28 : 32,
                 fontWeight: FontWeight.w800,
@@ -93,7 +95,7 @@ class UnifiedAuthFormCard extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'Sign in with your university account to continue to the right workspace.',
+              l10n.t('auth.form.description'),
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.68),
                 fontSize: 15,
@@ -117,7 +119,7 @@ class UnifiedAuthFormCard extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Admins, doctors, and assistants now use one login form. Permissions and destination are assigned by the backend after authentication.',
+                l10n.t('auth.form.info'),
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.72),
                   height: 1.55,
@@ -127,7 +129,7 @@ class UnifiedAuthFormCard extends StatelessWidget {
             ),
             const SizedBox(height: 22),
             _FieldLabel(
-              label: 'University email',
+              label: l10n.t('auth.form.email'),
               child: TextFormField(
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -137,17 +139,17 @@ class UnifiedAuthFormCard extends StatelessWidget {
                   AutofillHints.email,
                 ],
                 enabled: !isLoading,
-                decoration: const InputDecoration(
-                  hintText: 'name@tolab.edu',
+                decoration: InputDecoration(
+                  hintText: l10n.t('auth.form.email_hint'),
                   prefixIcon: Icon(Icons.alternate_email_rounded),
                 ),
                 validator: (value) {
                   final email = value?.trim() ?? '';
                   if (email.isEmpty) {
-                    return 'Email is required';
+                    return l10n.t('auth.validation.email_required');
                   }
                   if (!email.contains('@')) {
-                    return 'Enter a valid email';
+                    return l10n.t('auth.validation.email_invalid');
                   }
                   return null;
                 },
@@ -155,7 +157,7 @@ class UnifiedAuthFormCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             _FieldLabel(
-              label: 'Password',
+              label: l10n.t('auth.form.password'),
               child: TextFormField(
                 controller: passwordController,
                 obscureText: obscurePassword,
@@ -164,7 +166,7 @@ class UnifiedAuthFormCard extends StatelessWidget {
                 enabled: !isLoading,
                 onFieldSubmitted: isLoading ? null : (_) => onSubmit(),
                 decoration: InputDecoration(
-                  hintText: 'Enter your password',
+                  hintText: l10n.t('auth.form.password_hint'),
                   prefixIcon: const Icon(Icons.lock_outline_rounded),
                   suffixIcon: IconButton(
                     onPressed: isLoading ? null : onToggleObscure,
@@ -177,7 +179,7 @@ class UnifiedAuthFormCard extends StatelessWidget {
                 ),
                 validator: (value) {
                   if ((value ?? '').trim().isEmpty) {
-                    return 'Password is required';
+                    return l10n.t('auth.validation.password_required');
                   }
                   return null;
                 },
@@ -198,7 +200,7 @@ class UnifiedAuthFormCard extends StatelessWidget {
                   onPressed: isLoading
                       ? null
                       : () => context.go(UnifiedAppRoutes.forgotPassword),
-                  child: const Text('Forgot password?'),
+                  child: Text(l10n.t('auth.form.forgot_password')),
                 ),
               ],
             ),
@@ -219,7 +221,9 @@ class UnifiedAuthFormCard extends StatelessWidget {
                 label: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   child: Text(
-                    isLoading ? 'Signing in...' : 'Continue to workspace',
+                    isLoading
+                        ? l10n.t('auth.form.submitting')
+                        : l10n.t('auth.form.submit'),
                   ),
                 ),
                 style: FilledButton.styleFrom(
@@ -236,14 +240,14 @@ class UnifiedAuthFormCard extends StatelessWidget {
               const Divider(height: 1),
               const SizedBox(height: 14),
               Text(
-                'Developer tools',
+                l10n.t('auth.form.developer_tools'),
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Create a local test session without changing the production login flow.',
+                l10n.t('auth.form.developer_description'),
                 style: theme.textTheme.bodySmall?.copyWith(height: 1.45),
               ),
               const SizedBox(height: 10),
@@ -310,7 +314,7 @@ class _RememberSessionRow extends StatelessWidget {
             ),
             const SizedBox(width: 2),
             Text(
-              'Remember this session',
+              context.l10n.t('auth.form.remember_session'),
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -348,7 +352,7 @@ class _ErrorBanner extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              message,
+              context.l10n.byValue(message),
               style: TextStyle(
                 color: Theme.of(context).colorScheme.error,
                 fontWeight: FontWeight.w700,

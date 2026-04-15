@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
+import '../../../app/localization/current_locale_state.dart';
 import '../config/app_config.dart';
 import '../errors/app_exception.dart';
 import '../helpers/json_types.dart';
@@ -15,7 +16,10 @@ class ApiClient {
           connectTimeout: AppConfig.connectTimeout,
           sendTimeout: AppConfig.connectTimeout,
           receiveTimeout: AppConfig.receiveTimeout,
-          headers: {'Accept': 'application/json'},
+          headers: {
+            'Accept': 'application/json',
+            'Accept-Language': CurrentLocaleState.languageCode,
+          },
         ),
       ) {
     _dio.interceptors.add(
@@ -25,6 +29,7 @@ class ApiClient {
           if (_hasUsableAccessToken(token)) {
             options.headers['Authorization'] = 'Bearer $token';
           }
+          options.headers['Accept-Language'] = CurrentLocaleState.languageCode;
           handler.next(options);
         },
         onError: (error, handler) async {

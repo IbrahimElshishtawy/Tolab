@@ -1,0 +1,64 @@
+{
+  "layout": {
+    "admin": {
+      "brand": {
+        "title": "Tolab Admin",
+        "subtitle": "University control center"
+      },
+      "season": {
+        "title": "Spring 2026",
+        "subtitle": "Registration window closes in 5 days."
+      },
+      "context": {
+        "workspace": "Premium admin workspace"
+      },
+      "nav": {
+        "dashboard": "Dashboard",
+        "students": "Students",
+        "staff": "Staff",
+        "departments": "Departments",
+        "sections": "Sections",
+        "subjects": "Subjects",
+        "offerings": "Offerings",
+        "enrollments": "Enrollments",
+        "content": "Content",
+        "schedule": "Schedule",
+        "uploads": "Uploads",
+        "notifications": "Notifications",
+        "moderation": "Moderation",
+        "roles": "Roles",
+        "settings": "Settings"
+      },
+      "subtitle": {
+        "dashboard": "Overview, activity, and high-signal academic operations at a glance.",
+        "students": "Enrollment, status, and academic health in one compact workspace.",
+        "staff": "Roles, teaching load, and internal administration.",
+        "departments": "Structure, ownership, and administrative coverage.",
+        "schedule": "Calendar-first planning for lectures, sections, and exams.",
+        "moderation": "Reported posts, messages, and policy review queue.",
+        "settings": "Control the experience, security, and workspace defaults.",
+        "default": "Premium university administration workspace."
+      }
+    },
+    "doctor": {
+      "brand": {
+        "title": "Tolab",
+        "subtitle": "Academic staff workspace"
+      },
+      "nav": {
+        "home": "Home",
+        "subjects": "Subjects",
+        "lectures": "Lectures",
+        "sections": "Sections",
+        "quizzes": "Quizzes",
+        "tasks": "Tasks",
+        "schedule": "Schedule",
+        "alerts": "Alerts",
+        "uploads": "Uploads",
+        "staff": "Staff",
+        "admin": "Admin",
+        "settings": "Settings"
+      }
+    }
+  }
+}

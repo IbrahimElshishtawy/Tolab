@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 
+import '../../../app/localization/current_locale_state.dart';
 import '../config/app_config.dart';
 import '../storage/token_storage.dart';
 import 'api_exception.dart';
@@ -17,7 +18,10 @@ class ApiClient {
           connectTimeout: AppConfig.connectTimeout,
           receiveTimeout: AppConfig.receiveTimeout,
           sendTimeout: AppConfig.sendTimeout,
-          headers: const {'Accept': 'application/json'},
+          headers: {
+            'Accept': 'application/json',
+            'Accept-Language': CurrentLocaleState.languageCode,
+          },
         ),
       ),
       _refreshDio = Dio(
@@ -26,7 +30,10 @@ class ApiClient {
           connectTimeout: AppConfig.connectTimeout,
           receiveTimeout: AppConfig.receiveTimeout,
           sendTimeout: AppConfig.sendTimeout,
-          headers: const {'Accept': 'application/json'},
+          headers: {
+            'Accept': 'application/json',
+            'Accept-Language': CurrentLocaleState.languageCode,
+          },
         ),
       ) {
     _dio.interceptors.add(
@@ -60,6 +67,7 @@ class ApiClient {
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
+          options.headers['Accept-Language'] = CurrentLocaleState.languageCode;
 
           final connectivity = await Connectivity().checkConnectivity();
           if (connectivity.contains(ConnectivityResult.none)) {

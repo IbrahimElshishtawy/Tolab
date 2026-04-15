@@ -7,12 +7,12 @@ import 'app_routes.dart';
 List<ShellNavItem> buildNavigationItems(SessionUser user) {
   final items = <ShellNavItem>[
     const ShellNavItem(
-      label: 'Home',
+      label: 'layout.doctor.nav.home',
       path: AppRoutes.dashboard,
       icon: Icons.grid_view_rounded,
     ),
     const ShellNavItem(
-      label: 'Subjects',
+      label: 'layout.doctor.nav.subjects',
       path: AppRoutes.subjects,
       icon: Icons.menu_book_rounded,
     ),
@@ -21,7 +21,7 @@ List<ShellNavItem> buildNavigationItems(SessionUser user) {
   if (user.hasPermission('lectures.view')) {
     items.add(
       const ShellNavItem(
-        label: 'Lectures',
+        label: 'layout.doctor.nav.lectures',
         path: AppRoutes.lectures,
         icon: Icons.slideshow_rounded,
       ),
@@ -31,7 +31,7 @@ List<ShellNavItem> buildNavigationItems(SessionUser user) {
   if (user.hasPermission('section_content.view')) {
     items.add(
       const ShellNavItem(
-        label: 'Sections',
+        label: 'layout.doctor.nav.sections',
         path: AppRoutes.sectionContent,
         icon: Icons.widgets_rounded,
       ),
@@ -41,7 +41,7 @@ List<ShellNavItem> buildNavigationItems(SessionUser user) {
   if (user.hasPermission('quizzes.view')) {
     items.add(
       const ShellNavItem(
-        label: 'Quizzes',
+        label: 'layout.doctor.nav.quizzes',
         path: AppRoutes.quizzes,
         icon: Icons.fact_check_rounded,
       ),
@@ -51,7 +51,7 @@ List<ShellNavItem> buildNavigationItems(SessionUser user) {
   if (user.hasPermission('tasks.view')) {
     items.add(
       const ShellNavItem(
-        label: 'Tasks',
+        label: 'layout.doctor.nav.tasks',
         path: AppRoutes.tasks,
         icon: Icons.assignment_rounded,
       ),
@@ -60,12 +60,12 @@ List<ShellNavItem> buildNavigationItems(SessionUser user) {
 
   items.addAll([
     const ShellNavItem(
-      label: 'Schedule',
+      label: 'layout.doctor.nav.schedule',
       path: AppRoutes.schedule,
       icon: Icons.calendar_month_rounded,
     ),
     const ShellNavItem(
-      label: 'Alerts',
+      label: 'layout.doctor.nav.alerts',
       path: AppRoutes.notifications,
       icon: Icons.notifications_active_rounded,
     ),
@@ -74,7 +74,7 @@ List<ShellNavItem> buildNavigationItems(SessionUser user) {
   if (user.hasPermission('uploads.view')) {
     items.add(
       const ShellNavItem(
-        label: 'Uploads',
+        label: 'layout.doctor.nav.uploads',
         path: AppRoutes.uploads,
         icon: Icons.upload_file_rounded,
       ),
@@ -84,7 +84,7 @@ List<ShellNavItem> buildNavigationItems(SessionUser user) {
   if (user.isAdmin || user.hasPermission('staff.view')) {
     items.add(
       const ShellNavItem(
-        label: 'Staff',
+        label: 'layout.doctor.nav.staff',
         path: AppRoutes.staff,
         icon: Icons.groups_rounded,
       ),
@@ -94,7 +94,7 @@ List<ShellNavItem> buildNavigationItems(SessionUser user) {
   if (user.isAdmin) {
     items.add(
       const ShellNavItem(
-        label: 'Admin',
+        label: 'layout.doctor.nav.admin',
         path: AppRoutes.admin,
         icon: Icons.admin_panel_settings_rounded,
       ),
@@ -103,7 +103,7 @@ List<ShellNavItem> buildNavigationItems(SessionUser user) {
 
   items.add(
     const ShellNavItem(
-      label: 'Settings',
+      label: 'layout.doctor.nav.settings',
       path: AppRoutes.settings,
       icon: Icons.tune_rounded,
     ),

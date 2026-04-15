@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/app_scope.dart';
+import '../../localization/app_localizations.dart';
 
 class InactiveAccountScreen extends StatelessWidget {
   const InactiveAccountScreen({super.key});
@@ -8,6 +9,7 @@ class InactiveAccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = AppScope.auth(context).currentUser;
+    final l10n = context.l10n;
 
     return Scaffold(
       body: Center(
@@ -23,19 +25,25 @@ class InactiveAccountScreen extends StatelessWidget {
                   const Icon(Icons.lock_person_rounded, size: 48),
                   const SizedBox(height: 16),
                   Text(
-                    'Account inactive',
+                    l10n.t('auth.inactive.title'),
                     style: Theme.of(context).textTheme.headlineSmall,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    '${user?.email ?? 'This account'} is currently inactive. Contact your administrator to restore access.',
+                    l10n.t(
+                      'auth.inactive.description',
+                      params: <String, String>{
+                        'account': user?.email ??
+                            l10n.t('auth.inactive.fallback_account'),
+                      },
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
                   FilledButton(
                     onPressed: () => AppScope.auth(context).logout(),
-                    child: const Text('Return to login'),
+                    child: Text(l10n.t('common.actions.return_to_login')),
                   ),
                 ],
               ),

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../app/localization/app_localizations.dart';
 import '../../../core/animations/app_motion.dart';
 import '../../../core/colors/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
@@ -82,13 +83,13 @@ class SettingsSectionButton extends StatelessWidget {
         onTap: onTap,
         leading: Icon(section.icon, color: selected ? color : null),
         title: Text(
-          section.label,
+          context.l10n.byValue(section.label),
           style: Theme.of(
             context,
           ).textTheme.titleSmall?.copyWith(color: selected ? color : null),
         ),
         subtitle: Text(
-          section.subtitle,
+          context.l10n.byValue(section.subtitle),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -126,7 +127,10 @@ class SettingsStatChip extends StatelessWidget {
         children: [
           Icon(icon, size: 18, color: accent),
           const SizedBox(width: AppSpacing.sm),
-          Text('$label: $value', style: Theme.of(context).textTheme.labelLarge),
+          Text(
+            '${context.l10n.byValue(label)}: ${context.l10n.byValue(value)}',
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
         ],
       ),
     );
@@ -154,9 +158,15 @@ class SettingsBlockHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                context.l10n.byValue(title),
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: 6),
-              Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+              Text(
+                context.l10n.byValue(subtitle),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
             ],
           ),
         ),
@@ -203,9 +213,15 @@ class SettingsSwitchTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: Theme.of(context).textTheme.titleSmall),
+                Text(
+                  context.l10n.byValue(title),
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
                 const SizedBox(height: 4),
-                Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  context.l10n.byValue(subtitle),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ],
             ),
           ),
@@ -275,8 +291,10 @@ class _SettingsTextInputState extends State<SettingsTextInput> {
       maxLines: widget.maxLines,
       keyboardType: widget.keyboardType,
       decoration: InputDecoration(
-        labelText: widget.label,
-        hintText: widget.hintText,
+        labelText: context.l10n.byValue(widget.label),
+        hintText: widget.hintText == null
+            ? null
+            : context.l10n.byValue(widget.hintText!),
         prefixIcon: widget.prefixIcon == null ? null : Icon(widget.prefixIcon),
       ),
     );
@@ -334,12 +352,15 @@ class SettingsDropdownField<T> extends StatelessWidget {
       initialValue: value,
       items: [
         for (final item in items)
-          DropdownMenuItem<T>(value: item, child: Text(labelBuilder(item))),
+          DropdownMenuItem<T>(
+            value: item,
+            child: Text(context.l10n.byValue(labelBuilder(item))),
+          ),
       ],
       onChanged: (next) {
         if (next != null) onChanged(next);
       },
-      decoration: InputDecoration(labelText: label),
+      decoration: InputDecoration(labelText: context.l10n.byValue(label)),
     );
   }
 }
@@ -368,7 +389,7 @@ class SettingsColorField extends StatelessWidget {
         if (picked != null) onChanged(picked);
       },
       child: InputDecorator(
-        decoration: InputDecoration(labelText: label),
+        decoration: InputDecoration(labelText: context.l10n.byValue(label)),
         child: Row(
           children: [
             Container(
@@ -411,10 +432,13 @@ class SettingsEmptyStateCard extends StatelessWidget {
         children: [
           const Icon(Icons.inventory_2_outlined, size: 32),
           const SizedBox(height: AppSpacing.md),
-          Text(title, style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            context.l10n.byValue(title),
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            subtitle,
+            context.l10n.byValue(subtitle),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall,
           ),
@@ -480,7 +504,7 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Choose accent color'),
+      title: Text(context.l10n.byValue('Choose accent color')),
       content: SizedBox(
         width: 360,
         child: Column(
@@ -527,8 +551,8 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
             const SizedBox(height: AppSpacing.lg),
             TextField(
               controller: _hexController,
-              decoration: const InputDecoration(
-                labelText: 'Hex',
+              decoration: InputDecoration(
+                labelText: context.l10n.byValue('Hex'),
                 hintText: '#2563EB',
               ),
               onChanged: (value) {
@@ -544,11 +568,11 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(context.l10n.t('common.actions.cancel')),
         ),
         FilledButton(
           onPressed: () => Navigator.of(context).pop(_selected),
-          child: const Text('Apply'),
+          child: Text(context.l10n.t('common.actions.apply')),
         ),
       ],
     );

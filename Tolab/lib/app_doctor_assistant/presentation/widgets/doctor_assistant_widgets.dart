@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../app_admin/core/colors/app_colors.dart';
 import '../../../app_admin/core/constants/app_constants.dart';
 import '../../../app_admin/core/responsive/app_breakpoints.dart';
@@ -33,10 +34,10 @@ class DoctorAssistantPageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final header = PageHeader(
-      title: title,
-      subtitle: subtitle,
+      title: context.l10n.byValue(title),
+      subtitle: context.l10n.byValue(subtitle),
       actions: actions,
-      breadcrumbs: breadcrumbs,
+      breadcrumbs: breadcrumbs.map(context.l10n.byValue).toList(growable: false),
     );
 
     if (scrollable) {
@@ -102,7 +103,7 @@ class DoctorAssistantSummaryStrip extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.md),
                       Text(
-                        metric.label,
+                        context.l10n.byValue(metric.label),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       const SizedBox(height: AppSpacing.xs),
@@ -112,7 +113,7 @@ class DoctorAssistantSummaryStrip extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        metric.caption,
+                        context.l10n.byValue(metric.caption),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -155,10 +156,13 @@ class DoctorAssistantPanel extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: Theme.of(context).textTheme.titleLarge),
+                    Text(
+                      context.l10n.byValue(title),
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      subtitle,
+                      context.l10n.byValue(subtitle),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -227,14 +231,23 @@ class DoctorAssistantItemCard extends StatelessWidget {
                   spacing: AppSpacing.sm,
                   runSpacing: AppSpacing.sm,
                   children: [
-                    Text(title, style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      context.l10n.byValue(title),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     StatusBadge(statusLabel),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
+                Text(
+                  context.l10n.byValue(subtitle),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 const SizedBox(height: AppSpacing.xs),
-                Text(meta, style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  context.l10n.byValue(meta),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ],
             ),
           ),
@@ -303,7 +316,7 @@ class DoctorAssistantSubjectCard extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      subject.academicTerm,
+                      context.l10n.byValue(subject.academicTerm),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -314,7 +327,7 @@ class DoctorAssistantSubjectCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
-            subject.description,
+            context.l10n.byValue(subject.description),
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -329,7 +342,9 @@ class DoctorAssistantSubjectCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            '${(subject.progress * 100).round()}% delivery progress',
+            context.l10n.byValue(
+              '${(subject.progress * 100).round()}% delivery progress',
+            ),
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
@@ -378,12 +393,12 @@ class DoctorAssistantQuickActionGrid extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.md),
                       Text(
-                        action.title,
+                        context.l10n.byValue(action.title),
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        action.subtitle,
+                        context.l10n.byValue(action.subtitle),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -430,10 +445,13 @@ class DoctorAssistantEmptyState extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
-              Text(title, style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                context.l10n.byValue(title),
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                subtitle,
+                context.l10n.byValue(subtitle),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
@@ -475,8 +493,8 @@ class DoctorAssistantFormLayout extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
         child: AdminForm(
-          title: title,
-          subtitle: subtitle,
+          title: context.l10n.byValue(title),
+          subtitle: context.l10n.byValue(subtitle),
           child: Form(
             key: formKey,
             child: Column(
@@ -489,13 +507,13 @@ class DoctorAssistantFormLayout extends StatelessWidget {
                   runSpacing: AppSpacing.sm,
                   children: [
                     PremiumButton(
-                      label: primaryLabel,
+                      label: context.l10n.byValue(primaryLabel),
                       icon: Icons.check_rounded,
                       onPressed: onSubmit,
                     ),
                     if (secondaryLabel != null)
                       PremiumButton(
-                        label: secondaryLabel!,
+                        label: context.l10n.byValue(secondaryLabel!),
                         icon: Icons.arrow_back_rounded,
                         isSecondary: true,
                         onPressed: onSecondaryTap,

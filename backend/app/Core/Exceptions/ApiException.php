@@ -11,7 +11,7 @@ class ApiException extends Exception
         protected array $errors = [],
         protected int $status = 422
     ) {
-        parent::__construct($message, $status);
+        parent::__construct(__($message), $status);
     }
 
     public function getErrors(): array

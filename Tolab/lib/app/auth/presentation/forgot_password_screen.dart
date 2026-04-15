@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/app_scope.dart';
+import '../../localization/app_localizations.dart';
 import '../../routing/app_routes.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -26,6 +27,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       body: Center(
         child: ConstrainedBox(
@@ -41,29 +43,29 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Reset password',
+                      l10n.t('auth.forgot_password.title'),
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Enter your university email to request a reset link.',
+                      l10n.t('auth.forgot_password.description'),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 20),
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: 'University email',
+                      decoration: InputDecoration(
+                        labelText: l10n.t('auth.form.email'),
                         prefixIcon: Icon(Icons.alternate_email_rounded),
                       ),
                       validator: (value) {
                         final email = value?.trim() ?? '';
                         if (email.isEmpty) {
-                          return 'Email is required';
+                          return l10n.t('auth.validation.email_required');
                         }
                         if (!email.contains('@')) {
-                          return 'Enter a valid email';
+                          return l10n.t('auth.validation.email_invalid');
                         }
                         return null;
                       },
@@ -92,14 +94,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       child: FilledButton(
                         onPressed: _isSubmitting ? null : _submit,
                         child: Text(
-                          _isSubmitting ? 'Sending...' : 'Send reset request',
+                          _isSubmitting
+                              ? l10n.t('auth.forgot_password.submitting')
+                              : l10n.t('auth.forgot_password.submit'),
                         ),
                       ),
                     ),
                     const SizedBox(height: 12),
                     TextButton(
                       onPressed: () => context.go(UnifiedAppRoutes.login),
-                      child: const Text('Back to login'),
+                      child: Text(l10n.t('common.actions.back_to_login')),
                     ),
                   ],
                 ),
@@ -128,7 +132,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         return;
       }
       setState(() {
-        _message = 'If the account exists, a reset request has been submitted.';
+        _message = context.l10n.t('auth.forgot_password.success');
       });
     } catch (error) {
       if (!mounted) {

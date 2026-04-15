@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import '../auth/state/auth_controller.dart';
 import '../bootstrap/app_bootstrap.dart';
+import '../localization/locale_controller.dart';
 import '../shared/theme_mode_controller.dart';
 
 class AppScope extends InheritedWidget {
@@ -20,6 +21,9 @@ class AppScope extends InheritedWidget {
 
   static ThemeModeController theme(BuildContext context) =>
       read(context).themeController;
+
+  static LocaleController locale(BuildContext context) =>
+      read(context).localeController;
 
   @override
   bool updateShouldNotify(AppScope oldWidget) {

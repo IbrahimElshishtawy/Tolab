@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../colors/app_colors.dart';
 import '../responsive/app_breakpoints.dart';
 import '../spacing/app_spacing.dart';
@@ -21,6 +22,7 @@ class PageHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
     return LayoutBuilder(
       builder: (context, constraints) {
         final isCompact =
@@ -45,7 +47,7 @@ class PageHeader extends StatelessWidget {
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
-                        breadcrumbs[index],
+                        l10n.byValue(breadcrumbs[index]),
                         style: textTheme.labelMedium?.copyWith(
                           color: AppColors.primary,
                         ),
@@ -61,12 +63,12 @@ class PageHeader extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: textTheme.headlineMedium),
+                  Text(l10n.byValue(title), style: textTheme.headlineMedium),
                   const SizedBox(height: AppSpacing.xs),
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 720),
                     child: Text(
-                      subtitle,
+                      l10n.byValue(subtitle),
                       style: textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).textTheme.bodySmall?.color,
                       ),
@@ -90,12 +92,15 @@ class PageHeader extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(title, style: textTheme.headlineMedium),
+                        Text(
+                          l10n.byValue(title),
+                          style: textTheme.headlineMedium,
+                        ),
                         const SizedBox(height: AppSpacing.xs),
                         ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 720),
                           child: Text(
-                            subtitle,
+                            l10n.byValue(subtitle),
                             style: textTheme.bodyMedium?.copyWith(
                               color: Theme.of(
                                 context,

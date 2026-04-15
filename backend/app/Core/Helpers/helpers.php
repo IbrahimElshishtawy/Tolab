@@ -7,7 +7,7 @@ if (! function_exists('api_success')) {
     {
         $payload = [
             'success' => true,
-            'message' => $message,
+            'message' => __($message),
             'data' => $data,
         ];
 
@@ -24,7 +24,7 @@ if (! function_exists('api_error')) {
     {
         return new JsonResponse([
             'success' => false,
-            'message' => $message,
+            'message' => __($message),
             'errors' => $errors ?? new \stdClass(),
         ], $status);
     }

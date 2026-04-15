@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../localization/app_localizations.dart';
+
 class DevQuickLoginButton extends StatelessWidget {
   const DevQuickLoginButton({
     super.key,
@@ -24,7 +26,9 @@ class DevQuickLoginButton extends StatelessWidget {
           size: 16,
         ),
         label: Text(
-          isLoading ? 'Creating test account...' : 'Dev: Create Test Account',
+          isLoading
+              ? context.l10n.t('auth.form.dev_creating_account')
+              : context.l10n.t('auth.form.dev_create_account'),
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: colorScheme.onSurfaceVariant,

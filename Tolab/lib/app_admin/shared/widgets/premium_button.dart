@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../core/colors/app_colors.dart';
 import '../../core/constants/app_constants.dart';
 
@@ -64,7 +65,7 @@ class PremiumButton extends StatelessWidget {
       return FilledButton(
         onPressed: onPressed,
         style: style,
-        child: Text(label),
+        child: Text(context.l10n.byValue(label)),
       );
     }
 
@@ -72,7 +73,7 @@ class PremiumButton extends StatelessWidget {
       onPressed: onPressed,
       style: style,
       icon: Icon(icon, size: 16),
-      label: Text(label),
+      label: Text(context.l10n.byValue(label)),
     );
   }
 }

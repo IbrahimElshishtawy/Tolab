@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../localization/app_localizations.dart';
+
 class UnifiedAuthHeroPanel extends StatelessWidget {
   const UnifiedAuthHeroPanel({super.key});
 
@@ -8,6 +10,7 @@ class UnifiedAuthHeroPanel extends StatelessWidget {
     final theme = Theme.of(context);
     final width = MediaQuery.sizeOf(context).width;
     final compact = width < 980;
+    final l10n = context.l10n;
 
     return Container(
       padding: EdgeInsets.all(compact ? 24 : 40),
@@ -34,14 +37,14 @@ class UnifiedAuthHeroPanel extends StatelessWidget {
             spacing: 12,
             runSpacing: 12,
             crossAxisAlignment: WrapCrossAlignment.center,
-            children: const [
+            children: [
               _GlassBadge(
                 icon: Icons.verified_user_rounded,
-                label: 'Unified university access',
+                label: l10n.t('auth.hero.badges.unified_access'),
               ),
               _GlassBadge(
                 icon: Icons.auto_awesome_rounded,
-                label: 'Backend-resolved roles',
+                label: l10n.t('auth.hero.badges.resolved_roles'),
               ),
             ],
           ),
@@ -63,7 +66,7 @@ class UnifiedAuthHeroPanel extends StatelessWidget {
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 540),
             child: Text(
-              'Admins, doctors, and assistants use the same secure entry point. After authentication, the backend resolves identity, permissions, and destination automatically.',
+              l10n.t('auth.hero.description'),
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: Colors.white.withValues(alpha: 0.78),
                 fontSize: compact ? 15 : 16,
@@ -76,24 +79,21 @@ class UnifiedAuthHeroPanel extends StatelessWidget {
           Wrap(
             spacing: 10,
             runSpacing: 10,
-            children: const [
+            children: [
               _SignalCard(
                 icon: Icons.account_tree_outlined,
-                title: 'No role picker',
-                subtitle:
-                    'The backend routes each user to the correct workspace.',
+                title: l10n.t('auth.hero.cards.no_role_picker.title'),
+                subtitle: l10n.t('auth.hero.cards.no_role_picker.subtitle'),
               ),
               _SignalCard(
                 icon: Icons.shield_outlined,
-                title: 'Shared session control',
-                subtitle:
-                    'Protected navigation, persistent sessions, one logout path.',
+                title: l10n.t('auth.hero.cards.shared_session.title'),
+                subtitle: l10n.t('auth.hero.cards.shared_session.subtitle'),
               ),
               _SignalCard(
                 icon: Icons.devices_outlined,
-                title: 'Responsive by design',
-                subtitle:
-                    'Optimized for phones, laptops, and wide desktop screens.',
+                title: l10n.t('auth.hero.cards.responsive.title'),
+                subtitle: l10n.t('auth.hero.cards.responsive.subtitle'),
               ),
             ],
           ),
@@ -106,27 +106,24 @@ class UnifiedAuthHeroPanel extends StatelessWidget {
               borderRadius: BorderRadius.circular(24),
               border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
             ),
-            child: const Column(
+            child: Column(
               children: [
                 _HeroInsightRow(
                   icon: Icons.space_dashboard_rounded,
-                  title: 'Admin command center',
-                  subtitle:
-                      'System oversight, user governance, and institutional workflows.',
+                  title: l10n.t('auth.hero.insights.admin.title'),
+                  subtitle: l10n.t('auth.hero.insights.admin.subtitle'),
                 ),
                 SizedBox(height: 14),
                 _HeroInsightRow(
                   icon: Icons.local_hospital_outlined,
-                  title: 'Doctor teaching workspace',
-                  subtitle:
-                      'Course delivery, content operations, and teaching intelligence.',
+                  title: l10n.t('auth.hero.insights.doctor.title'),
+                  subtitle: l10n.t('auth.hero.insights.doctor.subtitle'),
                 ),
                 SizedBox(height: 14),
                 _HeroInsightRow(
                   icon: Icons.support_agent_rounded,
-                  title: 'Assistant operations lane',
-                  subtitle:
-                      'Day-to-day academic coordination with the right scoped access.',
+                  title: l10n.t('auth.hero.insights.assistant.title'),
+                  subtitle: l10n.t('auth.hero.insights.assistant.subtitle'),
                 ),
               ],
             ),

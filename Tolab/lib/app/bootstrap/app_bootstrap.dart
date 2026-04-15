@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:redux/redux.dart';
 
@@ -13,6 +15,7 @@ import '../../app_doctor_assistant/state/store.dart' as doctor_store;
 import '../auth/repositories/auth_repository.dart';
 import '../auth/services/session_storage.dart';
 import '../auth/state/auth_controller.dart';
+import '../localization/locale_controller.dart';
 import '../shared/theme_mode_controller.dart';
 
 class UnifiedAppBootstrap {
@@ -23,6 +26,7 @@ class UnifiedAppBootstrap {
     required this.doctorStore,
     required this.authController,
     required this.themeController,
+    required this.localeController,
     required VoidCallback legacySyncListener,
   }) : _legacySyncListener = legacySyncListener;
 
@@ -32,6 +36,7 @@ class UnifiedAppBootstrap {
   final Store<doctor_state.DoctorAssistantAppState> doctorStore;
   final AuthController authController;
   final ThemeModeController themeController;
+  final LocaleController localeController;
   final VoidCallback _legacySyncListener;
 
   static Future<UnifiedAppBootstrap> initialize() async {
@@ -53,12 +58,14 @@ class UnifiedAppBootstrap {
     final themeController = ThemeModeController();
 
     doctorDependencies.apiClient.setUnauthorizedHandler((message) {
-      return authController.expireSession(
-        message: message == 'Unauthenticated.'
-            ? 'Your session has expired. Please sign in again.'
-            : message,
-      );
+      return authController.expireSession(message: message);
     });
+
+    await authController.bootstrap();
+
+    final localeController = await LocaleController.initialize(
+      fallbackLanguageCode: authController.currentUser?.language,
+    );
 
     void syncLegacyStores() {
       final session = authController.state.session;
@@ -67,6 +74,10 @@ class UnifiedAppBootstrap {
         doctorStore.dispatch(const SessionClearedAction());
         return;
       }
+
+      unawaited(
+        localeController.hydrateFromUserPreference(session.user.language),
+      );
 
       adminStore.dispatch(
         admin_auth.HydrateUserAction(session.user.toAdminProfile()),
@@ -77,7 +88,6 @@ class UnifiedAppBootstrap {
     }
 
     authController.addListener(syncLegacyStores);
-    await authController.bootstrap();
 
     return UnifiedAppBootstrap._(
       adminDependencies: adminDependencies,
@@ -86,6 +96,7 @@ class UnifiedAppBootstrap {
       doctorStore: doctorStore,
       authController: authController,
       themeController: themeController,
+      localeController: localeController,
       legacySyncListener: syncLegacyStores,
     );
   }
@@ -94,6 +105,7 @@ class UnifiedAppBootstrap {
     authController.removeListener(_legacySyncListener);
     authController.dispose();
     themeController.dispose();
+    localeController.dispose();
     await adminDependencies.notificationService.stopRealtime();
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../core/colors/app_colors.dart';
 import '../../core/constants/app_constants.dart';
 
@@ -12,6 +13,7 @@ class StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lower = label.toLowerCase();
+    final localizedLabel = context.l10n.byValue(label);
     final color = switch (lower) {
       'live' ||
       'active' ||
@@ -44,7 +46,7 @@ class StatusBadge extends StatelessWidget {
         children: [
           if (icon != null) ...[Icon(icon, size: 12, color: color)],
           Text(
-            label,
+            localizedLabel,
             softWrap: true,
             style: Theme.of(
               context,

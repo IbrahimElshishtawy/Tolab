@@ -7,6 +7,7 @@ use App\Core\Middleware\ForceJsonResponse;
 use App\Core\Middleware\RequireAdminRole;
 use App\Core\Middleware\RequireStaffRole;
 use App\Core\Middleware\RequireStudentRole;
+use App\Core\Middleware\SetRequestLocale;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(SetRequestLocale::class);
         $middleware->append(ForceJsonResponse::class);
         $middleware->alias([
             'active' => EnsureActiveUser::class,
@@ -37,23 +39,23 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (ValidationException $exception, Request $request) {
-            return api_error('Validation failed.', $exception->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+            return api_error(__('Validation failed.'), $exception->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
         });
 
         $exceptions->render(function (AuthenticationException $exception, Request $request) {
-            return api_error('Unauthenticated.', [], Response::HTTP_UNAUTHORIZED);
+            return api_error(__('Unauthenticated.'), [], Response::HTTP_UNAUTHORIZED);
         });
 
         $exceptions->render(function (AuthorizationException $exception, Request $request) {
-            return api_error($exception->getMessage() ?: 'Forbidden.', [], Response::HTTP_FORBIDDEN);
+            return api_error(__($exception->getMessage() ?: 'Forbidden.'), [], Response::HTTP_FORBIDDEN);
         });
 
         $exceptions->render(function (ModelNotFoundException $exception, Request $request) {
-            return api_error('Resource not found.', [], Response::HTTP_NOT_FOUND);
+            return api_error(__('Resource not found.'), [], Response::HTTP_NOT_FOUND);
         });
 
         $exceptions->render(function (NotFoundHttpException $exception, Request $request) {
-            return api_error('Route not found.', [], Response::HTTP_NOT_FOUND);
+            return api_error(__('Route not found.'), [], Response::HTTP_NOT_FOUND);
         });
 
         $exceptions->render(function (ApiException $exception, Request $request) {
@@ -61,13 +63,13 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (HttpExceptionInterface $exception, Request $request) {
-            return api_error($exception->getMessage() ?: Response::$statusTexts[$exception->getStatusCode()] ?? 'HTTP error.', [], $exception->getStatusCode());
+            return api_error(__($exception->getMessage() ?: Response::$statusTexts[$exception->getStatusCode()] ?? 'HTTP error.'), [], $exception->getStatusCode());
         });
 
         $exceptions->render(function (\Throwable $exception, Request $request) {
             report($exception);
 
-            return api_error('Server error.', [], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return api_error(__('Server error.'), [], Response::HTTP_INTERNAL_SERVER_ERROR);
         });
     })
     ->create();

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../app/localization/app_localizations.dart';
 import '../../../../core/colors/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/routing/route_paths.dart';
@@ -96,6 +97,7 @@ class _NotificationToastCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AppCard(
       backgroundColor: Theme.of(context).cardColor.withValues(alpha: 0.94),
       borderRadius: AppConstants.dialogRadius,
@@ -122,14 +124,14 @@ class _NotificationToastCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      notification.title,
+                      l10n.byValue(notification.title),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${notification.category.label} • ${notification.createdAtLabel}',
+                      '${l10n.byValue(notification.category.label)} • ${notification.createdAtLabel}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -146,7 +148,7 @@ class _NotificationToastCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
-            notification.body,
+            l10n.byValue(notification.body),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.bodyMedium,
@@ -161,7 +163,7 @@ class _NotificationToastCard extends StatelessWidget {
                     MarkNotificationReadRequestedAction(notification.id),
                   );
                 },
-                child: const Text('Open'),
+                child: Text(l10n.t('common.actions.open')),
               ),
               const SizedBox(width: AppSpacing.sm),
               TextButton(
@@ -169,7 +171,7 @@ class _NotificationToastCard extends StatelessWidget {
                     StoreProvider.of<AppState>(context, listen: false).dispatch(
                       MarkNotificationReadRequestedAction(notification.id),
                     ),
-                child: const Text('Mark as read'),
+                child: Text(l10n.t('common.actions.mark_as_read')),
               ),
             ],
           ),
