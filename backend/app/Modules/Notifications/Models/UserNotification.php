@@ -4,6 +4,7 @@ namespace App\Modules\Notifications\Models;
 
 use App\Core\Enums\NotificationType;
 use App\Modules\UserManagement\Models\User;
+use Database\Factories\UserNotificationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -43,5 +44,10 @@ class UserNotification extends Model
     public function targetUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'target_user_id');
+    }
+
+    protected static function newFactory(): UserNotificationFactory
+    {
+        return UserNotificationFactory::new();
     }
 }

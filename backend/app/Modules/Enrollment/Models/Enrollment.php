@@ -4,6 +4,7 @@ namespace App\Modules\Enrollment\Models;
 
 use App\Modules\Academic\Models\CourseOffering;
 use App\Modules\UserManagement\Models\User;
+use Database\Factories\EnrollmentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -43,5 +44,10 @@ class Enrollment extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('status', self::STATUS_ENROLLED);
+    }
+
+    protected static function newFactory(): EnrollmentFactory
+    {
+        return EnrollmentFactory::new();
     }
 }

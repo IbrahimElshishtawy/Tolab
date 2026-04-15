@@ -4,12 +4,16 @@ namespace App\Modules\StaffPortal\Models;
 
 use App\Modules\Academic\Models\Subject;
 use App\Modules\UserManagement\Models\User;
+use Database\Factories\TaskFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Task extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'subject_id',
         'created_by',
@@ -44,5 +48,10 @@ class Task extends Model
     public function submissions(): HasMany
     {
         return $this->hasMany(TaskSubmission::class);
+    }
+
+    protected static function newFactory(): TaskFactory
+    {
+        return TaskFactory::new();
     }
 }

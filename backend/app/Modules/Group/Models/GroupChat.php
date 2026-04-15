@@ -4,6 +4,7 @@ namespace App\Modules\Group\Models;
 
 use App\Modules\Academic\Models\CourseOffering;
 use App\Modules\UserManagement\Models\User;
+use Database\Factories\GroupChatFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -43,5 +44,10 @@ class GroupChat extends Model
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class, 'group_id');
+    }
+
+    protected static function newFactory(): GroupChatFactory
+    {
+        return GroupChatFactory::new();
     }
 }

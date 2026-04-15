@@ -4,6 +4,7 @@ namespace App\Modules\Group\Models;
 
 use App\Core\Enums\GroupMemberRole;
 use App\Modules\UserManagement\Models\User;
+use Database\Factories\GroupMemberFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,5 +34,10 @@ class GroupMember extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    protected static function newFactory(): GroupMemberFactory
+    {
+        return GroupMemberFactory::new();
     }
 }

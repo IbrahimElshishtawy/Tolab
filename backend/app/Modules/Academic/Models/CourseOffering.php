@@ -14,6 +14,7 @@ use App\Modules\Grades\Models\GradeItem;
 use App\Modules\Group\Models\GroupChat;
 use App\Modules\Schedule\Models\ScheduleEvent;
 use App\Modules\UserManagement\Models\User;
+use Database\Factories\CourseOfferingFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -135,5 +136,10 @@ class CourseOffering extends Model
         return $query->whereHas('enrollments', fn (Builder $builder) => $builder
             ->active()
             ->where('student_user_id', $student->id));
+    }
+
+    protected static function newFactory(): CourseOfferingFactory
+    {
+        return CourseOfferingFactory::new();
     }
 }

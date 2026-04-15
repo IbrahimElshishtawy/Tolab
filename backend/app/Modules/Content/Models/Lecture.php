@@ -6,6 +6,7 @@ use App\Modules\Academic\Models\CourseOffering;
 use App\Modules\Academic\Models\Subject;
 use App\Modules\Shared\Traits\HasAttachments;
 use App\Modules\UserManagement\Models\User;
+use Database\Factories\LectureFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -55,5 +56,10 @@ class Lecture extends Model
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    protected static function newFactory(): LectureFactory
+    {
+        return LectureFactory::new();
     }
 }

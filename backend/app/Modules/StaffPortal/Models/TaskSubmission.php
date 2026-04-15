@@ -3,11 +3,15 @@
 namespace App\Modules\StaffPortal\Models;
 
 use App\Modules\UserManagement\Models\User;
+use Database\Factories\TaskSubmissionFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TaskSubmission extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'task_id',
         'student_user_id',
@@ -35,5 +39,10 @@ class TaskSubmission extends Model
     public function student(): BelongsTo
     {
         return $this->belongsTo(User::class, 'student_user_id');
+    }
+
+    protected static function newFactory(): TaskSubmissionFactory
+    {
+        return TaskSubmissionFactory::new();
     }
 }

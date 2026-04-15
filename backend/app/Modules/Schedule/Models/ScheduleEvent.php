@@ -10,6 +10,7 @@ use App\Modules\Schedule\Enums\ScheduleEventType;
 use App\Modules\StaffPortal\Models\AcademicYear;
 use App\Modules\UserManagement\Models\User;
 use Carbon\CarbonImmutable;
+use Database\Factories\ScheduleEventFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -103,5 +104,10 @@ class ScheduleEvent extends Model
         [$hour, $minute] = array_pad(explode(':', $time), 2, '0');
 
         return $reference->setTime((int) $hour, (int) $minute);
+    }
+
+    protected static function newFactory(): ScheduleEventFactory
+    {
+        return ScheduleEventFactory::new();
     }
 }

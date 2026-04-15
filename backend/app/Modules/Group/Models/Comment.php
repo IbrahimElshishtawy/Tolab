@@ -3,6 +3,7 @@
 namespace App\Modules\Group\Models;
 
 use App\Modules\UserManagement\Models\User;
+use Database\Factories\CommentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -27,5 +28,10 @@ class Comment extends Model
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_user_id');
+    }
+
+    protected static function newFactory(): CommentFactory
+    {
+        return CommentFactory::new();
     }
 }

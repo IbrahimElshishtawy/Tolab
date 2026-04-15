@@ -4,6 +4,7 @@ namespace App\Modules\Group\Models;
 
 use App\Modules\Shared\Traits\HasAttachments;
 use App\Modules\UserManagement\Models\User;
+use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -35,5 +36,10 @@ class Post extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
+    }
+
+    protected static function newFactory(): PostFactory
+    {
+        return PostFactory::new();
     }
 }

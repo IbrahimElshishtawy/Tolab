@@ -2,6 +2,7 @@
 
 namespace App\Modules\UserManagement\Models;
 
+use Database\Factories\StaffPermissionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,5 +32,10 @@ class StaffPermission extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    protected static function newFactory(): StaffPermissionFactory
+    {
+        return StaffPermissionFactory::new();
     }
 }

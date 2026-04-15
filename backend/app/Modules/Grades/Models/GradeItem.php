@@ -5,6 +5,7 @@ namespace App\Modules\Grades\Models;
 use App\Modules\Academic\Models\CourseOffering;
 use App\Modules\Grades\Enums\GradeType;
 use App\Modules\UserManagement\Models\User;
+use Database\Factories\GradeItemFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -45,5 +46,10 @@ class GradeItem extends Model
     public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    protected static function newFactory(): GradeItemFactory
+    {
+        return GradeItemFactory::new();
     }
 }
