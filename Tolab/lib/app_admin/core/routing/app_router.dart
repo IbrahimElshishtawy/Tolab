@@ -5,6 +5,7 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:go_router/go_router.dart';
 import 'package:redux/redux.dart';
 
+import '../../../app/core/app_scope.dart';
 import '../../modules/auth/presentation/login_screen.dart';
 import '../../modules/auth/state/auth_state.dart';
 import '../../modules/content_management/presentation/content_screen.dart';
@@ -154,6 +155,7 @@ class AppRouter {
   }
 
   Widget _buildShell(BuildContext context, GoRouterState state, Widget child) {
+    final localeController = AppScope.locale(context);
     return StoreConnector<AppState, _ShellViewModel>(
       converter: (store) => _ShellViewModel(
         userName: store.state.authState.currentUser?.name ?? 'Admin',
@@ -174,6 +176,8 @@ class AppRouter {
           onToggleTheme: () => StoreProvider.of<AppState>(
             context,
           ).dispatch(ToggleThemeModeAction()),
+          languageCode: localeController.languageCode,
+          onLanguageSelected: localeController.setLanguage,
           onLogout: () => StoreProvider.of<AppState>(
             context,
           ).dispatch(LogoutRequestedAction()),

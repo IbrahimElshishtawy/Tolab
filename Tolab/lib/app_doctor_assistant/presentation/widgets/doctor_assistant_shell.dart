@@ -22,6 +22,8 @@ class DoctorAssistantShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localeController = AppScope.locale(context);
+
     return AdaptiveScaffold(
       location: activeRoute,
       destinations: buildNavigationItems(user)
@@ -41,6 +43,8 @@ class DoctorAssistantShell extends StatelessWidget {
           : 'Assistant sync live',
       notificationRoute: AppRoutes.notifications,
       onToggleTheme: AppScope.theme(context).toggle,
+      languageCode: localeController.languageCode,
+      onLanguageSelected: localeController.setLanguage,
       onLogout: AppScope.auth(context).logout,
       child: child,
     );
