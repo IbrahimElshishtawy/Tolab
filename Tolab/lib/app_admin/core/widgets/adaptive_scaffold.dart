@@ -227,24 +227,31 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
     );
   }
 
-  String _subtitleFor(BuildContext context, String titleKey) => switch (
-    titleKey
-  ) {
-    'layout.admin.nav.dashboard' =>
-      context.l10n.t('layout.admin.subtitle.dashboard'),
-    'layout.admin.nav.students' =>
-      context.l10n.t('layout.admin.subtitle.students'),
-    'layout.admin.nav.staff' => context.l10n.t('layout.admin.subtitle.staff'),
-    'layout.admin.nav.departments' =>
-      context.l10n.t('layout.admin.subtitle.departments'),
-    'layout.admin.nav.schedule' =>
-      context.l10n.t('layout.admin.subtitle.schedule'),
-    'layout.admin.nav.moderation' =>
-      context.l10n.t('layout.admin.subtitle.moderation'),
-    'layout.admin.nav.settings' =>
-      context.l10n.t('layout.admin.subtitle.settings'),
-    _ => context.l10n.t('layout.admin.subtitle.default'),
-  };
+  String _subtitleFor(BuildContext context, String titleKey) =>
+      switch (titleKey) {
+        'layout.admin.nav.dashboard' => context.l10n.t(
+          'layout.admin.subtitle.dashboard',
+        ),
+        'layout.admin.nav.students' => context.l10n.t(
+          'layout.admin.subtitle.students',
+        ),
+        'layout.admin.nav.staff' => context.l10n.t(
+          'layout.admin.subtitle.staff',
+        ),
+        'layout.admin.nav.departments' => context.l10n.t(
+          'layout.admin.subtitle.departments',
+        ),
+        'layout.admin.nav.schedule' => context.l10n.t(
+          'layout.admin.subtitle.schedule',
+        ),
+        'layout.admin.nav.moderation' => context.l10n.t(
+          'layout.admin.subtitle.moderation',
+        ),
+        'layout.admin.nav.settings' => context.l10n.t(
+          'layout.admin.subtitle.settings',
+        ),
+        _ => context.l10n.t('layout.admin.subtitle.default'),
+      };
 }
 
 class _Sidebar extends StatelessWidget {
@@ -733,7 +740,9 @@ class _TopBar extends StatelessWidget {
                           ),
                           IconButton(
                             onPressed: onToggleTheme,
-                            tooltip: context.l10n.t('common.actions.toggle_theme'),
+                            tooltip: context.l10n.t(
+                              'common.actions.toggle_theme',
+                            ),
                             icon: const Icon(Icons.contrast_rounded),
                           ),
                           _NotificationBellButton(

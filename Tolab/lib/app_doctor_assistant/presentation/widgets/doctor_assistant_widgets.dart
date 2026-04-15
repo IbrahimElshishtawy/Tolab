@@ -37,7 +37,9 @@ class DoctorAssistantPageScaffold extends StatelessWidget {
       title: context.l10n.byValue(title),
       subtitle: context.l10n.byValue(subtitle),
       actions: actions,
-      breadcrumbs: breadcrumbs.map(context.l10n.byValue).toList(growable: false),
+      breadcrumbs: breadcrumbs
+          .map(context.l10n.byValue)
+          .toList(growable: false),
     );
 
     if (scrollable) {

@@ -78,11 +78,7 @@ class EmptyStateView extends StatelessWidget {
 }
 
 class ErrorStateView extends StatelessWidget {
-  const ErrorStateView({
-    super.key,
-    required this.message,
-    this.onRetry,
-  });
+  const ErrorStateView({super.key, required this.message, this.onRetry});
 
   final String message;
   final VoidCallback? onRetry;

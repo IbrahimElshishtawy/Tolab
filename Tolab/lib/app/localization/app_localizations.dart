@@ -7,11 +7,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 class AppLocalizations {
   const AppLocalizations(this.locale, this._translations);
 
-  static const List<String> _modules = <String>[
-    'common',
-    'auth',
-    'layout',
-  ];
+  static const List<String> _modules = <String>['common', 'auth', 'layout'];
 
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[

@@ -45,10 +45,7 @@ class LanguageToggleButton extends StatelessWidget {
           children: [
             const Icon(Icons.translate_rounded, size: 18),
             const SizedBox(width: 8),
-            Text(
-              currentLabel,
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
+            Text(currentLabel, style: Theme.of(context).textTheme.labelLarge),
             const SizedBox(width: 4),
             const Icon(Icons.expand_more_rounded, size: 18),
           ],

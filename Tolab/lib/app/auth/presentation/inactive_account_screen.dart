@@ -34,7 +34,8 @@ class InactiveAccountScreen extends StatelessWidget {
                     l10n.t(
                       'auth.inactive.description',
                       params: <String, String>{
-                        'account': user?.email ??
+                        'account':
+                            user?.email ??
                             l10n.t('auth.inactive.fallback_account'),
                       },
                     ),

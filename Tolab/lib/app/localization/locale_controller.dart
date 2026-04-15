@@ -47,10 +47,7 @@ class LocaleController extends ChangeNotifier {
     );
   }
 
-  Future<void> setLanguage(
-    String languageCode, {
-    bool persist = true,
-  }) async {
+  Future<void> setLanguage(String languageCode, {bool persist = true}) async {
     final normalized = _normalize(languageCode);
     if (_locale.languageCode == normalized &&
         (!persist || _hasStoredPreference)) {
