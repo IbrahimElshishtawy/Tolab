@@ -11,6 +11,7 @@ import '../models/result_item.dart';
 import '../models/student_profile.dart';
 import '../models/subject_models.dart';
 import '../router/route_names.dart';
+import '../session/app_session.dart';
 import '../utils/formatters.dart';
 
 final mockBackendServiceProvider = Provider<MockBackendService>((ref) {
@@ -56,6 +57,27 @@ class MockBackendService {
     registeredHours: 15,
     seatNumber: 'FCI-24-1182',
     previousQualification: 'STEM High School',
+  );
+
+  final AuthSessionData _studentSession = const AuthSessionData(
+    token: 'mock-student-access-token',
+    role: AppUserRole.student,
+    email: 'mariam.hassan@tolab.edu',
+    nationalId: '29801011234567',
+  );
+
+  final AuthSessionData _doctorSession = const AuthSessionData(
+    token: 'mock-doctor-access-token',
+    role: AppUserRole.doctor,
+    email: 'omar.nabil@tolab.edu',
+    nationalId: '28601011234567',
+  );
+
+  final AuthSessionData _assistantSession = const AuthSessionData(
+    token: 'mock-assistant-access-token',
+    role: AppUserRole.assistant,
+    email: 'nora.sameh@tolab.edu',
+    nationalId: '29701011234567',
   );
 
   final List<SubjectOverview> _subjects = const [
@@ -231,14 +253,22 @@ class MockBackendService {
     ),
   ];
 
-  Future<String> login({
+  Future<AuthSessionData> login({
     required String email,
     required String password,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 700));
-    if (email.trim().toLowerCase() == _profile.email &&
-        password == 'student123') {
-      return 'mock-access-token';
+    final normalizedEmail = email.trim().toLowerCase();
+
+    if (normalizedEmail == _studentSession.email && password == 'student123') {
+      return _studentSession;
+    }
+    if (normalizedEmail == _doctorSession.email && password == 'doctor123') {
+      return _doctorSession;
+    }
+    if (normalizedEmail == _assistantSession.email &&
+        password == 'assistant123') {
+      return _assistantSession;
     }
     throw const AppException(
       'بيانات الدخول غير صحيحة. استخدم حساب الطالب المعتمد.',
@@ -246,9 +276,18 @@ class MockBackendService {
     );
   }
 
-  Future<void> verifyNationalId(String nationalId) async {
+  Future<void> verifyNationalId(
+    String nationalId, {
+    required AppUserRole role,
+  }) async {
     await Future<void>.delayed(const Duration(milliseconds: 500));
-    if (nationalId.trim() != _profile.nationalId) {
+    final expectedNationalId = switch (role) {
+      AppUserRole.student => _studentSession.nationalId,
+      AppUserRole.doctor => _doctorSession.nationalId,
+      AppUserRole.assistant => _assistantSession.nationalId,
+    };
+
+    if (nationalId.trim() != expectedNationalId) {
       throw const AppException(
         'تعذر التحقق من الرقم القومي. راجع الرقم وحاول مرة أخرى.',
         code: 'invalid_national_id',

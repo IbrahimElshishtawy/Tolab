@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/localization/app_localization.dart';
 import '../../../../core/responsive/responsive_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../notifications/presentation/providers/notifications_providers.dart';
 
 class HomeNavigationShell extends ConsumerWidget {
@@ -15,23 +17,28 @@ class HomeNavigationShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final unreadCount = ref.watch(unreadNotificationsCountProvider);
+    final isStaff = ref.watch(isStaffUserProvider);
     final palette = context.appColors;
 
     final destinations = [
-      const NavigationDestination(
-        icon: Icon(Icons.home_outlined),
-        selectedIcon: Icon(Icons.home_rounded),
-        label: 'الرئيسية',
+      NavigationDestination(
+        icon: const Icon(Icons.home_outlined),
+        selectedIcon: const Icon(Icons.home_rounded),
+        label: isStaff
+            ? context.tr('لوحة التحكم', 'Dashboard')
+            : context.tr('الرئيسية', 'Home'),
       ),
-      const NavigationDestination(
-        icon: Icon(Icons.menu_book_outlined),
-        selectedIcon: Icon(Icons.menu_book_rounded),
-        label: 'المواد',
+      NavigationDestination(
+        icon: const Icon(Icons.menu_book_outlined),
+        selectedIcon: const Icon(Icons.menu_book_rounded),
+        label: isStaff
+            ? context.tr('المقررات', 'Courses')
+            : context.tr('المواد', 'Subjects'),
       ),
-      const NavigationDestination(
-        icon: Icon(Icons.calendar_month_outlined),
-        selectedIcon: Icon(Icons.calendar_month_rounded),
-        label: 'الجدول',
+      NavigationDestination(
+        icon: const Icon(Icons.calendar_month_outlined),
+        selectedIcon: const Icon(Icons.calendar_month_rounded),
+        label: context.tr('الجدول', 'Schedule'),
       ),
       NavigationDestination(
         icon: Badge.count(
@@ -44,12 +51,12 @@ class HomeNavigationShell extends ConsumerWidget {
           isLabelVisible: unreadCount > 0,
           child: const Icon(Icons.notifications_rounded),
         ),
-        label: 'التنبيهات',
+        label: context.tr('التنبيهات', 'Alerts'),
       ),
-      const NavigationDestination(
-        icon: Icon(Icons.person_outline_rounded),
-        selectedIcon: Icon(Icons.person_rounded),
-        label: 'الملف الشخصي',
+      NavigationDestination(
+        icon: const Icon(Icons.person_outline_rounded),
+        selectedIcon: const Icon(Icons.person_rounded),
+        label: context.tr('الملف الشخصي', 'Profile'),
       ),
     ];
 
@@ -58,7 +65,7 @@ class HomeNavigationShell extends ConsumerWidget {
         body: Row(
           children: [
             Container(
-              width: 106,
+              width: 112,
               margin: const EdgeInsets.all(AppSpacing.md),
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
               decoration: BoxDecoration(

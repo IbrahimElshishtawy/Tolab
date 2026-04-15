@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../staff_portal/presentation/pages/staff_subject_workspace_page.dart';
 import '../../../../core/models/quiz_models.dart';
 import '../../../../core/models/subject_models.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -31,6 +33,11 @@ class SubjectDetailsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isStaff = ref.watch(isStaffUserProvider);
+    if (isStaff) {
+      return StaffSubjectWorkspacePage(subjectId: subjectId);
+    }
+
     final subjectAsync = ref.watch(subjectByIdProvider(subjectId));
     final tasksAsync = ref.watch(tasksProvider(subjectId));
     final quizzesAsync = ref.watch(quizzesProvider(subjectId));

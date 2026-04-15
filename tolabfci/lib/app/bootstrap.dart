@@ -11,6 +11,7 @@ import 'app.dart';
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ar');
+  await initializeDateFormatting('en');
 
   final sharedPreferences = await SharedPreferences.getInstance();
   final secureStorage = SecureStorageService();

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../staff_portal/presentation/pages/staff_schedule_page.dart';
 import '../../../../core/models/timetable_item.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -28,6 +30,11 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isStaff = ref.watch(isStaffUserProvider);
+    if (isStaff) {
+      return const StaffSchedulePage();
+    }
+
     final itemsAsync = ref.watch(timetableItemsProvider);
 
     return SafeArea(

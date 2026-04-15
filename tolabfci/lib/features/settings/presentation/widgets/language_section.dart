@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/localization/app_localization.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -17,10 +18,16 @@ class LanguageSection extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('اللغة', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            context.tr('اللغة', 'Language'),
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'التجربة الأساسية عربية، مع تجهيز التوسع للغات إضافية لاحقًا.',
+            context.tr(
+              'بدّل بين العربية والإنجليزية مع RTL وLTR بشكل صحيح.',
+              'Switch between Arabic and English with proper RTL and LTR support.',
+            ),
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -29,21 +36,22 @@ class LanguageSection extends ConsumerWidget {
               Expanded(
                 child: _LanguageOption(
                   title: 'العربية',
-                  subtitle: 'مفعلة',
+                  subtitle: context.tr('مدعومة بالكامل', 'Fully supported'),
                   selected: state.languageCode == 'ar',
-                  enabled: true,
                   onTap: () => ref
                       .read(settingsNotifierProvider.notifier)
                       .updateLanguage('ar'),
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
-              const Expanded(
+              Expanded(
                 child: _LanguageOption(
                   title: 'English',
-                  subtitle: 'قريبًا',
-                  selected: false,
-                  enabled: false,
+                  subtitle: context.tr('مدعومة بالكامل', 'Fully supported'),
+                  selected: state.languageCode == 'en',
+                  onTap: () => ref
+                      .read(settingsNotifierProvider.notifier)
+                      .updateLanguage('en'),
                 ),
               ),
             ],
@@ -59,22 +67,20 @@ class _LanguageOption extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.selected,
-    required this.enabled,
-    this.onTap,
+    required this.onTap,
   });
 
   final String title;
   final String subtitle;
   final bool selected;
-  final bool enabled;
-  final VoidCallback? onTap;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.appColors;
 
     return InkWell(
-      onTap: enabled ? onTap : null,
+      onTap: onTap,
       borderRadius: BorderRadius.circular(18),
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/services/mock_backend_service.dart';
+import '../../../../core/session/app_session.dart';
 import '../../../../core/storage/preferences_service.dart';
 import '../../../../core/storage/secure_storage_service.dart';
 import '../../../../core/storage/storage_keys.dart';
@@ -30,27 +31,47 @@ class MockAuthRepository implements AuthRepository {
   final PreferencesService _preferencesService;
 
   @override
-  Future<void> login({required String email, required String password}) async {
-    final token = await _backendService.login(email: email, password: password);
-    await _secureStorageService.write(StorageKeys.authToken, token);
+  Future<AppUserRole> login({
+    required String email,
+    required String password,
+  }) async {
+    final session = await _backendService.login(
+      email: email,
+      password: password,
+    );
+    await _secureStorageService.write(StorageKeys.authToken, session.token);
+    await _preferencesService.setString(
+      StorageKeys.currentUserRole,
+      session.role.storageValue,
+    );
     await _preferencesService.setBool(StorageKeys.hasVerifiedNationalId, false);
+    return session.role;
   }
 
   @override
-  Future<AuthStage> restoreSession() async {
+  Future<(AuthStage, AppUserRole)> restoreSession() async {
     final token = await _secureStorageService.read(StorageKeys.authToken);
+    final role = AppUserRole.fromStorage(
+      _preferencesService.getString(StorageKeys.currentUserRole),
+    );
     if (token == null || token.isEmpty) {
-      return AuthStage.unauthenticated;
+      return (AuthStage.unauthenticated, role);
     }
     final hasVerified = _preferencesService.getBool(
       StorageKeys.hasVerifiedNationalId,
     );
-    return hasVerified ? AuthStage.authenticated : AuthStage.awaitingNationalId;
+    return (
+      hasVerified ? AuthStage.authenticated : AuthStage.awaitingNationalId,
+      role,
+    );
   }
 
   @override
   Future<void> verifyNationalId(String nationalId) async {
-    await _backendService.verifyNationalId(nationalId);
+    final role = AppUserRole.fromStorage(
+      _preferencesService.getString(StorageKeys.currentUserRole),
+    );
+    await _backendService.verifyNationalId(nationalId, role: role);
     await _preferencesService.setBool(StorageKeys.hasVerifiedNationalId, true);
   }
 
@@ -58,5 +79,9 @@ class MockAuthRepository implements AuthRepository {
   Future<void> logout() async {
     await _secureStorageService.deleteAll();
     await _preferencesService.setBool(StorageKeys.hasVerifiedNationalId, false);
+    await _preferencesService.setString(
+      StorageKeys.currentUserRole,
+      AppUserRole.student.storageValue,
+    );
   }
 }

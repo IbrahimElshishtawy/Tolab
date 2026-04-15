@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/localization/app_localization.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -16,10 +17,8 @@ class LoginForm extends ConsumerStatefulWidget {
 
 class _LoginFormState extends ConsumerState<LoginForm> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(
-    text: 'mariam.hassan@tolab.edu',
-  );
-  final _passwordController = TextEditingController(text: 'student123');
+  final _emailController = TextEditingController(text: 'omar.nabil@tolab.edu');
+  final _passwordController = TextEditingController(text: 'doctor123');
 
   @override
   void dispose() {
@@ -40,15 +39,18 @@ class _LoginFormState extends ConsumerState<LoginForm> {
           children: [
             AppTextField(
               controller: _emailController,
-              label: 'University email',
+              label: context.tr('البريد الجامعي', 'University email'),
               keyboardType: TextInputType.emailAddress,
               prefixIcon: Icons.alternate_email_rounded,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Email is required';
+                  return context.tr('البريد مطلوب', 'Email is required');
                 }
                 if (!value.contains('@')) {
-                  return 'Enter a valid email';
+                  return context.tr(
+                    'أدخل بريدًا صحيحًا',
+                    'Enter a valid email',
+                  );
                 }
                 return null;
               },
@@ -56,18 +58,32 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             const SizedBox(height: AppSpacing.md),
             AppTextField(
               controller: _passwordController,
-              label: 'Password',
+              label: context.tr('كلمة المرور', 'Password'),
               prefixIcon: Icons.lock_outline_rounded,
               obscureText: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Password is required';
+                  return context.tr(
+                    'كلمة المرور مطلوبة',
+                    'Password is required',
+                  );
                 }
                 if (value.length < 6) {
-                  return 'Password must be at least 6 characters';
+                  return context.tr(
+                    'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
+                    'Password must be at least 6 characters',
+                  );
                 }
                 return null;
               },
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              context.tr(
+                'حسابات تجريبية: doctor `omar.nabil@tolab.edu / doctor123`، assistant `nora.sameh@tolab.edu / assistant123`، student `mariam.hassan@tolab.edu / student123`.',
+                'Demo accounts: doctor `omar.nabil@tolab.edu / doctor123`, assistant `nora.sameh@tolab.edu / assistant123`, student `mariam.hassan@tolab.edu / student123`.',
+              ),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
             if (authState.errorMessage != null) ...[
               const SizedBox(height: AppSpacing.md),

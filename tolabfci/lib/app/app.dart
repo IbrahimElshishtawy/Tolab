@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/localization/app_localization.dart';
 import '../core/router/app_router.dart';
 import '../core/theme/app_theme.dart';
 import '../features/settings/presentation/widgets/settings_notifier.dart';
@@ -15,7 +16,7 @@ class TolabApp extends ConsumerWidget {
     final settings = ref.watch(settingsNotifierProvider);
 
     return MaterialApp.router(
-      title: 'تطبيق الطلاب',
+      title: 'Tolab',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
@@ -29,7 +30,7 @@ class TolabApp extends ConsumerWidget {
       ],
       builder: (context, child) {
         return Directionality(
-          textDirection: TextDirection.rtl,
+          textDirection: context.appTextDirection,
           child: child ?? const SizedBox.shrink(),
         );
       },
