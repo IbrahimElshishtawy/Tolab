@@ -46,19 +46,19 @@ class UnifiedAuthHeroPanel extends StatelessWidget {
             ],
           ),
           SizedBox(height: compact ? 24 : 32),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 520),
-            child: Text(
-              'One polished sign-in surface for every Tolab workspace.',
-              style: theme.textTheme.displaySmall?.copyWith(
-                color: Colors.white,
-                fontSize: compact ? 32 : 42,
-                height: 1.02,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -1.8,
-              ),
-            ),
-          ),
+          // ConstrainedBox(
+          //   constraints: const BoxConstraints(maxWidth: 520),
+          //   child: Text(
+          //     'One polished sign-in surface for every Tolab workspace.',
+          //     style: theme.textTheme.displaySmall?.copyWith(
+          //       color: Colors.white,
+          //       fontSize: compact ? 32 : 42,
+          //       height: 1.02,
+          //       fontWeight: FontWeight.w800,
+          //       letterSpacing: -1.8,
+          //     ),
+          //   ),
+          // ),
           const SizedBox(height: 16),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 540),
@@ -67,15 +67,15 @@ class UnifiedAuthHeroPanel extends StatelessWidget {
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: Colors.white.withValues(alpha: 0.78),
                 fontSize: compact ? 15 : 16,
-                height: 1.6,
+                height: 1.2,
                 fontWeight: FontWeight.w500,
               ),
             ),
           ),
-          SizedBox(height: compact ? 24 : 30),
+          SizedBox(height: compact ? 14 : 20),
           Wrap(
-            spacing: 14,
-            runSpacing: 14,
+            spacing: 10,
+            runSpacing: 10,
             children: const [
               _SignalCard(
                 icon: Icons.account_tree_outlined,
@@ -185,7 +185,7 @@ class _SignalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 180, maxWidth: 240),
+      constraints: const BoxConstraints(minWidth: 140, maxWidth: 150),
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
@@ -212,7 +212,7 @@ class _SignalCard extends StatelessWidget {
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
-                fontSize: 15,
+                fontSize: 10,
               ),
             ),
             const SizedBox(height: 8),
