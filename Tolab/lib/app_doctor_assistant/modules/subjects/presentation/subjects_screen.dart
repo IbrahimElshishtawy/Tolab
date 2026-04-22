@@ -27,6 +27,8 @@ class SubjectsScreen extends StatelessWidget {
         return DoctorAssistantShell(
           user: user,
           activeRoute: AppRoutes.subjects,
+          unreadNotifications: DoctorAssistantMockRepository.instance
+              .unreadNotificationsFor(user),
           child: DoctorAssistantPageScaffold(
             title: 'Subjects',
             subtitle:

@@ -133,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ],
                                 const SizedBox(height: AppSpacing.md),
                                 Text(
-                                  'Staff test accounts: doctor@tolab.edu and assistant@tolab.edu with password 123456',
+                                  'Staff test accounts: admin@tolab.edu, doctor@tolab.edu, and assistant@tolab.edu with password 123456',
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                                 const SizedBox(height: AppSpacing.xxl),

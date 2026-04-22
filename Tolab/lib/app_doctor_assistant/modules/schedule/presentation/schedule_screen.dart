@@ -37,6 +37,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         return DoctorAssistantShell(
           user: user,
           activeRoute: AppRoutes.schedule,
+          unreadNotifications: repository.unreadNotificationsFor(user),
           child: DoctorAssistantPageScaffold(
             title: 'Schedule',
             subtitle:

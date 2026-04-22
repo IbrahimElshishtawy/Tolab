@@ -25,10 +25,12 @@ class StaffScreen extends StatelessWidget {
         return DoctorAssistantShell(
           user: user,
           activeRoute: AppRoutes.staff,
+          unreadNotifications: DoctorAssistantMockRepository.instance
+              .unreadNotificationsFor(user),
           child: DoctorAssistantPageScaffold(
             title: 'Profile',
             subtitle:
-                'Profile and workload cards inherit the same section-card language used in admin settings.',
+                'Profile, workload, and availability are all rendered from the same local mock workspace store.',
             breadcrumbs: const ['Workspace', 'Profile'],
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

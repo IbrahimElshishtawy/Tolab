@@ -58,6 +58,26 @@ List<ShellNavItem> buildNavigationItems(SessionUser user) {
     );
   }
 
+  if (user.hasPermission('results.view')) {
+    items.add(
+      const ShellNavItem(
+        label: 'Results',
+        path: AppRoutes.results,
+        icon: Icons.grading_rounded,
+      ),
+    );
+  }
+
+  if (user.hasPermission('students.view')) {
+    items.add(
+      const ShellNavItem(
+        label: 'Students',
+        path: AppRoutes.students,
+        icon: Icons.school_rounded,
+      ),
+    );
+  }
+
   items.addAll([
     const ShellNavItem(
       label: 'layout.doctor.nav.schedule',
@@ -71,6 +91,26 @@ List<ShellNavItem> buildNavigationItems(SessionUser user) {
     ),
   ]);
 
+  if (user.hasPermission('announcements.view')) {
+    items.add(
+      const ShellNavItem(
+        label: 'Announcements',
+        path: AppRoutes.announcements,
+        icon: Icons.campaign_rounded,
+      ),
+    );
+  }
+
+  if (user.hasPermission('analytics.view')) {
+    items.add(
+      const ShellNavItem(
+        label: 'Analytics',
+        path: AppRoutes.analytics,
+        icon: Icons.insights_rounded,
+      ),
+    );
+  }
+
   if (user.hasPermission('uploads.view')) {
     items.add(
       const ShellNavItem(
@@ -81,15 +121,13 @@ List<ShellNavItem> buildNavigationItems(SessionUser user) {
     );
   }
 
-  if (user.isAdmin || user.hasPermission('staff.view')) {
-    items.add(
-      const ShellNavItem(
-        label: 'layout.doctor.nav.staff',
-        path: AppRoutes.staff,
-        icon: Icons.groups_rounded,
-      ),
-    );
-  }
+  items.add(
+    const ShellNavItem(
+      label: 'Profile',
+      path: AppRoutes.staff,
+      icon: Icons.person_rounded,
+    ),
+  );
 
   if (user.isAdmin) {
     items.add(

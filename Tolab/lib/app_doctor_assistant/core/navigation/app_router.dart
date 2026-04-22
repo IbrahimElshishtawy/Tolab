@@ -11,14 +11,18 @@ import '../../modules/dashboard/presentation/dashboard_screen.dart';
 import '../../modules/lectures/presentation/lectures_screen.dart';
 import '../../modules/notifications/presentation/notifications_screen.dart';
 import '../../modules/quizzes/presentation/quizzes_screen.dart';
+import '../../modules/results/presentation/results_screen.dart';
 import '../../modules/schedule/presentation/schedule_screen.dart';
 import '../../modules/section_content/presentation/section_content_screen.dart';
 import '../../modules/settings/presentation/settings_screen.dart';
 import '../../modules/staff/presentation/staff_screen.dart';
+import '../../modules/students/presentation/students_screen.dart';
 import '../../modules/subjects/presentation/subject_details_screen.dart';
 import '../../modules/subjects/presentation/subjects_screen.dart';
 import '../../modules/tasks/presentation/tasks_screen.dart';
 import '../../modules/uploads/presentation/uploads_screen.dart';
+import '../../modules/announcements/presentation/announcements_screen.dart';
+import '../../modules/analytics/presentation/analytics_screen.dart';
 import '../../state/app_state.dart';
 import 'app_routes.dart';
 
@@ -85,12 +89,28 @@ GoRouter createAppRouter(Store<DoctorAssistantAppState> store) {
         builder: (context, state) => const TasksScreen(),
       ),
       GoRoute(
+        path: AppRoutes.results,
+        builder: (context, state) => const ResultsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.students,
+        builder: (context, state) => const StudentsScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.schedule,
         builder: (context, state) => const ScheduleScreen(),
       ),
       GoRoute(
         path: AppRoutes.notifications,
         builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.announcements,
+        builder: (context, state) => const AnnouncementsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.analytics,
+        builder: (context, state) => const AnalyticsScreen(),
       ),
       GoRoute(
         path: AppRoutes.uploads,

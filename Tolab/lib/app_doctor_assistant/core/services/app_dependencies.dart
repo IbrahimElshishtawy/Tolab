@@ -16,6 +16,7 @@ import '../../modules/staff/repositories/staff_repository.dart';
 import '../../modules/subjects/repositories/subjects_repository.dart';
 import '../../modules/tasks/repositories/tasks_repository.dart';
 import '../../modules/uploads/repositories/uploads_repository.dart';
+import '../../mock/doctor_assistant_mock_repository.dart';
 
 class AppDependencies {
   AppDependencies._({
@@ -59,24 +60,31 @@ class AppDependencies {
     final tokenStorage = TokenStorage(secureStorage);
     final apiClient = ApiClient(tokenStorage: tokenStorage);
     final authService = AuthService(apiClient);
+    final mockRepository = DoctorAssistantMockRepository.instance;
 
     return AppDependencies._(
       tokenStorage: tokenStorage,
       apiClient: apiClient,
       authService: authService,
-      authRepository: AuthRepository(authService, tokenStorage),
-      dashboardRepository: DashboardRepository(apiClient),
-      subjectsRepository: SubjectsRepository(apiClient),
-      lecturesRepository: LecturesRepository(apiClient),
-      sectionContentRepository: SectionContentRepository(apiClient),
-      quizzesRepository: QuizzesRepository(apiClient),
-      tasksRepository: TasksRepository(apiClient),
-      scheduleRepository: ScheduleRepository(apiClient),
-      notificationsRepository: NotificationsRepository(apiClient),
-      uploadsRepository: UploadsRepository(apiClient),
-      settingsRepository: SettingsRepository(apiClient, tokenStorage),
-      staffRepository: StaffRepository(apiClient),
-      adminRepository: AdminRepository(apiClient),
+      authRepository: MockAuthRepository(tokenStorage, mockRepository),
+      dashboardRepository: MockDashboardRepository(tokenStorage, mockRepository),
+      subjectsRepository: MockSubjectsRepository(tokenStorage, mockRepository),
+      lecturesRepository: MockLecturesRepository(tokenStorage, mockRepository),
+      sectionContentRepository: MockSectionContentRepository(
+        tokenStorage,
+        mockRepository,
+      ),
+      quizzesRepository: MockQuizzesRepository(tokenStorage, mockRepository),
+      tasksRepository: MockTasksRepository(tokenStorage, mockRepository),
+      scheduleRepository: MockScheduleRepository(tokenStorage, mockRepository),
+      notificationsRepository: MockNotificationsRepository(
+        tokenStorage,
+        mockRepository,
+      ),
+      uploadsRepository: MockUploadsRepository(tokenStorage, mockRepository),
+      settingsRepository: MockSettingsRepository(tokenStorage, mockRepository),
+      staffRepository: MockStaffRepository(mockRepository),
+      adminRepository: MockAdminRepository(mockRepository),
     );
   }
 }

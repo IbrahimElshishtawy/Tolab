@@ -31,6 +31,8 @@ class SubjectDetailsScreen extends StatelessWidget {
         return DoctorAssistantShell(
           user: user,
           activeRoute: AppRoutes.subjects,
+          unreadNotifications: DoctorAssistantMockRepository.instance
+              .unreadNotificationsFor(user),
           child: DefaultTabController(
             length: 4,
             child: DoctorAssistantPageScaffold(

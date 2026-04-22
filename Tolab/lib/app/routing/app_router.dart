@@ -32,14 +32,19 @@ import '../../app_doctor_assistant/modules/dashboard/presentation/dashboard_scre
 import '../../app_doctor_assistant/modules/lectures/presentation/lectures_screen.dart';
 import '../../app_doctor_assistant/modules/notifications/presentation/notifications_screen.dart';
 import '../../app_doctor_assistant/modules/quizzes/presentation/quizzes_screen.dart';
+import '../../app_doctor_assistant/modules/results/presentation/results_screen.dart';
 import '../../app_doctor_assistant/modules/schedule/presentation/schedule_screen.dart';
 import '../../app_doctor_assistant/modules/section_content/presentation/section_content_screen.dart';
 import '../../app_doctor_assistant/modules/settings/presentation/settings_screen.dart';
 import '../../app_doctor_assistant/modules/staff/presentation/staff_screen.dart';
+import '../../app_doctor_assistant/modules/students/presentation/students_screen.dart'
+    as doctor_students;
 import '../../app_doctor_assistant/modules/subjects/presentation/subject_details_screen.dart';
 import '../../app_doctor_assistant/modules/subjects/presentation/subjects_screen.dart';
 import '../../app_doctor_assistant/modules/tasks/presentation/tasks_screen.dart';
 import '../../app_doctor_assistant/modules/uploads/presentation/uploads_screen.dart';
+import '../../app_doctor_assistant/modules/announcements/presentation/announcements_screen.dart';
+import '../../app_doctor_assistant/modules/analytics/presentation/analytics_screen.dart';
 import '../../features/admin/presentation/admin_shell.dart';
 import '../../features/doctor_assistant/presentation/doctor_assistant_scope.dart';
 import '../auth/presentation/forgot_password_screen.dart';
@@ -242,6 +247,16 @@ class UnifiedAppRouter {
           const DoctorAssistantScope(child: TasksScreen()),
     ),
     GoRoute(
+      path: staff_routes.AppRoutes.results,
+      builder: (context, state) =>
+          const DoctorAssistantScope(child: ResultsScreen()),
+    ),
+    GoRoute(
+      path: staff_routes.AppRoutes.students,
+      builder: (context, state) =>
+          const DoctorAssistantScope(child: doctor_students.StudentsScreen()),
+    ),
+    GoRoute(
       path: staff_routes.AppRoutes.schedule,
       builder: (context, state) =>
           const DoctorAssistantScope(child: ScheduleScreen()),
@@ -250,6 +265,16 @@ class UnifiedAppRouter {
       path: staff_routes.AppRoutes.notifications,
       builder: (context, state) =>
           const DoctorAssistantScope(child: NotificationsScreen()),
+    ),
+    GoRoute(
+      path: staff_routes.AppRoutes.announcements,
+      builder: (context, state) =>
+          const DoctorAssistantScope(child: AnnouncementsScreen()),
+    ),
+    GoRoute(
+      path: staff_routes.AppRoutes.analytics,
+      builder: (context, state) =>
+          const DoctorAssistantScope(child: AnalyticsScreen()),
     ),
     GoRoute(
       path: staff_routes.AppRoutes.uploads,

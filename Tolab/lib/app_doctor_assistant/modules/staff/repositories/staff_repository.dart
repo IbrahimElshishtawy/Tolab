@@ -1,11 +1,17 @@
 import '../../../core/models/staff_models.dart';
 import '../../../core/network/api_client.dart';
+import '../../../mock/doctor_assistant_mock_repository.dart';
 
-class StaffRepository {
-  StaffRepository(this._apiClient);
+abstract class StaffRepository {
+  Future<List<StaffMemberModel>> fetchStaff();
+}
+
+class ApiStaffRepository implements StaffRepository {
+  ApiStaffRepository(this._apiClient);
 
   final ApiClient _apiClient;
 
+  @override
   Future<List<StaffMemberModel>> fetchStaff() async {
     final response = await _apiClient.get<List<StaffMemberModel>>(
       '/staff-portal/admin/staff',
@@ -16,5 +22,17 @@ class StaffRepository {
     );
 
     return response.data ?? const <StaffMemberModel>[];
+  }
+}
+
+class MockStaffRepository implements StaffRepository {
+  MockStaffRepository(this._mockRepository);
+
+  final DoctorAssistantMockRepository _mockRepository;
+
+  @override
+  Future<List<StaffMemberModel>> fetchStaff() async {
+    await _mockRepository.simulateLatency();
+    return _mockRepository.staffMembers();
   }
 }

@@ -9,8 +9,12 @@ class AppRoutes {
   static const sectionContent = '/workspace/sections';
   static const quizzes = '/workspace/quizzes';
   static const tasks = '/workspace/tasks';
+  static const results = '/workspace/results';
+  static const students = '/workspace/students';
   static const schedule = '/workspace/schedule';
   static const notifications = '/workspace/notifications';
+  static const announcements = '/workspace/announcements';
+  static const analytics = '/workspace/analytics';
   static const uploads = '/workspace/uploads';
   static const staff = '/workspace/staff';
   static const admin = '/workspace/admin';

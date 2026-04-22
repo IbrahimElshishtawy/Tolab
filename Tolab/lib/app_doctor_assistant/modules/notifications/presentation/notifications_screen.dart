@@ -25,6 +25,8 @@ class NotificationsScreen extends StatelessWidget {
         return DoctorAssistantShell(
           user: user,
           activeRoute: AppRoutes.notifications,
+          unreadNotifications: DoctorAssistantMockRepository.instance
+              .unreadNotificationsFor(user),
           child: DoctorAssistantPageScaffold(
             title: 'Notifications',
             subtitle:

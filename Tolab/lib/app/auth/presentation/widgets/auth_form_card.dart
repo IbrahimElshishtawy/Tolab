@@ -19,7 +19,10 @@ class UnifiedAuthFormCard extends StatelessWidget {
     required this.obscurePassword,
     required this.isLoading,
     required this.errorMessage,
+    required this.accountPresets,
+    required this.selectedPreset,
     required this.onRememberChanged,
+    required this.onPresetSelected,
     required this.onToggleObscure,
     required this.onSubmit,
     required this.onQuickLoginDev,
@@ -32,7 +35,10 @@ class UnifiedAuthFormCard extends StatelessWidget {
   final bool obscurePassword;
   final bool isLoading;
   final String? errorMessage;
+  final Map<String, String> accountPresets;
+  final String selectedPreset;
   final ValueChanged<bool> onRememberChanged;
+  final ValueChanged<String> onPresetSelected;
   final VoidCallback onToggleObscure;
   final Future<void> Function() onSubmit;
   final Future<void> Function() onQuickLoginDev;
@@ -126,6 +132,20 @@ class UnifiedAuthFormCard extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: accountPresets.entries.map((entry) {
+                return ChoiceChip(
+                  label: Text('${entry.key}  ${entry.value}'),
+                  selected: selectedPreset == entry.key,
+                  onSelected: isLoading
+                      ? null
+                      : (_) => onPresetSelected(entry.key),
+                );
+              }).toList(growable: false),
             ),
             const SizedBox(height: 22),
             _FieldLabel(

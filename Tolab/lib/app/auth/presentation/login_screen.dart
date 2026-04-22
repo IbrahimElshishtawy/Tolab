@@ -19,10 +19,18 @@ class UnifiedLoginScreen extends StatefulWidget {
 class _UnifiedLoginScreenState extends State<UnifiedLoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController(text: 'admin@tolab.edu');
-  final _passwordController = TextEditingController(text: 'Admin@123');
+  final _passwordController = TextEditingController(text: '123456');
+
+  String _selectedPreset = 'Admin';
 
   bool _rememberSession = true;
   bool _obscurePassword = true;
+
+  static const Map<String, String> _presets = <String, String>{
+    'Admin': 'admin@tolab.edu',
+    'Doctor': 'doctor@tolab.edu',
+    'Assistant': 'assistant@tolab.edu',
+  };
 
   @override
   void dispose() {
@@ -51,8 +59,17 @@ class _UnifiedLoginScreenState extends State<UnifiedLoginScreen> {
               obscurePassword: _obscurePassword,
               isLoading: state.isLoading,
               errorMessage: state.errorMessage,
+              accountPresets: _presets,
+              selectedPreset: _selectedPreset,
               onRememberChanged: (value) {
                 setState(() => _rememberSession = value);
+              },
+              onPresetSelected: (preset) {
+                setState(() {
+                  _selectedPreset = preset;
+                  _emailController.text = _presets[preset] ?? _emailController.text;
+                  _passwordController.text = '123456';
+                });
               },
               onToggleObscure: () {
                 setState(() => _obscurePassword = !_obscurePassword);
