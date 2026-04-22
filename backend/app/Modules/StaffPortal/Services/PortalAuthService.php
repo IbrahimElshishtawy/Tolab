@@ -18,8 +18,7 @@ class PortalAuthService
     public function __construct(
         protected TokenService $tokenService,
         protected AuditLogService $auditLogService,
-    ) {
-    }
+    ) {}
 
     public function login(array $payload): array
     {
@@ -44,6 +43,34 @@ class PortalAuthService
 
             return [
                 'user' => $user->fresh(['roles.permissions', 'permissions']),
+                'tokens' => [
+                    'access_token' => $tokens->accessToken,
+                    'refresh_token' => $tokens->refreshToken,
+                ],
+            ];
+        });
+    }
+
+    public function refresh(array $payload): array
+    {
+        return DB::transaction(function () use ($payload) {
+            $tokens = $this->tokenService->rotate(
+                $payload['refresh_token'],
+                $payload['device_name'] ?? 'flutter-app',
+            );
+
+            if (! $tokens->user->is_active) {
+                throw new ApiException('Your account is inactive.', [], Response::HTTP_FORBIDDEN);
+            }
+
+            if (! $this->canAccessPortal($tokens->user)) {
+                throw new ApiException('Only admin, doctor, and assistant accounts can access this portal.', [], Response::HTTP_FORBIDDEN);
+            }
+
+            $this->auditLogService->log($tokens->user, 'staff-portal.refresh', $tokens->user, [], request());
+
+            return [
+                'user' => $tokens->user->fresh(['roles.permissions', 'permissions']),
                 'tokens' => [
                     'access_token' => $tokens->accessToken,
                     'refresh_token' => $tokens->refreshToken,

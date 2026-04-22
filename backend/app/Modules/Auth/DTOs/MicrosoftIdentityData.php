@@ -11,8 +11,7 @@ class MicrosoftIdentityData
         public readonly ?string $avatar,
         public readonly array $claims = [],
         public readonly array $raw = [],
-    ) {
-    }
+    ) {}
 
     public function toArray(): array
     {

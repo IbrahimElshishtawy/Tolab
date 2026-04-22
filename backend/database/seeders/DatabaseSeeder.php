@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             SuperAdminSeeder::class,
             AcademicPermissionsSeeder::class,
             DoctorAssistantDashboardSeeder::class,
+            DoctorAssistantAccessSeeder::class,
         ]);
     }
 }

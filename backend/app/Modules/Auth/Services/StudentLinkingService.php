@@ -2,9 +2,10 @@
 
 namespace App\Modules\Auth\Services;
 
+use App\Core\Enums\UserRole;
 use App\Core\Exceptions\ApiException;
-use App\Modules\Auth\DTOs\MicrosoftIdentityData;
 use App\Modules\Auth\DTOs\AuthTokenData;
+use App\Modules\Auth\DTOs\MicrosoftIdentityData;
 use App\Modules\Shared\Services\AuditLogService;
 use App\Modules\UserManagement\Models\User;
 use Illuminate\Support\Facades\Cache;
@@ -22,8 +23,7 @@ class StudentLinkingService
     public function __construct(
         protected TokenService $tokenService,
         protected AuditLogService $auditLogService,
-    ) {
-    }
+    ) {}
 
     public function createLinkChallenge(User $student, MicrosoftIdentityData $identity): array
     {
@@ -65,7 +65,7 @@ class StudentLinkingService
 
         $student = User::query()
             ->whereKey($linkPayload['user_id'])
-            ->where('role', \App\Core\Enums\UserRole::STUDENT->value)
+            ->where('role', UserRole::STUDENT->value)
             ->first();
 
         if (! $student) {

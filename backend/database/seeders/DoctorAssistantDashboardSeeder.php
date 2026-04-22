@@ -50,7 +50,7 @@ class DoctorAssistantDashboardSeeder extends Seeder
 
         DB::transaction(function (): void {
             $now = CarbonImmutable::now(config('app.timezone'));
-            $password = (string) env('DEFAULT_ACADEMY_PASSWORD', env('DEFAULT_ADMIN_PASSWORD', 'Admin@123'));
+            $password = (string) env('DEFAULT_STAFF_PASSWORD', env('DEFAULT_ACADEMY_PASSWORD', '123456'));
 
             $academicYear = AcademicYear::factory()->create([
                 'name' => 'Level 3 - 2025/2026',

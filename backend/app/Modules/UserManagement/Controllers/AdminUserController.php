@@ -18,8 +18,7 @@ class AdminUserController extends ApiController
     public function __construct(
         protected UserService $userService,
         protected PaginationSanitizer $paginationSanitizer,
-    ) {
-    }
+    ) {}
 
     public function index(Request $request)
     {

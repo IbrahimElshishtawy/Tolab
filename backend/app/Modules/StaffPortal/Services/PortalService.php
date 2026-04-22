@@ -22,9 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PortalService
 {
-    public function __construct(protected AuditLogService $auditLogService)
-    {
-    }
+    public function __construct(protected AuditLogService $auditLogService) {}
 
     public function profile(User $user): User
     {

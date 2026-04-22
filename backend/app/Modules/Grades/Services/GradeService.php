@@ -12,9 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class GradeService
 {
-    public function __construct(protected AuditLogService $auditLogService)
-    {
-    }
+    public function __construct(protected AuditLogService $auditLogService) {}
 
     public function listForCourse(CourseOffering $courseOffering, ?int $studentUserId = null)
     {

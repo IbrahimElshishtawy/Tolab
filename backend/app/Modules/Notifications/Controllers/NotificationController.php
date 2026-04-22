@@ -15,8 +15,7 @@ class NotificationController extends ApiController
     public function __construct(
         protected NotificationService $notificationService,
         protected PaginationSanitizer $paginationSanitizer,
-    ) {
-    }
+    ) {}
 
     public function index(Request $request)
     {

@@ -1,7 +1,7 @@
 <?php
 
-use App\Modules\UserManagement\Controllers\AdminUserController;
 use App\Modules\UserManagement\Controllers\AdminStudentImportController;
+use App\Modules\UserManagement\Controllers\AdminUserController;
 use App\Modules\UserManagement\Controllers\ImportController;
 use App\Modules\UserManagement\Controllers\MeController;
 use Illuminate\Support\Facades\Route;

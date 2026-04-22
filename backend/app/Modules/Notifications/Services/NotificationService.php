@@ -16,8 +16,7 @@ class NotificationService
     public function __construct(
         protected NotificationRepository $repository,
         protected AuditLogService $auditLogService,
-    ) {
-    }
+    ) {}
 
     public function list(User $user, int $perPage = 15)
     {

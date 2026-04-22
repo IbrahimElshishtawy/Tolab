@@ -30,9 +30,7 @@ use App\Modules\Content\Services\ContentService;
 
 class AdminContentController extends ApiController
 {
-    public function __construct(protected ContentService $contentService)
-    {
-    }
+    public function __construct(protected ContentService $contentService) {}
 
     public function storeLecture(StoreLectureRequest $request, CourseOffering $courseOffering)
     {

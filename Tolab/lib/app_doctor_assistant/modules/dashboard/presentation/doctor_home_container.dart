@@ -59,7 +59,7 @@ class DoctorHomeContainer extends StatelessWidget {
               message:
                   vm.dashboard.error ??
                   (isAuthFailure
-                      ? 'Your session has expired. Please sign in again.'
+                      ? 'Session expired, please login again.'
                       : 'Unexpected dashboard error.'),
               primaryActionLabel: isAuthFailure ? 'Go to Login' : 'Retry',
               icon: isAuthFailure

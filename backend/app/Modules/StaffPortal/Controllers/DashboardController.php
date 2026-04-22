@@ -9,9 +9,7 @@ use Illuminate\Http\Request;
 
 class DashboardController extends ApiController
 {
-    public function __construct(protected DashboardService $service)
-    {
-    }
+    public function __construct(protected DashboardService $service) {}
 
     public function index(Request $request)
     {

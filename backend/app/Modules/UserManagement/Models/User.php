@@ -4,7 +4,6 @@ namespace App\Modules\UserManagement\Models;
 
 use App\Core\Enums\UserRole;
 use App\Modules\Academic\Models\CourseOffering;
-use App\Modules\Academic\Models\Department;
 use App\Modules\Academic\Models\Section;
 use App\Modules\Academic\Models\Subject;
 use App\Modules\Content\Models\Assessment;
@@ -13,16 +12,17 @@ use App\Modules\Content\Models\Summary;
 use App\Modules\Enrollment\Models\Enrollment;
 use App\Modules\Grades\Models\GradeItem;
 use App\Modules\Group\Models\Comment;
+use App\Modules\Group\Models\GroupChat;
 use App\Modules\Group\Models\GroupMember;
 use App\Modules\Group\Models\Message;
 use App\Modules\Group\Models\Post;
 use App\Modules\Notifications\Models\UserNotification;
+use App\Modules\Shared\Models\AuditLog;
+use App\Modules\Shared\Models\RefreshToken;
 use App\Modules\StaffPortal\Models\Permission;
 use App\Modules\StaffPortal\Models\Role;
 use App\Modules\StaffPortal\Models\StaffAssignment;
 use App\Modules\StaffPortal\Models\TaskSubmission;
-use App\Modules\Shared\Models\AuditLog;
-use App\Modules\Shared\Models\RefreshToken;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -156,7 +156,7 @@ class User extends Authenticatable
 
     public function groups(): BelongsToMany
     {
-        return $this->belongsToMany(\App\Modules\Group\Models\GroupChat::class, 'group_members', 'user_id', 'group_id')
+        return $this->belongsToMany(GroupChat::class, 'group_members', 'user_id', 'group_id')
             ->withPivot(['role_in_group'])
             ->withTimestamps();
     }

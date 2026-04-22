@@ -10,9 +10,7 @@ use App\Modules\Schedule\Services\ScheduleService;
 
 class StudentScheduleController extends ApiController
 {
-    public function __construct(protected ScheduleService $scheduleService)
-    {
-    }
+    public function __construct(protected ScheduleService $scheduleService) {}
 
     public function index(TimetableFilterRequest $request)
     {

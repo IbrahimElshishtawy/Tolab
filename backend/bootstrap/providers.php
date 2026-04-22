@@ -1,7 +1,11 @@
 <?php
 
+use App\Providers\AppServiceProvider;
+use App\Providers\AuthServiceProvider;
+use Laravel\Socialite\SocialiteServiceProvider;
+
 return [
-    App\Providers\AppServiceProvider::class,
-    App\Providers\AuthServiceProvider::class,
-    Laravel\Socialite\SocialiteServiceProvider::class,
+    AppServiceProvider::class,
+    AuthServiceProvider::class,
+    SocialiteServiceProvider::class,
 ];

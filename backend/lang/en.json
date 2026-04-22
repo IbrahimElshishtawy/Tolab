@@ -1,6 +1,6 @@
 {
   "Validation failed.": "Validation failed.",
-  "Unauthenticated.": "Your session has expired. Please sign in again.",
+  "Unauthenticated.": "Session expired, please login again.",
   "Forbidden.": "Forbidden.",
   "Resource not found.": "Resource not found.",
   "Route not found.": "Route not found.",

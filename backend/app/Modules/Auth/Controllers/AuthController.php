@@ -12,9 +12,7 @@ use App\Modules\Auth\Services\AuthService;
 
 class AuthController extends ApiController
 {
-    public function __construct(protected AuthService $authService)
-    {
-    }
+    public function __construct(protected AuthService $authService) {}
 
     public function login(LoginRequest $request)
     {

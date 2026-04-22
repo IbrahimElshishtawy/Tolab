@@ -16,8 +16,7 @@ class CourseOfferingController extends ApiController
     public function __construct(
         protected CourseOfferingService $service,
         protected PaginationSanitizer $paginationSanitizer,
-    ) {
-    }
+    ) {}
 
     public function index(Request $request)
     {

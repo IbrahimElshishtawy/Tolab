@@ -14,7 +14,6 @@ use App\Modules\Enrollment\Models\Enrollment;
 use App\Modules\Grades\Models\GradeItem;
 use App\Modules\Group\Models\GroupChat;
 use App\Modules\Group\Models\GroupMember;
-use App\Modules\Group\Models\Post;
 use App\Modules\Notifications\Models\UserNotification;
 use App\Modules\Schedule\Enums\ScheduleEventType;
 use App\Modules\Schedule\Models\ScheduleEvent;

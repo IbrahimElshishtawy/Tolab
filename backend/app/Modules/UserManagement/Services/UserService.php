@@ -20,8 +20,7 @@ class UserService
     public function __construct(
         protected UserRepository $userRepository,
         protected AuditLogService $auditLogService,
-    ) {
-    }
+    ) {}
 
     public function paginate(array $filters, int $perPage = 15)
     {

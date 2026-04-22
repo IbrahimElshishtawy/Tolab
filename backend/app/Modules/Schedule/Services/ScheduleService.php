@@ -14,9 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ScheduleService
 {
-    public function __construct(protected AuditLogService $auditLogService)
-    {
-    }
+    public function __construct(protected AuditLogService $auditLogService) {}
 
     public function create(CourseOffering $courseOffering, array $payload, User $actor): ScheduleEvent
     {

@@ -10,9 +10,7 @@ use App\Modules\Moderation\Services\ModerationService;
 
 class ModerationController extends ApiController
 {
-    public function __construct(protected ModerationService $moderationService)
-    {
-    }
+    public function __construct(protected ModerationService $moderationService) {}
 
     public function deletePost(Post $post)
     {

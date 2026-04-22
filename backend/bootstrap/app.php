@@ -8,8 +8,8 @@ use App\Core\Middleware\RequireAdminRole;
 use App\Core\Middleware\RequireStaffRole;
 use App\Core\Middleware\RequireStudentRole;
 use App\Core\Middleware\SetRequestLocale;
-use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -66,7 +66,7 @@ return Application::configure(basePath: dirname(__DIR__))
             return api_error(__($exception->getMessage() ?: Response::$statusTexts[$exception->getStatusCode()] ?? 'HTTP error.'), [], $exception->getStatusCode());
         });
 
-        $exceptions->render(function (\Throwable $exception, Request $request) {
+        $exceptions->render(function (Throwable $exception, Request $request) {
             report($exception);
 
             return api_error(__('Server error.'), [], Response::HTTP_INTERNAL_SERVER_ERROR);

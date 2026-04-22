@@ -5,10 +5,10 @@ namespace App\Modules\Group\Controllers;
 use App\Core\Base\ApiController;
 use App\Core\Services\PaginationSanitizer;
 use App\Modules\Academic\Models\CourseOffering;
-use App\Modules\Group\Models\GroupChat;
-use App\Modules\Group\Models\Post;
-use App\Modules\Group\Models\Message;
 use App\Modules\Group\Models\Comment;
+use App\Modules\Group\Models\GroupChat;
+use App\Modules\Group\Models\Message;
+use App\Modules\Group\Models\Post;
 use App\Modules\Group\Requests\CreateCommentRequest;
 use App\Modules\Group\Requests\CreatePostRequest;
 use App\Modules\Group\Requests\SendMessageRequest;
@@ -24,8 +24,7 @@ class GroupController extends ApiController
     public function __construct(
         protected GroupService $groupService,
         protected PaginationSanitizer $paginationSanitizer,
-    ) {
-    }
+    ) {}
 
     public function studentCourseGroup(CourseOffering $courseOffering)
     {

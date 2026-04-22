@@ -18,9 +18,7 @@ class BroadcastNotificationJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public function __construct(protected array $payload)
-    {
-    }
+    public function __construct(protected array $payload) {}
 
     public function handle(): void
     {

@@ -25,7 +25,7 @@ if (! function_exists('api_error')) {
         return new JsonResponse([
             'success' => false,
             'message' => __($message),
-            'errors' => $errors ?? new \stdClass(),
+            'errors' => $errors ?? new stdClass,
         ], $status);
     }
 }

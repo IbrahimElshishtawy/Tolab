@@ -5,8 +5,8 @@ namespace App\Modules\Enrollment\Models;
 use App\Modules\Academic\Models\CourseOffering;
 use App\Modules\UserManagement\Models\User;
 use Database\Factories\EnrollmentFactory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,7 +15,9 @@ class Enrollment extends Model
     use HasFactory;
 
     public const STATUS_ENROLLED = 'enrolled';
+
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_REJECTED = 'rejected';
 
     protected $fillable = [

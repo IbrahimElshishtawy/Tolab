@@ -24,7 +24,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController(text: 'admin@tolab.edu');
-  final _passwordController = TextEditingController(text: 'Admin@123');
+  final _passwordController = TextEditingController(text: '123456');
   String _selectedPreset = 'Admin';
 
   static const _presets = <String, String>{
@@ -71,8 +71,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               children: [
                                 Text(
                                   'University staff login',
-                                  style:
-                                      Theme.of(context).textTheme.headlineMedium,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.headlineMedium,
                                 ),
                                 const SizedBox(height: AppSpacing.sm),
                                 Text(
@@ -103,8 +104,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   hint: 'admin@tolab.edu',
                                   keyboardType: TextInputType.emailAddress,
                                   prefixIcon: Icons.alternate_email_rounded,
-                                  validator: (value) => (value == null ||
-                                          value.trim().isEmpty)
+                                  validator: (value) =>
+                                      (value == null || value.trim().isEmpty)
                                       ? 'Required'
                                       : null,
                                 ),
@@ -112,11 +113,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 AppTextField(
                                   label: 'Password',
                                   controller: _passwordController,
-                                  hint: 'Admin@123',
+                                  hint: '123456',
                                   obscureText: true,
                                   prefixIcon: Icons.lock_outline_rounded,
-                                  validator: (value) => (value == null ||
-                                          value.trim().isEmpty)
+                                  validator: (value) =>
+                                      (value == null || value.trim().isEmpty)
                                       ? 'Required'
                                       : null,
                                 ),
@@ -132,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ],
                                 const SizedBox(height: AppSpacing.md),
                                 Text(
-                                  'Staff demo accounts: admin@tolab.edu, doctor@tolab.edu, assistant@tolab.edu',
+                                  'Staff test accounts: doctor@tolab.edu and assistant@tolab.edu with password 123456',
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                                 const SizedBox(height: AppSpacing.xxl),
@@ -140,7 +141,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   label: 'Sign in',
                                   isLoading: vm.isLoading,
                                   onPressed: () {
-                                    if (_formKey.currentState?.validate() != true) {
+                                    if (_formKey.currentState?.validate() !=
+                                        true) {
                                       return;
                                     }
 

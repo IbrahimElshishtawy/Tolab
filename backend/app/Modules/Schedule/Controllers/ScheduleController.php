@@ -14,9 +14,7 @@ use Illuminate\Http\Request;
 
 class ScheduleController extends ApiController
 {
-    public function __construct(protected ScheduleService $scheduleService)
-    {
-    }
+    public function __construct(protected ScheduleService $scheduleService) {}
 
     public function index(Request $request)
     {

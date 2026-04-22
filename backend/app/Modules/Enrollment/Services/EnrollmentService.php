@@ -18,9 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnrollmentService
 {
-    public function __construct(protected AuditLogService $auditLogService)
-    {
-    }
+    public function __construct(protected AuditLogService $auditLogService) {}
 
     public function paginateAdmin(array $filters, int $perPage): LengthAwarePaginator
     {

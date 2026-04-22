@@ -19,8 +19,7 @@ class MicrosoftAuthService
 {
     public function __construct(
         protected StudentLinkingService $studentLinkingService,
-    ) {
-    }
+    ) {}
 
     public function redirect(): RedirectResponse
     {

@@ -20,7 +20,7 @@ class LoadDashboardFailureAction {
   });
 
   const LoadDashboardFailureAction.authentication([
-    this.message = 'Your session has expired. Please sign in again.',
+    this.message = 'Session expired, please login again.',
   ]) : failureType = DashboardFailureType.authentication;
 
   const LoadDashboardFailureAction.network([

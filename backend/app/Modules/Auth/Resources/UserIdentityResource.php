@@ -13,6 +13,7 @@ class UserIdentityResource extends JsonResource
             'id' => $this->id,
             'role' => $this->role->value,
             'username' => $this->username,
+            'name' => $this->full_name,
             'full_name' => $this->full_name,
             'email' => $this->email,
             'university_email' => $this->university_email,

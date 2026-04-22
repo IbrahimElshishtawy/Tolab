@@ -10,8 +10,7 @@ class AdminStudentImportController extends ApiController
 {
     public function __construct(
         protected StudentImportService $studentImportService,
-    ) {
-    }
+    ) {}
 
     public function __invoke(ImportStudentsRequest $request)
     {

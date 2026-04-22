@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('staff-portal')->group(function () {
     Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:login');
+    Route::post('auth/refresh', [AuthController::class, 'refresh'])->middleware('throttle:sensitive');
     Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:sensitive');
 
     Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->group(function () {

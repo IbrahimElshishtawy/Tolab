@@ -10,9 +10,7 @@ use Illuminate\Http\Request;
 
 class UploadController extends ApiController
 {
-    public function __construct(protected PortalService $service)
-    {
-    }
+    public function __construct(protected PortalService $service) {}
 
     public function index(Request $request)
     {

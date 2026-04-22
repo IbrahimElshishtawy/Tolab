@@ -13,9 +13,7 @@ use Illuminate\Http\Request;
 
 class GradeController extends ApiController
 {
-    public function __construct(protected GradeService $gradeService)
-    {
-    }
+    public function __construct(protected GradeService $gradeService) {}
 
     public function index(Request $request, CourseOffering $courseOffering)
     {

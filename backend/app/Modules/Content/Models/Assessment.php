@@ -4,8 +4,8 @@ namespace App\Modules\Content\Models;
 
 use App\Modules\Academic\Models\CourseOffering;
 use App\Modules\Content\Enums\AssessmentType;
-use App\Modules\UserManagement\Models\User;
 use App\Modules\Shared\Traits\HasAttachments;
+use App\Modules\UserManagement\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

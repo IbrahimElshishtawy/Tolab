@@ -2,14 +2,14 @@
 
 namespace App\Modules\Academic\Models;
 
+use App\Modules\StaffPortal\Models\AcademicYear;
+use App\Modules\UserManagement\Models\StudentProfile;
+use App\Modules\UserManagement\Models\User;
 use Database\Factories\SectionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Modules\StaffPortal\Models\AcademicYear;
-use App\Modules\UserManagement\Models\StudentProfile;
-use App\Modules\UserManagement\Models\User;
 
 class Section extends Model
 {

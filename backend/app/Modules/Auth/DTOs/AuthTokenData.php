@@ -10,6 +10,5 @@ readonly class AuthTokenData
         public string $accessToken,
         public string $refreshToken,
         public User $user,
-    ) {
-    }
+    ) {}
 }

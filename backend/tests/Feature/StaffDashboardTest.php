@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Core\Enums\UserRole;
 use App\Modules\StaffPortal\Models\Permission;
 use App\Modules\UserManagement\Models\StaffPermission;
 use App\Modules\UserManagement\Models\User;
@@ -19,7 +18,7 @@ class StaffAuthFlowTest extends TestCase
         $doctor = User::factory()->doctor()->create([
             'full_name' => 'Dr. Ahmed Hassan',
             'university_email' => 'doctor@tolab.edu',
-            'password_hash' => Hash::make('Doctor@123'),
+            'password_hash' => Hash::make('123456'),
         ]);
 
         $this->grantPermissions($doctor, [
@@ -30,18 +29,24 @@ class StaffAuthFlowTest extends TestCase
 
         $login = $this->postJson('/api/staff-portal/auth/login', [
             'university_email' => 'doctor@tolab.edu',
-            'password' => 'Doctor@123',
+            'password' => '123456',
             'device_name' => 'phpunit-doctor',
         ]);
 
         $login->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('data.user.full_name', 'Dr. Ahmed Hassan')
-            ->assertJsonPath('data.user.role', 'DOCTOR')
+            ->assertJsonPath('data.token', $login->json('data.access_token'))
+            ->assertJsonPath('data.role', 'doctor')
+            ->assertJsonPath('data.user.name', 'Dr. Ahmed Hassan')
+            ->assertJsonPath('data.user.role', 'doctor')
             ->assertJsonStructure([
                 'success',
                 'message',
                 'data' => [
+                    'token',
+                    'access_token',
+                    'refresh_token',
+                    'role',
                     'user',
                     'tokens' => ['access_token', 'refresh_token'],
                 ],
@@ -62,7 +67,7 @@ class StaffAuthFlowTest extends TestCase
         $assistant = User::factory()->teachingAssistant()->create([
             'full_name' => 'Mona Assistant',
             'university_email' => 'assistant@tolab.edu',
-            'password_hash' => Hash::make('Assistant@123'),
+            'password_hash' => Hash::make('123456'),
         ]);
 
         $this->grantPermissions($assistant, [
@@ -72,18 +77,24 @@ class StaffAuthFlowTest extends TestCase
 
         $login = $this->postJson('/api/staff-portal/auth/login', [
             'university_email' => 'assistant@tolab.edu',
-            'password' => 'Assistant@123',
+            'password' => '123456',
             'device_name' => 'phpunit-assistant',
         ]);
 
         $login->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('data.user.full_name', 'Mona Assistant')
-            ->assertJsonPath('data.user.role', 'ASSISTANT')
+            ->assertJsonPath('data.token', $login->json('data.access_token'))
+            ->assertJsonPath('data.role', 'assistant')
+            ->assertJsonPath('data.user.name', 'Mona Assistant')
+            ->assertJsonPath('data.user.role', 'assistant')
             ->assertJsonStructure([
                 'success',
                 'message',
                 'data' => [
+                    'token',
+                    'access_token',
+                    'refresh_token',
+                    'role',
                     'user',
                     'tokens' => ['access_token', 'refresh_token'],
                 ],
@@ -104,13 +115,13 @@ class StaffAuthFlowTest extends TestCase
         $doctor = User::factory()->doctor()->create([
             'full_name' => 'Dr. Refresh',
             'university_email' => 'doctor.refresh@tolab.edu',
-            'password_hash' => Hash::make('Doctor@123'),
+            'password_hash' => Hash::make('123456'),
         ]);
 
         $assistant = User::factory()->teachingAssistant()->create([
             'full_name' => 'Assistant Refresh',
             'university_email' => 'assistant.refresh@tolab.edu',
-            'password_hash' => Hash::make('Assistant@123'),
+            'password_hash' => Hash::make('123456'),
         ]);
 
         $this->grantPermissions($doctor, ['tasks.view'], canManageGrades: true);
@@ -118,7 +129,7 @@ class StaffAuthFlowTest extends TestCase
 
         $doctorLogin = $this->postJson('/api/staff-portal/auth/login', [
             'university_email' => 'doctor.refresh@tolab.edu',
-            'password' => 'Doctor@123',
+            'password' => '123456',
             'device_name' => 'phpunit-doctor-refresh',
         ]);
 
@@ -127,7 +138,7 @@ class StaffAuthFlowTest extends TestCase
 
         $assistantLogin = $this->postJson('/api/staff-portal/auth/login', [
             'university_email' => 'assistant.refresh@tolab.edu',
-            'password' => 'Assistant@123',
+            'password' => '123456',
             'device_name' => 'phpunit-assistant-refresh',
         ]);
 
@@ -141,10 +152,12 @@ class StaffAuthFlowTest extends TestCase
 
         $doctorRefresh->assertOk()
             ->assertJsonPath('success', true)
+            ->assertJsonPath('data.token', $doctorRefresh->json('data.access_token'))
             ->assertJsonStructure([
                 'success',
                 'message',
                 'data' => [
+                    'token',
                     'access_token',
                     'refresh_token',
                 ],
@@ -157,14 +170,24 @@ class StaffAuthFlowTest extends TestCase
 
         $assistantRefresh->assertOk()
             ->assertJsonPath('success', true)
+            ->assertJsonPath('data.token', $assistantRefresh->json('data.access_token'))
             ->assertJsonStructure([
                 'success',
                 'message',
                 'data' => [
+                    'token',
                     'access_token',
                     'refresh_token',
                 ],
             ]);
+    }
+
+    public function test_staff_dashboard_returns_unauthorized_without_token(): void
+    {
+        $this->getJson('/api/staff/dashboard')
+            ->assertUnauthorized()
+            ->assertJsonPath('success', false)
+            ->assertJsonPath('message', 'Session expired, please login again.');
     }
 
     private function grantPermissions(

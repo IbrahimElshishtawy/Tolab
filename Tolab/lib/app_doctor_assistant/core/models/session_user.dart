@@ -34,9 +34,15 @@ class SessionUser {
   factory SessionUser.fromJson(Map<String, dynamic> json) {
     return SessionUser(
       id: (json['id'] as num?)?.toInt() ?? 0,
-      fullName: json['full_name']?.toString() ?? '',
-      universityEmail: json['university_email']?.toString() ?? '',
-      roleType: json['role_type']?.toString() ?? 'assistant',
+      fullName: json['full_name']?.toString() ?? json['name']?.toString() ?? '',
+      universityEmail:
+          json['university_email']?.toString() ??
+          json['email']?.toString() ??
+          '',
+      roleType:
+          json['role_type']?.toString() ??
+          json['role']?.toString() ??
+          'assistant',
       isActive: json['is_active'] == true,
       avatar: json['avatar']?.toString(),
       phone: json['phone']?.toString(),

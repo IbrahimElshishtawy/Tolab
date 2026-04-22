@@ -133,7 +133,7 @@ class AuthController extends ChangeNotifier {
   }
 
   Future<void> expireSession({
-    String message = 'Your session has expired. Please sign in again.',
+    String message = 'Session expired, please login again.',
   }) async {
     await _repository.clearPersistedSession();
     _state = _state.copyWith(

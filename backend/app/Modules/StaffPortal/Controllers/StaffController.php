@@ -10,9 +10,7 @@ use App\Modules\UserManagement\Models\User;
 
 class StaffController extends ApiController
 {
-    public function __construct(protected AdminPortalService $service)
-    {
-    }
+    public function __construct(protected AdminPortalService $service) {}
 
     public function index()
     {

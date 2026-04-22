@@ -7,9 +7,7 @@ use App\Modules\StaffPortal\Services\AdminPortalService;
 
 class AdminController extends ApiController
 {
-    public function __construct(protected AdminPortalService $service)
-    {
-    }
+    public function __construct(protected AdminPortalService $service) {}
 
     public function overview()
     {

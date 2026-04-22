@@ -17,8 +17,7 @@ class StudentCourseController extends ApiController
         protected CourseOfferingRepository $repository,
         protected PaginationSanitizer $paginationSanitizer,
         protected ContentService $contentService,
-    ) {
-    }
+    ) {}
 
     public function index(Request $request)
     {

@@ -1,5 +1,7 @@
 <?php
 
+use App\Modules\UserManagement\Models\User;
+
 return [
     'defaults' => [
         'guard' => 'sanctum',
@@ -18,7 +20,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Modules\UserManagement\Models\User::class,
+            'model' => User::class,
         ],
     ],
     'passwords' => [

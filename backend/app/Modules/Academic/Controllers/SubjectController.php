@@ -12,9 +12,7 @@ use Illuminate\Http\Request;
 
 class SubjectController extends ApiController
 {
-    public function __construct(protected AcademicService $academicService)
-    {
-    }
+    public function __construct(protected AcademicService $academicService) {}
 
     public function index(Request $request)
     {

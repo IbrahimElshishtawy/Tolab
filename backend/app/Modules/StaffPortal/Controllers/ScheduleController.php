@@ -9,9 +9,7 @@ use Illuminate\Http\Request;
 
 class ScheduleController extends ApiController
 {
-    public function __construct(protected PortalService $service)
-    {
-    }
+    public function __construct(protected PortalService $service) {}
 
     public function index(Request $request)
     {

@@ -3,11 +3,20 @@
 namespace App\Providers;
 
 use App\Core\Enums\UserRole;
+use App\Modules\Content\Models\Assessment;
+use App\Modules\Content\Models\CourseFile;
+use App\Modules\Content\Models\Exam;
+use App\Modules\Content\Models\Lecture;
+use App\Modules\Content\Models\SectionSession;
+use App\Modules\Content\Models\Summary;
+use App\Modules\Group\Models\Comment;
+use App\Modules\Group\Models\Message;
+use App\Modules\Group\Models\Post;
 use App\Modules\UserManagement\Models\User;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use SocialiteProviders\Manager\SocialiteWasCalled;
@@ -15,9 +24,7 @@ use SocialiteProviders\Microsoft\Provider as MicrosoftProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    public function register(): void
-    {
-    }
+    public function register(): void {}
 
     public function boot(): void
     {
@@ -27,15 +34,15 @@ class AppServiceProvider extends ServiceProvider
 
         Relation::enforceMorphMap([
             'user' => User::class,
-            'lecture' => \App\Modules\Content\Models\Lecture::class,
-            'section_session' => \App\Modules\Content\Models\SectionSession::class,
-            'summary' => \App\Modules\Content\Models\Summary::class,
-            'assessment' => \App\Modules\Content\Models\Assessment::class,
-            'exam' => \App\Modules\Content\Models\Exam::class,
-            'course_file' => \App\Modules\Content\Models\CourseFile::class,
-            'post' => \App\Modules\Group\Models\Post::class,
-            'comment' => \App\Modules\Group\Models\Comment::class,
-            'message' => \App\Modules\Group\Models\Message::class,
+            'lecture' => Lecture::class,
+            'section_session' => SectionSession::class,
+            'summary' => Summary::class,
+            'assessment' => Assessment::class,
+            'exam' => Exam::class,
+            'course_file' => CourseFile::class,
+            'post' => Post::class,
+            'comment' => Comment::class,
+            'message' => Message::class,
         ]);
 
         RateLimiter::for('login', function (Request $request) {

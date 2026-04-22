@@ -10,9 +10,7 @@ use App\Modules\UserManagement\Models\User;
 
 class ModerationService
 {
-    public function __construct(protected GroupService $groupService)
-    {
-    }
+    public function __construct(protected GroupService $groupService) {}
 
     public function deletePost(Post $post, User $admin): void
     {

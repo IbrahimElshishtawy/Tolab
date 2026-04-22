@@ -21,8 +21,7 @@ class ContentService
     public function __construct(
         protected FileUploadService $fileUploadService,
         protected AuditLogService $auditLogService,
-    ) {
-    }
+    ) {}
 
     public function bundle(CourseOffering $courseOffering): CourseOffering
     {

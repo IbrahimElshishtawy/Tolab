@@ -4,6 +4,7 @@ import '../network/api_client.dart';
 import '../storage/token_storage.dart';
 import '../../modules/admin/repositories/admin_repository.dart';
 import '../../modules/auth/repositories/auth_repository.dart';
+import '../../modules/auth/services/auth_service.dart';
 import '../../modules/dashboard/repositories/dashboard_repository.dart';
 import '../../modules/lectures/repositories/lectures_repository.dart';
 import '../../modules/notifications/repositories/notifications_repository.dart';
@@ -20,6 +21,7 @@ class AppDependencies {
   AppDependencies._({
     required this.tokenStorage,
     required this.apiClient,
+    required this.authService,
     required this.authRepository,
     required this.dashboardRepository,
     required this.subjectsRepository,
@@ -37,6 +39,7 @@ class AppDependencies {
 
   final TokenStorage tokenStorage;
   final ApiClient apiClient;
+  final AuthService authService;
   final AuthRepository authRepository;
   final DashboardRepository dashboardRepository;
   final SubjectsRepository subjectsRepository;
@@ -55,11 +58,13 @@ class AppDependencies {
     const secureStorage = FlutterSecureStorage();
     final tokenStorage = TokenStorage(secureStorage);
     final apiClient = ApiClient(tokenStorage: tokenStorage);
+    final authService = AuthService(apiClient);
 
     return AppDependencies._(
       tokenStorage: tokenStorage,
       apiClient: apiClient,
-      authRepository: AuthRepository(apiClient, tokenStorage),
+      authService: authService,
+      authRepository: AuthRepository(authService, tokenStorage),
       dashboardRepository: DashboardRepository(apiClient),
       subjectsRepository: SubjectsRepository(apiClient),
       lecturesRepository: LecturesRepository(apiClient),

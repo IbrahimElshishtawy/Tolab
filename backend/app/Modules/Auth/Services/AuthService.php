@@ -14,8 +14,7 @@ class AuthService
     public function __construct(
         protected TokenService $tokenService,
         protected AuditLogService $auditLogService,
-    ) {
-    }
+    ) {}
 
     public function login(array $credentials)
     {

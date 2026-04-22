@@ -10,9 +10,7 @@ use App\Modules\UserManagement\Models\User;
 
 class AcademicService
 {
-    public function __construct(protected AuditLogService $auditLogService)
-    {
-    }
+    public function __construct(protected AuditLogService $auditLogService) {}
 
     public function createDepartment(array $payload, User $actor): Department
     {

@@ -10,9 +10,7 @@ use App\Modules\Academic\Services\AcademicService;
 
 class DepartmentController extends ApiController
 {
-    public function __construct(protected AcademicService $academicService)
-    {
-    }
+    public function __construct(protected AcademicService $academicService) {}
 
     public function index()
     {

@@ -172,7 +172,7 @@ class DashboardService
                 ->with(['courseOffering.subject', 'student'])
                 ->whereIn('course_offering_id', $offeringIds)
                 ->get()
-            : new EloquentCollection();
+            : new EloquentCollection;
 
         $todaySchedule = $scheduleEvents
             ->filter(fn (ScheduleEvent $event) => $this->eventMatchesDate($event, $today))
@@ -780,6 +780,7 @@ class DashboardService
         $inactiveStudents = $students
             ->filter(function (User $student) use ($today, $recentActivity) {
                 $staleLogin = $student->last_login_at === null || $student->last_login_at->lessThan($today->subDays(14));
+
                 return $staleLogin && ! $recentActivity->has($student->id);
             })
             ->count();
@@ -1299,8 +1300,7 @@ class DashboardService
         array $studentsAttention,
         Collection $subjectHealth,
         array $performanceAnalytics,
-    ): array
-    {
+    ): array {
         $alerts = collect();
 
         foreach ($actionCenterItems as $item) {
@@ -1557,6 +1557,7 @@ class DashboardService
     protected function dateTimeForEvent(CarbonImmutable $date, string $time): CarbonImmutable
     {
         [$hour, $minute] = array_pad(explode(':', $time), 2, '0');
+
         return $date->setTime((int) $hour, (int) $minute);
     }
 

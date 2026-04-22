@@ -16,24 +16,29 @@ class AuthFlowTest extends TestCase
         $user = User::factory()->create([
             'role' => UserRole::ADMIN,
             'email' => 'admin@example.com',
-            'password_hash' => 'password12345',
+            'password_hash' => '123456',
         ]);
 
-        $login = $this->postJson('/api/auth/login', [
+        $login = $this->postJson('/api/login', [
             'email' => $user->email,
-            'password' => 'password12345',
+            'password' => '123456',
             'device_name' => 'phpunit',
         ]);
 
         $login->assertOk()
             ->assertJsonPath('success', true)
+            ->assertJsonPath('data.token', $login->json('data.access_token'))
+            ->assertJsonPath('data.user.name', $user->full_name)
             ->assertJsonStructure([
                 'success',
                 'message',
                 'data' => [
+                    'token',
+                    'access_token',
+                    'refresh_token',
                     'accessToken',
                     'refreshToken',
-                    'user' => ['id', 'role', 'username', 'email'],
+                    'user' => ['id', 'name', 'role', 'username', 'email'],
                 ],
             ]);
 

@@ -11,9 +11,7 @@ use Illuminate\Http\Request;
 
 class MeController extends ApiController
 {
-    public function __construct(protected UserService $userService)
-    {
-    }
+    public function __construct(protected UserService $userService) {}
 
     public function me(Request $request)
     {

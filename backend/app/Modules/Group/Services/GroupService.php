@@ -15,9 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class GroupService
 {
-    public function __construct(protected AuditLogService $auditLogService)
-    {
-    }
+    public function __construct(protected AuditLogService $auditLogService) {}
 
     public function courseGroup(CourseOffering $courseOffering, User $user): GroupChat
     {

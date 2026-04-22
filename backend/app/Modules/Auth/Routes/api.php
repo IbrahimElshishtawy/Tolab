@@ -4,6 +4,8 @@ use App\Modules\Auth\Controllers\AuthController;
 use App\Modules\Auth\Controllers\MicrosoftAuthController;
 use Illuminate\Support\Facades\Route;
 
+Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');
+
 Route::prefix('auth')->group(function () {
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');
     Route::post('refresh', [AuthController::class, 'refresh'])->middleware('throttle:sensitive');

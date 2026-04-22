@@ -30,8 +30,7 @@ class StudentImportService
 
     public function __construct(
         protected AuditLogService $auditLogService,
-    ) {
-    }
+    ) {}
 
     public function import(UploadedFile $file, User $actor): array
     {
@@ -46,7 +45,7 @@ class StudentImportService
             );
         }
 
-        $import = new StudentSpreadsheetImport();
+        $import = new StudentSpreadsheetImport;
         $import->import($file);
 
         $rows = $import->rows
@@ -252,7 +251,7 @@ class StudentImportService
 
     protected function readHeadings(UploadedFile $file): array
     {
-        $headings = (new HeadingRowImport())->toArray($file);
+        $headings = (new HeadingRowImport)->toArray($file);
 
         return collect($headings[0][0] ?? [])
             ->filter()

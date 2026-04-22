@@ -13,8 +13,7 @@ class MicrosoftAuthController extends ApiController
     public function __construct(
         protected MicrosoftAuthService $microsoftAuthService,
         protected StudentLinkingService $studentLinkingService,
-    ) {
-    }
+    ) {}
 
     public function redirect()
     {

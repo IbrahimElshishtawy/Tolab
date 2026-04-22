@@ -8,9 +8,7 @@ use App\Modules\UserManagement\Services\UserService;
 
 class ImportController extends ApiController
 {
-    public function __construct(protected UserService $userService)
-    {
-    }
+    public function __construct(protected UserService $userService) {}
 
     public function students(ImportUsersRequest $request)
     {

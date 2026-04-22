@@ -8,9 +8,7 @@ use App\Modules\Content\Services\FileUploadService;
 
 class FileUploadController extends ApiController
 {
-    public function __construct(protected FileUploadService $fileUploadService)
-    {
-    }
+    public function __construct(protected FileUploadService $fileUploadService) {}
 
     public function upload(UploadFileRequest $request)
     {

@@ -16,8 +16,7 @@ class CourseOfferingService
     public function __construct(
         protected CourseOfferingRepository $repository,
         protected AuditLogService $auditLogService,
-    ) {
-    }
+    ) {}
 
     public function paginateAdmin(array $filters, int $perPage = 15)
     {

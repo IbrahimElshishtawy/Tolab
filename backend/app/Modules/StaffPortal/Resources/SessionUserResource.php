@@ -10,16 +10,24 @@ class SessionUserResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $role = $this->role_type ?: match ($this->role) {
+            UserRole::ADMIN => 'admin',
+            UserRole::DOCTOR => 'doctor',
+            UserRole::TA => 'assistant',
+            default => 'assistant',
+        };
+
+        $name = $this->full_name ?: $this->username;
+        $email = $this->university_email ?: $this->email;
+
         return [
             'id' => $this->id,
-            'full_name' => $this->full_name ?: $this->username,
-            'university_email' => $this->university_email ?: $this->email,
-            'role_type' => $this->role_type ?: match ($this->role) {
-                UserRole::ADMIN => 'admin',
-                UserRole::DOCTOR => 'doctor',
-                UserRole::TA => 'assistant',
-                default => 'assistant',
-            },
+            'name' => $name,
+            'full_name' => $name,
+            'email' => $email,
+            'university_email' => $email,
+            'role' => $role,
+            'role_type' => $role,
             'is_active' => $this->is_active,
             'avatar' => $this->avatar,
             'phone' => $this->phone,

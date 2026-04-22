@@ -46,7 +46,7 @@ class ApiClient {
           if (requiresAuth && (token == null || token.isEmpty)) {
             await _handleUnauthorized(
               ApiException(
-                message: 'Your session has expired. Please sign in again.',
+                message: 'Session expired, please login again.',
                 statusCode: 401,
               ),
             );
@@ -263,7 +263,7 @@ class ApiClient {
 
     try {
       final response = await _refreshDio.post<JsonMap>(
-        '/auth/refresh',
+        '/staff-portal/auth/refresh',
         data: {'refresh_token': refreshToken, 'device_name': 'flutter-app'},
       );
 
@@ -292,7 +292,7 @@ class ApiClient {
       await _tokenStorage.clear();
       await _unauthorizedHandler?.call(
         error.message.isEmpty
-            ? 'Your session has expired. Please sign in again.'
+            ? 'Session expired, please login again.'
             : error.message,
       );
     } finally {

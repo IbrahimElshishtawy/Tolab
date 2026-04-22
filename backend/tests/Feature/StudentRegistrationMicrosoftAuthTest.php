@@ -347,7 +347,7 @@ class StudentRegistrationMicrosoftAuthTest extends TestCase
             'userPrincipalName' => $email,
         ];
 
-        return (new SocialiteUser())
+        return (new SocialiteUser)
             ->setRaw($raw)
             ->map([
                 'id' => $microsoftId,
