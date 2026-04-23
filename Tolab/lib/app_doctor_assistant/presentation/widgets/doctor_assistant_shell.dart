@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/core/app_scope.dart';
-import '../../../app_admin/core/widgets/adaptive_scaffold.dart';
 import '../../core/models/session_user.dart';
 import '../../core/navigation/app_routes.dart';
 import '../../core/navigation/navigation_items.dart';
+import 'responsive_scaffold.dart';
 
 class DoctorAssistantShell extends StatelessWidget {
   const DoctorAssistantShell({
@@ -23,18 +23,11 @@ class DoctorAssistantShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localeController = AppScope.locale(context);
+    final navigation = buildDoctorAssistantNavigationConfig(user);
 
-    return AdaptiveScaffold(
+    return ResponsiveScaffold(
       location: activeRoute,
-      destinations: buildNavigationItems(user)
-          .map(
-            (item) => NavigationDestinationItem(
-              label: item.label,
-              route: item.path,
-              icon: item.icon,
-            ),
-          )
-          .toList(),
+      navigation: navigation,
       userName: user.fullName,
       userRole: user.roleType,
       unreadNotifications: unreadNotifications,
