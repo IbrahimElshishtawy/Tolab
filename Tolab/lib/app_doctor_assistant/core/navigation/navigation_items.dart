@@ -53,17 +53,17 @@ DoctorAssistantNavigationConfig buildDoctorAssistantNavigationConfig(
   SessionUser user,
 ) {
   final homeItem = const DoctorAssistantNavigationItem(
-    label: 'layout.doctor.nav.home',
+    label: 'home',
     path: AppRoutes.dashboard,
     icon: Icons.grid_view_rounded,
   );
   final subjectsItem = const DoctorAssistantNavigationItem(
-    label: 'layout.doctor.nav.subjects',
+    label: 'subjects',
     path: AppRoutes.subjects,
     icon: Icons.menu_book_rounded,
   );
   final scheduleItem = const DoctorAssistantNavigationItem(
-    label: 'layout.doctor.nav.schedule',
+    label: 'schedule',
     path: AppRoutes.schedule,
     icon: Icons.calendar_month_rounded,
   );
@@ -132,7 +132,7 @@ DoctorAssistantNavigationConfig buildDoctorAssistantNavigationConfig(
       ),
     if (user.hasPermission('uploads.view'))
       const DoctorAssistantNavigationItem(
-        label: 'layout.doctor.nav.uploads',
+        label: 'الاضفات',
         path: AppRoutes.uploads,
         icon: Icons.upload_file_rounded,
       ),
@@ -144,7 +144,7 @@ DoctorAssistantNavigationConfig buildDoctorAssistantNavigationConfig(
       ),
     if (user.isAdmin)
       const DoctorAssistantNavigationItem(
-        label: 'layout.doctor.nav.admin',
+        label: 'Home',
         path: AppRoutes.admin,
         icon: Icons.admin_panel_settings_rounded,
       ),

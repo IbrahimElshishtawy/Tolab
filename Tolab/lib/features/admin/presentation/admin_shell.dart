@@ -57,77 +57,77 @@ class AdminShell extends StatelessWidget {
   static const List<NavigationDestinationItem> _destinations =
       <NavigationDestinationItem>[
         NavigationDestinationItem(
-          label: 'layout.admin.nav.dashboard',
+          label: 'dashboard',
           route: RoutePaths.dashboard,
           icon: Icons.dashboard_rounded,
         ),
         NavigationDestinationItem(
-          label: 'layout.admin.nav.students',
+          label: 'students',
           route: RoutePaths.students,
           icon: Icons.school_rounded,
         ),
         NavigationDestinationItem(
-          label: 'layout.admin.nav.staff',
+          label: 'staff',
           route: RoutePaths.staff,
           icon: Icons.groups_rounded,
         ),
         NavigationDestinationItem(
-          label: 'layout.admin.nav.departments',
+          label: 'departments',
           route: RoutePaths.departments,
           icon: Icons.apartment_rounded,
         ),
         NavigationDestinationItem(
-          label: 'layout.admin.nav.sections',
+          label: 'sections',
           route: RoutePaths.sections,
           icon: Icons.dashboard_customize_rounded,
         ),
         NavigationDestinationItem(
-          label: 'layout.admin.nav.subjects',
+          label: 'subjects',
           route: RoutePaths.subjects,
           icon: Icons.auto_stories_rounded,
         ),
         NavigationDestinationItem(
-          label: 'layout.admin.nav.offerings',
+          label: 'offerings',
           route: RoutePaths.courseOfferings,
           icon: Icons.add_chart_rounded,
         ),
         NavigationDestinationItem(
-          label: 'layout.admin.nav.enrollments',
+          label: 'enrollments',
           route: RoutePaths.enrollments,
           icon: Icons.assignment_turned_in_rounded,
         ),
         NavigationDestinationItem(
-          label: 'layout.admin.nav.content',
+          label: 'content',
           route: RoutePaths.content,
           icon: Icons.edit_note_rounded,
         ),
         NavigationDestinationItem(
-          label: 'layout.admin.nav.schedule',
+          label: 'schedule',
           route: RoutePaths.schedule,
           icon: Icons.calendar_month_rounded,
         ),
         NavigationDestinationItem(
-          label: 'layout.admin.nav.uploads',
+          label: 'uploads',
           route: RoutePaths.uploads,
           icon: Icons.cloud_upload_rounded,
         ),
         NavigationDestinationItem(
-          label: 'layout.admin.nav.notifications',
+          label: 'notifications',
           route: RoutePaths.notifications,
           icon: Icons.notifications_active_rounded,
         ),
         NavigationDestinationItem(
-          label: 'layout.admin.nav.moderation',
+          label: 'moderation',
           route: RoutePaths.moderation,
           icon: Icons.shield_rounded,
         ),
         NavigationDestinationItem(
-          label: 'layout.admin.nav.roles',
+          label: 'roles',
           route: RoutePaths.roles,
           icon: Icons.admin_panel_settings_rounded,
         ),
         NavigationDestinationItem(
-          label: 'layout.admin.nav.settings',
+          label: 'settings',
           route: RoutePaths.settings,
           icon: Icons.tune_rounded,
         ),
