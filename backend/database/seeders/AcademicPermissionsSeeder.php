@@ -18,6 +18,7 @@ class AcademicPermissionsSeeder extends Seeder
             'section_content.view', 'section_content.create', 'section_content.update', 'section_content.delete',
             'quizzes.view', 'quizzes.create', 'quizzes.update', 'quizzes.delete',
             'tasks.view', 'tasks.create', 'tasks.update', 'tasks.delete',
+            'results.view', 'students.view', 'grades.manage',
             'schedule.view', 'schedule.manage',
             'notifications.view', 'notifications.send',
             'community.view', 'community.post', 'community.comment',
@@ -42,11 +43,13 @@ class AcademicPermissionsSeeder extends Seeder
         $doctorRole->permissions()->sync(Permission::query()->whereIn('name', [
             'staff.view', 'subjects.view', 'lectures.view', 'lectures.create', 'lectures.update', 'lectures.delete',
             'quizzes.view', 'quizzes.create', 'quizzes.update', 'tasks.view', 'tasks.create', 'tasks.update',
+            'results.view', 'students.view', 'grades.manage', 'community.view', 'community.post',
             'schedule.view', 'notifications.view', 'uploads.view', 'uploads.create',
         ])->pluck('id'));
         $assistantRole->permissions()->sync(Permission::query()->whereIn('name', [
             'subjects.view', 'section_content.view', 'section_content.create', 'section_content.update',
             'quizzes.view', 'quizzes.create', 'quizzes.update', 'tasks.view', 'tasks.create', 'tasks.update',
+            'results.view', 'students.view', 'grades.manage', 'community.view', 'community.post',
             'schedule.view', 'notifications.view', 'uploads.view', 'uploads.create',
         ])->pluck('id'));
     }

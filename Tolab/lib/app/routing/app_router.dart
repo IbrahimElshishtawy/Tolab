@@ -29,13 +29,18 @@ import '../../app_admin/modules/uploads/presentation/uploads_screen.dart'
 import '../../app_doctor_assistant/core/navigation/app_routes.dart'
     as staff_routes;
 import '../../app_doctor_assistant/modules/dashboard/presentation/dashboard_screen.dart';
+import '../../app_doctor_assistant/modules/groups/presentation/add_post_page.dart';
+import '../../app_doctor_assistant/modules/groups/presentation/subject_group_page.dart';
+import '../../app_doctor_assistant/modules/lectures/presentation/add_lecture_page.dart';
 import '../../app_doctor_assistant/modules/lectures/presentation/lectures_screen.dart';
 import '../../app_doctor_assistant/modules/notifications/presentation/notifications_screen.dart';
 import '../../app_doctor_assistant/modules/quizzes/presentation/quiz_details_page.dart';
 import '../../app_doctor_assistant/modules/quizzes/presentation/quiz_preview_page.dart';
 import '../../app_doctor_assistant/modules/quizzes/presentation/quiz_results_page.dart';
 import '../../app_doctor_assistant/modules/quizzes/presentation/quizzes_screen.dart';
+import '../../app_doctor_assistant/modules/results/presentation/grade_entry_page.dart';
 import '../../app_doctor_assistant/modules/results/presentation/results_screen.dart';
+import '../../app_doctor_assistant/modules/results/presentation/subject_results_page.dart';
 import '../../app_doctor_assistant/modules/schedule/presentation/schedule_screen.dart';
 import '../../app_doctor_assistant/modules/section_content/presentation/section_content_screen.dart';
 import '../../app_doctor_assistant/modules/settings/presentation/settings_screen.dart';
@@ -235,6 +240,23 @@ class UnifiedAppRouter {
           const DoctorAssistantScope(child: LecturesScreen()),
     ),
     GoRoute(
+      path: staff_routes.AppRoutes.addLecture,
+      builder: (context, state) {
+        final subjectId =
+            int.tryParse(state.uri.queryParameters['subjectId'] ?? '');
+        return DoctorAssistantScope(
+          child: AddLecturePage(initialSubjectId: subjectId),
+        );
+      },
+    ),
+    GoRoute(
+      path: '${staff_routes.AppRoutes.lectures}/edit/:lectureId',
+      builder: (context, state) {
+        final id = int.tryParse(state.pathParameters['lectureId'] ?? '') ?? 0;
+        return DoctorAssistantScope(child: AddLecturePage(lectureId: id));
+      },
+    ),
+    GoRoute(
       path: staff_routes.AppRoutes.sectionContent,
       builder: (context, state) =>
           const DoctorAssistantScope(child: SectionContentScreen()),
@@ -276,6 +298,20 @@ class UnifiedAppRouter {
           const DoctorAssistantScope(child: ResultsScreen()),
     ),
     GoRoute(
+      path: '${staff_routes.AppRoutes.results}/:id',
+      builder: (context, state) {
+        final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+        return DoctorAssistantScope(child: SubjectResultsPage(subjectId: id));
+      },
+    ),
+    GoRoute(
+      path: '${staff_routes.AppRoutes.results}/:id/grade-entry',
+      builder: (context, state) {
+        final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+        return DoctorAssistantScope(child: GradeEntryPage(subjectId: id));
+      },
+    ),
+    GoRoute(
       path: staff_routes.AppRoutes.students,
       builder: (context, state) =>
           const DoctorAssistantScope(child: doctor_students.StudentsScreen()),
@@ -314,6 +350,20 @@ class UnifiedAppRouter {
       path: staff_routes.AppRoutes.settings,
       builder: (context, state) =>
           const DoctorAssistantScope(child: SettingsScreen()),
+    ),
+    GoRoute(
+      path: '${staff_routes.AppRoutes.subjects}/:id/group',
+      builder: (context, state) {
+        final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+        return DoctorAssistantScope(child: SubjectGroupPage(subjectId: id));
+      },
+    ),
+    GoRoute(
+      path: '${staff_routes.AppRoutes.subjects}/:id/group/new',
+      builder: (context, state) {
+        final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+        return DoctorAssistantScope(child: AddPostPage(subjectId: id));
+      },
     ),
   ];
 }

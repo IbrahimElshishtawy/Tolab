@@ -6,9 +6,19 @@ class LectureModel {
     required this.weekNumber,
     required this.instructorName,
     required this.isPublished,
+    this.subjectName,
+    this.description,
     this.videoUrl,
     this.fileUrl,
     this.publishedAt,
+    this.statusLabel = 'Draft',
+    this.deliveryMode = 'In person',
+    this.meetingUrl,
+    this.startsAt,
+    this.endsAt,
+    this.locationLabel,
+    this.attachmentLabel,
+    this.publisherName,
   });
 
   final int id;
@@ -16,10 +26,20 @@ class LectureModel {
   final String title;
   final int weekNumber;
   final String instructorName;
+  final String? subjectName;
+  final String? description;
   final String? videoUrl;
   final String? fileUrl;
   final bool isPublished;
   final String? publishedAt;
+  final String statusLabel;
+  final String deliveryMode;
+  final String? meetingUrl;
+  final String? startsAt;
+  final String? endsAt;
+  final String? locationLabel;
+  final String? attachmentLabel;
+  final String? publisherName;
 
   factory LectureModel.fromJson(Map<String, dynamic> json) {
     return LectureModel(
@@ -28,10 +48,20 @@ class LectureModel {
       title: json['title']?.toString() ?? '',
       weekNumber: (json['week_number'] as num?)?.toInt() ?? 1,
       instructorName: json['instructor_name']?.toString() ?? '',
+      subjectName: json['subject_name']?.toString(),
+      description: json['description']?.toString(),
       videoUrl: json['video_url']?.toString(),
       fileUrl: json['file_url']?.toString(),
       isPublished: json['is_published'] == true,
       publishedAt: json['published_at']?.toString(),
+      statusLabel: json['status_label']?.toString() ?? 'Draft',
+      deliveryMode: json['delivery_mode']?.toString() ?? 'In person',
+      meetingUrl: json['meeting_url']?.toString(),
+      startsAt: json['starts_at']?.toString(),
+      endsAt: json['ends_at']?.toString(),
+      locationLabel: json['location_label']?.toString(),
+      attachmentLabel: json['attachment_label']?.toString(),
+      publisherName: json['publisher_name']?.toString(),
     );
   }
 }

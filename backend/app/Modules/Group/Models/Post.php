@@ -20,8 +20,26 @@ class Post extends Model
     protected $fillable = [
         'group_id',
         'author_user_id',
+        'title',
         'content_text',
+        'post_type',
+        'priority',
+        'visibility',
+        'is_published',
+        'published_at',
+        'is_pinned',
+        'attachment_label',
+        'attachment_url',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_published' => 'boolean',
+            'is_pinned' => 'boolean',
+            'published_at' => 'datetime',
+        ];
+    }
 
     public function group(): BelongsTo
     {

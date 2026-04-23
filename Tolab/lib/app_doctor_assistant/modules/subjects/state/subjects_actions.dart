@@ -1,4 +1,5 @@
 import '../../../core/models/academic_models.dart';
+import '../models/subject_workspace_models.dart';
 
 class LoadSubjectsAction {}
 
@@ -14,14 +15,20 @@ class LoadSubjectsFailureAction {
   final String message;
 }
 
-class LoadSubjectDetailAction {
-  LoadSubjectDetailAction(this.subjectId);
+class LoadSubjectWorkspaceAction {
+  LoadSubjectWorkspaceAction(this.subjectId);
 
   final int subjectId;
 }
 
-class LoadSubjectDetailSuccessAction {
-  LoadSubjectDetailSuccessAction(this.subject);
+class LoadSubjectWorkspaceSuccessAction {
+  LoadSubjectWorkspaceSuccessAction(this.workspace);
 
-  final SubjectModel subject;
+  final SubjectWorkspaceModel workspace;
+}
+
+class LoadSubjectWorkspaceFailureAction {
+  LoadSubjectWorkspaceFailureAction(this.message);
+
+  final String message;
 }

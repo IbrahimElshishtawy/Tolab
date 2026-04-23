@@ -29,4 +29,9 @@ class LectureController extends ApiController
 
         return $this->success('Lecture deleted successfully.');
     }
+
+    public function publish(Request $request, Lecture $lecture)
+    {
+        return $this->success('Lecture published successfully.', LecturePortalResource::make($this->service->publishLecture($request->user(), $lecture)));
+    }
 }

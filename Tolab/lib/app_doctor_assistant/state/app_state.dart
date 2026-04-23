@@ -3,9 +3,11 @@ import '../modules/auth/state/auth_state.dart';
 import '../modules/auth/state/session_state.dart';
 import '../modules/bootstrap/state/bootstrap_state.dart';
 import '../modules/dashboard/state/dashboard_state.dart';
+import '../modules/groups/state/groups_state.dart';
 import '../modules/lectures/state/lectures_state.dart';
 import '../modules/notifications/state/notifications_state.dart';
 import '../modules/quizzes/state/quizzes_state.dart';
+import '../modules/results/state/results_state.dart';
 import '../modules/schedule/state/schedule_state.dart';
 import '../modules/section_content/state/section_content_state.dart';
 import '../modules/settings/state/settings_state.dart';
@@ -22,7 +24,9 @@ class DoctorAssistantAppState {
     this.dashboardState = const DashboardState(),
     this.staffState = const StaffState(),
     this.subjectsState = const SubjectsState(),
+    this.groupsState = const GroupsState(),
     this.lecturesState = const LecturesState(),
+    this.resultsState = const ResultsState(),
     this.sectionContentState = const SectionContentState(),
     this.quizzesState = const QuizzesState(),
     this.tasksState = const TasksState(),
@@ -39,7 +43,9 @@ class DoctorAssistantAppState {
   final DashboardState dashboardState;
   final StaffState staffState;
   final SubjectsState subjectsState;
+  final GroupsState groupsState;
   final LecturesState lecturesState;
+  final ResultsState resultsState;
   final SectionContentState sectionContentState;
   final QuizzesState quizzesState;
   final TasksState tasksState;
@@ -56,7 +62,9 @@ class DoctorAssistantAppState {
     DashboardState? dashboardState,
     StaffState? staffState,
     SubjectsState? subjectsState,
+    GroupsState? groupsState,
     LecturesState? lecturesState,
+    ResultsState? resultsState,
     SectionContentState? sectionContentState,
     QuizzesState? quizzesState,
     TasksState? tasksState,
@@ -73,7 +81,9 @@ class DoctorAssistantAppState {
       dashboardState: dashboardState ?? this.dashboardState,
       staffState: staffState ?? this.staffState,
       subjectsState: subjectsState ?? this.subjectsState,
+      groupsState: groupsState ?? this.groupsState,
       lecturesState: lecturesState ?? this.lecturesState,
+      resultsState: resultsState ?? this.resultsState,
       sectionContentState: sectionContentState ?? this.sectionContentState,
       quizzesState: quizzesState ?? this.quizzesState,
       tasksState: tasksState ?? this.tasksState,

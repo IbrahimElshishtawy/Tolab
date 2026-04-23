@@ -11,6 +11,9 @@ import '../core/models/notification_models.dart';
 import '../core/models/session_user.dart';
 import '../core/models/staff_models.dart';
 import '../core/navigation/app_routes.dart';
+import '../modules/groups/models/group_models.dart';
+import '../modules/results/models/results_models.dart';
+import '../modules/subjects/models/subject_workspace_models.dart';
 import '../models/doctor_assistant_models.dart';
 import 'mock_portal_models.dart';
 import 'mock_sample_payloads.dart';
@@ -34,12 +37,16 @@ class DoctorAssistantMockRepository {
   final List<MockGroupPost> _groupPosts = [];
   final List<MockMessageThread> _messageThreads = [];
   final List<DepartmentModel> _departments = [];
+  final Map<int, List<GroupPostModel>> _subjectPosts = {};
+  final Map<int, Map<String, Map<String, _StoredGrade>>> _gradesBySubject = {};
 
   int _nextUploadId = 10;
   int _nextLectureId = 3000;
   int _nextSectionId = 4000;
   int _nextQuizId = 5000;
   int _nextTaskId = 6000;
+  int _nextPostId = 7000;
+  int _nextCommentId = 8000;
 
   Future<void> simulateLatency([
     Duration duration = const Duration(milliseconds: 280),
@@ -173,36 +180,99 @@ class DoctorAssistantMockRepository {
   }
 
   List<SubjectModel> subjectModelsFor(SessionUser user) {
+    _ensureGradebookSeeded();
     return _subjects
         .map(
-          (subject) => SubjectModel(
-            id: subject.id,
-            name: subject.name,
-            code: subject.code,
-            isActive: true,
-            departmentName: subject.department,
-            academicYearName: subject.academicTerm,
-            description: subject.description,
-            sections: subject.sections
-                .map(
-                  (section) => SectionModel(
-                    id: _numericId(section.id),
-                    name: section.title,
-                    code: section.groupLabel,
-                    isActive: true,
-                    assistantName: section.assistantName,
-                  ),
-                )
-                .toList(),
-          ),
+          (subject) {
+            final result = subjectResultsById(subject.id, user);
+            final group = subjectGroupById(subject.id, user);
+            final lastLecture = subject.lectures.isEmpty ? null : subject.lectures.first;
+            final assistantName = subject.sections.isEmpty
+                ? null
+                : subject.sections.first.assistantName;
+            return SubjectModel(
+              id: subject.id,
+              name: subject.name,
+              code: subject.code,
+              isActive: true,
+              departmentName: subject.department,
+              academicYearName: subject.academicTerm,
+              description: subject.description,
+              doctorName: _ownerNameForSubject(subject.id),
+              assistantName: assistantName,
+              studentCount: subject.studentCount,
+              lecturesCount: subject.lectures.length,
+              sectionsCount: subject.sections.length,
+              quizzesCount: subject.quizzes.length,
+              tasksCount: subject.tasks.length,
+              progress: subject.progress,
+              lastActivityLabel: lastLecture == null
+                  ? 'No lecture activity yet'
+                  : '${lastLecture.dayLabel} ${lastLecture.timeLabel}',
+              statusLabel: subject.progress >= 0.75
+                  ? 'Healthy'
+                  : subject.progress >= 0.6
+                  ? 'Watch'
+                  : 'Needs review',
+              levelLabel: subject.academicTerm,
+              averageScore: result.averageScore,
+              pendingGradesCount: result.pendingReviewCount,
+              publishedResultsCount: result.publishedResultsCount,
+              groupPostsCount: group.postsCount,
+              sections: subject.sections
+                  .map(
+                    (section) => SectionModel(
+                      id: _numericId(section.id),
+                      name: section.title,
+                      code: section.groupLabel,
+                      isActive: true,
+                      assistantName: section.assistantName,
+                    ),
+                  )
+                  .toList(),
+            );
+          },
         )
         .toList(growable: false);
   }
 
-  SubjectModel subjectModelById(int subjectId) {
-    return subjectModelsFor(_accountsByEmail.values.first.user).firstWhere(
-      (subject) => subject.id == subjectId,
-      orElse: () => subjectModelsFor(_accountsByEmail.values.first.user).first,
+  SubjectWorkspaceModel subjectWorkspaceById(int subjectId, SessionUser user) {
+    final subject = subjectById(subjectId);
+    final summary = subjectModelsFor(user).firstWhere(
+      (item) => item.id == subjectId,
+      orElse: () => subjectModelsFor(user).first,
+    );
+
+    return SubjectWorkspaceModel(
+      subject: summary,
+      lectures: lecturesFor(user)
+          .where((lecture) => lecture.subjectId == subjectId)
+          .toList(growable: false),
+      sections: sectionContentFor(user)
+          .where((section) => section.subjectId == subjectId)
+          .toList(growable: false),
+      quizzes: quizzesFor(user)
+          .where((quiz) => quiz.subjectId == subjectId)
+          .toList(growable: false),
+      tasks: tasksFor(user)
+          .where((task) => task.subjectId == subjectId)
+          .toList(growable: false),
+      group: subjectGroupById(subjectId, user),
+      results: subjectResultsById(subjectId, user),
+      students: _students
+          .where((student) => student.subjectCode == subject.code)
+          .map(
+            (student) => SubjectStudentPreviewModel(
+              id: _numericId(student.id),
+              name: student.name,
+              code: student.code,
+              sectionLabel: student.sectionLabel,
+              statusLabel: student.riskLabel,
+              averageScore: student.averageScore,
+              attendanceRate: student.attendanceRate,
+            ),
+          )
+          .toList(growable: false),
     );
   }
 
@@ -216,10 +286,20 @@ class DoctorAssistantMockRepository {
               title: lecture.title,
               weekNumber: _weekNumber(lecture.weekLabel),
               instructorName: _ownerNameForSubject(subject.id),
+              subjectName: subject.name,
+              description: lecture.description,
               isPublished: lecture.statusLabel.toLowerCase() != 'draft',
               publishedAt: lecture.statusLabel.toLowerCase() == 'draft'
                   ? null
                   : DateTime(2026, 4, 22, 9, 0).toIso8601String(),
+              statusLabel: lecture.statusLabel,
+              deliveryMode: lecture.deliveryMode ?? 'In person',
+              meetingUrl: lecture.meetingUrl,
+              startsAt: lecture.startsAtIso,
+              endsAt: lecture.endsAtIso,
+              locationLabel: lecture.locationLabel ?? lecture.room,
+              attachmentLabel: lecture.attachmentLabel,
+              publisherName: lecture.publisherName ?? _ownerNameForSubject(subject.id),
             ),
           ),
         )
@@ -227,25 +307,74 @@ class DoctorAssistantMockRepository {
   }
 
   void saveLecture(Map<String, dynamic> payload, SessionUser user) {
-    final subject = _subjectForPayload(payload['subject']?.toString());
+    final existingId = (payload['lecture_id'] as num?)?.toInt();
+    final subjectId = (payload['subject_id'] as num?)?.toInt();
+    final subject = subjectId == null
+        ? _subjectForPayload(payload['subject']?.toString())
+        : _subjects.firstWhere(
+            (candidate) => candidate.id == subjectId,
+            orElse: () => _subjectForPayload(payload['subject']?.toString()),
+          );
+    final startsAt = _lectureScheduledAtFromPayload(payload);
+    final durationMinutes =
+        (payload['duration_minutes'] as num?)?.toInt() ?? 120;
+    final endsAt = startsAt.add(Duration(minutes: durationMinutes));
+    final saveAsDraft = payload['save_as_draft'] == true;
+    final publishNow = payload['publish_now'] == true;
+    final statusLabel = saveAsDraft
+        ? 'Draft'
+        : publishNow
+        ? (_workspaceNow.isAfter(endsAt) ? 'Delivered' : 'Published')
+        : 'Scheduled';
     final lectures = List<TeachingLecture>.from(subject.lectures)
-      ..insert(
-        0,
-        TeachingLecture(
-          id: 'mock-lec-${_nextLectureId++}',
-          title: payload['title']?.toString() ?? 'Untitled lecture',
-          audience: payload['scope']?.toString() ?? 'All groups',
-          dayLabel: _leadingWord(
-            payload['schedule']?.toString(),
-            fallback: 'Sunday',
-          ),
-          timeLabel: payload['schedule']?.toString() ?? '09:00 - 11:00',
-          room: _roomFromNotes(payload['notes']?.toString()),
-          statusLabel: 'Draft',
-          weekLabel: 'Week ${subject.lectures.length + 8}',
+      ..removeWhere((lecture) => _numericId(lecture.id) == existingId);
+    lectures.insert(
+      0,
+      TeachingLecture(
+        id: existingId == null ? 'mock-lec-${_nextLectureId++}' : 'mock-lec-$existingId',
+        title: payload['title']?.toString() ?? 'Untitled lecture',
+        audience: payload['audience']?.toString() ?? payload['scope']?.toString() ?? 'All groups',
+        dayLabel: _weekdayName(startsAt.weekday),
+        timeLabel: _timeRangeLabel(
+          startsAt,
+          durationMinutes,
+          fallback: payload['publish_time']?.toString() ?? '09:00 - 11:00',
         ),
-      );
+        room:
+            payload['location_label']?.toString() ??
+            _roomFromNotes(payload['notes']?.toString()),
+        statusLabel: statusLabel,
+        weekLabel: 'Week ${payload['week_number'] ?? subject.lectures.length + 8}',
+        description: payload['description']?.toString(),
+        startsAtIso: startsAt.toIso8601String(),
+        endsAtIso: endsAt.toIso8601String(),
+        deliveryMode: payload['delivery_mode']?.toString() ?? 'In person',
+        meetingUrl: payload['meeting_url']?.toString(),
+        locationLabel: payload['location_label']?.toString(),
+        attachmentLabel:
+            payload['attachment_label']?.toString() ??
+            payload['attachment_name']?.toString(),
+        publisherName: user.fullName,
+      ),
+    );
     _replaceSubject(subject, _cloneSubject(subject, lectures: lectures));
+  }
+
+  void publishLecture(int lectureId) {
+    for (var index = 0; index < _subjects.length; index++) {
+      final subject = _subjects[index];
+      final lectures = subject.lectures
+          .map(
+            (lecture) => _numericId(lecture.id) == lectureId
+                ? _copyLecture(lecture, statusLabel: 'Published')
+                : lecture,
+          )
+          .toList(growable: false);
+      if (lectures.any((lecture) => _numericId(lecture.id) == lectureId)) {
+        _subjects[index] = _cloneSubject(subject, lectures: lectures);
+        return;
+      }
+    }
   }
 
   void deleteLecture(int lectureId) {
@@ -909,6 +1038,249 @@ class DoctorAssistantMockRepository {
   List<MockStudentResult> resultsFor(SessionUser user) =>
       List<MockStudentResult>.unmodifiable(_results);
 
+  ResultsOverviewModel resultsOverviewFor(SessionUser user) {
+    final subjects = subjectModelsFor(user);
+    final summaries = subjects
+        .map((subject) => subjectResultsById(subject.id, user))
+        .map(
+          (result) => SubjectResultsSummaryModel(
+            subjectId: result.subjectId,
+            subjectName: result.subjectName,
+            subjectCode: result.subjectCode,
+            statusLabel: result.statusLabel,
+            latestActivityLabel: result.recentActivity.isEmpty
+                ? 'No grading activity yet'
+                : result.recentActivity.first.title,
+            averageScore: result.averageScore,
+            pendingReviewCount: result.pendingReviewCount,
+            publishedResultsCount: result.publishedResultsCount,
+            studentsCount: result.students.length,
+          ),
+        )
+        .toList(growable: false);
+
+    final pending = <GradingActivityItem>[];
+    final published = <GradingActivityItem>[];
+    final review = <GradingActivityItem>[];
+    for (final result in summaries) {
+      pending.add(
+        GradingActivityItem(
+          id: result.subjectId,
+          title: '${result.subjectCode} draft queue',
+          subtitle: '${result.pendingReviewCount} students still need grades review',
+          statusLabel: 'Draft',
+          createdAt: _workspaceNow.subtract(Duration(hours: result.subjectId % 6 + 1)),
+        ),
+      );
+      published.add(
+        GradingActivityItem(
+          id: result.subjectId + 1000,
+          title: '${result.subjectCode} published batches',
+          subtitle: '${result.publishedResultsCount} grade sets are visible to students',
+          statusLabel: 'Published',
+          createdAt: _workspaceNow.subtract(Duration(days: result.subjectId % 3)),
+        ),
+      );
+      review.add(
+        GradingActivityItem(
+          id: result.subjectId + 2000,
+          title: '${result.subjectCode} moderation',
+          subtitle: result.pendingReviewCount == 0
+              ? 'No pending review blocks'
+              : '${result.pendingReviewCount} rows should be checked before release',
+          statusLabel: result.pendingReviewCount == 0 ? 'Published' : 'Needs review',
+          createdAt: _workspaceNow.subtract(Duration(hours: result.subjectId % 4 + 2)),
+        ),
+      );
+    }
+
+    return ResultsOverviewModel(
+      subjects: summaries,
+      pendingGrades: pending,
+      recentlyPublished: published,
+      needsReview: review,
+      analytics: GradeAnalyticsModel(
+        averageScore: summaries.isEmpty
+            ? 0
+            : summaries.fold<double>(0, (sum, item) => sum + item.averageScore) /
+                summaries.length,
+        missingGrades: summaries.fold<int>(
+          0,
+          (sum, item) => sum + item.pendingReviewCount,
+        ),
+        attendanceCompletion: 88,
+        gradedQuizzes: 17,
+        pendingQuizzes: 5,
+        topPerformerLabel: _students.isEmpty ? '' : _students.first.name,
+        lowPerformerLabel: _students.isEmpty ? '' : _students.last.name,
+      ),
+    );
+  }
+
+  SubjectResultsModel subjectResultsById(int subjectId, SessionUser user) {
+    _ensureGradebookSeeded();
+    final subject = subjectById(subjectId);
+    final students = _students
+        .where((student) => student.subjectCode == subject.code)
+        .toList(growable: false);
+    final blueprints = _categoryBlueprintsFor(user);
+    final categoryStore = _gradesBySubject[subjectId] ?? const {};
+    final categories = blueprints
+        .map((blueprint) {
+          final entries = categoryStore[blueprint.key]?.values.toList() ?? const [];
+          final gradedCount = entries.where((entry) => entry.score != null).length;
+          final missingCount = students.length - gradedCount;
+          final averageScore = entries.isEmpty
+              ? 0.0
+              : entries
+                      .where((entry) => entry.score != null)
+                      .fold<double>(0, (sum, entry) => sum + (entry.score ?? 0)) /
+                  max(1, gradedCount);
+          final statusLabel = entries.any((entry) => entry.statusLabel == 'Needs review')
+              ? 'Needs review'
+              : entries.any((entry) => entry.statusLabel == 'Draft')
+              ? 'Draft'
+              : 'Published';
+          return GradeCategoryModel(
+            key: blueprint.key,
+            label: blueprint.label,
+            maxScore: blueprint.maxScore,
+            statusLabel: statusLabel,
+            averageScore: averageScore,
+            gradedCount: gradedCount,
+            missingCount: missingCount,
+            isEditable: _allowedCategoryKeys(user).contains(blueprint.key),
+          );
+        })
+        .toList(growable: false);
+
+    final rows = students.map((student) {
+      final entries = <String, GradeEntryValueModel>{};
+      for (final blueprint in blueprints) {
+        final stored = categoryStore[blueprint.key]?[student.code];
+        entries[blueprint.key] = GradeEntryValueModel(
+          score: stored?.score,
+          maxScore: stored?.maxScore ?? blueprint.maxScore,
+          statusLabel: stored?.statusLabel ?? 'Draft',
+          note: stored?.note,
+        );
+      }
+
+      final statusLabel = entries.values.any((entry) => entry.statusLabel == 'Needs review')
+          ? 'Needs review'
+          : entries.values.any((entry) => entry.statusLabel == 'Draft')
+          ? 'Draft'
+          : 'Published';
+
+      return GradeStudentRowModel(
+        studentId: _numericId(student.id),
+        studentName: student.name,
+        studentCode: student.code,
+        statusLabel: statusLabel,
+        notes: student.riskLabel,
+        entries: entries,
+      );
+    }).toList(growable: false);
+
+    final recentActivity = blueprints
+        .take(4)
+        .map(
+          (blueprint) => GradingActivityItem(
+            id: subjectId + blueprint.key.hashCode.abs(),
+            title: '${blueprint.label} updated',
+            subtitle: '${subject.code} · ${_allowedCategoryKeys(user).contains(blueprint.key) ? 'Editable' : 'View only'}',
+            statusLabel: categories
+                .firstWhere((category) => category.key == blueprint.key)
+                .statusLabel,
+            createdAt: _workspaceNow.subtract(Duration(hours: blueprint.key.length + 1)),
+          ),
+        )
+        .toList(growable: false);
+
+    final averageScore = rows.isEmpty
+        ? 0.0
+        : rows
+                .map(
+                  (row) => row.entries.values.fold<double>(
+                    0,
+                    (sum, entry) => sum + (entry.score ?? 0),
+                  ),
+                )
+                .fold<double>(0, (sum, value) => sum + value) /
+            rows.length;
+    final pendingReviewCount = rows
+        .where((row) => row.statusLabel != 'Published')
+        .length;
+    final publishedResultsCount = categories
+        .where((category) => category.statusLabel == 'Published')
+        .length;
+
+    return SubjectResultsModel(
+      subjectId: subjectId,
+      subjectName: subject.name,
+      subjectCode: subject.code,
+      statusLabel: pendingReviewCount == 0 ? 'Published' : 'Needs review',
+      categories: categories,
+      students: rows,
+      recentActivity: recentActivity,
+      analytics: GradeAnalyticsModel(
+        averageScore: averageScore,
+        missingGrades: categories.fold<int>(
+          0,
+          (sum, category) => sum + category.missingCount,
+        ),
+        attendanceCompletion: 91,
+        gradedQuizzes: categories
+            .where((category) => category.key == 'quiz' && category.gradedCount > 0)
+            .length,
+        pendingQuizzes: categories
+            .where((category) => category.key == 'quiz' && category.missingCount > 0)
+            .length,
+        topPerformerLabel: rows.isEmpty ? '' : rows.first.studentName,
+        lowPerformerLabel: rows.isEmpty ? '' : rows.last.studentName,
+      ),
+      allowedCategoryKeys: _allowedCategoryKeys(user),
+      averageScore: averageScore,
+      pendingReviewCount: pendingReviewCount,
+      publishedResultsCount: publishedResultsCount,
+    );
+  }
+
+  void saveGrades(
+    int subjectId,
+    Map<String, dynamic> payload,
+    SessionUser user, {
+    required bool publish,
+  }) {
+    _ensureGradebookSeeded();
+    final categoryKey = payload['category_key']?.toString() ?? '';
+    if (!_allowedCategoryKeys(user).contains(categoryKey)) {
+      throw Exception('You do not have permission to update $categoryKey grades.');
+    }
+
+    final maxScore = (payload['max_score'] as num?)?.toDouble() ??
+        _categoryBlueprintsFor(user)
+            .firstWhere((item) => item.key == categoryKey)
+            .maxScore;
+    final subjectGrades = _gradesBySubject.putIfAbsent(subjectId, () => {});
+    final categoryGrades = subjectGrades.putIfAbsent(categoryKey, () => {});
+    for (final rawEntry in (payload['entries'] as List? ?? const [])) {
+      if (rawEntry is! Map) {
+        continue;
+      }
+      final studentCode = rawEntry['student_code']?.toString() ?? '';
+      if (studentCode.isEmpty) {
+        continue;
+      }
+      categoryGrades[studentCode] = _StoredGrade(
+        score: (rawEntry['score'] as num?)?.toDouble(),
+        maxScore: maxScore,
+        note: rawEntry['note']?.toString(),
+        statusLabel: publish ? 'Published' : 'Draft',
+      );
+    }
+  }
+
   List<MockAnnouncementItem> announcementsFor(SessionUser user) =>
       List<MockAnnouncementItem>.unmodifiable(_announcements);
 
@@ -917,6 +1289,132 @@ class DoctorAssistantMockRepository {
 
   List<MockGroupPost> groupPostsFor(SessionUser user) =>
       List<MockGroupPost>.unmodifiable(_groupPosts);
+
+  SubjectGroupModel subjectGroupById(int subjectId, SessionUser user) {
+    _ensureSubjectGroupsSeeded();
+    final subject = subjectById(subjectId);
+    final posts = List<GroupPostModel>.from(_subjectPosts[subjectId] ?? const []);
+    final latestComments = posts
+        .expand((post) => post.comments)
+        .toList()
+      ..sort((left, right) => right.createdAt.compareTo(left.createdAt));
+    final activity = <GroupActivityItem>[
+      for (final post in posts.take(5))
+        GroupActivityItem(
+          id: post.id,
+          title: post.title,
+          subtitle: '${post.authorName} · ${post.commentsCount} comments',
+          type: post.type,
+          createdAt: post.createdAt,
+        ),
+      for (final comment in latestComments.take(3))
+        GroupActivityItem(
+          id: comment.id,
+          title: 'New comment from ${comment.authorName}',
+          subtitle: comment.message,
+          type: 'comment',
+          createdAt: comment.createdAt,
+        ),
+    ]..sort((left, right) => right.createdAt.compareTo(left.createdAt));
+
+    return SubjectGroupModel(
+      subjectId: subjectId,
+      subjectName: subject.name,
+      subjectCode: subject.code,
+      groupName: '${subject.code} Course Group',
+      summary:
+          'Announcements, course posts, and comment threads stay aligned to the teaching team for ${subject.name}.',
+      posts: posts,
+      latestComments: latestComments.take(6).toList(growable: false),
+      activity: activity.take(8).toList(growable: false),
+      postsCount: posts.length,
+      commentsCount: latestComments.length,
+      engagementCount: posts.fold<int>(
+        0,
+        (sum, post) => sum + post.commentsCount + post.reactionsCount,
+      ),
+    );
+  }
+
+  void saveGroupPost(int subjectId, Map<String, dynamic> payload, SessionUser user) {
+    _ensureSubjectGroupsSeeded();
+    final posts = _subjectPosts.putIfAbsent(subjectId, () => <GroupPostModel>[]);
+    final postId = (payload['post_id'] as num?)?.toInt();
+    final existingIndex = posts.indexWhere((post) => post.id == postId);
+    final now = _workspaceNow.subtract(Duration(minutes: posts.length + 1));
+    final current = existingIndex == -1 ? null : posts[existingIndex];
+    final nextPost = GroupPostModel(
+      id: postId ?? _nextPostId++,
+      subjectId: subjectId,
+      title: payload['title']?.toString() ?? 'Untitled post',
+      content: payload['content']?.toString() ?? '',
+      authorName: user.fullName,
+      authorRole: user.isDoctor ? 'Doctor' : 'Assistant',
+      createdAt: current?.createdAt ?? now,
+      updatedAt: now,
+      type: payload['post_type']?.toString() ?? 'post',
+      priority: payload['priority']?.toString() ?? 'normal',
+      isPinned: payload['is_pinned'] == true || current?.isPinned == true,
+      attachmentLabel: payload['attachment_label']?.toString(),
+      attachmentUrl: payload['attachment_url']?.toString(),
+      commentsCount: current?.commentsCount ?? 0,
+      reactionsCount: current?.reactionsCount ?? 0,
+      comments: current?.comments ?? const <GroupCommentModel>[],
+    );
+    if (existingIndex == -1) {
+      posts.insert(0, nextPost);
+    } else {
+      posts[existingIndex] = nextPost;
+    }
+  }
+
+  void deleteGroupPost(int postId) {
+    for (final subjectId in _subjectPosts.keys) {
+      _subjectPosts[subjectId] = (_subjectPosts[subjectId] ?? const [])
+          .where((post) => post.id != postId)
+          .toList(growable: false);
+    }
+  }
+
+  void togglePinnedPost(int postId) {
+    for (final entry in _subjectPosts.entries) {
+      final posts = entry.value;
+      final hasPost = posts.any((post) => post.id == postId);
+      if (!hasPost) {
+        continue;
+      }
+      final nextPosts = posts
+          .map(
+            (post) => GroupPostModel(
+              id: post.id,
+              subjectId: post.subjectId,
+              title: post.title,
+              content: post.content,
+              authorName: post.authorName,
+              authorRole: post.authorRole,
+              createdAt: post.createdAt,
+              updatedAt: post.updatedAt,
+              type: post.type,
+              priority: post.priority,
+              isPinned: post.id == postId ? !post.isPinned : false,
+              comments: post.comments,
+              commentsCount: post.commentsCount,
+              reactionsCount: post.reactionsCount,
+              attachmentLabel: post.attachmentLabel,
+              attachmentUrl: post.attachmentUrl,
+            ),
+          )
+          .toList(growable: false)
+        ..sort((left, right) {
+          if (left.isPinned == right.isPinned) {
+            return right.createdAt.compareTo(left.createdAt);
+          }
+          return left.isPinned ? -1 : 1;
+        });
+      _subjectPosts[entry.key] = nextPosts;
+      return;
+    }
+  }
 
   List<MockMessageThread> messageThreadsFor(SessionUser user) =>
       List<MockMessageThread>.unmodifiable(_messageThreads);
@@ -1460,6 +1958,45 @@ class DoctorAssistantMockRepository {
     );
   }
 
+  TeachingLecture _copyLecture(
+    TeachingLecture source, {
+    String? id,
+    String? title,
+    String? audience,
+    String? dayLabel,
+    String? timeLabel,
+    String? room,
+    String? statusLabel,
+    String? weekLabel,
+    String? description,
+    String? startsAtIso,
+    String? endsAtIso,
+    String? deliveryMode,
+    String? meetingUrl,
+    String? locationLabel,
+    String? attachmentLabel,
+    String? publisherName,
+  }) {
+    return TeachingLecture(
+      id: id ?? source.id,
+      title: title ?? source.title,
+      audience: audience ?? source.audience,
+      dayLabel: dayLabel ?? source.dayLabel,
+      timeLabel: timeLabel ?? source.timeLabel,
+      room: room ?? source.room,
+      statusLabel: statusLabel ?? source.statusLabel,
+      weekLabel: weekLabel ?? source.weekLabel,
+      description: description ?? source.description,
+      startsAtIso: startsAtIso ?? source.startsAtIso,
+      endsAtIso: endsAtIso ?? source.endsAtIso,
+      deliveryMode: deliveryMode ?? source.deliveryMode,
+      meetingUrl: meetingUrl ?? source.meetingUrl,
+      locationLabel: locationLabel ?? source.locationLabel,
+      attachmentLabel: attachmentLabel ?? source.attachmentLabel,
+      publisherName: publisherName ?? source.publisherName,
+    );
+  }
+
   TeachingSection _copySection(
     TeachingSection source, {
     String? id,
@@ -1578,6 +2115,170 @@ class DoctorAssistantMockRepository {
   }
 
   DateTime get _workspaceNow => DateTime(2026, 4, 23, 12);
+
+  void _ensureSubjectGroupsSeeded() {
+    if (_subjectPosts.isNotEmpty) {
+      return;
+    }
+
+    for (final subject in _subjects) {
+      final sourcePosts = _groupPosts
+          .where((post) => post.subjectCode == subject.code)
+          .toList(growable: false);
+      _subjectPosts[subject.id] = sourcePosts
+          .map((post) {
+            final comments = List.generate(
+              min(post.commentsCount, 3),
+              (index) => GroupCommentModel(
+                id: _nextCommentId++,
+                postId: _numericId(post.id),
+                authorName: index.isEven ? 'Teaching Assistant' : 'Student Representative',
+                authorRole: index.isEven ? 'Assistant' : 'Student',
+                message: index.isEven
+                    ? 'Shared with the tutorial groups and synced to attendance notes.'
+                    : 'Can the rubric be posted before the next session?',
+                createdAt: post.createdAt.add(Duration(minutes: 18 * (index + 1))),
+              ),
+            );
+
+            final title = post.body.length > 38
+                ? post.body.substring(0, 38)
+                : post.body;
+            return GroupPostModel(
+              id: _numericId(post.id),
+              subjectId: subject.id,
+              title: title.trim().isEmpty ? '${subject.code} update' : title,
+              content: post.body,
+              authorName: post.authorName,
+              authorRole: post.authorName.toLowerCase().contains('dr.')
+                  ? 'Doctor'
+                  : 'Assistant',
+              createdAt: post.createdAt,
+              updatedAt: post.createdAt,
+              type: 'announcement',
+              priority: post.commentsCount > 4 ? 'high' : 'normal',
+              isPinned: post.commentsCount > 5,
+              comments: comments,
+              commentsCount: comments.length,
+              reactionsCount: post.reactionsCount,
+              attachmentLabel: comments.length > 1 ? 'Attached brief.pdf' : null,
+            );
+          })
+          .toList(growable: false)
+        ..sort((left, right) {
+          if (left.isPinned == right.isPinned) {
+            return right.createdAt.compareTo(left.createdAt);
+          }
+          return left.isPinned ? -1 : 1;
+        });
+    }
+  }
+
+  void _ensureGradebookSeeded() {
+    if (_gradesBySubject.isNotEmpty) {
+      return;
+    }
+
+    for (final subject in _subjects) {
+      final students = _students
+          .where((student) => student.subjectCode == subject.code)
+          .toList(growable: false);
+      final subjectGrades = <String, Map<String, _StoredGrade>>{};
+      for (final blueprint in _categoryBlueprintsFor(const SessionUser(
+        id: 0,
+        fullName: '',
+        universityEmail: '',
+        roleType: 'doctor',
+        isActive: true,
+        permissions: <String>[],
+        notificationEnabled: true,
+      ))) {
+        final entries = <String, _StoredGrade>{};
+        for (var index = 0; index < students.length; index++) {
+          final student = students[index];
+          final score = (blueprint.maxScore * (0.52 + ((index % 5) * 0.08)))
+              .clamp(0, blueprint.maxScore)
+              .toDouble();
+          final statusLabel = index % 4 == 0
+              ? 'Draft'
+              : index % 7 == 0
+              ? 'Needs review'
+              : 'Published';
+          entries[student.code] = _StoredGrade(
+            score: double.parse(score.toStringAsFixed(1)),
+            maxScore: blueprint.maxScore,
+            note: index % 6 == 0 ? 'Check section attendance mismatch' : null,
+            statusLabel: statusLabel,
+          );
+        }
+        subjectGrades[blueprint.key] = entries;
+      }
+      _gradesBySubject[subject.id] = subjectGrades;
+    }
+  }
+
+  List<_GradeCategoryBlueprint> _categoryBlueprintsFor(SessionUser user) {
+    final items = <_GradeCategoryBlueprint>[
+      const _GradeCategoryBlueprint('midterm', 'Midterm', 20),
+      const _GradeCategoryBlueprint('quiz', 'Quiz', 10),
+      const _GradeCategoryBlueprint('oral', 'Oral', 10),
+      const _GradeCategoryBlueprint('sheets', 'Sheets / Assignments', 15),
+      const _GradeCategoryBlueprint('attendance', 'Attendance', 5),
+      const _GradeCategoryBlueprint('coursework', 'Coursework / Year work', 20),
+      const _GradeCategoryBlueprint('final', 'Final', 40),
+    ];
+    return items;
+  }
+
+  List<String> _allowedCategoryKeys(SessionUser user) {
+    if (user.isAdmin) {
+      return const <String>[
+        'midterm',
+        'final',
+        'quiz',
+        'oral',
+        'sheets',
+        'attendance',
+        'coursework',
+      ];
+    }
+    if (user.isDoctor) {
+      return const <String>['midterm'];
+    }
+    return const <String>[
+      'quiz',
+      'oral',
+      'sheets',
+      'attendance',
+      'coursework',
+    ];
+  }
+
+  DateTime _lectureScheduledAtFromPayload(Map<String, dynamic> payload) {
+    final rawDate =
+        payload['publish_date']?.toString() ??
+        payload['date']?.toString() ??
+        payload['publish_at']?.toString();
+    final parsedDate = DateTime.tryParse(rawDate ?? '');
+    if (parsedDate == null) {
+      return _workspaceNow.add(const Duration(days: 1));
+    }
+    final rawTime =
+        payload['publish_time']?.toString() ??
+        payload['time_label']?.toString() ??
+        '09:00';
+    final time = _timeOfDayFromPayload(rawTime);
+    if (time == null) {
+      return parsedDate;
+    }
+    return DateTime(
+      parsedDate.year,
+      parsedDate.month,
+      parsedDate.day,
+      time.hour,
+      time.minute,
+    );
+  }
 
   int _expectedStudentsForSectionSubject(TeachingSubject subject) {
     final sectionsCount = subject.sections.isEmpty
@@ -1877,6 +2578,14 @@ class DoctorAssistantMockRepository {
               room: item['room']?.toString() ?? '',
               statusLabel: item['status_label']?.toString() ?? '',
               weekLabel: item['week_label']?.toString() ?? '',
+              description: item['description']?.toString(),
+              startsAtIso: item['starts_at']?.toString(),
+              endsAtIso: item['ends_at']?.toString(),
+              deliveryMode: item['delivery_mode']?.toString(),
+              meetingUrl: item['meeting_url']?.toString(),
+              locationLabel: item['location_label']?.toString(),
+              attachmentLabel: item['attachment_label']?.toString(),
+              publisherName: item['publisher_name']?.toString(),
             ),
           )
           .toList(growable: false),
@@ -2081,14 +2790,6 @@ class DoctorAssistantMockRepository {
     return int.tryParse(digits) ?? 1;
   }
 
-  String _leadingWord(String? raw, {required String fallback}) {
-    final value = raw?.trim();
-    if (value == null || value.isEmpty) {
-      return fallback;
-    }
-    return value.split(' ').first;
-  }
-
   DateTime _dateTime(Object? raw) {
     return DateTime.tryParse(raw?.toString() ?? '') ?? DateTime(2026, 4, 22);
   }
@@ -2157,4 +2858,26 @@ class _MockTimeOfDay {
 
   final int hour;
   final int minute;
+}
+
+class _GradeCategoryBlueprint {
+  const _GradeCategoryBlueprint(this.key, this.label, this.maxScore);
+
+  final String key;
+  final String label;
+  final double maxScore;
+}
+
+class _StoredGrade {
+  const _StoredGrade({
+    required this.score,
+    required this.maxScore,
+    required this.statusLabel,
+    this.note,
+  });
+
+  final double? score;
+  final double maxScore;
+  final String statusLabel;
+  final String? note;
 }

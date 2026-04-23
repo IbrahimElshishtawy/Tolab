@@ -33,9 +33,29 @@ class DoctorHomeContainer extends StatelessWidget {
       converter: (Store<DoctorAssistantAppState> store) =>
           _DoctorHomeVm.fromStore(store),
       builder: (context, vm) {
-        final user = vm.user;
+        final user =
+            vm.user ?? AppScope.auth(context).currentUser?.toSessionUser();
         if (user == null) {
-          return const SizedBox.shrink();
+          return Scaffold(
+            body: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 540),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: DoctorHomeError(
+                    title: 'Session unavailable',
+                    message:
+                        'Your account was restored, but the workspace session is not ready yet. Please return to login and try again.',
+                    primaryActionLabel: 'Go to Login',
+                    icon: Icons.login_rounded,
+                    primaryActionIcon: Icons.arrow_forward_rounded,
+                    onPrimaryAction: () =>
+                        context.go(unified_routes.UnifiedAppRoutes.login),
+                  ),
+                ),
+              ),
+            ),
+          );
         }
 
         if (vm.dashboard.isLoading && !vm.dashboard.hasData) {

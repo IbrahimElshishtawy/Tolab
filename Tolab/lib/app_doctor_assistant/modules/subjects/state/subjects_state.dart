@@ -1,22 +1,23 @@
-import '../../../core/models/academic_models.dart';
 import '../../../core/state/async_state.dart';
+import '../../../core/models/academic_models.dart';
+import '../models/subject_workspace_models.dart';
 
 class SubjectsState {
   const SubjectsState({
     this.list = const AsyncState<List<SubjectModel>>(),
-    this.detail = const AsyncState<SubjectModel>(),
+    this.workspace = const AsyncState<SubjectWorkspaceModel>(),
   });
 
   final AsyncState<List<SubjectModel>> list;
-  final AsyncState<SubjectModel> detail;
+  final AsyncState<SubjectWorkspaceModel> workspace;
 
   SubjectsState copyWith({
     AsyncState<List<SubjectModel>>? list,
-    AsyncState<SubjectModel>? detail,
+    AsyncState<SubjectWorkspaceModel>? workspace,
   }) {
     return SubjectsState(
       list: list ?? this.list,
-      detail: detail ?? this.detail,
+      workspace: workspace ?? this.workspace,
     );
   }
 }

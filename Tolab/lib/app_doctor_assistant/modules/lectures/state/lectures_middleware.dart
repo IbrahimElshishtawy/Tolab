@@ -39,5 +39,14 @@ List<Middleware<DoctorAssistantAppState>> createLecturesMiddleware(
       await repository.deleteLecture((action).lectureId);
       store.dispatch(LoadLecturesAction());
     }).call,
+    TypedMiddleware<DoctorAssistantAppState, PublishLectureAction>((
+      store,
+      action,
+      next,
+    ) async {
+      next(action);
+      await repository.publishLecture((action).lectureId);
+      store.dispatch(LoadLecturesAction());
+    }).call,
   ];
 }

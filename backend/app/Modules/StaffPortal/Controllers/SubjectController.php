@@ -21,4 +21,9 @@ class SubjectController extends ApiController
     {
         return $this->success('Subject retrieved successfully.', SubjectPortalResource::make($this->service->subject($request->user(), $subject)));
     }
+
+    public function workspace(Request $request, Subject $subject)
+    {
+        return $this->success('Subject workspace retrieved successfully.', $this->service->subjectWorkspace($request->user(), $subject));
+    }
 }

@@ -9,6 +9,7 @@ LecturesState lecturesReducer(LecturesState state, dynamic action) {
     case LoadLecturesAction:
     case SaveLectureAction:
     case DeleteLectureAction:
+    case PublishLectureAction:
       return LecturesState(status: ViewStatus.loading, data: state.data);
     case LoadLecturesSuccessAction:
       return LecturesState(

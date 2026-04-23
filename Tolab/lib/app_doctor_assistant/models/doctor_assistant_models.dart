@@ -56,6 +56,14 @@ class TeachingLecture {
     required this.room,
     required this.statusLabel,
     required this.weekLabel,
+    this.description,
+    this.startsAtIso,
+    this.endsAtIso,
+    this.deliveryMode,
+    this.meetingUrl,
+    this.locationLabel,
+    this.attachmentLabel,
+    this.publisherName,
   });
 
   final String id;
@@ -66,6 +74,14 @@ class TeachingLecture {
   final String room;
   final String statusLabel;
   final String weekLabel;
+  final String? description;
+  final String? startsAtIso;
+  final String? endsAtIso;
+  final String? deliveryMode;
+  final String? meetingUrl;
+  final String? locationLabel;
+  final String? attachmentLabel;
+  final String? publisherName;
 }
 
 class TeachingSection {

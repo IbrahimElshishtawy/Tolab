@@ -25,3 +25,9 @@ class DeleteLectureAction {
 
   final int lectureId;
 }
+
+class PublishLectureAction {
+  PublishLectureAction(this.lectureId);
+
+  final int lectureId;
+}

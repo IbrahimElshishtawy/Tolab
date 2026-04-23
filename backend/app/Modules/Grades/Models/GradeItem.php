@@ -20,6 +20,9 @@ class GradeItem extends Model
         'type',
         'score',
         'max_score',
+        'status',
+        'published_at',
+        'entered_by_role',
         'note',
         'updated_by',
     ];
@@ -30,6 +33,7 @@ class GradeItem extends Model
             'type' => GradeType::class,
             'score' => 'decimal:2',
             'max_score' => 'decimal:2',
+            'published_at' => 'datetime',
         ];
     }
 

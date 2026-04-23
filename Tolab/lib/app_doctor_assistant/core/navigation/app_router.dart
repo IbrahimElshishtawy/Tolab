@@ -8,10 +8,15 @@ import '../../modules/admin/presentation/admin_screen.dart';
 import '../../modules/auth/presentation/forgot_password_screen.dart';
 import '../../modules/auth/presentation/login_screen.dart';
 import '../../modules/dashboard/presentation/dashboard_screen.dart';
+import '../../modules/groups/presentation/add_post_page.dart';
+import '../../modules/groups/presentation/subject_group_page.dart';
+import '../../modules/lectures/presentation/add_lecture_page.dart';
 import '../../modules/lectures/presentation/lectures_screen.dart';
 import '../../modules/notifications/presentation/notifications_screen.dart';
 import '../../modules/quizzes/presentation/quizzes_screen.dart';
+import '../../modules/results/presentation/grade_entry_page.dart';
 import '../../modules/results/presentation/results_screen.dart';
+import '../../modules/results/presentation/subject_results_page.dart';
 import '../../modules/schedule/presentation/schedule_screen.dart';
 import '../../modules/section_content/presentation/section_content_screen.dart';
 import '../../modules/settings/presentation/settings_screen.dart';
@@ -75,6 +80,24 @@ GoRouter createAppRouter(Store<DoctorAssistantAppState> store) {
       GoRoute(
         path: AppRoutes.lectures,
         builder: (context, state) => const LecturesScreen(),
+        routes: [
+          GoRoute(
+            path: 'new',
+            builder: (context, state) {
+              final subjectId =
+                  int.tryParse(state.uri.queryParameters['subjectId'] ?? '');
+              return AddLecturePage(initialSubjectId: subjectId);
+            },
+          ),
+          GoRoute(
+            path: 'edit/:lectureId',
+            builder: (context, state) {
+              final id =
+                  int.tryParse(state.pathParameters['lectureId'] ?? '') ?? 0;
+              return AddLecturePage(lectureId: id);
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.sectionContent,
@@ -91,6 +114,25 @@ GoRouter createAppRouter(Store<DoctorAssistantAppState> store) {
       GoRoute(
         path: AppRoutes.results,
         builder: (context, state) => const ResultsScreen(),
+        routes: [
+          GoRoute(
+            path: ':id',
+            builder: (context, state) {
+              final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+              return SubjectResultsPage(subjectId: id);
+            },
+            routes: [
+              GoRoute(
+                path: 'grade-entry',
+                builder: (context, state) {
+                  final id =
+                      int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+                  return GradeEntryPage(subjectId: id);
+                },
+              ),
+            ],
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.students,
@@ -127,6 +169,20 @@ GoRouter createAppRouter(Store<DoctorAssistantAppState> store) {
       GoRoute(
         path: AppRoutes.settings,
         builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: '${AppRoutes.subjects}/:id/group',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+          return SubjectGroupPage(subjectId: id);
+        },
+      ),
+      GoRoute(
+        path: '${AppRoutes.subjects}/:id/group/new',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+          return AddPostPage(subjectId: id);
+        },
       ),
     ],
   );

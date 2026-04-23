@@ -1,5 +1,6 @@
 import '../../../core/models/academic_models.dart';
 import '../../../core/state/async_state.dart';
+import '../models/subject_workspace_models.dart';
 import 'subjects_actions.dart';
 import 'subjects_state.dart';
 
@@ -23,15 +24,24 @@ SubjectsState subjectsReducer(SubjectsState state, dynamic action) {
           error: action.message,
         ),
       );
-    case LoadSubjectDetailAction _:
+    case LoadSubjectWorkspaceAction _:
       return state.copyWith(
-        detail: const AsyncState<SubjectModel>(status: ViewStatus.loading),
+        workspace: const AsyncState<SubjectWorkspaceModel>(
+          status: ViewStatus.loading,
+        ),
       );
-    case LoadSubjectDetailSuccessAction action:
+    case LoadSubjectWorkspaceSuccessAction action:
       return state.copyWith(
-        detail: AsyncState<SubjectModel>(
+        workspace: AsyncState<SubjectWorkspaceModel>(
           status: ViewStatus.success,
-          data: action.subject,
+          data: action.workspace,
+        ),
+      );
+    case LoadSubjectWorkspaceFailureAction action:
+      return state.copyWith(
+        workspace: AsyncState<SubjectWorkspaceModel>(
+          status: ViewStatus.failure,
+          error: action.message,
         ),
       );
     default:

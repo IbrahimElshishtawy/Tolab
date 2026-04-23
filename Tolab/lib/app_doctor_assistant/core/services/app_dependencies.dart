@@ -7,9 +7,11 @@ import '../../modules/admin/repositories/admin_repository.dart';
 import '../../modules/auth/repositories/auth_repository.dart';
 import '../../modules/auth/services/auth_service.dart';
 import '../../modules/dashboard/repositories/dashboard_repository.dart';
+import '../../modules/groups/repositories/groups_repository.dart';
 import '../../modules/lectures/repositories/lectures_repository.dart';
 import '../../modules/notifications/repositories/notifications_repository.dart';
 import '../../modules/quizzes/repositories/quizzes_repository.dart';
+import '../../modules/results/repositories/results_repository.dart';
 import '../../modules/schedule/repositories/schedule_repository.dart';
 import '../../modules/section_content/repositories/section_content_repository.dart';
 import '../../modules/settings/repositories/settings_repository.dart';
@@ -27,7 +29,9 @@ class AppDependencies {
     required this.authRepository,
     required this.dashboardRepository,
     required this.subjectsRepository,
+    required this.groupsRepository,
     required this.lecturesRepository,
+    required this.resultsRepository,
     required this.sectionContentRepository,
     required this.quizzesRepository,
     required this.tasksRepository,
@@ -45,7 +49,9 @@ class AppDependencies {
   final AuthRepository authRepository;
   final DashboardRepository dashboardRepository;
   final SubjectsRepository subjectsRepository;
+  final GroupsRepository groupsRepository;
   final LecturesRepository lecturesRepository;
+  final ResultsRepository resultsRepository;
   final SectionContentRepository sectionContentRepository;
   final QuizzesRepository quizzesRepository;
   final TasksRepository tasksRepository;
@@ -77,9 +83,15 @@ class AppDependencies {
       subjectsRepository: useMockBackend
           ? MockSubjectsRepository(tokenStorage, mockRepository)
           : ApiSubjectsRepository(apiClient),
+      groupsRepository: useMockBackend
+          ? MockGroupsRepository(tokenStorage, mockRepository)
+          : ApiGroupsRepository(apiClient),
       lecturesRepository: useMockBackend
           ? MockLecturesRepository(tokenStorage, mockRepository)
           : ApiLecturesRepository(apiClient),
+      resultsRepository: useMockBackend
+          ? MockResultsRepository(tokenStorage, mockRepository)
+          : ApiResultsRepository(apiClient),
       sectionContentRepository: useMockBackend
           ? MockSectionContentRepository(tokenStorage, mockRepository)
           : ApiSectionContentRepository(apiClient),

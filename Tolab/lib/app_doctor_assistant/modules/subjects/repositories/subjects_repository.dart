@@ -2,11 +2,12 @@ import '../../../core/models/academic_models.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/storage/token_storage.dart';
 import '../../../mock/doctor_assistant_mock_repository.dart';
+import '../models/subject_workspace_models.dart';
 
 abstract class SubjectsRepository {
   Future<List<SubjectModel>> fetchSubjects();
 
-  Future<SubjectModel> fetchSubjectDetail(int subjectId);
+  Future<SubjectWorkspaceModel> fetchSubjectWorkspace(int subjectId);
 }
 
 class ApiSubjectsRepository implements SubjectsRepository {
@@ -28,13 +29,13 @@ class ApiSubjectsRepository implements SubjectsRepository {
   }
 
   @override
-  Future<SubjectModel> fetchSubjectDetail(int subjectId) async {
+  Future<SubjectWorkspaceModel> fetchSubjectWorkspace(int subjectId) async {
     final response = await _apiClient.get<Map<String, dynamic>>(
-      '/staff-portal/subjects/$subjectId',
+      '/staff-portal/subjects/$subjectId/workspace',
       parser: (value) => Map<String, dynamic>.from(value as Map),
     );
 
-    return SubjectModel.fromJson(response.data ?? const {});
+    return SubjectWorkspaceModel.fromJson(response.data ?? const {});
   }
 }
 
@@ -55,8 +56,11 @@ class MockSubjectsRepository implements SubjectsRepository {
   }
 
   @override
-  Future<SubjectModel> fetchSubjectDetail(int subjectId) async {
+  Future<SubjectWorkspaceModel> fetchSubjectWorkspace(int subjectId) async {
     await _mockRepository.simulateLatency(const Duration(milliseconds: 180));
-    return _mockRepository.subjectModelById(subjectId);
+    final user =
+        _mockRepository.restoreUserFromSession(await _tokenStorage.read()) ??
+        _mockRepository.userByEmail('doctor@tolab.edu');
+    return _mockRepository.subjectWorkspaceById(subjectId, user);
   }
 }

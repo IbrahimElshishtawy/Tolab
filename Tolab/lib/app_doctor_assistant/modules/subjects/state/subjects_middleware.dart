@@ -23,17 +23,21 @@ List<Middleware<DoctorAssistantAppState>> createSubjectsMiddleware(
         store.dispatch(LoadSubjectsFailureAction(error.toString()));
       }
     }).call,
-    TypedMiddleware<DoctorAssistantAppState, LoadSubjectDetailAction>((
+    TypedMiddleware<DoctorAssistantAppState, LoadSubjectWorkspaceAction>((
       store,
       action,
       next,
     ) async {
       next(action);
-      final detailAction = action as LoadSubjectDetailAction;
-      final subject = await repository.fetchSubjectDetail(
-        detailAction.subjectId,
-      );
-      store.dispatch(LoadSubjectDetailSuccessAction(subject));
+      final detailAction = action as LoadSubjectWorkspaceAction;
+      try {
+        final workspace = await repository.fetchSubjectWorkspace(
+          detailAction.subjectId,
+        );
+        store.dispatch(LoadSubjectWorkspaceSuccessAction(workspace));
+      } catch (error) {
+        store.dispatch(LoadSubjectWorkspaceFailureAction(error.toString()));
+      }
     }).call,
   ];
 }

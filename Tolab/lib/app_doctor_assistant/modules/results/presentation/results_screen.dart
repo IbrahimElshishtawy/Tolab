@@ -1,140 +1,151 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:go_router/go_router.dart';
+import 'package:redux/redux.dart';
 
 import '../../../../app_admin/core/spacing/app_spacing.dart';
+import '../../../../app_admin/core/widgets/app_card.dart';
+import '../../../../app_admin/shared/widgets/premium_button.dart';
 import '../../../../app_admin/shared/widgets/status_badge.dart';
-import '../../../core/models/session_user.dart';
 import '../../../core/navigation/app_routes.dart';
-import '../../../mock/doctor_assistant_mock_repository.dart';
+import '../../../core/state/async_state.dart';
+import '../../../core/widgets/state_views.dart';
 import '../../../presentation/widgets/doctor_assistant_shell.dart';
 import '../../../presentation/widgets/doctor_assistant_widgets.dart';
 import '../../../state/app_state.dart';
 import '../../auth/state/session_selectors.dart';
+import '../models/results_models.dart';
+import '../state/results_actions.dart';
+import 'widgets/grading_summary_cards.dart';
 
 class ResultsScreen extends StatelessWidget {
   const ResultsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<DoctorAssistantAppState, SessionUser?>(
-      converter: (store) => getCurrentUser(store.state),
-      builder: (context, user) {
-        if (user == null) {
+    return StoreConnector<DoctorAssistantAppState, _ResultsVm>(
+      onInit: (store) => store.dispatch(LoadResultsOverviewAction()),
+      converter: (store) => _ResultsVm.fromStore(store),
+      builder: (context, vm) {
+        if (vm.user == null) {
           return const SizedBox.shrink();
         }
 
-        final repository = DoctorAssistantMockRepository.instance;
-        final results = repository.resultsFor(user);
-        final average = results.isEmpty
-            ? 0.0
-            : results.fold<double>(0, (sum, item) => sum + item.percentage) /
-                results.length;
-        final publishedCount = results
-            .where((item) => item.statusLabel.toLowerCase() == 'published')
-            .length;
-        final reviewCount = results
-            .where((item) => item.statusLabel.toLowerCase().contains('review'))
-            .length;
-
         return DoctorAssistantShell(
-          user: user,
+          user: vm.user!,
           activeRoute: AppRoutes.results,
-          unreadNotifications: repository.unreadNotificationsFor(user),
+          unreadNotifications: 0,
           child: DoctorAssistantPageScaffold(
-            title: 'Results',
+            title: 'Results & Grading',
             subtitle:
-                'Local grading snapshots, publication status, and score visibility are all powered by mock data only.',
+                'Monitor published grades, pending review, and category-level readiness across assigned subjects.',
             breadcrumbs: const ['Workspace', 'Results'],
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  spacing: AppSpacing.md,
-                  runSpacing: AppSpacing.md,
-                  children: [
-                    _SummaryCard(
-                      title: 'Average Score',
-                      value: '${average.toStringAsFixed(1)}%',
-                      toneColor: const Color(0xFF2563EB),
-                    ),
-                    _SummaryCard(
-                      title: 'Published',
-                      value: '$publishedCount',
-                      toneColor: const Color(0xFF14B8A6),
-                    ),
-                    _SummaryCard(
-                      title: 'Needs Review',
-                      value: '$reviewCount',
-                      toneColor: const Color(0xFFF59E0B),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.md),
-                DoctorAssistantPanel(
-                  title: 'Latest grading activity',
-                  subtitle:
-                      'A realistic review queue for quizzes, assignments, and published grades.',
-                  child: Column(
-                    children: results.map((result) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                        child: DoctorAssistantItemCard(
-                          icon: Icons.grading_rounded,
-                          title: result.assessmentTitle,
-                          subtitle:
-                              '${result.studentName} (${result.studentCode}) - ${result.subjectCode}',
-                          meta:
-                              'Score ${result.score.toStringAsFixed(0)}/${result.maxScore.toStringAsFixed(0)} - ${result.percentage.toStringAsFixed(1)}%',
-                          statusLabel: result.statusLabel,
-                          trailing: StatusBadge(result.subjectName),
-                        ),
-                      );
-                    }).toList(growable: false),
-                  ),
-                ),
-              ],
-            ),
+            child: _buildBody(context, vm),
           ),
         );
       },
     );
   }
+
+  Widget _buildBody(BuildContext context, _ResultsVm vm) {
+    final overview = vm.state.data;
+    if (vm.state.status == ViewStatus.loading && overview == null) {
+      return const LoadingStateView(lines: 4);
+    }
+    if (vm.state.status == ViewStatus.failure && overview == null) {
+      return ErrorStateView(
+        message: vm.state.error ?? 'Failed to load results overview.',
+        onRetry: vm.reload,
+      );
+    }
+    if (overview == null) {
+      return const EmptyStateView(
+        title: 'No grading data yet',
+        message: 'Results will appear here once the first grading cycle starts.',
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GradingSummaryCards(analytics: overview.analytics),
+        const SizedBox(height: AppSpacing.md),
+        DoctorAssistantPanel(
+          title: 'Subjects',
+          subtitle:
+              'Each subject shows average score, pending review, and published results count.',
+          child: Column(
+            children: overview.subjects
+                .map(
+                  (subject) => Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                    child: AppCard(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Wrap(
+                                  spacing: AppSpacing.sm,
+                                  runSpacing: AppSpacing.sm,
+                                  children: [
+                                    Text(
+                                      '${subject.subjectCode} · ${subject.subjectName}',
+                                      style: Theme.of(context).textTheme.titleMedium,
+                                    ),
+                                    StatusBadge(subject.statusLabel),
+                                  ],
+                                ),
+                                const SizedBox(height: AppSpacing.sm),
+                                Text(
+                                  'Average ${subject.averageScore.toStringAsFixed(1)}% · ${subject.pendingReviewCount} pending review · ${subject.publishedResultsCount} published',
+                                ),
+                                const SizedBox(height: AppSpacing.xs),
+                                Text(
+                                  subject.latestActivityLabel,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                          PremiumButton(
+                            label: 'Open',
+                            icon: Icons.arrow_forward_rounded,
+                            onPressed: () => context.go(
+                              AppRoutes.subjectResults(subject.subjectId),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+                .toList(growable: false),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({
-    required this.title,
-    required this.value,
-    required this.toneColor,
+class _ResultsVm {
+  const _ResultsVm({
+    required this.user,
+    required this.state,
+    required this.reload,
   });
 
-  final String title;
-  final String value;
-  final Color toneColor;
+  final dynamic user;
+  final AsyncState<ResultsOverviewModel> state;
+  final VoidCallback reload;
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 220,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: toneColor.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: toneColor.withValues(alpha: 0.18)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
-      ),
+  factory _ResultsVm.fromStore(Store<DoctorAssistantAppState> store) {
+    return _ResultsVm(
+      user: getCurrentUser(store.state),
+      state: store.state.resultsState.overview,
+      reload: () => store.dispatch(LoadResultsOverviewAction()),
     );
   }
 }

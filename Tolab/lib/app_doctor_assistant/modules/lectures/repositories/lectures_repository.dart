@@ -10,6 +10,8 @@ abstract class LecturesRepository {
   Future<void> saveLecture(Map<String, dynamic> payload);
 
   Future<void> deleteLecture(int lectureId);
+
+  Future<void> publishLecture(int lectureId);
 }
 
 class ApiLecturesRepository implements LecturesRepository {
@@ -46,6 +48,14 @@ class ApiLecturesRepository implements LecturesRepository {
       parser: (_) => null,
     );
   }
+
+  @override
+  Future<void> publishLecture(int lectureId) async {
+    await _apiClient.patch<Object?>(
+      '/staff-portal/lectures/$lectureId/publish',
+      parser: (_) => null,
+    );
+  }
 }
 
 class MockLecturesRepository implements LecturesRepository {
@@ -72,6 +82,12 @@ class MockLecturesRepository implements LecturesRepository {
   Future<void> deleteLecture(int lectureId) async {
     await _mockRepository.simulateLatency(const Duration(milliseconds: 160));
     _mockRepository.deleteLecture(lectureId);
+  }
+
+  @override
+  Future<void> publishLecture(int lectureId) async {
+    await _mockRepository.simulateLatency(const Duration(milliseconds: 160));
+    _mockRepository.publishLecture(lectureId);
   }
 
   Future<SessionUser> _currentUser() async {

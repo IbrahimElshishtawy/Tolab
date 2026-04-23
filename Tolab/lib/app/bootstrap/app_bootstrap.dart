@@ -91,6 +91,7 @@ class UnifiedAppBootstrap {
     }
 
     authController.addListener(syncLegacyStores);
+    syncLegacyStores();
 
     return UnifiedAppBootstrap._(
       adminDependencies: adminDependencies,

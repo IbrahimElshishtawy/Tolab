@@ -10,12 +10,16 @@ import '../modules/bootstrap/state/bootstrap_middleware.dart';
 import '../modules/bootstrap/state/bootstrap_reducer.dart';
 import '../modules/dashboard/state/dashboard_middleware.dart';
 import '../modules/dashboard/state/dashboard_reducer.dart';
+import '../modules/groups/state/groups_middleware.dart';
+import '../modules/groups/state/groups_reducer.dart';
 import '../modules/lectures/state/lectures_middleware.dart';
 import '../modules/lectures/state/lectures_reducer.dart';
 import '../modules/notifications/state/notifications_middleware.dart';
 import '../modules/notifications/state/notifications_reducer.dart';
 import '../modules/quizzes/state/quizzes_middleware.dart';
 import '../modules/quizzes/state/quizzes_reducer.dart';
+import '../modules/results/state/results_middleware.dart';
+import '../modules/results/state/results_reducer.dart';
 import '../modules/schedule/state/schedule_middleware.dart';
 import '../modules/schedule/state/schedule_reducer.dart';
 import '../modules/section_content/state/section_content_middleware.dart';
@@ -44,7 +48,9 @@ Store<DoctorAssistantAppState> createDoctorAssistantStore(
       ...createDashboardMiddleware(dependencies.dashboardRepository),
       ...createStaffMiddleware(dependencies.staffRepository),
       ...createSubjectsMiddleware(dependencies.subjectsRepository),
+      ...createGroupsMiddleware(dependencies.groupsRepository),
       ...createLecturesMiddleware(dependencies.lecturesRepository),
+      ...createResultsMiddleware(dependencies.resultsRepository),
       ...createSectionContentMiddleware(dependencies.sectionContentRepository),
       ...createQuizzesMiddleware(dependencies.quizzesRepository),
       ...createTasksMiddleware(dependencies.tasksRepository),
@@ -68,7 +74,9 @@ DoctorAssistantAppState _reducer(
     dashboardState: dashboardReducer(state.dashboardState, action),
     staffState: staffReducer(state.staffState, action),
     subjectsState: subjectsReducer(state.subjectsState, action),
+    groupsState: groupsReducer(state.groupsState, action),
     lecturesState: lecturesReducer(state.lecturesState, action),
+    resultsState: resultsReducer(state.resultsState, action),
     sectionContentState: sectionContentReducer(state.sectionContentState, action),
     quizzesState: quizzesReducer(state.quizzesState, action),
     tasksState: tasksReducer(state.tasksState, action),
