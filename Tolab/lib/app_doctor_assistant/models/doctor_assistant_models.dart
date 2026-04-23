@@ -78,6 +78,17 @@ class TeachingSection {
     required this.room,
     required this.statusLabel,
     required this.groupLabel,
+    this.description,
+    this.scheduledAtIso,
+    this.durationMinutes,
+    this.deliveryMode,
+    this.locationLabel,
+    this.meetingLink,
+    this.notes,
+    this.expectedStudents,
+    this.addedToSchedule = false,
+    this.sendNotification = false,
+    this.attachmentName,
   });
 
   final String id;
@@ -88,6 +99,17 @@ class TeachingSection {
   final String room;
   final String statusLabel;
   final String groupLabel;
+  final String? description;
+  final String? scheduledAtIso;
+  final int? durationMinutes;
+  final String? deliveryMode;
+  final String? locationLabel;
+  final String? meetingLink;
+  final String? notes;
+  final int? expectedStudents;
+  final bool addedToSchedule;
+  final bool sendNotification;
+  final String? attachmentName;
 }
 
 class TeachingQuiz {
@@ -98,6 +120,23 @@ class TeachingQuiz {
     required this.statusLabel,
     required this.attemptsLabel,
     required this.scopeLabel,
+    this.description,
+    this.startAtIso,
+    this.endAtIso,
+    this.durationMinutes,
+    this.attemptsAllowed,
+    this.totalMarks,
+    this.questionCount,
+    this.audienceLabel,
+    this.totalStudents,
+    this.enteredStudents,
+    this.completedStudents,
+    this.passRate,
+    this.averageScore,
+    this.liveParticipants,
+    this.attachmentName,
+    this.questions = const <TeachingQuizQuestion>[],
+    this.submissions = const <TeachingQuizSubmission>[],
   });
 
   final String id;
@@ -106,6 +145,63 @@ class TeachingQuiz {
   final String statusLabel;
   final String attemptsLabel;
   final String scopeLabel;
+  final String? description;
+  final String? startAtIso;
+  final String? endAtIso;
+  final int? durationMinutes;
+  final int? attemptsAllowed;
+  final int? totalMarks;
+  final int? questionCount;
+  final String? audienceLabel;
+  final int? totalStudents;
+  final int? enteredStudents;
+  final int? completedStudents;
+  final double? passRate;
+  final double? averageScore;
+  final int? liveParticipants;
+  final String? attachmentName;
+  final List<TeachingQuizQuestion> questions;
+  final List<TeachingQuizSubmission> submissions;
+}
+
+class TeachingQuizQuestion {
+  const TeachingQuizQuestion({
+    required this.id,
+    required this.prompt,
+    required this.type,
+    this.options = const <String>[],
+    this.correctAnswers = const <String>[],
+    required this.marks,
+    this.isRequired = true,
+  });
+
+  final String id;
+  final String prompt;
+  final String type;
+  final List<String> options;
+  final List<String> correctAnswers;
+  final int marks;
+  final bool isRequired;
+}
+
+class TeachingQuizSubmission {
+  const TeachingQuizSubmission({
+    required this.studentName,
+    required this.studentCode,
+    required this.statusLabel,
+    this.score,
+    this.startedAtIso,
+    this.submittedAtIso,
+    this.progress = 0,
+  });
+
+  final String studentName;
+  final String studentCode;
+  final String statusLabel;
+  final double? score;
+  final String? startedAtIso;
+  final String? submittedAtIso;
+  final double progress;
 }
 
 class TeachingTask {

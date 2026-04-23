@@ -31,6 +31,9 @@ import '../../app_doctor_assistant/core/navigation/app_routes.dart'
 import '../../app_doctor_assistant/modules/dashboard/presentation/dashboard_screen.dart';
 import '../../app_doctor_assistant/modules/lectures/presentation/lectures_screen.dart';
 import '../../app_doctor_assistant/modules/notifications/presentation/notifications_screen.dart';
+import '../../app_doctor_assistant/modules/quizzes/presentation/quiz_details_page.dart';
+import '../../app_doctor_assistant/modules/quizzes/presentation/quiz_preview_page.dart';
+import '../../app_doctor_assistant/modules/quizzes/presentation/quiz_results_page.dart';
 import '../../app_doctor_assistant/modules/quizzes/presentation/quizzes_screen.dart';
 import '../../app_doctor_assistant/modules/results/presentation/results_screen.dart';
 import '../../app_doctor_assistant/modules/schedule/presentation/schedule_screen.dart';
@@ -240,6 +243,27 @@ class UnifiedAppRouter {
       path: staff_routes.AppRoutes.quizzes,
       builder: (context, state) =>
           const DoctorAssistantScope(child: QuizzesScreen()),
+    ),
+    GoRoute(
+      path: '${staff_routes.AppRoutes.quizzes}/:id',
+      builder: (context, state) {
+        final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+        return DoctorAssistantScope(child: QuizDetailsPage(quizId: id));
+      },
+    ),
+    GoRoute(
+      path: '${staff_routes.AppRoutes.quizzes}/:id/preview',
+      builder: (context, state) {
+        final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+        return DoctorAssistantScope(child: QuizPreviewPage(quizId: id));
+      },
+    ),
+    GoRoute(
+      path: '${staff_routes.AppRoutes.quizzes}/:id/results',
+      builder: (context, state) {
+        final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+        return DoctorAssistantScope(child: QuizResultsPage(quizId: id));
+      },
     ),
     GoRoute(
       path: staff_routes.AppRoutes.tasks,

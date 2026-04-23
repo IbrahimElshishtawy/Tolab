@@ -134,6 +134,44 @@ class DoctorAssistantMockRepository {
     );
   }
 
+  TeachingSubject? subjectBySectionId(int sectionId) {
+    for (final subject in _subjects) {
+      if (subject.sections.any(
+        (section) => _numericId(section.id) == sectionId,
+      )) {
+        return subject;
+      }
+    }
+    return null;
+  }
+
+  TeachingSubject? subjectByQuizId(int quizId) {
+    for (final subject in _subjects) {
+      if (subject.quizzes.any((quiz) => _numericId(quiz.id) == quizId)) {
+        return subject;
+      }
+    }
+    return null;
+  }
+
+  TeachingSection? sectionById(int sectionId) {
+    final subject = subjectBySectionId(sectionId);
+    if (subject == null) {
+      return null;
+    }
+    return subject.sections.firstWhere(
+      (section) => _numericId(section.id) == sectionId,
+    );
+  }
+
+  TeachingQuiz? quizById(int quizId) {
+    final subject = subjectByQuizId(quizId);
+    if (subject == null) {
+      return null;
+    }
+    return subject.quizzes.firstWhere((quiz) => _numericId(quiz.id) == quizId);
+  }
+
   List<SubjectModel> subjectModelsFor(SessionUser user) {
     return _subjects
         .map(
@@ -244,24 +282,114 @@ class DoctorAssistantMockRepository {
   }
 
   void saveSectionContent(Map<String, dynamic> payload, SessionUser user) {
-    final subject = _subjectForPayload(payload['subject']?.toString());
-    final sections = List<TeachingSection>.from(subject.sections)
-      ..insert(
-        0,
-        TeachingSection(
-          id: 'mock-sec-${_nextSectionId++}',
-          title: payload['title']?.toString() ?? 'Untitled section',
-          assistantName: user.fullName,
-          dayLabel: _leadingWord(
-            payload['schedule']?.toString(),
-            fallback: 'Monday',
-          ),
-          timeLabel: payload['schedule']?.toString() ?? '12:00 - 13:30',
-          room: _roomFromNotes(payload['notes']?.toString()),
-          statusLabel: 'Draft',
-          groupLabel: payload['scope']?.toString() ?? 'Section group',
-        ),
+    final existingId = (payload['existing_id'] as num?)?.toInt();
+    final subjectId = (payload['subject_id'] as num?)?.toInt();
+    final subject = subjectId == null
+        ? _subjectForPayload(payload['subject']?.toString())
+        : _subjects.firstWhere(
+            (candidate) => candidate.id == subjectId,
+            orElse: () => _subjectForPayload(payload['subject']?.toString()),
+          );
+    final existingSection = existingId == null ? null : sectionById(existingId);
+    final existingSubject = existingId == null
+        ? null
+        : subjectBySectionId(existingId);
+    final scheduledAt = _sectionScheduledAtFromPayload(payload);
+    final statusLabel = _sectionStatusLabel(
+      scheduledAt: scheduledAt,
+      publishImmediately: payload['publish_immediately'] == true,
+      saveAsDraft: payload['save_as_draft'] == true,
+    );
+    final deliveryMode = payload['section_type']?.toString() ?? 'In person';
+    final locationLabel =
+        payload['location_label']?.toString() ??
+        payload['location_or_link']?.toString() ??
+        payload['meeting_link']?.toString() ??
+        _roomFromNotes(payload['notes']?.toString());
+    final durationMinutes =
+        (payload['duration_minutes'] as num?)?.toInt() ?? 90;
+    final expectedStudents =
+        (payload['expected_students'] as num?)?.toInt() ??
+        _expectedStudentsForSectionSubject(subject);
+    final nextSection = TeachingSection(
+      id: existingSection?.id ?? 'mock-sec-${_nextSectionId++}',
+      title: payload['title']?.toString() ?? 'Untitled section',
+      assistantName: user.fullName,
+      dayLabel: _weekdayName(scheduledAt.weekday),
+      timeLabel: _timeRangeLabel(
+        scheduledAt,
+        durationMinutes,
+        fallback: payload['schedule']?.toString() ?? '12:00 - 13:30',
+      ),
+      room: locationLabel,
+      statusLabel: statusLabel,
+      groupLabel:
+          payload['audience']?.toString() ??
+          payload['scope']?.toString() ??
+          existingSection?.groupLabel ??
+          'Section group',
+      description: payload['description']?.toString(),
+      scheduledAtIso: scheduledAt.toIso8601String(),
+      durationMinutes: durationMinutes,
+      deliveryMode: deliveryMode,
+      locationLabel: locationLabel,
+      meetingLink: payload['meeting_link']?.toString(),
+      notes: payload['notes']?.toString(),
+      expectedStudents: expectedStudents,
+      addedToSchedule: payload['add_to_schedule'] == true,
+      sendNotification: payload['send_notification'] == true,
+      attachmentName: payload['attachment_name']?.toString(),
+    );
+
+    if (existingId != null &&
+        existingSubject != null &&
+        existingSubject.id != subject.id) {
+      final filteredSections = existingSubject.sections
+          .where((section) => _numericId(section.id) != existingId)
+          .toList(growable: false);
+      _replaceSubject(
+        existingSubject,
+        _cloneSubject(existingSubject, sections: filteredSections),
       );
+    }
+
+    final sections = List<TeachingSection>.from(subject.sections);
+    final existingIndex = sections.indexWhere(
+      (section) => _numericId(section.id) == existingId,
+    );
+    if (existingIndex != -1) {
+      sections[existingIndex] = nextSection;
+    } else {
+      sections.insert(0, nextSection);
+    }
+    _replaceSubject(subject, _cloneSubject(subject, sections: sections));
+  }
+
+  void publishSection(int sectionId) {
+    final subject = subjectBySectionId(sectionId);
+    final section = sectionById(sectionId);
+    if (subject == null || section == null) {
+      return;
+    }
+
+    final scheduledAt =
+        DateTime.tryParse(section.scheduledAtIso ?? '') ??
+        _workspaceNow.add(const Duration(hours: 1));
+    final durationMinutes = section.durationMinutes ?? 90;
+    final endAt = scheduledAt.add(Duration(minutes: durationMinutes));
+    final nextStatus = _workspaceNow.isAfter(endAt)
+        ? 'Finished'
+        : _workspaceNow.isAfter(scheduledAt)
+        ? 'Live'
+        : 'Published';
+
+    final sections = subject.sections
+        .map(
+          (item) => _numericId(item.id) == sectionId
+              ? _copySection(item, statusLabel: nextStatus)
+              : item,
+        )
+        .toList(growable: false);
     _replaceSubject(subject, _cloneSubject(subject, sections: sections));
   }
 
@@ -274,11 +402,11 @@ class DoctorAssistantMockRepository {
               subjectId: subject.id,
               title: quiz.title,
               ownerName: _ownerNameForSubject(subject.id),
-              quizType: quiz.statusLabel.toLowerCase() == 'published'
-                  ? 'graded'
-                  : 'timed',
+              quizType: quiz.statusLabel.toLowerCase() == 'draft'
+                  ? 'draft'
+                  : 'graded',
               quizDate: quiz.windowLabel,
-              isPublished: quiz.statusLabel.toLowerCase() == 'published',
+              isPublished: quiz.statusLabel.toLowerCase() != 'draft',
               quizLink: 'mock://quizzes/${quiz.id}',
             ),
           ),
@@ -287,19 +415,222 @@ class DoctorAssistantMockRepository {
   }
 
   void saveQuiz(Map<String, dynamic> payload, SessionUser user) {
-    final subject = _subjectForPayload(payload['subject']?.toString());
-    final quizzes = List<TeachingQuiz>.from(subject.quizzes)
-      ..insert(
-        0,
-        TeachingQuiz(
-          id: 'mock-quiz-${_nextQuizId++}',
-          title: payload['title']?.toString() ?? 'Untitled quiz',
-          windowLabel: payload['schedule']?.toString() ?? 'Tue 10:30 - 45 min',
-          statusLabel: 'Draft',
-          attemptsLabel: 'Awaiting publish',
-          scopeLabel: payload['scope']?.toString() ?? 'Target cohort',
-        ),
+    final existingId = (payload['existing_id'] as num?)?.toInt();
+    final subjectId = (payload['subject_id'] as num?)?.toInt();
+    final subject = subjectId == null
+        ? _subjectForPayload(payload['subject']?.toString())
+        : _subjects.firstWhere(
+            (candidate) => candidate.id == subjectId,
+            orElse: () => _subjectForPayload(payload['subject']?.toString()),
+          );
+    final existingQuiz = existingId == null ? null : quizById(existingId);
+    final existingSubject = existingId == null
+        ? null
+        : subjectByQuizId(existingId);
+    final startAt = _quizStartAtFromPayload(payload);
+    final durationMinutes =
+        (payload['duration_minutes'] as num?)?.toInt() ?? 30;
+    final endAt = _quizEndAtFromPayload(payload, startAt, durationMinutes);
+    final statusLabel = _quizStatusLabel(
+      startAt: startAt,
+      endAt: endAt,
+      publishImmediately: payload['publish_immediately'] == true,
+      saveAsDraft: payload['save_as_draft'] == true,
+    );
+    final questions = _quizQuestionsFromPayload(payload);
+    final rawId = 'mock-quiz-${_nextQuizId++}';
+    final totalStudents =
+        (payload['total_students'] as num?)?.toInt() ?? subject.studentCount;
+    final enteredStudents = statusLabel == 'Draft'
+        ? 0
+        : ((totalStudents * 0.62).round()).clamp(0, totalStudents);
+    final completedStudents = statusLabel == 'Draft'
+        ? 0
+        : ((enteredStudents * 0.81).round()).clamp(0, enteredStudents);
+    final nextQuiz = TeachingQuiz(
+      id: existingQuiz?.id ?? rawId,
+      title: payload['title']?.toString() ?? 'Untitled quiz',
+      windowLabel: _quizWindowLabel(
+        startAt: startAt,
+        endAt: endAt,
+        durationMinutes: durationMinutes,
+      ),
+      statusLabel: statusLabel,
+      attemptsLabel: statusLabel == 'Draft'
+          ? 'Awaiting publish'
+          : '$enteredStudents/$totalStudents attempts',
+      scopeLabel:
+          payload['audience']?.toString() ??
+          payload['scope']?.toString() ??
+          existingQuiz?.scopeLabel ??
+          'Target cohort',
+      description: payload['description']?.toString(),
+      startAtIso: startAt.toIso8601String(),
+      endAtIso: endAt.toIso8601String(),
+      durationMinutes: durationMinutes,
+      attemptsAllowed: (payload['attempts_allowed'] as num?)?.toInt() ?? 1,
+      totalMarks: _totalMarksFromPayload(payload, questions),
+      questionCount: questions.length,
+      audienceLabel:
+          payload['audience']?.toString() ??
+          payload['scope']?.toString() ??
+          existingQuiz?.audienceLabel ??
+          'Target cohort',
+      totalStudents: totalStudents,
+      enteredStudents: enteredStudents,
+      completedStudents: completedStudents,
+      passRate: statusLabel == 'Draft' ? 0 : 73,
+      averageScore: statusLabel == 'Draft' ? 0 : 76,
+      liveParticipants: statusLabel == 'Open'
+          ? (enteredStudents - completedStudents).clamp(0, enteredStudents)
+          : 0,
+      attachmentName: payload['attachment_name']?.toString(),
+      questions: questions,
+      submissions: _quizSubmissionsFromPayload(
+        payload: payload,
+        totalStudents: totalStudents,
+        enteredStudents: enteredStudents,
+        completedStudents: completedStudents,
+      ),
+    );
+
+    if (existingId != null &&
+        existingSubject != null &&
+        existingSubject.id != subject.id) {
+      final filteredQuizzes = existingSubject.quizzes
+          .where((quiz) => _numericId(quiz.id) != existingId)
+          .toList(growable: false);
+      _replaceSubject(
+        existingSubject,
+        _cloneSubject(existingSubject, quizzes: filteredQuizzes),
       );
+    }
+
+    final quizzes = List<TeachingQuiz>.from(subject.quizzes);
+    final existingIndex = quizzes.indexWhere(
+      (quiz) => _numericId(quiz.id) == existingId,
+    );
+    if (existingIndex != -1) {
+      quizzes[existingIndex] = nextQuiz;
+    } else {
+      quizzes.insert(0, nextQuiz);
+    }
+    _replaceSubject(subject, _cloneSubject(subject, quizzes: quizzes));
+  }
+
+  void publishQuiz(int quizId) {
+    final subject = subjectByQuizId(quizId);
+    final quiz = quizById(quizId);
+    if (subject == null || quiz == null) {
+      return;
+    }
+
+    final startAt =
+        DateTime.tryParse(quiz.startAtIso ?? '') ??
+        _workspaceNow.add(const Duration(hours: 2));
+    final endAt =
+        DateTime.tryParse(quiz.endAtIso ?? '') ??
+        startAt.add(Duration(minutes: quiz.durationMinutes ?? 30));
+    final nextStatus = _workspaceNow.isBefore(startAt)
+        ? 'Scheduled'
+        : _workspaceNow.isAfter(endAt)
+        ? 'Closed'
+        : 'Open';
+    final totalStudents = quiz.totalStudents ?? subject.studentCount;
+    final enteredStudents =
+        quiz.enteredStudents == null || quiz.enteredStudents == 0
+        ? ((totalStudents * 0.62).round()).clamp(0, totalStudents)
+        : quiz.enteredStudents!;
+    final completedStudents =
+        (quiz.completedStudents ?? ((enteredStudents * 0.81).round())).clamp(
+          0,
+          enteredStudents,
+        );
+
+    final quizzes = subject.quizzes
+        .map(
+          (item) => _numericId(item.id) == quizId
+              ? _copyQuiz(
+                  item,
+                  statusLabel: nextStatus,
+                  attemptsLabel: _quizAttemptsLabel(
+                    statusLabel: nextStatus,
+                    enteredStudents: enteredStudents,
+                    totalStudents: totalStudents,
+                  ),
+                  enteredStudents: enteredStudents,
+                  completedStudents: completedStudents,
+                  passRate: nextStatus == 'Draft' ? 0 : (item.passRate ?? 73),
+                  averageScore: nextStatus == 'Draft'
+                      ? 0
+                      : (item.averageScore ?? 76),
+                  liveParticipants: nextStatus == 'Open'
+                      ? (enteredStudents - completedStudents).clamp(
+                          0,
+                          enteredStudents,
+                        )
+                      : 0,
+                )
+              : item,
+        )
+        .toList(growable: false);
+    _replaceSubject(subject, _cloneSubject(subject, quizzes: quizzes));
+  }
+
+  void closeQuiz(int quizId) {
+    final subject = subjectByQuizId(quizId);
+    final quiz = quizById(quizId);
+    if (subject == null || quiz == null) {
+      return;
+    }
+
+    final totalStudents = quiz.totalStudents ?? subject.studentCount;
+    final enteredStudents = quiz.enteredStudents ?? totalStudents;
+    final completedStudents =
+        quiz.completedStudents ?? enteredStudents.clamp(0, totalStudents);
+    final quizzes = subject.quizzes
+        .map(
+          (item) => _numericId(item.id) == quizId
+              ? _copyQuiz(
+                  item,
+                  statusLabel: 'Closed',
+                  endAtIso: _workspaceNow.toIso8601String(),
+                  attemptsLabel: _quizAttemptsLabel(
+                    statusLabel: 'Closed',
+                    enteredStudents: enteredStudents,
+                    totalStudents: totalStudents,
+                  ),
+                  liveParticipants: 0,
+                  completedStudents: completedStudents,
+                )
+              : item,
+        )
+        .toList(growable: false);
+    _replaceSubject(subject, _cloneSubject(subject, quizzes: quizzes));
+  }
+
+  void duplicateQuiz(int quizId) {
+    final subject = subjectByQuizId(quizId);
+    final quiz = quizById(quizId);
+    if (subject == null || quiz == null) {
+      return;
+    }
+
+    final duplicated = _copyQuiz(
+      quiz,
+      id: 'mock-quiz-${_nextQuizId++}',
+      title: '${quiz.title} Copy',
+      statusLabel: 'Draft',
+      attemptsLabel: 'Awaiting publish',
+      enteredStudents: 0,
+      completedStudents: 0,
+      passRate: 0,
+      averageScore: 0,
+      liveParticipants: 0,
+      submissions: const <TeachingQuizSubmission>[],
+    );
+    final quizzes = List<TeachingQuiz>.from(subject.quizzes)
+      ..insert(0, duplicated);
     _replaceSubject(subject, _cloneSubject(subject, quizzes: quizzes));
   }
 
@@ -1129,6 +1460,104 @@ class DoctorAssistantMockRepository {
     );
   }
 
+  TeachingSection _copySection(
+    TeachingSection source, {
+    String? id,
+    String? title,
+    String? assistantName,
+    String? dayLabel,
+    String? timeLabel,
+    String? room,
+    String? statusLabel,
+    String? groupLabel,
+    String? description,
+    String? scheduledAtIso,
+    int? durationMinutes,
+    String? deliveryMode,
+    String? locationLabel,
+    String? meetingLink,
+    String? notes,
+    int? expectedStudents,
+    bool? addedToSchedule,
+    bool? sendNotification,
+    String? attachmentName,
+  }) {
+    return TeachingSection(
+      id: id ?? source.id,
+      title: title ?? source.title,
+      assistantName: assistantName ?? source.assistantName,
+      dayLabel: dayLabel ?? source.dayLabel,
+      timeLabel: timeLabel ?? source.timeLabel,
+      room: room ?? source.room,
+      statusLabel: statusLabel ?? source.statusLabel,
+      groupLabel: groupLabel ?? source.groupLabel,
+      description: description ?? source.description,
+      scheduledAtIso: scheduledAtIso ?? source.scheduledAtIso,
+      durationMinutes: durationMinutes ?? source.durationMinutes,
+      deliveryMode: deliveryMode ?? source.deliveryMode,
+      locationLabel: locationLabel ?? source.locationLabel,
+      meetingLink: meetingLink ?? source.meetingLink,
+      notes: notes ?? source.notes,
+      expectedStudents: expectedStudents ?? source.expectedStudents,
+      addedToSchedule: addedToSchedule ?? source.addedToSchedule,
+      sendNotification: sendNotification ?? source.sendNotification,
+      attachmentName: attachmentName ?? source.attachmentName,
+    );
+  }
+
+  TeachingQuiz _copyQuiz(
+    TeachingQuiz source, {
+    String? id,
+    String? title,
+    String? windowLabel,
+    String? statusLabel,
+    String? attemptsLabel,
+    String? scopeLabel,
+    String? description,
+    String? startAtIso,
+    String? endAtIso,
+    int? durationMinutes,
+    int? attemptsAllowed,
+    int? totalMarks,
+    int? questionCount,
+    String? audienceLabel,
+    int? totalStudents,
+    int? enteredStudents,
+    int? completedStudents,
+    double? passRate,
+    double? averageScore,
+    int? liveParticipants,
+    String? attachmentName,
+    List<TeachingQuizQuestion>? questions,
+    List<TeachingQuizSubmission>? submissions,
+  }) {
+    return TeachingQuiz(
+      id: id ?? source.id,
+      title: title ?? source.title,
+      windowLabel: windowLabel ?? source.windowLabel,
+      statusLabel: statusLabel ?? source.statusLabel,
+      attemptsLabel: attemptsLabel ?? source.attemptsLabel,
+      scopeLabel: scopeLabel ?? source.scopeLabel,
+      description: description ?? source.description,
+      startAtIso: startAtIso ?? source.startAtIso,
+      endAtIso: endAtIso ?? source.endAtIso,
+      durationMinutes: durationMinutes ?? source.durationMinutes,
+      attemptsAllowed: attemptsAllowed ?? source.attemptsAllowed,
+      totalMarks: totalMarks ?? source.totalMarks,
+      questionCount: questionCount ?? source.questionCount,
+      audienceLabel: audienceLabel ?? source.audienceLabel,
+      totalStudents: totalStudents ?? source.totalStudents,
+      enteredStudents: enteredStudents ?? source.enteredStudents,
+      completedStudents: completedStudents ?? source.completedStudents,
+      passRate: passRate ?? source.passRate,
+      averageScore: averageScore ?? source.averageScore,
+      liveParticipants: liveParticipants ?? source.liveParticipants,
+      attachmentName: attachmentName ?? source.attachmentName,
+      questions: questions ?? source.questions,
+      submissions: submissions ?? source.submissions,
+    );
+  }
+
   String _ownerNameForSubject(int subjectId) {
     final subject = subjectById(subjectId);
     if (subject.department == 'Computer Science') {
@@ -1146,6 +1575,283 @@ class DoctorAssistantMockRepository {
       return 'Room to be confirmed';
     }
     return trimmed.length > 32 ? '${trimmed.substring(0, 32)}...' : trimmed;
+  }
+
+  DateTime get _workspaceNow => DateTime(2026, 4, 23, 12);
+
+  int _expectedStudentsForSectionSubject(TeachingSubject subject) {
+    final sectionsCount = subject.sections.isEmpty
+        ? 1
+        : subject.sections.length;
+    return (subject.studentCount / sectionsCount).ceil();
+  }
+
+  DateTime _sectionScheduledAtFromPayload(Map<String, dynamic> payload) {
+    final raw =
+        payload['scheduled_at']?.toString() ?? payload['date']?.toString();
+    final parsed = DateTime.tryParse(raw ?? '');
+    if (parsed != null) {
+      final time = _timeOfDayFromPayload(payload['time_label']?.toString());
+      if (time == null) {
+        return parsed;
+      }
+      return DateTime(
+        parsed.year,
+        parsed.month,
+        parsed.day,
+        time.hour,
+        time.minute,
+      );
+    }
+    return _workspaceNow.add(const Duration(days: 2));
+  }
+
+  _MockTimeOfDay? _timeOfDayFromPayload(String? raw) {
+    final value = raw?.trim();
+    if (value == null || value.isEmpty) {
+      return null;
+    }
+    final match = RegExp(r'(\d{1,2}):(\d{2})').firstMatch(value);
+    if (match == null) {
+      return null;
+    }
+    final hour = int.tryParse(match.group(1) ?? '');
+    final minute = int.tryParse(match.group(2) ?? '');
+    if (hour == null || minute == null) {
+      return null;
+    }
+    return _MockTimeOfDay(hour, minute);
+  }
+
+  String _sectionStatusLabel({
+    required DateTime scheduledAt,
+    required bool publishImmediately,
+    required bool saveAsDraft,
+  }) {
+    if (saveAsDraft || !publishImmediately) {
+      return 'Draft';
+    }
+    final endAt = scheduledAt.add(const Duration(minutes: 90));
+    if (_workspaceNow.isAfter(endAt)) {
+      return 'Finished';
+    }
+    if (_workspaceNow.isAfter(scheduledAt)) {
+      return 'Live';
+    }
+    return 'Published';
+  }
+
+  String _weekdayName(int weekday) {
+    return switch (weekday) {
+      DateTime.monday => 'Monday',
+      DateTime.tuesday => 'Tuesday',
+      DateTime.wednesday => 'Wednesday',
+      DateTime.thursday => 'Thursday',
+      DateTime.friday => 'Friday',
+      DateTime.saturday => 'Saturday',
+      _ => 'Sunday',
+    };
+  }
+
+  String _timeRangeLabel(
+    DateTime startAt,
+    int durationMinutes, {
+    required String fallback,
+  }) {
+    final endAt = startAt.add(Duration(minutes: durationMinutes));
+    final startHour = startAt.hour.toString().padLeft(2, '0');
+    final startMinute = startAt.minute.toString().padLeft(2, '0');
+    final endHour = endAt.hour.toString().padLeft(2, '0');
+    final endMinute = endAt.minute.toString().padLeft(2, '0');
+    final value = '$startHour:$startMinute - $endHour:$endMinute';
+    return value.trim().isEmpty ? fallback : value;
+  }
+
+  DateTime _quizStartAtFromPayload(Map<String, dynamic> payload) {
+    final rawStart = payload['start_at']?.toString();
+    final parsed = DateTime.tryParse(rawStart ?? '');
+    if (parsed != null) {
+      return parsed;
+    }
+    final rawDate =
+        payload['date']?.toString() ?? payload['scheduled_at']?.toString();
+    final parsedDate = DateTime.tryParse(rawDate ?? '');
+    final time = _timeOfDayFromPayload(payload['start_time_label']?.toString());
+    if (parsedDate != null && time != null) {
+      return DateTime(
+        parsedDate.year,
+        parsedDate.month,
+        parsedDate.day,
+        time.hour,
+        time.minute,
+      );
+    }
+    return _workspaceNow.add(const Duration(days: 1, hours: 3));
+  }
+
+  DateTime _quizEndAtFromPayload(
+    Map<String, dynamic> payload,
+    DateTime startAt,
+    int durationMinutes,
+  ) {
+    final parsed = DateTime.tryParse(payload['end_at']?.toString() ?? '');
+    if (parsed != null) {
+      return parsed;
+    }
+    return startAt.add(Duration(minutes: durationMinutes));
+  }
+
+  String _quizStatusLabel({
+    required DateTime startAt,
+    required DateTime endAt,
+    required bool publishImmediately,
+    required bool saveAsDraft,
+  }) {
+    if (saveAsDraft || !publishImmediately) {
+      return 'Draft';
+    }
+    if (_workspaceNow.isBefore(startAt)) {
+      return 'Scheduled';
+    }
+    if (_workspaceNow.isAfter(endAt)) {
+      return 'Closed';
+    }
+    return 'Open';
+  }
+
+  List<TeachingQuizQuestion> _quizQuestionsFromPayload(
+    Map<String, dynamic> payload,
+  ) {
+    final questions = (payload['questions'] as List? ?? const [])
+        .whereType<Map>()
+        .map(
+          (question) => TeachingQuizQuestion(
+            id: question['id']?.toString() ?? 'question-${question.hashCode}',
+            prompt: question['prompt']?.toString() ?? 'Untitled question',
+            type: question['type']?.toString() ?? 'multiple_choice',
+            options: (question['options'] as List? ?? const [])
+                .map((item) => item.toString())
+                .toList(growable: false),
+            correctAnswers: (question['correct_answers'] as List? ?? const [])
+                .map((item) => item.toString())
+                .toList(growable: false),
+            marks: (question['marks'] as num?)?.toInt() ?? 1,
+            isRequired: question['is_required'] != false,
+          ),
+        )
+        .toList(growable: false);
+    return questions;
+  }
+
+  int _totalMarksFromPayload(
+    Map<String, dynamic> payload,
+    List<TeachingQuizQuestion> questions,
+  ) {
+    final explicit = (payload['total_marks'] as num?)?.toInt();
+    if (explicit != null && explicit > 0) {
+      return explicit;
+    }
+    if (questions.isEmpty) {
+      return 10;
+    }
+    return questions.fold<int>(0, (sum, question) => sum + question.marks);
+  }
+
+  String _quizWindowLabel({
+    required DateTime startAt,
+    required DateTime endAt,
+    required int durationMinutes,
+  }) {
+    final weekday = _weekdayName(startAt.weekday).substring(0, 3);
+    final startHour = startAt.hour.toString().padLeft(2, '0');
+    final startMinute = startAt.minute.toString().padLeft(2, '0');
+    return '$weekday $startHour:$startMinute - $durationMinutes min';
+  }
+
+  String _quizAttemptsLabel({
+    required String statusLabel,
+    required int enteredStudents,
+    required int totalStudents,
+  }) {
+    return statusLabel == 'Draft'
+        ? 'Awaiting publish'
+        : '$enteredStudents/$totalStudents attempts';
+  }
+
+  List<TeachingQuizSubmission> _quizSubmissionsFromPayload({
+    required Map<String, dynamic> payload,
+    required int totalStudents,
+    required int enteredStudents,
+    required int completedStudents,
+  }) {
+    final submissions = (payload['submissions'] as List? ?? const [])
+        .whereType<Map>()
+        .map(
+          (submission) => TeachingQuizSubmission(
+            studentName: submission['student_name']?.toString() ?? '',
+            studentCode: submission['student_code']?.toString() ?? '',
+            statusLabel: submission['status_label']?.toString() ?? 'Completed',
+            score: (submission['score'] as num?)?.toDouble(),
+            startedAtIso: submission['started_at']?.toString(),
+            submittedAtIso: submission['submitted_at']?.toString(),
+            progress: (submission['progress'] as num?)?.toDouble() ?? 1,
+          ),
+        )
+        .toList(growable: false);
+    if (submissions.isNotEmpty) {
+      return submissions;
+    }
+    final generated = <TeachingQuizSubmission>[];
+    for (var index = 0; index < completedStudents; index++) {
+      generated.add(
+        TeachingQuizSubmission(
+          studentName: 'Student ${index + 1}',
+          studentCode: '20260${(index + 1).toString().padLeft(3, '0')}',
+          statusLabel: 'Completed',
+          score: 5 + ((index * 3) % 16).toDouble(),
+          startedAtIso: _workspaceNow
+              .subtract(const Duration(hours: 2))
+              .toIso8601String(),
+          submittedAtIso: _workspaceNow
+              .subtract(Duration(minutes: index * 3))
+              .toIso8601String(),
+          progress: 1,
+        ),
+      );
+    }
+    final inProgress = (enteredStudents - completedStudents).clamp(
+      0,
+      totalStudents,
+    );
+    for (var index = 0; index < inProgress; index++) {
+      generated.add(
+        TeachingQuizSubmission(
+          studentName: 'Student ${completedStudents + index + 1}',
+          studentCode:
+              '20260${(completedStudents + index + 1).toString().padLeft(3, '0')}',
+          statusLabel: 'In Progress',
+          startedAtIso: _workspaceNow
+              .subtract(Duration(minutes: 8 + (index * 4)))
+              .toIso8601String(),
+          progress: 0.35 + ((index % 3) * 0.15),
+        ),
+      );
+    }
+    final notStarted = (totalStudents - enteredStudents).clamp(
+      0,
+      totalStudents,
+    );
+    for (var index = 0; index < notStarted; index++) {
+      generated.add(
+        TeachingQuizSubmission(
+          studentName: 'Student ${enteredStudents + index + 1}',
+          studentCode:
+              '20260${(enteredStudents + index + 1).toString().padLeft(3, '0')}',
+          statusLabel: 'Not Started',
+        ),
+      );
+    }
+    return generated;
   }
 
   TeachingSubject _teachingSubjectFromJson(Map<String, dynamic> json) {
@@ -1185,6 +1891,17 @@ class DoctorAssistantMockRepository {
               room: item['room']?.toString() ?? '',
               statusLabel: item['status_label']?.toString() ?? '',
               groupLabel: item['group_label']?.toString() ?? '',
+              description: item['description']?.toString(),
+              scheduledAtIso: item['scheduled_at']?.toString(),
+              durationMinutes: (item['duration_minutes'] as num?)?.toInt(),
+              deliveryMode: item['delivery_mode']?.toString(),
+              locationLabel: item['location_label']?.toString(),
+              meetingLink: item['meeting_link']?.toString(),
+              notes: item['notes']?.toString(),
+              expectedStudents: (item['expected_students'] as num?)?.toInt(),
+              addedToSchedule: item['add_to_schedule'] == true,
+              sendNotification: item['send_notification'] == true,
+              attachmentName: item['attachment_name']?.toString(),
             ),
           )
           .toList(growable: false),
@@ -1197,6 +1914,55 @@ class DoctorAssistantMockRepository {
               statusLabel: item['status_label']?.toString() ?? '',
               attemptsLabel: item['attempts_label']?.toString() ?? '',
               scopeLabel: item['scope_label']?.toString() ?? '',
+              description: item['description']?.toString(),
+              startAtIso: item['start_at']?.toString(),
+              endAtIso: item['end_at']?.toString(),
+              durationMinutes: (item['duration_minutes'] as num?)?.toInt(),
+              attemptsAllowed: (item['attempts_allowed'] as num?)?.toInt(),
+              totalMarks: (item['total_marks'] as num?)?.toInt(),
+              questionCount: (item['question_count'] as num?)?.toInt(),
+              audienceLabel: item['audience_label']?.toString(),
+              totalStudents: (item['total_students'] as num?)?.toInt(),
+              enteredStudents: (item['entered_students'] as num?)?.toInt(),
+              completedStudents: (item['completed_students'] as num?)?.toInt(),
+              passRate: (item['pass_rate'] as num?)?.toDouble(),
+              averageScore: (item['average_score'] as num?)?.toDouble(),
+              liveParticipants: (item['live_participants'] as num?)?.toInt(),
+              attachmentName: item['attachment_name']?.toString(),
+              questions: (item['questions'] as List? ?? const [])
+                  .whereType<Map>()
+                  .map(
+                    (question) => TeachingQuizQuestion(
+                      id: question['id']?.toString() ?? '',
+                      prompt: question['prompt']?.toString() ?? '',
+                      type: question['type']?.toString() ?? 'multiple_choice',
+                      options: (question['options'] as List? ?? const [])
+                          .map((option) => option.toString())
+                          .toList(growable: false),
+                      correctAnswers:
+                          (question['correct_answers'] as List? ?? const [])
+                              .map((answer) => answer.toString())
+                              .toList(growable: false),
+                      marks: (question['marks'] as num?)?.toInt() ?? 1,
+                      isRequired: question['is_required'] != false,
+                    ),
+                  )
+                  .toList(growable: false),
+              submissions: (item['submissions'] as List? ?? const [])
+                  .whereType<Map>()
+                  .map(
+                    (submission) => TeachingQuizSubmission(
+                      studentName: submission['student_name']?.toString() ?? '',
+                      studentCode: submission['student_code']?.toString() ?? '',
+                      statusLabel: submission['status_label']?.toString() ?? '',
+                      score: (submission['score'] as num?)?.toDouble(),
+                      startedAtIso: submission['started_at']?.toString(),
+                      submittedAtIso: submission['submitted_at']?.toString(),
+                      progress:
+                          (submission['progress'] as num?)?.toDouble() ?? 0,
+                    ),
+                  )
+                  .toList(growable: false),
             ),
           )
           .toList(growable: false),
@@ -1384,4 +2150,11 @@ class _MockAccount {
       focusAreas: focusAreas,
     );
   }
+}
+
+class _MockTimeOfDay {
+  const _MockTimeOfDay(this.hour, this.minute);
+
+  final int hour;
+  final int minute;
 }

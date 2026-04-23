@@ -19,4 +19,10 @@ class AppRoutes {
   static const staff = '/workspace/staff';
   static const admin = '/workspace/admin';
   static const settings = '/workspace/settings';
+
+  static String quizDetails(int id) => '$quizzes/$id';
+
+  static String quizPreview(int id) => '${quizDetails(id)}/preview';
+
+  static String quizResults(int id) => '${quizDetails(id)}/results';
 }
