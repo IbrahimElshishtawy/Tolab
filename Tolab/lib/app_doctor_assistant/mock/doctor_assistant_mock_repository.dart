@@ -41,21 +41,22 @@ class DoctorAssistantMockRepository {
   int _nextQuizId = 5000;
   int _nextTaskId = 6000;
 
-  Future<void> simulateLatency([Duration duration = const Duration(milliseconds: 280)]) {
+  Future<void> simulateLatency([
+    Duration duration = const Duration(milliseconds: 280),
+  ]) {
     return Future<void>.delayed(duration);
   }
 
-  SessionUser authenticate({
-    required String email,
-    required String password,
-  }) {
+  SessionUser authenticate({required String email, required String password}) {
     final account = _accountsByEmail[email.trim().toLowerCase()];
     if (account == null || account.password != password) {
       throw Exception('Invalid university email or password.');
     }
 
     if (!account.user.isActive) {
-      throw Exception('This account is inactive. Please contact administration.');
+      throw Exception(
+        'This account is inactive. Please contact administration.',
+      );
     }
 
     return account.user;
@@ -113,9 +114,11 @@ class DoctorAssistantMockRepository {
       permissions: List<String>.from(account.user.permissions),
     );
 
-    _accountsByEmail[account.user.universityEmail.toLowerCase()] = account.copyWith(
+    _accountsByEmail[account.user.universityEmail
+        .toLowerCase()] = account.copyWith(
       user: nextUser,
-      locationLabel: payload['location_label']?.toString() ?? account.locationLabel,
+      locationLabel:
+          payload['location_label']?.toString() ?? account.locationLabel,
       officeHours: payload['office_hours']?.toString() ?? account.officeHours,
     );
     return nextUser;
@@ -194,7 +197,10 @@ class DoctorAssistantMockRepository {
           id: 'mock-lec-${_nextLectureId++}',
           title: payload['title']?.toString() ?? 'Untitled lecture',
           audience: payload['scope']?.toString() ?? 'All groups',
-          dayLabel: _leadingWord(payload['schedule']?.toString(), fallback: 'Sunday'),
+          dayLabel: _leadingWord(
+            payload['schedule']?.toString(),
+            fallback: 'Sunday',
+          ),
           timeLabel: payload['schedule']?.toString() ?? '09:00 - 11:00',
           room: _roomFromNotes(payload['notes']?.toString()),
           statusLabel: 'Draft',
@@ -246,7 +252,10 @@ class DoctorAssistantMockRepository {
           id: 'mock-sec-${_nextSectionId++}',
           title: payload['title']?.toString() ?? 'Untitled section',
           assistantName: user.fullName,
-          dayLabel: _leadingWord(payload['schedule']?.toString(), fallback: 'Monday'),
+          dayLabel: _leadingWord(
+            payload['schedule']?.toString(),
+            fallback: 'Monday',
+          ),
           timeLabel: payload['schedule']?.toString() ?? '12:00 - 13:30',
           room: _roomFromNotes(payload['notes']?.toString()),
           statusLabel: 'Draft',
@@ -314,17 +323,41 @@ class DoctorAssistantMockRepository {
   }
 
   void saveTask(Map<String, dynamic> payload, SessionUser user) {
-    final subject = _subjectForPayload(payload['subject']?.toString());
+    final subjectId = (payload['subject_id'] as num?)?.toInt();
+    final subject = subjectId == null
+        ? _subjectForPayload(payload['subject']?.toString())
+        : _subjects.firstWhere(
+            (candidate) => candidate.id == subjectId,
+            orElse: () => _subjectForPayload(payload['subject']?.toString()),
+          );
+    final publishImmediately = payload['publish_immediately'] == true;
+    final addToSchedule = payload['add_to_schedule'] == true;
+    final statusLabel = publishImmediately
+        ? 'Published'
+        : addToSchedule
+        ? 'Scheduled'
+        : 'Draft';
+    final progressLabel = publishImmediately
+        ? '0% submitted'
+        : addToSchedule
+        ? 'Scheduled for release'
+        : 'Awaiting publish';
     final tasks = List<TeachingTask>.from(subject.tasks)
       ..insert(
         0,
         TeachingTask(
           id: 'mock-task-${_nextTaskId++}',
           title: payload['title']?.toString() ?? 'Untitled task',
-          deadlineLabel: payload['schedule']?.toString() ?? 'Due Thu 17 Apr',
-          statusLabel: 'Draft',
-          progressLabel: 'Awaiting submissions',
-          scopeLabel: payload['scope']?.toString() ?? 'Assigned cohort',
+          deadlineLabel:
+              payload['deadline_label']?.toString() ??
+              payload['schedule']?.toString() ??
+              'Due Thu 17 Apr',
+          statusLabel: statusLabel,
+          progressLabel: progressLabel,
+          scopeLabel:
+              payload['audience']?.toString() ??
+              payload['scope']?.toString() ??
+              'Assigned cohort',
         ),
       );
     _replaceSubject(subject, _cloneSubject(subject, tasks: tasks));
@@ -350,7 +383,8 @@ class DoctorAssistantMockRepository {
 
   void markNotificationRead(int notificationId) {
     final index = _notifications.indexWhere(
-      (item) => (int.tryParse(item.id) ?? _numericId(item.id)) == notificationId,
+      (item) =>
+          (int.tryParse(item.id) ?? _numericId(item.id)) == notificationId,
     );
     if (index == -1) {
       return;
@@ -450,7 +484,8 @@ class DoctorAssistantMockRepository {
         : <WorkspaceOverviewMetric>[
             WorkspaceOverviewMetric(
               label: 'Supported Sections',
-              value: '${subjectsFor(user).fold<int>(0, (sum, subject) => sum + subject.sections.length)}',
+              value:
+                  '${subjectsFor(user).fold<int>(0, (sum, subject) => sum + subject.sections.length)}',
               caption: 'Labs and tutorials currently coordinated',
               icon: Icons.widgets_rounded,
               color: AppColors.primary,
@@ -464,7 +499,8 @@ class DoctorAssistantMockRepository {
             ),
             WorkspaceOverviewMetric(
               label: 'Open Tasks',
-              value: '${tasksFor(user).where((task) => !task.isPublished).length + 7}',
+              value:
+                  '${tasksFor(user).where((task) => !task.isPublished).length + 7}',
               caption: 'Drafts and support actions in flight',
               icon: Icons.pending_actions_rounded,
               color: AppColors.warning,
@@ -482,7 +518,9 @@ class DoctorAssistantMockRepository {
           : user.isAdmin
           ? 'This profile highlights governance, staffing, and operational readiness using the same frontend mock data layer.'
           : 'This profile highlights section readiness, grading support, and student follow-up with local sample data.',
-      focusAreas: List<String>.from(account?.focusAreas ?? const ['Academic Delivery']),
+      focusAreas: List<String>.from(
+        account?.focusAreas ?? const ['Academic Delivery'],
+      ),
       officeHours: account?.officeHours ?? 'Sun - Thu, 09:00 - 15:00',
       locationLabel: account?.locationLabel ?? 'Campus Office',
       phoneLabel: account?.user.phone ?? '+20 100 555 0101',
@@ -553,10 +591,8 @@ class DoctorAssistantMockRepository {
       List<MockMessageThread>.unmodifiable(_messageThreads);
 
   MockAnalyticsSnapshot analyticsFor(SessionUser user) {
-    final averageScore = _results.fold<double>(
-          0,
-          (sum, item) => sum + item.percentage,
-        ) /
+    final averageScore =
+        _results.fold<double>(0, (sum, item) => sum + item.percentage) /
         max(1, _results.length);
 
     return MockAnalyticsSnapshot(
@@ -626,7 +662,7 @@ class DoctorAssistantMockRepository {
     final averageScore = _results.isEmpty
         ? 0.0
         : _results.fold<double>(0, (sum, item) => sum + item.percentage) /
-            _results.length;
+              _results.length;
     final riskStudents = studentsFor(user)
         .where((student) => student.riskLabel.toLowerCase().contains('risk'))
         .toList(growable: false);
@@ -648,8 +684,13 @@ class DoctorAssistantMockRepository {
               : user.isAdmin
               ? 'Staff, courses, and notifications are all running from local mock fixtures.'
               : 'Section coordination is active across ${subjects.length} subjects today.',
-          'departments': [(_accountForUser(user)?.department ?? 'Computer Science')],
-          'academic_years': subjects.map((subject) => subject.academicTerm).take(2).toList(),
+          'departments': [
+            (_accountForUser(user)?.department ?? 'Computer Science'),
+          ],
+          'academic_years': subjects
+              .map((subject) => subject.academicTerm)
+              .take(2)
+              .toList(),
         },
         'notification_badge': unreadNotifications,
         'generated_at': DateTime(2026, 4, 22, 10, 30).toIso8601String(),
@@ -686,14 +727,16 @@ class DoctorAssistantMockRepository {
         },
       ],
       'action_center': {
-        'summary': 'Three work items need attention before the next delivery cycle.',
+        'summary':
+            'Three work items need attention before the next delivery cycle.',
         'items': [
           {
             'id': 'action-1',
             'type': 'grading',
             'priority': 'HIGH',
             'title': 'Finalize pending grading',
-            'explanation': '${tasks.length} assignment milestones still need publication or review.',
+            'explanation':
+                '${tasks.length} assignment milestones still need publication or review.',
             'cta_label': 'Open results',
             'route': AppRoutes.results,
           },
@@ -702,27 +745,42 @@ class DoctorAssistantMockRepository {
             'type': 'alerts',
             'priority': 'MEDIUM',
             'title': 'Respond to unread alerts',
-            'explanation': '$unreadNotifications alert items are still unread in the workspace.',
+            'explanation':
+                '$unreadNotifications alert items are still unread in the workspace.',
             'cta_label': 'Open alerts',
             'route': AppRoutes.notifications,
           },
         ],
       },
       'today_focus': {
-        'headline': 'Keep delivery smooth across lectures, tasks, and support threads.',
+        'headline':
+            'Keep delivery smooth across lectures, tasks, and support threads.',
         'summary':
             'The frontend is now running against a realistic local academic fixture set, so every dashboard block remains interactive without backend dependencies.',
         'metrics': [
-          {'label': 'Subjects', 'value': '${subjects.length}', 'tone': 'primary'},
-          {'label': 'Live Quizzes', 'value': '${quizzes.length}', 'tone': 'secondary'},
-          {'label': 'Uploads', 'value': '${_uploads.length}', 'tone': 'success'},
+          {
+            'label': 'Subjects',
+            'value': '${subjects.length}',
+            'tone': 'primary',
+          },
+          {
+            'label': 'Live Quizzes',
+            'value': '${quizzes.length}',
+            'tone': 'secondary',
+          },
+          {
+            'label': 'Uploads',
+            'value': '${_uploads.length}',
+            'tone': 'success',
+          },
         ],
         'primary_action': {
           'id': 'focus-1',
           'type': 'manage',
           'priority': 'HIGH',
           'title': 'Open announcements',
-          'explanation': 'Review pinned updates and active group communication.',
+          'explanation':
+              'Review pinned updates and active group communication.',
           'cta_label': 'View announcements',
           'route': AppRoutes.announcements,
         },
@@ -732,136 +790,182 @@ class DoctorAssistantMockRepository {
           {
             'id': 'today',
             'label': 'Today',
-            'items': _schedule.take(3).map((event) => {
-                  'id': event.id,
-                  'type': event.type.name,
-                  'title': event.title,
-                  'subject_name': event.subject,
-                  'when_label':
-                      '${event.startAt.hour.toString().padLeft(2, '0')}:${event.startAt.minute.toString().padLeft(2, '0')} - ${event.endAt.hour.toString().padLeft(2, '0')}:${event.endAt.minute.toString().padLeft(2, '0')}',
-                  'status': event.status.label,
-                  'route': AppRoutes.schedule,
-                }).toList(),
+            'items': _schedule
+                .take(3)
+                .map(
+                  (event) => {
+                    'id': event.id,
+                    'type': event.type.name,
+                    'title': event.title,
+                    'subject_name': event.subject,
+                    'when_label':
+                        '${event.startAt.hour.toString().padLeft(2, '0')}:${event.startAt.minute.toString().padLeft(2, '0')} - ${event.endAt.hour.toString().padLeft(2, '0')}:${event.endAt.minute.toString().padLeft(2, '0')}',
+                    'status': event.status.label,
+                    'route': AppRoutes.schedule,
+                  },
+                )
+                .toList(),
           },
         ],
       },
       'subjects_overview': {
-        'summary': 'Each subject reflects realistic cohort size, section load, and health indicators.',
+        'summary':
+            'Each subject reflects realistic cohort size, section load, and health indicators.',
         'items': subjects
-            .map((subject) => {
-                  'id': subject.id,
-                  'name': subject.name,
-                  'code': subject.code,
-                  'department': subject.department,
-                  'academic_year': subject.academicTerm,
-                  'batch': '2026',
-                  'student_count': subject.studentCount,
-                  'groups_count': subject.sections.length,
-                  'sections_count': subject.sectionCount,
-                  'health_score': (subject.progress * 100).round() + 10,
-                  'risk_level': subject.progress >= 0.75 ? 'LOW' : 'WATCH',
-                  'quick_actions': [
-                    {'label': 'Open', 'route': '${AppRoutes.subjects}/${subject.id}'},
-                    {'label': 'Announcements', 'route': AppRoutes.announcements},
-                  ],
-                })
+            .map(
+              (subject) => {
+                'id': subject.id,
+                'name': subject.name,
+                'code': subject.code,
+                'department': subject.department,
+                'academic_year': subject.academicTerm,
+                'batch': '2026',
+                'student_count': subject.studentCount,
+                'groups_count': subject.sections.length,
+                'sections_count': subject.sectionCount,
+                'health_score': (subject.progress * 100).round() + 10,
+                'risk_level': subject.progress >= 0.75 ? 'LOW' : 'WATCH',
+                'quick_actions': [
+                  {
+                    'label': 'Open',
+                    'route': '${AppRoutes.subjects}/${subject.id}',
+                  },
+                  {'label': 'Announcements', 'route': AppRoutes.announcements},
+                ],
+              },
+            )
             .toList(),
       },
       'students_attention': {
         'count': riskStudents.length,
         'items': riskStudents
-            .map((student) => {
-                  'student_id': _numericId(student.id),
-                  'name': student.name,
-                  'reason': '${student.riskLabel} - attendance ${student.attendanceRate}%',
-                  'severity': 'HIGH',
-                  'cta_label': 'Review student',
-                  'route': AppRoutes.students,
-                  'details': [
-                    '${student.subjectCode} / ${student.sectionLabel}',
-                    'Engagement score ${student.engagementScore}',
-                  ],
-                  'last_seen': student.lastActiveAt.toIso8601String(),
-                })
+            .map(
+              (student) => {
+                'student_id': _numericId(student.id),
+                'name': student.name,
+                'reason':
+                    '${student.riskLabel} - attendance ${student.attendanceRate}%',
+                'severity': 'HIGH',
+                'cta_label': 'Review student',
+                'route': AppRoutes.students,
+                'details': [
+                  '${student.subjectCode} / ${student.sectionLabel}',
+                  'Engagement score ${student.engagementScore}',
+                ],
+                'last_seen': student.lastActiveAt.toIso8601String(),
+              },
+            )
             .toList(),
       },
       'student_activity_insights': {
-        'summary': 'Engagement and grading are derived from the same local student and result fixtures.',
-        'active_students': _students.where((student) => student.engagementScore >= 70).length,
-        'inactive_students': _students.where((student) => student.engagementScore < 50).length,
+        'summary':
+            'Engagement and grading are derived from the same local student and result fixtures.',
+        'active_students': _students
+            .where((student) => student.engagementScore >= 70)
+            .length,
+        'inactive_students': _students
+            .where((student) => student.engagementScore < 50)
+            .length,
         'missing_submissions': 12,
         'new_comments': 9,
-        'unread_messages': _messageThreads.fold<int>(0, (sum, thread) => sum + thread.unreadCount),
-        'low_engagement_count': _students.where((student) => student.engagementScore < 60).length,
+        'unread_messages': _messageThreads.fold<int>(
+          0,
+          (sum, thread) => sum + thread.unreadCount,
+        ),
+        'low_engagement_count': _students
+            .where((student) => student.engagementScore < 60)
+            .length,
         'engagement_rate': 78,
         'students_needing_attention': riskStudents.length,
         'items': riskStudents
-            .map((student) => {
-                  'student_id': _numericId(student.id),
-                  'name': student.name,
-                  'reason': 'Low activity trend this week',
-                  'severity': 'MEDIUM',
-                  'cta_label': 'Open students',
-                  'route': AppRoutes.students,
-                })
+            .map(
+              (student) => {
+                'student_id': _numericId(student.id),
+                'name': student.name,
+                'reason': 'Low activity trend this week',
+                'severity': 'MEDIUM',
+                'cta_label': 'Open students',
+                'route': AppRoutes.students,
+              },
+            )
             .toList(),
       },
       'course_health': {
         'overall_score': 84,
         'status': 'HEALTHY',
-        'summary': 'Mock subject health remains strong, with two courses still needing follow-up.',
+        'summary':
+            'Mock subject health remains strong, with two courses still needing follow-up.',
         'metrics': [
           {'label': 'Completion', 'value': '74%', 'tone': 'primary'},
           {'label': 'Attendance', 'value': '82%', 'tone': 'success'},
-          {'label': 'Alerts', 'value': '$unreadNotifications', 'tone': 'warning'},
+          {
+            'label': 'Alerts',
+            'value': '$unreadNotifications',
+            'tone': 'warning',
+          },
         ],
         'subjects': subjects
-            .map((subject) => {
-                  'subject_id': subject.id,
-                  'subject_name': subject.name,
-                  'score': (subject.progress * 100).round() + 10,
-                  'status': subject.progress >= 0.75 ? 'HEALTHY' : 'WATCH',
-                })
+            .map(
+              (subject) => {
+                'subject_id': subject.id,
+                'subject_name': subject.name,
+                'score': (subject.progress * 100).round() + 10,
+                'status': subject.progress >= 0.75 ? 'HEALTHY' : 'WATCH',
+              },
+            )
             .toList(),
       },
       'group_activity_feed': {
         'items': _groupPosts
-            .map((post) => {
-                  'id': post.id,
-                  'activity_type': 'post',
-                  'subject_name': post.subjectCode,
-                  'group_name': 'Course groups',
-                  'author_name': post.authorName,
-                  'content': post.body,
-                  'route': AppRoutes.announcements,
-                  'timestamp': post.createdAt.toIso8601String(),
-                })
+            .map(
+              (post) => {
+                'id': post.id,
+                'activity_type': 'post',
+                'subject_name': post.subjectCode,
+                'group_name': 'Course groups',
+                'author_name': post.authorName,
+                'content': post.body,
+                'route': AppRoutes.announcements,
+                'timestamp': post.createdAt.toIso8601String(),
+              },
+            )
             .toList(),
       },
       'notifications_preview': {
         'unread_count': unreadNotifications,
-        'items': _notifications.take(3).map((item) => {
-              'id': int.tryParse(item.id) ?? _numericId(item.id),
-              'title': item.title,
-              'body': item.body,
-              'category': item.courseLabel,
-              'route': AppRoutes.notifications,
-              'time': DateTime(2026, 4, 22, 9, 0).toIso8601String(),
-              'is_unread': !item.isRead,
-            }).toList(),
+        'items': _notifications
+            .take(3)
+            .map(
+              (item) => {
+                'id': int.tryParse(item.id) ?? _numericId(item.id),
+                'title': item.title,
+                'body': item.body,
+                'category': item.courseLabel,
+                'route': AppRoutes.notifications,
+                'time': DateTime(2026, 4, 22, 9, 0).toIso8601String(),
+                'is_unread': !item.isRead,
+              },
+            )
+            .toList(),
       },
       'pending_grading': {
         'can_manage': true,
         'count': tasks.length,
-        'summary': 'Assignments and quiz marks can be reviewed locally before real APIs are connected.',
-        'items': _results.take(3).map((result) => {
-              'task_id': _numericId(result.id),
-              'title': result.assessmentTitle,
-              'subject_name': result.subjectName,
-              'pending_count': max(1, (100 - result.percentage).round()),
-              'cta_label': 'Review',
-              'route': AppRoutes.results,
-            }).toList(),
+        'summary':
+            'Assignments and quiz marks can be reviewed locally before real APIs are connected.',
+        'items': _results
+            .take(3)
+            .map(
+              (result) => {
+                'task_id': _numericId(result.id),
+                'title': result.assessmentTitle,
+                'subject_name': result.subjectName,
+                'pending_count': max(1, (100 - result.percentage).round()),
+                'cta_label': 'Review',
+                'route': AppRoutes.results,
+              },
+            )
+            .toList(),
       },
       'performance_analytics': {
         'is_limited': false,
@@ -870,31 +974,44 @@ class DoctorAssistantMockRepository {
         'trend': analytics.activityTrend
             .map((point) => {'label': point.label, 'value': point.value})
             .toList(),
-        'top_performers': topResults.take(3).map((result) => {
-              'student_name': result.studentName,
-              'average_score': result.percentage,
-            }).toList(),
-        'low_performers': topResults.reversed.take(2).map((result) => {
-              'student_name': result.studentName,
-              'average_score': result.percentage,
-            }).toList(),
+        'top_performers': topResults
+            .take(3)
+            .map(
+              (result) => {
+                'student_name': result.studentName,
+                'average_score': result.percentage,
+              },
+            )
+            .toList(),
+        'low_performers': topResults.reversed
+            .take(2)
+            .map(
+              (result) => {
+                'student_name': result.studentName,
+                'average_score': result.percentage,
+              },
+            )
+            .toList(),
       },
       'risk_alerts': {
         'count': riskStudents.length,
         'items': riskStudents
-            .map((student) => {
-                  'id': student.id,
-                  'severity': 'HIGH',
-                  'title': '${student.name} needs follow-up',
-                  'explanation':
-                      '${student.subjectCode} attendance is ${student.attendanceRate}% with engagement ${student.engagementScore}.',
-                  'cta_label': 'Open students',
-                  'route': AppRoutes.students,
-                })
+            .map(
+              (student) => {
+                'id': student.id,
+                'severity': 'HIGH',
+                'title': '${student.name} needs follow-up',
+                'explanation':
+                    '${student.subjectCode} attendance is ${student.attendanceRate}% with engagement ${student.engagementScore}.',
+                'cta_label': 'Open students',
+                'route': AppRoutes.students,
+              },
+            )
             .toList(),
       },
       'weekly_summary': {
-        'headline': 'Frontend-only workspace is ready for realistic review cycles.',
+        'headline':
+            'Frontend-only workspace is ready for realistic review cycles.',
         'items': [
           {'label': 'Subjects', 'value': '${subjects.length}'},
           {'label': 'Results', 'value': '${_results.length}'},
@@ -906,14 +1023,16 @@ class DoctorAssistantMockRepository {
           {
             'id': 'suggest-1',
             'title': 'Open analytics before publishing the next task',
-            'explanation': 'The mock analytics page highlights low-engagement segments you may want to support.',
+            'explanation':
+                'The mock analytics page highlights low-engagement segments you may want to support.',
             'cta_label': 'View analytics',
             'route': AppRoutes.analytics,
           },
           {
             'id': 'suggest-2',
             'title': 'Pin a quick announcement for upcoming deadlines',
-            'explanation': 'Announcements and group posts are ready in the local workspace.',
+            'explanation':
+                'Announcements and group posts are ready in the local workspace.',
             'cta_label': 'Open announcements',
             'route': AppRoutes.announcements,
           },
@@ -1242,7 +1361,8 @@ class _MockAccount {
       user: SessionUser.fromJson(json),
       password: json['password']?.toString() ?? '',
       department: json['department']?.toString() ?? 'Computer Science',
-      officeHours: json['office_hours']?.toString() ?? 'Sun - Thu, 09:00 - 15:00',
+      officeHours:
+          json['office_hours']?.toString() ?? 'Sun - Thu, 09:00 - 15:00',
       locationLabel: json['location_label']?.toString() ?? 'Campus Office',
       focusAreas: (json['focus_areas'] as List? ?? const [])
           .map((item) => item.toString())

@@ -255,9 +255,14 @@ class ApiClient {
 
   Future<bool> _refreshSession() async {
     final session = await _tokenStorage.read();
+    final isLocalSession = session?['local_session'] == true;
     final refreshToken = session?['refresh_token']?.toString();
 
-    if (refreshToken == null || refreshToken.isEmpty) {
+    if (isLocalSession ||
+        refreshToken == null ||
+        refreshToken.isEmpty ||
+        refreshToken.length < 32 ||
+        refreshToken.startsWith('mock-refresh-')) {
       return false;
     }
 

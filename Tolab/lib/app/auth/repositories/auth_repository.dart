@@ -1,6 +1,7 @@
 import '../../../app_admin/core/services/app_dependencies.dart' as admin_deps;
 import '../../../app_admin/modules/auth/services/auth_service.dart';
 import '../../../app_admin/shared/models/auth_models.dart';
+import '../../core/config/backend_mode.dart';
 import '../../../app_doctor_assistant/core/models/session_user.dart';
 import '../../../app_doctor_assistant/core/storage/token_storage.dart';
 import '../../../app_doctor_assistant/modules/auth/repositories/auth_repository.dart'
@@ -56,18 +57,27 @@ class UnifiedAuthRepository {
     required String email,
     required String password,
   }) async {
+    if (BackendModeConfig.isMockMode) {
+      final result = await _doctorRepository.login(
+        email: email,
+        password: password,
+      );
+      final session = _staffSessionFromResult(
+        result,
+        fallbackSource: 'staff_portal',
+      );
+      await _persistSession(session);
+      return session;
+    }
+
     try {
       final result = await _doctorRepository.login(
         email: email,
         password: password,
       );
-
-      final session = AuthSession(
-        user: AuthUser.fromSessionUser(result.user),
-        accessToken: result.tokens['access_token']?.toString() ?? '',
-        refreshToken: result.tokens['refresh_token']?.toString() ?? '',
-        isLocalSession: result.tokens['local_session'] == true,
-        source: 'staff_portal',
+      final session = _staffSessionFromResult(
+        result,
+        fallbackSource: 'staff_portal',
       );
       await _persistSession(session);
       return session;
@@ -95,12 +105,9 @@ class UnifiedAuthRepository {
     }
 
     final result = await _doctorRepository.createDevTestUser();
-    final session = AuthSession(
-      user: AuthUser.fromSessionUser(result.user),
-      accessToken: result.tokens['access_token']?.toString() ?? '',
-      refreshToken: result.tokens['refresh_token']?.toString() ?? '',
-      isLocalSession: result.tokens['local_session'] == true,
-      source: result.tokens['local_session'] == true
+    final session = _staffSessionFromResult(
+      result,
+      fallbackSource: result.tokens['local_session'] == true
           ? 'dev_quick_login_mock'
           : 'dev_quick_login_api',
     );
@@ -132,20 +139,28 @@ class UnifiedAuthRepository {
   }
 
   Future<void> _mirrorLegacyStorage(AuthSession session) async {
-    await _adminAuthService.persistTokens(
-      AuthTokens(
-        accessToken: session.accessToken,
-        refreshToken: session.refreshToken,
-      ),
-    );
+    if (_shouldPersistToAdminStorage(session)) {
+      await _adminAuthService.persistTokens(
+        AuthTokens(
+          accessToken: session.accessToken,
+          refreshToken: session.refreshToken,
+        ),
+      );
+    } else {
+      await _adminAuthService.clearSession();
+    }
 
-    await _doctorTokenStorage.write(<String, dynamic>{
-      'access_token': session.accessToken,
-      'refresh_token': session.refreshToken,
-      'local_session': session.isLocalSession,
-      'user': session.user.toSessionUser().toJson(),
-      'source': session.source,
-    });
+    if (_shouldPersistToDoctorStorage(session)) {
+      await _doctorTokenStorage.write(<String, dynamic>{
+        'access_token': session.accessToken,
+        'refresh_token': session.refreshToken,
+        'local_session': session.isLocalSession,
+        'user': session.user.toSessionUser().toJson(),
+        'source': session.source,
+      });
+    } else {
+      await _doctorTokenStorage.clear();
+    }
   }
 
   Future<AuthSession?> _restoreFromDoctorStorage() async {
@@ -201,5 +216,32 @@ class UnifiedAuthRepository {
     }
 
     return const <String, dynamic>{};
+  }
+
+  AuthSession _staffSessionFromResult(
+    ({SessionUser user, Map<String, dynamic> tokens}) result, {
+    required String fallbackSource,
+  }) {
+    final isLocalSession = result.tokens['local_session'] == true;
+    return AuthSession(
+      user: AuthUser.fromSessionUser(result.user),
+      accessToken: result.tokens['access_token']?.toString() ?? '',
+      refreshToken: result.tokens['refresh_token']?.toString() ?? '',
+      isLocalSession: isLocalSession,
+      source:
+          result.tokens['source']?.toString() ??
+          (isLocalSession ? 'mock_frontend' : fallbackSource),
+    );
+  }
+
+  bool _shouldPersistToAdminStorage(AuthSession session) {
+    return !session.isLocalSession &&
+        (session.source == 'admin_portal' ||
+            session.source == 'legacy_admin_portal');
+  }
+
+  bool _shouldPersistToDoctorStorage(AuthSession session) {
+    return session.source != 'admin_portal' &&
+        session.source != 'legacy_admin_portal';
   }
 }

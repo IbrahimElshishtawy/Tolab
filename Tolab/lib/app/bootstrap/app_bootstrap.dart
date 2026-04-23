@@ -60,6 +60,9 @@ class UnifiedAppBootstrap {
     doctorDependencies.apiClient.setUnauthorizedHandler((message) {
       return authController.expireSession(message: message);
     });
+    adminDependencies.apiClient.setUnauthorizedHandler((message) {
+      return authController.expireSession(message: message);
+    });
 
     await authController.bootstrap();
 

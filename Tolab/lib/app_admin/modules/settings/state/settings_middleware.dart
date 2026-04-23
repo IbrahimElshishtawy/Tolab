@@ -11,7 +11,10 @@ List<Middleware<AppState>> createSettingsMiddleware(AppDependencies deps) {
     TypedMiddleware<AppState, LoadSettingsAction>((store, action, next) async {
       next(action);
       try {
-        final bundle = await deps.settingsRepository.fetchSettings();
+        final preferRemote = await deps.authService.hasUsableSession();
+        final bundle = await deps.settingsRepository.fetchSettings(
+          preferRemote: preferRemote,
+        );
         store.dispatch(SettingsLoadedAction(bundle));
       } catch (error) {
         store.dispatch(SettingsLoadFailedAction(_messageOf(error)));

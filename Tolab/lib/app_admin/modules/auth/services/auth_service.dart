@@ -6,6 +6,7 @@ class AuthService {
 
   final SecureStorageService _secureStorage;
   static const String _demoAccessTokenPrefix = 'demo-access-token';
+  static const String _mockAccessTokenPrefix = 'mock-access-';
 
   Future<void> persistTokens(AuthTokens tokens) async {
     await _secureStorage.writeAccessToken(tokens.accessToken);
@@ -21,15 +22,16 @@ class AuthService {
 
   Future<bool> hasUsableSession() async {
     final token = await _secureStorage.readAccessToken();
-    return token != null &&
-        token.isNotEmpty &&
-        !token.startsWith(_demoAccessTokenPrefix);
+    return token != null && token.isNotEmpty && !_isLocalToken(token);
   }
 
   Future<bool> isDemoSession() async {
     final token = await _secureStorage.readAccessToken();
-    return token != null &&
-        token.isNotEmpty &&
-        token.startsWith(_demoAccessTokenPrefix);
+    return token != null && token.isNotEmpty && _isLocalToken(token);
+  }
+
+  bool _isLocalToken(String token) {
+    return token.startsWith(_demoAccessTokenPrefix) ||
+        token.startsWith(_mockAccessTokenPrefix);
   }
 }

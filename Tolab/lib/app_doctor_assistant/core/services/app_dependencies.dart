@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../../../app/core/config/backend_mode.dart';
 import '../network/api_client.dart';
 import '../storage/token_storage.dart';
 import '../../modules/admin/repositories/admin_repository.dart';
@@ -61,30 +62,51 @@ class AppDependencies {
     final apiClient = ApiClient(tokenStorage: tokenStorage);
     final authService = AuthService(apiClient);
     final mockRepository = DoctorAssistantMockRepository.instance;
+    final useMockBackend = BackendModeConfig.isMockMode;
 
     return AppDependencies._(
       tokenStorage: tokenStorage,
       apiClient: apiClient,
       authService: authService,
-      authRepository: MockAuthRepository(tokenStorage, mockRepository),
-      dashboardRepository: MockDashboardRepository(tokenStorage, mockRepository),
-      subjectsRepository: MockSubjectsRepository(tokenStorage, mockRepository),
-      lecturesRepository: MockLecturesRepository(tokenStorage, mockRepository),
-      sectionContentRepository: MockSectionContentRepository(
-        tokenStorage,
-        mockRepository,
-      ),
-      quizzesRepository: MockQuizzesRepository(tokenStorage, mockRepository),
-      tasksRepository: MockTasksRepository(tokenStorage, mockRepository),
-      scheduleRepository: MockScheduleRepository(tokenStorage, mockRepository),
-      notificationsRepository: MockNotificationsRepository(
-        tokenStorage,
-        mockRepository,
-      ),
-      uploadsRepository: MockUploadsRepository(tokenStorage, mockRepository),
-      settingsRepository: MockSettingsRepository(tokenStorage, mockRepository),
-      staffRepository: MockStaffRepository(mockRepository),
-      adminRepository: MockAdminRepository(mockRepository),
+      authRepository: useMockBackend
+          ? MockAuthRepository(tokenStorage, mockRepository)
+          : ApiAuthRepository(authService, tokenStorage),
+      dashboardRepository: useMockBackend
+          ? MockDashboardRepository(tokenStorage, mockRepository)
+          : ApiDashboardRepository(apiClient),
+      subjectsRepository: useMockBackend
+          ? MockSubjectsRepository(tokenStorage, mockRepository)
+          : ApiSubjectsRepository(apiClient),
+      lecturesRepository: useMockBackend
+          ? MockLecturesRepository(tokenStorage, mockRepository)
+          : ApiLecturesRepository(apiClient),
+      sectionContentRepository: useMockBackend
+          ? MockSectionContentRepository(tokenStorage, mockRepository)
+          : ApiSectionContentRepository(apiClient),
+      quizzesRepository: useMockBackend
+          ? MockQuizzesRepository(tokenStorage, mockRepository)
+          : ApiQuizzesRepository(apiClient),
+      tasksRepository: useMockBackend
+          ? MockTasksRepository(tokenStorage, mockRepository)
+          : ApiTasksRepository(apiClient),
+      scheduleRepository: useMockBackend
+          ? MockScheduleRepository(tokenStorage, mockRepository)
+          : ApiScheduleRepository(apiClient),
+      notificationsRepository: useMockBackend
+          ? MockNotificationsRepository(tokenStorage, mockRepository)
+          : ApiNotificationsRepository(apiClient),
+      uploadsRepository: useMockBackend
+          ? MockUploadsRepository(tokenStorage, mockRepository)
+          : ApiUploadsRepository(apiClient),
+      settingsRepository: useMockBackend
+          ? MockSettingsRepository(tokenStorage, mockRepository)
+          : ApiSettingsRepository(apiClient, tokenStorage),
+      staffRepository: useMockBackend
+          ? MockStaffRepository(mockRepository)
+          : ApiStaffRepository(apiClient),
+      adminRepository: useMockBackend
+          ? MockAdminRepository(mockRepository)
+          : ApiAdminRepository(apiClient),
     );
   }
 }

@@ -52,6 +52,9 @@ class ApiClient {
               return;
             }
           }
+          if (error.response?.statusCode == 401) {
+            await _handleUnauthorized(_mapDioError(error));
+          }
           handler.next(error);
         },
       ),
@@ -74,8 +77,16 @@ class ApiClient {
   static const int _maxRetryAttempts = 2;
   static const String _demoAccessTokenPrefix = 'demo-access-token';
   static const String _demoRefreshTokenPrefix = 'demo-refresh-token';
+  static const String _mockAccessTokenPrefix = 'mock-access-';
+  static const String _mockRefreshTokenPrefix = 'mock-refresh-';
   static const Duration _missingRouteCooldown = Duration(seconds: 30);
   final Map<String, DateTime> _missingRoutes = <String, DateTime>{};
+  Future<void> Function(String message)? _unauthorizedHandler;
+  bool _isHandlingUnauthorized = false;
+
+  void setUnauthorizedHandler(Future<void> Function(String message) handler) {
+    _unauthorizedHandler = handler;
+  }
 
   Future<T> get<T>(
     String path, {
@@ -171,6 +182,7 @@ class ApiClient {
     required T Function(dynamic json) decoder,
   }) async {
     if (_requiresAuthentication(path) && !await _hasUsableSession()) {
+      await _handleUnauthorized('Session expired, please login again.');
       throw AppException('Unauthenticated.', statusCode: 401);
     }
 
@@ -268,13 +280,16 @@ class ApiClient {
   bool _hasUsableAccessToken(String? token) {
     return token != null &&
         token.isNotEmpty &&
-        !token.startsWith(_demoAccessTokenPrefix);
+        !token.startsWith(_demoAccessTokenPrefix) &&
+        !token.startsWith(_mockAccessTokenPrefix);
   }
 
   bool _hasUsableRefreshToken(String? token) {
     return token != null &&
         token.isNotEmpty &&
-        !token.startsWith(_demoRefreshTokenPrefix);
+        token.length >= 32 &&
+        !token.startsWith(_demoRefreshTokenPrefix) &&
+        !token.startsWith(_mockRefreshTokenPrefix);
   }
 
   Future<bool> _canAttemptTokenRefresh() async {
@@ -343,5 +358,19 @@ class ApiClient {
         error.message ?? 'The server could not complete the request.',
       _ => error.message ?? 'Network request failed.',
     };
+  }
+
+  Future<void> _handleUnauthorized(String message) async {
+    if (_isHandlingUnauthorized) {
+      return;
+    }
+
+    _isHandlingUnauthorized = true;
+    try {
+      await _secureStorage.clearSession();
+      await _unauthorizedHandler?.call(message);
+    } finally {
+      _isHandlingUnauthorized = false;
+    }
   }
 }
