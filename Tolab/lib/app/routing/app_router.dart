@@ -113,6 +113,10 @@ class UnifiedAppRouter {
     return NoTransitionPage<void>(key: state.pageKey, child: child);
   }
 
+  static Page<void> _doctorPage(GoRouterState state, Widget child) {
+    return _noTransition(state, DoctorAssistantScope(child: child));
+  }
+
   List<RouteBase> get _adminRoutes => <RouteBase>[
     GoRoute(
       path: RoutePaths.dashboard,
@@ -219,150 +223,138 @@ class UnifiedAppRouter {
   List<RouteBase> get _doctorRoutes => <RouteBase>[
     GoRoute(
       path: staff_routes.AppRoutes.dashboard,
-      builder: (context, state) =>
-          const DoctorAssistantScope(child: DashboardScreen()),
+      pageBuilder: (context, state) =>
+          _doctorPage(state, const DashboardScreen()),
     ),
     GoRoute(
       path: staff_routes.AppRoutes.subjects,
-      builder: (context, state) =>
-          const DoctorAssistantScope(child: SubjectsScreen()),
+      pageBuilder: (context, state) => _doctorPage(state, const SubjectsScreen()),
     ),
     GoRoute(
       path: '${staff_routes.AppRoutes.subjects}/:id',
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
-        return DoctorAssistantScope(child: SubjectDetailsScreen(subjectId: id));
+        return _doctorPage(state, SubjectDetailsScreen(subjectId: id));
       },
     ),
     GoRoute(
       path: staff_routes.AppRoutes.lectures,
-      builder: (context, state) =>
-          const DoctorAssistantScope(child: LecturesScreen()),
+      pageBuilder: (context, state) => _doctorPage(state, const LecturesScreen()),
     ),
     GoRoute(
       path: staff_routes.AppRoutes.addLecture,
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final subjectId =
             int.tryParse(state.uri.queryParameters['subjectId'] ?? '');
-        return DoctorAssistantScope(
-          child: AddLecturePage(initialSubjectId: subjectId),
-        );
+        return _doctorPage(state, AddLecturePage(initialSubjectId: subjectId));
       },
     ),
     GoRoute(
       path: '${staff_routes.AppRoutes.lectures}/edit/:lectureId',
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final id = int.tryParse(state.pathParameters['lectureId'] ?? '') ?? 0;
-        return DoctorAssistantScope(child: AddLecturePage(lectureId: id));
+        return _doctorPage(state, AddLecturePage(lectureId: id));
       },
     ),
     GoRoute(
       path: staff_routes.AppRoutes.sectionContent,
-      builder: (context, state) =>
-          const DoctorAssistantScope(child: SectionContentScreen()),
+      pageBuilder: (context, state) =>
+          _doctorPage(state, const SectionContentScreen()),
     ),
     GoRoute(
       path: staff_routes.AppRoutes.quizzes,
-      builder: (context, state) =>
-          const DoctorAssistantScope(child: QuizzesScreen()),
+      pageBuilder: (context, state) => _doctorPage(state, const QuizzesScreen()),
     ),
     GoRoute(
       path: '${staff_routes.AppRoutes.quizzes}/:id',
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
-        return DoctorAssistantScope(child: QuizDetailsPage(quizId: id));
+        return _doctorPage(state, QuizDetailsPage(quizId: id));
       },
     ),
     GoRoute(
       path: '${staff_routes.AppRoutes.quizzes}/:id/preview',
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
-        return DoctorAssistantScope(child: QuizPreviewPage(quizId: id));
+        return _doctorPage(state, QuizPreviewPage(quizId: id));
       },
     ),
     GoRoute(
       path: '${staff_routes.AppRoutes.quizzes}/:id/results',
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
-        return DoctorAssistantScope(child: QuizResultsPage(quizId: id));
+        return _doctorPage(state, QuizResultsPage(quizId: id));
       },
     ),
     GoRoute(
       path: staff_routes.AppRoutes.tasks,
-      builder: (context, state) =>
-          const DoctorAssistantScope(child: TasksScreen()),
+      pageBuilder: (context, state) => _doctorPage(state, const TasksScreen()),
     ),
     GoRoute(
       path: staff_routes.AppRoutes.results,
-      builder: (context, state) =>
-          const DoctorAssistantScope(child: ResultsScreen()),
+      pageBuilder: (context, state) => _doctorPage(state, const ResultsScreen()),
     ),
     GoRoute(
       path: '${staff_routes.AppRoutes.results}/:id',
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
-        return DoctorAssistantScope(child: SubjectResultsPage(subjectId: id));
+        return _doctorPage(state, SubjectResultsPage(subjectId: id));
       },
     ),
     GoRoute(
       path: '${staff_routes.AppRoutes.results}/:id/grade-entry',
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
-        return DoctorAssistantScope(child: GradeEntryPage(subjectId: id));
+        return _doctorPage(state, GradeEntryPage(subjectId: id));
       },
     ),
     GoRoute(
       path: staff_routes.AppRoutes.students,
-      builder: (context, state) =>
-          const DoctorAssistantScope(child: doctor_students.StudentsScreen()),
+      pageBuilder: (context, state) =>
+          _doctorPage(state, const doctor_students.StudentsScreen()),
     ),
     GoRoute(
       path: staff_routes.AppRoutes.schedule,
-      builder: (context, state) =>
-          const DoctorAssistantScope(child: ScheduleScreen()),
+      pageBuilder: (context, state) => _doctorPage(state, const ScheduleScreen()),
     ),
     GoRoute(
       path: staff_routes.AppRoutes.notifications,
-      builder: (context, state) =>
-          const DoctorAssistantScope(child: NotificationsScreen()),
+      pageBuilder: (context, state) =>
+          _doctorPage(state, const NotificationsScreen()),
     ),
     GoRoute(
       path: staff_routes.AppRoutes.announcements,
-      builder: (context, state) =>
-          const DoctorAssistantScope(child: AnnouncementsScreen()),
+      pageBuilder: (context, state) =>
+          _doctorPage(state, const AnnouncementsScreen()),
     ),
     GoRoute(
       path: staff_routes.AppRoutes.analytics,
-      builder: (context, state) =>
-          const DoctorAssistantScope(child: AnalyticsScreen()),
+      pageBuilder: (context, state) => _doctorPage(state, const AnalyticsScreen()),
     ),
     GoRoute(
       path: staff_routes.AppRoutes.uploads,
-      builder: (context, state) =>
-          const DoctorAssistantScope(child: UploadsScreen()),
+      pageBuilder: (context, state) => _doctorPage(state, const UploadsScreen()),
     ),
     GoRoute(
       path: staff_routes.AppRoutes.staff,
-      builder: (context, state) =>
-          const DoctorAssistantScope(child: StaffScreen()),
+      pageBuilder: (context, state) => _doctorPage(state, const StaffScreen()),
     ),
     GoRoute(
       path: staff_routes.AppRoutes.settings,
-      builder: (context, state) =>
-          const DoctorAssistantScope(child: SettingsScreen()),
+      pageBuilder: (context, state) => _doctorPage(state, const SettingsScreen()),
     ),
     GoRoute(
       path: '${staff_routes.AppRoutes.subjects}/:id/group',
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
-        return DoctorAssistantScope(child: SubjectGroupPage(subjectId: id));
+        return _doctorPage(state, SubjectGroupPage(subjectId: id));
       },
     ),
     GoRoute(
       path: '${staff_routes.AppRoutes.subjects}/:id/group/new',
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
-        return DoctorAssistantScope(child: AddPostPage(subjectId: id));
+        return _doctorPage(state, AddPostPage(subjectId: id));
       },
     ),
   ];

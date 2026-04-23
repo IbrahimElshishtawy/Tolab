@@ -16,6 +16,7 @@ use App\Modules\StaffPortal\Controllers\SubjectGroupController;
 use App\Modules\StaffPortal\Controllers\SubjectController;
 use App\Modules\StaffPortal\Controllers\TaskController;
 use App\Modules\StaffPortal\Controllers\UploadController;
+use App\Modules\StaffPortal\Controllers\WorkspaceInsightsController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('staff-portal')->group(function () {
@@ -38,6 +39,10 @@ Route::prefix('staff-portal')->group(function () {
         Route::put('posts/{post}', [SubjectGroupController::class, 'update'])->middleware('permission:community.post');
         Route::delete('posts/{post}', [SubjectGroupController::class, 'destroy'])->middleware('permission:community.post');
         Route::patch('posts/{post}/pin', [SubjectGroupController::class, 'togglePin'])->middleware('permission:community.post');
+        Route::get('analytics/summary', [WorkspaceInsightsController::class, 'analytics'])->middleware('permission:results.view');
+        Route::get('feed', [WorkspaceInsightsController::class, 'feed'])->middleware('permission:community.view');
+        Route::get('schedule/conflicts', [WorkspaceInsightsController::class, 'conflicts'])->middleware('permission:schedule.view');
+        Route::get('settings/control-panel', [WorkspaceInsightsController::class, 'controlPanelSettings']);
         Route::get('lectures', [LectureController::class, 'index'])->middleware('permission:lectures.view');
         Route::post('lectures', [LectureController::class, 'store'])->middleware('permission:lectures.create');
         Route::delete('lectures/{lecture}', [LectureController::class, 'destroy'])->middleware('permission:lectures.delete');

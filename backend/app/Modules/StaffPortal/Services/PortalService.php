@@ -68,6 +68,291 @@ class PortalService
         ];
     }
 
+    public function analyticsSummary(User $user): array
+    {
+        $subjects = $this->subjects($user);
+
+        $subjectHealth = $subjects->map(function (Subject $subject) use ($user) {
+            $students = collect($this->subjectStudents($user, $subject));
+            $results = $this->subjectResults($user, $subject);
+            $averageGrade = round((float) ($students->avg('average_score') ?? 0), 1);
+            $attendance = round((float) ($students->avg('attendance_rate') ?? 0), 1);
+            $engagement = (int) max(
+                35,
+                min(
+                    100,
+                    round(
+                        ($attendance * 0.35)
+                        + ($averageGrade * 0.35)
+                        + (max(0, 100 - (($results['pending_review_count'] ?? 0) * 10)) * 0.15)
+                        + (count($results['recent_activity'] ?? []) * 3)
+                    ),
+                ),
+            );
+            $completionRate = (int) max(
+                45,
+                min(
+                    100,
+                    round(
+                        55
+                        + (($results['published_results_count'] ?? 0) * 7)
+                        - (($results['pending_review_count'] ?? 0) * 4)
+                    ),
+                ),
+            );
+            $healthScore = (int) max(
+                0,
+                min(
+                    100,
+                    round(
+                        ($averageGrade * 0.45)
+                        + ($attendance * 0.25)
+                        + ($engagement * 0.15)
+                        + ($completionRate * 0.15)
+                    ),
+                ),
+            );
+
+            return [
+                'subject_id' => $subject->id,
+                'subject_code' => $subject->code,
+                'subject_name' => $subject->name,
+                'average_grade' => $averageGrade,
+                'attendance_trend' => (int) round($attendance - 78),
+                'engagement_score' => $engagement,
+                'completion_rate' => $completionRate,
+                'risk_level' => $healthScore < 60 ? 'High Risk' : ($healthScore < 75 ? 'Watch' : 'Healthy'),
+                'health_score' => $healthScore,
+                'quiz_participation' => (int) max(
+                    50,
+                    min(
+                        100,
+                        round(
+                            68
+                            + (($results['analytics']['graded_quizzes'] ?? 0) * 6)
+                            - (($results['analytics']['pending_quizzes'] ?? 0) * 3)
+                        ),
+                    ),
+                ),
+                'pending_review_count' => $results['pending_review_count'] ?? 0,
+            ];
+        })->values();
+
+        $studentSignals = $subjects->flatMap(function (Subject $subject) use ($user) {
+            return collect($this->subjectStudents($user, $subject))->map(fn (array $student) => [
+                ...$student,
+                'subject_id' => $subject->id,
+                'subject_code' => $subject->code,
+                'subject_name' => $subject->name,
+                'engagement_score' => (int) max(
+                    30,
+                    min(100, round((($student['attendance_rate'] ?? 0) * 0.4) + (($student['average_score'] ?? 0) * 0.6))),
+                ),
+                'risk_label' => ($student['average_score'] ?? 0) < 60 || ($student['attendance_rate'] ?? 0) < 75
+                    ? 'High Risk'
+                    : (($student['average_score'] ?? 0) < 72 || ($student['attendance_rate'] ?? 0) < 82 ? 'Watch' : 'Healthy'),
+            ]);
+        })->values();
+
+        $alerts = collect();
+        $highRiskStudents = $studentSignals->where('risk_label', 'High Risk')->count();
+        if ($highRiskStudents > 0) {
+            $alerts->push([
+                'type' => 'high_risk_students',
+                'severity' => 'high',
+                'title' => $highRiskStudents.' students need intervention',
+                'description' => 'Attendance or academic performance dropped below the safe threshold.',
+            ]);
+        }
+
+        foreach ($subjectHealth->where('average_grade', '<', 65)->values() as $subject) {
+            $alerts->push([
+                'type' => 'subject_health',
+                'severity' => 'high',
+                'title' => $subject['subject_code'].' is under the success target',
+                'description' => 'Average grade is '.$subject['average_grade'].' and health score is '.$subject['health_score'].'.',
+            ]);
+        }
+
+        foreach ($subjectHealth->where('quiz_participation', '<', 70)->values() as $subject) {
+            $alerts->push([
+                'type' => 'quiz_participation',
+                'severity' => 'medium',
+                'title' => $subject['subject_code'].' quiz participation is low',
+                'description' => 'Only '.$subject['quiz_participation'].'% participation was detected in the current quiz flow.',
+            ]);
+        }
+
+        return [
+            'summary' => [
+                'assigned_subjects' => $subjects->count(),
+                'students_monitored' => $studentSignals->count(),
+                'average_attendance' => round((float) ($studentSignals->avg('attendance_rate') ?? 0), 1),
+                'average_grade' => round((float) ($studentSignals->avg('average_score') ?? 0), 1),
+                'high_risk_students' => $highRiskStudents,
+            ],
+            'alerts' => $alerts->values()->all(),
+            'subject_health' => $subjectHealth->all(),
+            'top_students' => $studentSignals
+                ->sortByDesc(fn (array $student) => (($student['average_score'] ?? 0) * 0.55) + (($student['attendance_rate'] ?? 0) * 0.25) + (($student['engagement_score'] ?? 0) * 0.2))
+                ->take(5)
+                ->values()
+                ->all(),
+            'students_needing_attention' => $studentSignals
+                ->sortBy(fn (array $student) => (($student['average_score'] ?? 0) * 0.6) + (($student['attendance_rate'] ?? 0) * 0.4))
+                ->take(5)
+                ->values()
+                ->all(),
+        ];
+    }
+
+    public function staffFeed(User $user): array
+    {
+        $subjects = $this->subjects($user);
+        $feeds = $subjects->map(fn (Subject $subject) => $this->subjectGroup($user, $subject))->values();
+
+        $posts = $feeds
+            ->flatMap(fn (array $feed) => $feed['posts'] ?? [])
+            ->sortByDesc('created_at')
+            ->values();
+        $comments = $feeds
+            ->flatMap(fn (array $feed) => $feed['latest_comments'] ?? [])
+            ->sortByDesc('created_at')
+            ->values();
+
+        $unresolved = $posts
+            ->filter(function (array $post) {
+                $comments = collect($post['comments'] ?? []);
+
+                return ($post['comments_count'] ?? 0) >= 2
+                    && $comments->isNotEmpty()
+                    && $comments->every(fn (array $comment) => ($comment['author_role'] ?? 'student') === 'student');
+            })
+            ->take(8)
+            ->values()
+            ->all();
+
+        $studentQuestions = $comments
+            ->filter(fn (array $comment) => ($comment['author_role'] ?? 'student') === 'student')
+            ->take(8)
+            ->values()
+            ->all();
+
+        return [
+            'summary' => [
+                'subjects_count' => $subjects->count(),
+                'posts_count' => $posts->count(),
+                'comments_count' => $comments->count(),
+                'unresolved_threads_count' => count($unresolved),
+            ],
+            'latest_posts' => $posts->take(12)->all(),
+            'latest_comments' => $comments->take(12)->all(),
+            'unresolved_threads' => $unresolved,
+            'student_questions' => $studentQuestions,
+        ];
+    }
+
+    public function scheduleConflicts(User $user): array
+    {
+        $events = $this->schedule($user)->values();
+        $conflicts = collect();
+
+        for ($index = 0; $index < $events->count(); $index++) {
+            for ($nextIndex = $index + 1; $nextIndex < $events->count(); $nextIndex++) {
+                /** @var ScheduleEvent $left */
+                $left = $events[$index];
+                /** @var ScheduleEvent $right */
+                $right = $events[$nextIndex];
+
+                $leftStart = $left->resolveStartAt();
+                $leftEnd = $left->resolveEndAt();
+                $rightStart = $right->resolveStartAt();
+                $rightEnd = $right->resolveEndAt();
+
+                $overlaps = $leftStart->lt($rightEnd) && $rightStart->lt($leftEnd);
+                if (! $overlaps) {
+                    continue;
+                }
+
+                $reasons = [];
+                if (($left->location ?? null) && $left->location === $right->location) {
+                    $reasons[] = 'Room overlap at '.$left->location;
+                }
+                if (($left->staff_user_id ?? null) && $left->staff_user_id === $right->staff_user_id) {
+                    $reasons[] = 'Staff overlap on the same time window';
+                }
+
+                if ($reasons === []) {
+                    continue;
+                }
+
+                $conflicts->push([
+                    'event_ids' => [$left->id, $right->id],
+                    'left_title' => $left->title,
+                    'right_title' => $right->title,
+                    'reasons' => $reasons,
+                ]);
+            }
+        }
+
+        return $conflicts->values()->all();
+    }
+
+    public function controlPanelSettings(User $user): array
+    {
+        $editableKeys = $this->allowedEditableCategoryKeys($user);
+        $categories = collect($this->categoryDefinitions($user))
+            ->map(fn (array $category) => [
+                'key' => $category['key'],
+                'label' => $category['label'],
+                'max_score' => $category['max_score'],
+                'is_editable' => in_array($category['key'], $editableKeys, true),
+            ])
+            ->values()
+            ->all();
+
+        return [
+            'course_settings' => [
+                'grading_structure' => $categories,
+                'attendance_policy' => 'Warn below 75% attendance',
+                'quiz_rules' => 'Allow one graded attempt',
+                'publish_behavior' => $user->role_type === 'doctor'
+                    ? 'Require review before publish'
+                    : 'Draft only until doctor approval',
+            ],
+            'notification_settings' => [
+                'push_enabled' => (bool) $user->notification_enabled,
+                'email_enabled' => true,
+                'reminders_enabled' => true,
+                'quiz_alerts_enabled' => true,
+                'lecture_alerts_enabled' => true,
+            ],
+            'assistant_permissions' => [
+                'can_edit_content' => $user->isAdmin() || $user->role_type === 'doctor',
+                'can_publish_posts' => $user->isAdmin() || $user->role_type === 'doctor',
+                'can_manage_grades' => in_array('midterm', $editableKeys, true) || in_array('quiz', $editableKeys, true),
+                'editable_grade_categories' => $editableKeys,
+                'scope_note' => $user->role_type === 'doctor'
+                    ? 'Assistant scope is restricted to assigned sections and teaching support responsibilities.'
+                    : 'Assistant scope is restricted to assigned academic activities.',
+            ],
+            'appearance' => [
+                'language' => $user->language ?? 'en',
+                'theme_mode' => 'system',
+                'compact_mode' => true,
+            ],
+            'academic_controls' => [
+                'weights' => [
+                    'assignments' => 20,
+                    'midterm' => 25,
+                    'oral' => 10,
+                    'attendance' => 10,
+                    'final' => 35,
+                ],
+            ],
+        ];
+    }
+
     public function subjects(User $user): Collection
     {
         $subjectIds = $this->assignedSubjectIds($user);

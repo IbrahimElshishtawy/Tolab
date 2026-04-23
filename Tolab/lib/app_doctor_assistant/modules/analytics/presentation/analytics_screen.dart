@@ -2,15 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
 import '../../../../app_admin/core/spacing/app_spacing.dart';
-import '../../../../app_admin/shared/widgets/status_badge.dart';
 import '../../../core/models/session_user.dart';
 import '../../../core/navigation/app_routes.dart';
 import '../../../mock/doctor_assistant_mock_repository.dart';
-import '../../../mock/mock_portal_models.dart';
 import '../../../presentation/widgets/doctor_assistant_shell.dart';
 import '../../../presentation/widgets/doctor_assistant_widgets.dart';
+import '../../../presentation/widgets/workspace/faculty_quick_actions_bar.dart';
 import '../../../state/app_state.dart';
 import '../../auth/state/session_selectors.dart';
+import 'models/analytics_workspace_models.dart';
+import 'widgets/analytics_alerts_section.dart';
+import 'widgets/analytics_period_insights_section.dart';
+import 'widgets/analytics_students_focus_section.dart';
+import 'widgets/grade_distribution_chart.dart';
+import 'widgets/subject_insights_card.dart';
 
 class AnalyticsScreen extends StatelessWidget {
   const AnalyticsScreen({super.key});
@@ -25,7 +30,7 @@ class AnalyticsScreen extends StatelessWidget {
         }
 
         final repository = DoctorAssistantMockRepository.instance;
-        final analytics = repository.analyticsFor(user);
+        final workspace = buildAnalyticsWorkspace(repository, user);
 
         return DoctorAssistantShell(
           user: user,
@@ -34,48 +39,72 @@ class AnalyticsScreen extends StatelessWidget {
           child: DoctorAssistantPageScaffold(
             title: 'Analytics',
             subtitle:
-                'A premium mock analytics view built from local students, results, and subject health fixtures.',
+                'Decision-support workspace for student risk, course health, grading momentum, and intervention planning.',
             breadcrumbs: const ['Workspace', 'Analytics'],
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                FacultyQuickActionsBar(user: user),
+                const SizedBox(height: AppSpacing.md),
                 Wrap(
                   spacing: AppSpacing.md,
                   runSpacing: AppSpacing.md,
-                  children: analytics.kpis
-                      .map((kpi) => _KpiCard(kpi: kpi))
+                  children: workspace.kpis
+                      .map(
+                        (item) => _KpiCard(item: item),
+                      )
+                      .toList(growable: false),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                AnalyticsAlertsSection(alerts: workspace.alerts),
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  'Subject deep insights',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  workspace.summary,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Wrap(
+                  spacing: AppSpacing.md,
+                  runSpacing: AppSpacing.md,
+                  children: workspace.subjectInsights
+                      .map(
+                        (insight) => SizedBox(
+                          width: 420,
+                          child: SubjectInsightsCard(insight: insight),
+                        ),
+                      )
                       .toList(growable: false),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 LayoutBuilder(
                   builder: (context, constraints) {
-                    final isWide = constraints.maxWidth >= 1000;
-                    final left = DoctorAssistantPanel(
-                      title: 'Activity trend',
-                      subtitle: analytics.summary,
-                      child: Column(
-                        children: analytics.activityTrend
-                            .map((point) => _TrendRow(point: point))
-                            .toList(growable: false),
-                      ),
-                    );
-                    final right = DoctorAssistantPanel(
-                      title: 'Subject pulse',
+                    final isWide = constraints.maxWidth >= 1100;
+                    final topStudents = AnalyticsStudentsFocusSection(
+                      title: 'Top performers',
                       subtitle:
-                          'Completion and risk visibility by subject using mock aggregates.',
-                      child: Column(
-                        children: analytics.subjectPulse
-                            .map((pulse) => _SubjectPulseCard(pulse: pulse))
-                            .toList(growable: false),
-                      ),
+                          'Students with the strongest combined academic, attendance, and engagement signals.',
+                      students: workspace.topPerformers,
+                      highlightColor: const Color(0xFF14B8A6),
+                    );
+                    final attentionStudents = AnalyticsStudentsFocusSection(
+                      title: 'Students needing attention',
+                      subtitle:
+                          'Early intervention queue based on risk label, low activity, and declining academic performance.',
+                      students: workspace.studentsNeedingAttention,
+                      highlightColor: const Color(0xFFDC2626),
                     );
 
                     if (!isWide) {
                       return Column(
                         children: [
-                          left,
+                          topStudents,
                           const SizedBox(height: AppSpacing.md),
-                          right,
+                          attentionStudents,
                         ],
                       );
                     }
@@ -83,13 +112,21 @@ class AnalyticsScreen extends StatelessWidget {
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(child: left),
+                        Expanded(child: topStudents),
                         const SizedBox(width: AppSpacing.md),
-                        Expanded(child: right),
+                        Expanded(child: attentionStudents),
                       ],
                     );
                   },
                 ),
+                const SizedBox(height: AppSpacing.md),
+                GradeDistributionChart(
+                  buckets: workspace.distribution,
+                  successCount: workspace.successCount,
+                  failureCount: workspace.failureCount,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                AnalyticsPeriodInsightsSection(items: workspace.periodInsights),
               ],
             ),
           ),
@@ -100,91 +137,36 @@ class AnalyticsScreen extends StatelessWidget {
 }
 
 class _KpiCard extends StatelessWidget {
-  const _KpiCard({required this.kpi});
+  const _KpiCard({required this.item});
 
-  final MockAnalyticsKpi kpi;
+  final AnalyticsKpiItem item;
 
   @override
   Widget build(BuildContext context) {
-    final color = switch (kpi.tone) {
-      'success' => const Color(0xFF14B8A6),
-      'warning' => const Color(0xFFF59E0B),
-      _ => const Color(0xFF2563EB),
-    };
-
     return Container(
-      width: 240,
+      width: 250,
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
+        color: item.color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(26),
-        border: Border.all(color: color.withValues(alpha: 0.18)),
+        border: Border.all(color: item.color.withValues(alpha: 0.18)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(kpi.label, style: Theme.of(context).textTheme.bodySmall),
+          Icon(item.icon, color: item.color),
           const SizedBox(height: AppSpacing.sm),
+          Text(item.label, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: AppSpacing.xs),
           Text(
-            kpi.value,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
+            item.value,
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: AppSpacing.xs),
-          StatusBadge(kpi.deltaLabel),
+          Text(item.caption, style: Theme.of(context).textTheme.bodySmall),
         ],
-      ),
-    );
-  }
-}
-
-class _TrendRow extends StatelessWidget {
-  const _TrendRow({required this.point});
-
-  final MockAnalyticsPoint point;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.md),
-      child: Row(
-        children: [
-          SizedBox(width: 34, child: Text(point.label)),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(999),
-              child: LinearProgressIndicator(
-                value: point.value / 100,
-                minHeight: 12,
-              ),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Text('${point.value.toStringAsFixed(0)}%'),
-        ],
-      ),
-    );
-  }
-}
-
-class _SubjectPulseCard extends StatelessWidget {
-  const _SubjectPulseCard({required this.pulse});
-
-  final MockAnalyticsSubjectPulse pulse;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.md),
-      child: DoctorAssistantItemCard(
-        icon: Icons.insights_rounded,
-        title: '${pulse.subjectCode} - ${pulse.subjectName}',
-        subtitle:
-            'Health ${pulse.healthScore} - Completion ${pulse.completionRate}%',
-        meta: 'Risk status: ${pulse.riskLabel}',
-        statusLabel: pulse.riskLabel,
       ),
     );
   }
