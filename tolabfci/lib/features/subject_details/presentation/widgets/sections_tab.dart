@@ -48,7 +48,7 @@ class SectionsTab extends ConsumerWidget {
           physics: usePageScroll ? const NeverScrollableScrollPhysics() : null,
           children: [
             if (upcoming.isNotEmpty) ...[
-              _SectionHeader(
+              const _SectionHeader(
                 title: 'السكشن القادم',
                 subtitle: 'أقرب سكشن عملي يمكنك الاستعداد له أو الدخول إليه.',
               ),
@@ -57,7 +57,7 @@ class SectionsTab extends ConsumerWidget {
               const SizedBox(height: AppSpacing.lg),
             ],
             if (upcoming.length > 1) ...[
-              _SectionHeader(
+              const _SectionHeader(
                 title: 'السكاشن القادمة',
                 subtitle: 'باقي مواعيد السكاشن داخل هذه المادة.',
               ),
@@ -73,7 +73,7 @@ class SectionsTab extends ConsumerWidget {
               const SizedBox(height: AppSpacing.lg),
             ],
             if (previous.isNotEmpty) ...[
-              _SectionHeader(
+              const _SectionHeader(
                 title: 'سكاشن سابقة',
                 subtitle: 'مرجع سريع للسكاشن السابقة وحالة كل سكشن.',
               ),
@@ -111,6 +111,8 @@ class _SectionCard extends StatelessWidget {
     };
 
     return AppCard(
+      backgroundColor: context.appColors.surfaceElevated,
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -139,26 +141,25 @@ class _SectionCard extends StatelessWidget {
                 label: _statusLabel(status),
                 backgroundColor: accent.withValues(alpha: 0.12),
                 foregroundColor: accent,
+                dense: true,
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
           Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
               AppBadge(
                 label: section.isOnline ? 'أونلاين' : 'حضوري',
-                backgroundColor: Colors.white,
+                foregroundColor: accent,
+                dense: true,
               ),
-              AppBadge(label: section.location, backgroundColor: Colors.white),
-              AppBadge(
-                label: section.assistantName,
-                backgroundColor: Colors.white,
-              ),
+              AppBadge(label: section.location, dense: true),
+              AppBadge(label: section.assistantName, dense: true),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
           AppButton(
             label: status == _SectionStatus.ended ? 'عرض' : 'دخول',
             onPressed: () {},

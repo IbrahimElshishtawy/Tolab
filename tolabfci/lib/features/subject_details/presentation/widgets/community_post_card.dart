@@ -25,6 +25,8 @@ class CommunityPostCard extends ConsumerWidget {
     final accent = _postColor(post.type);
 
     return AppCard(
+      backgroundColor: context.appColors.surfaceElevated,
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -41,17 +43,16 @@ class CommunityPostCard extends ConsumerWidget {
                 label: post.authorRole,
                 backgroundColor: accent.withValues(alpha: 0.12),
                 foregroundColor: accent,
+                dense: true,
               ),
               if (post.isPinned)
                 AppBadge(
                   label: 'مثبت',
                   backgroundColor: AppColors.warning.withValues(alpha: 0.12),
                   foregroundColor: AppColors.warning,
+                  dense: true,
                 ),
-              AppBadge(
-                label: _typeLabel(post.type),
-                backgroundColor: Colors.white,
-              ),
+              AppBadge(label: _typeLabel(post.type), dense: true),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -59,16 +60,18 @@ class CommunityPostCard extends ConsumerWidget {
           if (post.attachmentName != null) ...[
             const SizedBox(height: AppSpacing.md),
             Container(
-              padding: const EdgeInsets.all(AppSpacing.md),
+              padding: const EdgeInsets.all(AppSpacing.sm),
               decoration: BoxDecoration(
                 color: context.appColors.surfaceAlt,
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: context.appColors.border),
               ),
               child: Row(
                 children: [
                   const Icon(
                     Icons.attach_file_rounded,
                     color: AppColors.primary,
+                    size: 18,
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(child: Text(post.attachmentName!)),

@@ -29,40 +29,42 @@ class StudentHomePage extends ConsumerWidget {
             children: [
               _HomeHero(viewModel: viewModel),
               const SizedBox(height: AppSpacing.lg),
-              _SectionTitle(
+              const _SectionTitle(
                 title: 'المطلوب منك الآن',
                 subtitle:
-                    'أولوية اليوم مرتبة تلقائيًا حسب urgency، بحيث تعرف ما الذي يستحق التدخل فورًا.',
+                    'أولوية اليوم مرتبة تلقائيًا حسب الاستعجال حتى تعرف ما يستحق التدخل أولًا.',
               ),
               const SizedBox(height: AppSpacing.md),
               ResponsiveWrapGrid(
-                minItemWidth: 250,
+                minItemWidth: 230,
+                spacing: AppSpacing.sm,
                 children: [
                   for (final item in viewModel.requiredTodayItems)
                     _RequiredActionCard(item: item),
                 ],
               ),
               const SizedBox(height: AppSpacing.lg),
-              _SectionTitle(
+              const _SectionTitle(
                 title: 'جدولك الدراسي',
                 subtitle:
-                    'عرض agenda ذكي لما سيحدث اليوم ثم غدًا وهذا الأسبوع.',
+                    'عرض ذكي لما سيحدث اليوم ثم غدًا خلال المواد الحالية.',
               ),
               const SizedBox(height: AppSpacing.md),
               _AgendaSection(groups: viewModel.timelineGroups),
               const SizedBox(height: AppSpacing.lg),
               ResponsiveWrapGrid(
-                minItemWidth: 320,
+                minItemWidth: 280,
+                spacing: AppSpacing.md,
                 children: [
                   _SnapshotSection(viewModel: viewModel),
                   _TipSection(viewModel: viewModel),
                 ],
               ),
               const SizedBox(height: AppSpacing.lg),
-              _SectionTitle(
+              const _SectionTitle(
                 title: 'آخر النشاط',
                 subtitle:
-                    'محاضرات جديدة، كويزات مفتوحة، إعلانات ودرجات مضافة داخل المواد.',
+                    'محاضرات جديدة وكويزات وإعلانات ودرجات مضافة داخل المواد.',
               ),
               const SizedBox(height: AppSpacing.md),
               _RecentActivitySection(
@@ -87,93 +89,78 @@ class _HomeHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
+
     return AppCard(
-      padding: EdgeInsets.zero,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppColors.primary,
-              AppColors.indigo.withValues(alpha: 0.94),
-              const Color(0xFF1D2D4A),
-            ],
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-          ),
-          borderRadius: BorderRadius.circular(24),
-        ),
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Column(
+      backgroundColor: palette.surfaceElevated,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(
+                  Icons.person_rounded,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'مرحبًا ${viewModel.profile.fullName}',
+                      viewModel.profile.fullName,
                       style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                        color: Colors.white,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'Smart Student Academic Assistant',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.88),
-                      ),
+                      'Student Academic Workspace',
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
                 ),
-                AppBadge(
-                  label: viewModel.profile.academicStatus,
-                  backgroundColor: Colors.white.withValues(alpha: 0.14),
-                  foregroundColor: Colors.white,
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
-              children: [
-                _HeroPill(label: viewModel.profile.department),
-                _HeroPill(label: viewModel.profile.level),
-                _HeroPill(
-                  label: 'الرقم الجامعي ${viewModel.profile.studentNumber}',
-                ),
-                _HeroPill(
-                  label: 'GPA ${viewModel.profile.gpa.toStringAsFixed(2)}',
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
-              children: [
-                for (final action in viewModel.quickActions)
-                  AppButton(
-                    label: _quickActionLabel(action.type),
-                    onPressed: action.target == null
-                        ? null
-                        : () => _openTarget(context, action.target!),
-                    isExpanded: false,
-                    icon: _quickActionIcon(action.type),
-                    variant: action.type == StudentQuickActionType.openQuiz
-                        ? AppButtonVariant.primary
-                        : AppButtonVariant.secondary,
-                  ),
-              ],
-            ),
-          ],
-        ),
+              ),
+              AppBadge(
+                label: viewModel.profile.academicStatus,
+                backgroundColor: AppColors.success.withValues(alpha: 0.12),
+                foregroundColor: AppColors.success,
+                dense: true,
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              _HeroInfoTile(
+                label: 'Department',
+                value: viewModel.profile.department,
+              ),
+              _HeroInfoTile(label: 'Level', value: viewModel.profile.level),
+              _HeroInfoTile(
+                label: 'Student ID',
+                value: viewModel.profile.studentNumber,
+              ),
+              _HeroInfoTile(
+                label: 'GPA',
+                value: viewModel.profile.gpa.toStringAsFixed(2),
+                accent: AppColors.primary,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -189,32 +176,34 @@ class _RequiredActionCard extends StatelessWidget {
     final accent = _priorityColor(item.priority);
 
     return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: 38,
+                height: 38,
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 alignment: Alignment.center,
-                child: Icon(item.icon, size: 24, color: accent),
+                child: Icon(item.icon, size: 20, color: accent),
               ),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: AppBadge(
                   label: _priorityLabel(item.priority),
                   backgroundColor: accent.withValues(alpha: 0.12),
                   foregroundColor: accent,
+                  dense: true,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
           Text(
             item.title,
             style: Theme.of(
@@ -223,7 +212,7 @@ class _RequiredActionCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(item.subtitle, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
           Text(
             item.meta,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -231,7 +220,7 @@ class _RequiredActionCard extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
           AppButton(
             label: item.ctaLabel,
             onPressed: item.target == null
@@ -308,8 +297,8 @@ class _TimelineTile extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 12,
-              height: 56,
+              width: 10,
+              height: 52,
               decoration: BoxDecoration(
                 color: accent,
                 borderRadius: BorderRadius.circular(999),
@@ -336,8 +325,9 @@ class _TimelineTile extends StatelessWidget {
             ),
             AppBadge(
               label: _timelineKindLabel(item.kind),
-              backgroundColor: Colors.white,
+              backgroundColor: accent.withValues(alpha: 0.12),
               foregroundColor: accent,
+              dense: true,
             ),
           ],
         ),
@@ -363,7 +353,7 @@ class _SnapshotSection extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           ResponsiveWrapGrid(
-            minItemWidth: 140,
+            minItemWidth: 132,
             spacing: AppSpacing.sm,
             children: [
               _MetricTile(
@@ -426,7 +416,7 @@ class _TipSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Padding(
-                        padding: EdgeInsets.only(top: 6),
+                        padding: EdgeInsets.only(top: 4),
                         child: Icon(
                           Icons.auto_awesome_rounded,
                           size: 16,
@@ -463,6 +453,7 @@ class _RecentActivitySection extends StatelessWidget {
   Widget build(BuildContext context) {
     return ResponsiveWrapGrid(
       minItemWidth: 320,
+      spacing: AppSpacing.md,
       children: [
         AppCard(
           child: Column(
@@ -546,8 +537,8 @@ class _ActivityTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 12,
-            height: 60,
+            width: 10,
+            height: 56,
             decoration: BoxDecoration(
               color: accent,
               borderRadius: BorderRadius.circular(999),
@@ -596,10 +587,10 @@ class _MetricTile extends StatelessWidget {
     final palette = context.appColors;
 
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
         color: palette.surfaceAlt,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: palette.border),
       ),
       child: Column(
@@ -638,50 +629,41 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
-class _HeroPill extends StatelessWidget {
-  const _HeroPill({required this.label});
+class _HeroInfoTile extends StatelessWidget {
+  const _HeroInfoTile({required this.label, required this.value, this.accent});
 
   final String label;
+  final String value;
+  final Color? accent;
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
+
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
+      width: 172,
+      padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(999),
+        color: palette.surfaceAlt,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: palette.border),
       ),
-      child: Text(
-        label,
-        style: Theme.of(
-          context,
-        ).textTheme.labelLarge?.copyWith(color: Colors.white),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: Theme.of(context).textTheme.labelLarge),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: accent,
+            ),
+          ),
+        ],
       ),
     );
   }
-}
-
-String _quickActionLabel(StudentQuickActionType type) {
-  return switch (type) {
-    StudentQuickActionType.viewTimetable => 'الجدول',
-    StudentQuickActionType.openQuiz => 'فتح كويز',
-    StudentQuickActionType.uploadAssignment => 'رفع تكليف',
-    StudentQuickActionType.openCourse => 'فتح مادة',
-    StudentQuickActionType.checkResults => 'النتائج',
-  };
-}
-
-IconData _quickActionIcon(StudentQuickActionType type) {
-  return switch (type) {
-    StudentQuickActionType.viewTimetable => Icons.calendar_month_rounded,
-    StudentQuickActionType.openQuiz => Icons.quiz_outlined,
-    StudentQuickActionType.uploadAssignment => Icons.upload_file_rounded,
-    StudentQuickActionType.openCourse => Icons.menu_book_rounded,
-    StudentQuickActionType.checkResults => Icons.bar_chart_rounded,
-  };
 }
 
 String _priorityLabel(StudentPriority priority) {

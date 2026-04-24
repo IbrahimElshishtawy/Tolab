@@ -6,6 +6,7 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import 'student_adaptive_shell.dart';
+import 'student_shell_brand_card.dart';
 
 class StudentSidebar extends StatelessWidget {
   const StudentSidebar({
@@ -36,7 +37,7 @@ class StudentSidebar extends StatelessWidget {
         border: Border.all(color: palette.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: Colors.black.withValues(alpha: 0.18),
             blurRadius: 28,
             offset: const Offset(0, 18),
           ),
@@ -45,51 +46,8 @@ class StudentSidebar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.primary, AppColors.indigo],
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-              ),
-              borderRadius: BorderRadius.circular(22),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.16),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Icon(Icons.school_rounded, color: Colors.white),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Tolab',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        isStaff ? 'لوحة أكاديمية متقدمة' : 'طالب • تجربة مرنة',
-                        style: Theme.of(
-                          context,
-                        ).textTheme.bodySmall?.copyWith(color: Colors.white70),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          StudentShellBrandCard(
+            subtitle: isStaff ? 'لوحة أكاديمية متقدمة' : 'طالب • تجربة مرنة',
           ),
           const SizedBox(height: AppSpacing.lg),
           Text('التنقل الرئيسي', style: Theme.of(context).textTheme.labelLarge),
@@ -170,7 +128,7 @@ class _SidebarTileState extends State<_SidebarTile> {
     final background = isSelected
         ? palette.primarySoft
         : _hovered
-        ? palette.surfaceAlt
+        ? palette.surfaceElevated
         : Colors.transparent;
 
     return MouseRegion(
@@ -185,7 +143,7 @@ class _SidebarTileState extends State<_SidebarTile> {
             duration: const Duration(milliseconds: 180),
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.sm,
-              vertical: AppSpacing.sm,
+              vertical: 10,
             ),
             decoration: BoxDecoration(
               color: background,
@@ -199,12 +157,12 @@ class _SidebarTileState extends State<_SidebarTile> {
             child: Row(
               children: [
                 Container(
-                  width: 38,
-                  height: 38,
+                  width: 36,
+                  height: 36,
                   decoration: BoxDecoration(
                     color: isSelected
                         ? AppColors.primary.withValues(alpha: 0.12)
-                        : palette.surface,
+                        : palette.surfaceElevated,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(
@@ -271,10 +229,10 @@ class _ShortcutTile extends StatelessWidget {
       onTap: () => GoRouter.of(context).goNamed(routeName),
       contentPadding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xs,
+        vertical: 2,
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      tileColor: context.appColors.surfaceAlt,
+      tileColor: context.appColors.surfaceElevated,
       leading: Icon(icon, color: AppColors.primary),
       title: Text(title),
       subtitle: Text(subtitle),

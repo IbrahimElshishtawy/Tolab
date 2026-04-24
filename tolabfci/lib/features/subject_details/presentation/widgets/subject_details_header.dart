@@ -16,7 +16,7 @@ class SubjectDetailsHeader extends StatelessWidget {
     final accent = _accentColor(subject.accentHex);
 
     return AppCard(
-      backgroundColor: AppColors.surfaceAlt,
+      backgroundColor: context.appColors.surfaceElevated,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -42,6 +42,7 @@ class SubjectDetailsHeader extends StatelessWidget {
                 label: subject.status,
                 backgroundColor: accent.withValues(alpha: 0.10),
                 foregroundColor: accent,
+                dense: true,
               ),
             ],
           ),
@@ -50,19 +51,10 @@ class SubjectDetailsHeader extends StatelessWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
-              AppBadge(label: subject.code, backgroundColor: Colors.white),
-              AppBadge(
-                label: subject.instructor,
-                backgroundColor: Colors.white,
-              ),
-              AppBadge(
-                label: 'المعيد: ${subject.assistantName}',
-                backgroundColor: Colors.white,
-              ),
-              AppBadge(
-                label: '${subject.creditHours} ساعات',
-                backgroundColor: Colors.white,
-              ),
+              AppBadge(label: subject.code, dense: true),
+              AppBadge(label: subject.instructor, dense: true),
+              AppBadge(label: 'المعيد: ${subject.assistantName}', dense: true),
+              AppBadge(label: '${subject.creditHours} ساعات', dense: true),
             ],
           ),
         ],

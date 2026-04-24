@@ -30,6 +30,8 @@ class CommunityPostCard extends ConsumerWidget {
     ];
 
     return AppCard(
+      backgroundColor: context.appColors.surfaceElevated,
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -37,8 +39,8 @@ class CommunityPostCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(16),
@@ -63,8 +65,10 @@ class CommunityPostCard extends ConsumerWidget {
                           label: post.authorRole,
                           backgroundColor: accent.withValues(alpha: 0.12),
                           foregroundColor: accent,
+                          dense: true,
                         ),
-                        if (subjectName != null) AppBadge(label: subjectName!),
+                        if (subjectName != null)
+                          AppBadge(label: subjectName!, dense: true),
                         if (post.isPinned)
                           AppBadge(
                             label: 'مثبت',
@@ -72,6 +76,7 @@ class CommunityPostCard extends ConsumerWidget {
                               alpha: 0.12,
                             ),
                             foregroundColor: AppColors.warning,
+                            dense: true,
                           ),
                         if (post.isImportant)
                           AppBadge(
@@ -80,6 +85,7 @@ class CommunityPostCard extends ConsumerWidget {
                               alpha: 0.12,
                             ),
                             foregroundColor: AppColors.support,
+                            dense: true,
                           ),
                         if (post.isUrgent)
                           AppBadge(
@@ -88,6 +94,7 @@ class CommunityPostCard extends ConsumerWidget {
                               alpha: 0.12,
                             ),
                             foregroundColor: AppColors.error,
+                            dense: true,
                           ),
                       ],
                     ),
@@ -112,33 +119,31 @@ class CommunityPostCard extends ConsumerWidget {
             Wrap(
               spacing: AppSpacing.sm,
               runSpacing: AppSpacing.sm,
-              children: attachments
-                  .toSet()
-                  .map(
-                    (attachment) => Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm,
-                        vertical: AppSpacing.sm,
+              children: attachments.toSet().map((attachment) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: AppSpacing.sm,
+                  ),
+                  decoration: BoxDecoration(
+                    color: context.appColors.surfaceAlt,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: context.appColors.border),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.attach_file_rounded,
+                        size: 18,
+                        color: AppColors.primary,
                       ),
-                      decoration: BoxDecoration(
-                        color: context.appColors.surfaceAlt,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.attach_file_rounded,
-                            size: 18,
-                            color: AppColors.primary,
-                          ),
-                          const SizedBox(width: AppSpacing.xs),
-                          Text(attachment),
-                        ],
-                      ),
-                    ),
-                  )
-                  .toList(),
+                      const SizedBox(width: AppSpacing.xs),
+                      Text(attachment),
+                    ],
+                  ),
+                );
+              }).toList(),
             ),
           ],
           const SizedBox(height: AppSpacing.md),

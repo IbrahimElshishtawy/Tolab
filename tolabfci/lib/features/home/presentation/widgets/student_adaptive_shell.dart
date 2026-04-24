@@ -5,6 +5,7 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import 'student_mobile_nav.dart';
+import 'student_shell_brand_card.dart';
 import 'student_sidebar.dart';
 
 class StudentShellDestination {
@@ -39,6 +40,8 @@ class StudentAdaptiveShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
+
     if (MediaQuery.sizeOf(context).width >= 1100) {
       return Scaffold(
         body: Row(
@@ -68,8 +71,8 @@ class StudentAdaptiveShell extends StatelessWidget {
           : Builder(
               builder: (context) => FloatingActionButton.small(
                 onPressed: () => Scaffold.of(context).openEndDrawer(),
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                backgroundColor: palette.surfaceElevated,
+                foregroundColor: AppColors.primary,
                 child: const Icon(Icons.grid_view_rounded),
               ),
             ),
@@ -102,46 +105,12 @@ class StudentMobileDrawer extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(AppSpacing.md),
           children: [
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.primary,
-                    AppColors.indigo.withValues(alpha: 0.92),
-                  ],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                ),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundColor: Colors.white24,
-                    child: Icon(Icons.school_rounded, color: Colors.white),
-                  ),
-                  SizedBox(height: AppSpacing.md),
-                  Text(
-                    'مساحة الطالب',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 20,
-                    ),
-                  ),
-                  SizedBox(height: AppSpacing.xs),
-                  Text(
-                    'اختصارات أكاديمية ودعم سريع',
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                ],
-              ),
+            const StudentShellBrandCard(
+              subtitle: 'مساحة الطالب • اختصارات أكاديمية ودعم سريع',
+              compact: true,
             ),
             const SizedBox(height: AppSpacing.lg),
-            _DrawerSectionTitle(label: 'المزيد'),
+            const _DrawerSectionTitle(label: 'المزيد'),
             const SizedBox(height: AppSpacing.sm),
             _DrawerTile(
               icon: Icons.quiz_outlined,
@@ -162,7 +131,7 @@ class StudentMobileDrawer extends StatelessWidget {
               onTap: () => _go(context, RouteNames.results),
             ),
             const Divider(height: AppSpacing.xxl),
-            _DrawerSectionTitle(label: 'الدعم'),
+            const _DrawerSectionTitle(label: 'الدعم'),
             const SizedBox(height: AppSpacing.sm),
             _DrawerTile(
               icon: Icons.support_agent_rounded,
@@ -183,7 +152,7 @@ class StudentMobileDrawer extends StatelessWidget {
               onTap: () => _go(context, RouteNames.supportTickets),
             ),
             const Divider(height: AppSpacing.xxl),
-            _DrawerSectionTitle(label: 'الإعدادات'),
+            const _DrawerSectionTitle(label: 'الإعدادات'),
             const SizedBox(height: AppSpacing.sm),
             _DrawerTile(
               icon: Icons.settings_outlined,
@@ -195,7 +164,7 @@ class StudentMobileDrawer extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(AppSpacing.md),
               decoration: BoxDecoration(
-                color: palette.surfaceAlt,
+                color: palette.surfaceElevated,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: palette.border),
               ),
@@ -250,13 +219,15 @@ class _DrawerTile extends StatelessWidget {
         onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.sm,
-          vertical: AppSpacing.xs,
+          vertical: 2,
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        tileColor: Theme.of(context).extension<AppColorsScheme>()!.surfaceAlt,
+        tileColor: Theme.of(
+          context,
+        ).extension<AppColorsScheme>()!.surfaceElevated,
         leading: Container(
-          width: 38,
-          height: 38,
+          width: 36,
+          height: 36,
           decoration: BoxDecoration(
             color: AppColors.primary.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(14),

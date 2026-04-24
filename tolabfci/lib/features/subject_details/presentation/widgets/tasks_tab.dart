@@ -43,12 +43,20 @@ class TasksTab extends ConsumerWidget {
                 final task = tasks[index];
                 final canResubmit =
                     task.allowResubmission && task.uploadedFileName != null;
+                final statusColor = task.status == 'تم التقييم'
+                    ? AppColors.success
+                    : task.status == 'لم يتم الرفع'
+                    ? AppColors.error
+                    : AppColors.primary;
 
                 return AppCard(
+                  backgroundColor: context.appColors.surfaceElevated,
+                  padding: const EdgeInsets.all(AppSpacing.md),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
                             child: Text(
@@ -59,12 +67,11 @@ class TasksTab extends ConsumerWidget {
                           ),
                           AppBadge(
                             label: task.status,
-                            backgroundColor: AppColors.surfaceAlt,
-                            foregroundColor: task.status == 'تم التقييم'
-                                ? AppColors.success
-                                : task.status == 'لم يتم الرفع'
-                                ? AppColors.error
-                                : AppColors.primary,
+                            backgroundColor: statusColor.withValues(
+                              alpha: 0.12,
+                            ),
+                            foregroundColor: statusColor,
+                            dense: true,
                           ),
                         ],
                       ),
@@ -74,26 +81,28 @@ class TasksTab extends ConsumerWidget {
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       const SizedBox(height: AppSpacing.sm),
-                      Text(
-                        task.dueDateLabel,
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                      if (task.uploadedFileName != null) ...[
-                        const SizedBox(height: AppSpacing.xs),
-                        Text('الملف المرفوع: ${task.uploadedFileName}'),
-                      ],
-                      if (task.gradeLabel != null) ...[
-                        const SizedBox(height: AppSpacing.xs),
-                        Text(
-                          'التقييم: ${task.gradeLabel}',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: AppColors.success,
-                                fontWeight: FontWeight.w700,
+                      Wrap(
+                        spacing: AppSpacing.sm,
+                        runSpacing: AppSpacing.sm,
+                        children: [
+                          AppBadge(label: task.dueDateLabel, dense: true),
+                          if (task.uploadedFileName != null)
+                            AppBadge(
+                              label: 'الملف ${task.uploadedFileName}',
+                              dense: true,
+                            ),
+                          if (task.gradeLabel != null)
+                            AppBadge(
+                              label: 'التقييم ${task.gradeLabel}',
+                              backgroundColor: AppColors.success.withValues(
+                                alpha: 0.12,
                               ),
-                        ),
-                      ],
-                      const SizedBox(height: AppSpacing.md),
+                              foregroundColor: AppColors.success,
+                              dense: true,
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
                       Wrap(
                         spacing: AppSpacing.sm,
                         runSpacing: AppSpacing.sm,
@@ -101,7 +110,7 @@ class TasksTab extends ConsumerWidget {
                           AppButton(
                             label: task.uploadedFileName == null
                                 ? 'رفع الحل'
-                                : 'مشاهدة الملف المرفوع',
+                                : 'مشاهدة الملف',
                             onPressed: () => context.goNamed(
                               RouteNames.assignmentUpload,
                               pathParameters: {

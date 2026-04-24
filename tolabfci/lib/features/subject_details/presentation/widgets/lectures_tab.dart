@@ -48,7 +48,7 @@ class LecturesTab extends ConsumerWidget {
           physics: usePageScroll ? const NeverScrollableScrollPhysics() : null,
           children: [
             if (upcoming.isNotEmpty) ...[
-              _SectionHeader(
+              const _SectionHeader(
                 title: 'المحاضرة القادمة',
                 subtitle: 'أقرب محاضرات المادة الجاهزة للحضور أو المتابعة.',
               ),
@@ -57,7 +57,7 @@ class LecturesTab extends ConsumerWidget {
               const SizedBox(height: AppSpacing.lg),
             ],
             if (upcoming.length > 1) ...[
-              _SectionHeader(
+              const _SectionHeader(
                 title: 'المحاضرات القادمة',
                 subtitle: 'جدول المحاضرات التالية داخل هذه المادة.',
               ),
@@ -73,7 +73,7 @@ class LecturesTab extends ConsumerWidget {
               const SizedBox(height: AppSpacing.lg),
             ],
             if (previous.isNotEmpty) ...[
-              _SectionHeader(
+              const _SectionHeader(
                 title: 'محاضرات سابقة أو مسجلة',
                 subtitle:
                     'يمكنك مراجعة ما فاتك أو فتح المواد المسجلة إن كانت متاحة.',
@@ -112,6 +112,8 @@ class _LectureCard extends StatelessWidget {
     };
 
     return AppCard(
+      backgroundColor: context.appColors.surfaceElevated,
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -140,30 +142,29 @@ class _LectureCard extends StatelessWidget {
                 label: _statusLabel(status),
                 backgroundColor: accent.withValues(alpha: 0.12),
                 foregroundColor: accent,
+                dense: true,
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
           Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
               AppBadge(
                 label: lecture.isOnline ? 'أونلاين' : 'حضوري',
-                backgroundColor: Colors.white,
+                foregroundColor: accent,
+                dense: true,
               ),
               AppBadge(
                 label: lecture.locationLabel ?? 'قاعة المحاضرة',
-                backgroundColor: Colors.white,
+                dense: true,
               ),
               if (lecture.instructorName != null)
-                AppBadge(
-                  label: lecture.instructorName!,
-                  backgroundColor: Colors.white,
-                ),
+                AppBadge(label: lecture.instructorName!, dense: true),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
           AppButton(
             label: status == _LectureStatus.ended ? 'عرض' : 'دخول',
             onPressed: () {},

@@ -9,20 +9,28 @@ class AppBadge extends StatelessWidget {
     required this.label,
     this.backgroundColor,
     this.foregroundColor,
+    this.dense = false,
   });
 
   final String label;
   final Color? backgroundColor;
   final Color? foregroundColor;
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.appColors;
+    final defaultBackground = Theme.of(context).brightness == Brightness.dark
+        ? palette.surfaceAlt.withValues(alpha: 0.92)
+        : palette.primarySoft;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(
+        horizontal: dense ? 8 : 10,
+        vertical: dense ? 4 : 6,
+      ),
       decoration: BoxDecoration(
-        color: backgroundColor ?? palette.primarySoft,
+        color: backgroundColor ?? defaultBackground,
         borderRadius: BorderRadius.circular(AppRadii.pill),
         border: Border.all(color: palette.border.withValues(alpha: 0.7)),
       ),
