@@ -29,16 +29,16 @@ class StudentSectionEmptyState extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            width: 46,
-            height: 46,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(14),
             ),
             alignment: Alignment.center,
-            child: Icon(icon, color: AppColors.textSecondary),
+            child: Icon(icon, size: 22, color: AppColors.textSecondary),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
           Text(
             title,
             style: Theme.of(

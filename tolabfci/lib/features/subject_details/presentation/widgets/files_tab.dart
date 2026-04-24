@@ -9,9 +9,14 @@ import '../../../../core/widgets/loading_widget.dart';
 import '../../../subjects/presentation/providers/subjects_providers.dart';
 
 class FilesTab extends ConsumerWidget {
-  const FilesTab({super.key, required this.subjectId});
+  const FilesTab({
+    super.key,
+    required this.subjectId,
+    this.usePageScroll = false,
+  });
 
   final String subjectId;
+  final bool usePageScroll;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,6 +29,10 @@ class FilesTab extends ConsumerWidget {
               subtitle: 'ستظهر ملفات المادة الإضافية هنا عند توفرها.',
             )
           : ListView.separated(
+              shrinkWrap: usePageScroll,
+              physics: usePageScroll
+                  ? const NeverScrollableScrollPhysics()
+                  : null,
               itemCount: files.length,
               separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
               itemBuilder: (context, index) {
@@ -31,7 +40,7 @@ class FilesTab extends ConsumerWidget {
                 return AppCard(
                   child: Row(
                     children: [
-                      const Icon(Icons.attach_file_rounded),
+                      const Icon(Icons.attach_file_rounded, size: 22),
                       const SizedBox(width: AppSpacing.md),
                       Expanded(
                         child: Column(

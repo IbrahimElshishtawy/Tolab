@@ -56,7 +56,7 @@ class SubjectRequiredNowSection extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         ResponsiveWrapGrid(
           minItemWidth: 220,
-          spacing: AppSpacing.md,
+          spacing: AppSpacing.sm,
           children: [
             _FocusCard(
               title: 'مطلوب الآن',
@@ -112,7 +112,7 @@ class _FocusCard extends StatelessWidget {
             backgroundColor: accent.withValues(alpha: 0.12),
             foregroundColor: accent,
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
           Text(
             body,
             style: Theme.of(

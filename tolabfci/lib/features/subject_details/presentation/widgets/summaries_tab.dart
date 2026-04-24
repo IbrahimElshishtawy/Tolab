@@ -10,43 +10,61 @@ import '../../../summaries/presentation/providers/summaries_providers.dart';
 import '../../../summaries/presentation/widgets/summary_tile.dart';
 
 class SummariesTab extends ConsumerWidget {
-  const SummariesTab({super.key, required this.subjectId});
+  const SummariesTab({
+    super.key,
+    required this.subjectId,
+    this.usePageScroll = false,
+  });
 
   final String subjectId;
+  final bool usePageScroll;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final summariesAsync = ref.watch(summariesControllerProvider(subjectId));
 
+    final actionButton = AppButton(
+      label: 'إضافة ملخص',
+      onPressed: () => context.goNamed(
+        RouteNames.addSummary,
+        pathParameters: {'subjectId': subjectId},
+      ),
+      isExpanded: false,
+    );
+
+    final content = summariesAsync.when(
+      data: (summaries) => summaries.isEmpty
+          ? const EmptyStateWidget(
+              title: 'لا توجد ملخصات',
+              subtitle: 'ابدأ بإضافة أول ملخص مختصر أو ملف مساعد للمادة.',
+            )
+          : ListView.separated(
+              shrinkWrap: usePageScroll,
+              physics: usePageScroll
+                  ? const NeverScrollableScrollPhysics()
+                  : null,
+              itemCount: summaries.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
+              itemBuilder: (context, index) =>
+                  SummaryTile(summary: summaries[index]),
+            ),
+      loading: () => const LoadingWidget(),
+      error: (error, stackTrace) => Text(error.toString()),
+    );
+
+    if (usePageScroll) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [actionButton, const SizedBox(height: 12), content],
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppButton(
-          label: 'إضافة ملخص',
-          onPressed: () => context.goNamed(
-            RouteNames.addSummary,
-            pathParameters: {'subjectId': subjectId},
-          ),
-          isExpanded: false,
-        ),
-        const SizedBox(height: 16),
-        Expanded(
-          child: summariesAsync.when(
-            data: (summaries) => summaries.isEmpty
-                ? const EmptyStateWidget(
-                    title: 'لا توجد ملخصات',
-                    subtitle: 'ابدأ بإضافة أول ملخص مختصر أو ملف مساعد للمادة.',
-                  )
-                : ListView.separated(
-                    itemCount: summaries.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) =>
-                        SummaryTile(summary: summaries[index]),
-                  ),
-            loading: () => const LoadingWidget(),
-            error: (error, stackTrace) => Text(error.toString()),
-          ),
-        ),
+        actionButton,
+        const SizedBox(height: 12),
+        Expanded(child: content),
       ],
     );
   }

@@ -195,14 +195,14 @@ class _RequiredActionCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 46,
-                height: 46,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 alignment: Alignment.center,
-                child: Icon(item.icon, color: accent),
+                child: Icon(item.icon, size: 24, color: accent),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(

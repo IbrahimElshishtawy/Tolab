@@ -28,7 +28,7 @@ class SubjectHeaderCard extends StatelessWidget {
     return AppCard(
       padding: EdgeInsets.zero,
       child: Container(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
           gradient: LinearGradient(
@@ -74,7 +74,7 @@ class SubjectHeaderCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: AppSpacing.md),
             ResponsiveWrapGrid(
               minItemWidth: 150,
               spacing: AppSpacing.sm,
@@ -126,7 +126,7 @@ class _Metric extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
         color: context.appColors.surface.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(18),

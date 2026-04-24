@@ -15,10 +15,12 @@ class CourseCommunityPage extends ConsumerWidget {
     super.key,
     required this.subjectId,
     this.embedded = false,
+    this.usePageScroll = false,
   });
 
   final String subjectId;
   final bool embedded;
+  final bool usePageScroll;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -53,7 +55,7 @@ class CourseCommunityPage extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.lg),
+                  const SizedBox(height: AppSpacing.md),
                 ],
                 const _SectionTitle(
                   title: 'آخر النشاط',
@@ -145,7 +147,7 @@ class CourseCommunityPage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   sidePanel,
-                  const SizedBox(height: AppSpacing.lg),
+                  const SizedBox(height: AppSpacing.md),
                   feed,
                 ],
               );
@@ -162,30 +164,37 @@ class CourseCommunityPage extends ConsumerWidget {
           },
         );
 
-        return ListView(
-          children: [
-            AppCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    subjectAsync.value == null
-                        ? 'مجتمع المقرر'
-                        : 'مجتمع ${subjectAsync.value!.name}',
-                    style: Theme.of(context).textTheme.displaySmall,
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    'نمط feed أكاديمي احترافي للإعلانات والأسئلة والردود والمرفقات.',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
+        final children = <Widget>[
+          AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  subjectAsync.value == null
+                      ? 'مجتمع المقرر'
+                      : 'مجتمع ${subjectAsync.value!.name}',
+                  style: Theme.of(context).textTheme.displaySmall,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  'نمط feed أكاديمي احترافي للإعلانات والأسئلة والردود والمرفقات.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
             ),
-            const SizedBox(height: AppSpacing.lg),
-            content,
-          ],
-        );
+          ),
+          const SizedBox(height: AppSpacing.md),
+          content,
+        ];
+
+        if (usePageScroll) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: children,
+          );
+        }
+
+        return ListView(children: children);
       },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => Center(child: Text(error.toString())),

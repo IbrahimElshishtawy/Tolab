@@ -27,7 +27,7 @@ import '../widgets/subject_tabs.dart';
 import '../widgets/summaries_tab.dart';
 import '../widgets/tasks_tab.dart';
 
-class SubjectDetailsPage extends ConsumerWidget {
+class SubjectDetailsPage extends ConsumerStatefulWidget {
   const SubjectDetailsPage({
     super.key,
     required this.subjectId,
@@ -38,16 +38,54 @@ class SubjectDetailsPage extends ConsumerWidget {
   final String? initialTab;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SubjectDetailsPage> createState() => _SubjectDetailsPageState();
+}
+
+class _SubjectDetailsPageState extends ConsumerState<SubjectDetailsPage>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+  late int _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = SubjectTabs.indexFor(widget.initialTab);
+    _tabController = TabController(
+      length: SubjectTabs.items.length,
+      vsync: this,
+      initialIndex: _selectedIndex,
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant SubjectDetailsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final nextIndex = SubjectTabs.indexFor(widget.initialTab);
+    if (nextIndex == _selectedIndex) {
+      return;
+    }
+    _selectedIndex = nextIndex;
+    _tabController.index = nextIndex;
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final isStaff = ref.watch(isStaffUserProvider);
     if (isStaff) {
-      return StaffSubjectWorkspacePage(subjectId: subjectId);
+      return StaffSubjectWorkspacePage(subjectId: widget.subjectId);
     }
 
-    final subjectAsync = ref.watch(subjectByIdProvider(subjectId));
-    final tasksAsync = ref.watch(tasksProvider(subjectId));
-    final quizzesAsync = ref.watch(quizzesProvider(subjectId));
-    final lecturesAsync = ref.watch(lecturesProvider(subjectId));
+    final subjectAsync = ref.watch(subjectByIdProvider(widget.subjectId));
+    final tasksAsync = ref.watch(tasksProvider(widget.subjectId));
+    final quizzesAsync = ref.watch(quizzesProvider(widget.subjectId));
+    final lecturesAsync = ref.watch(lecturesProvider(widget.subjectId));
 
     return SafeArea(
       child: AdaptivePageContainer(
@@ -58,63 +96,60 @@ class SubjectDetailsPage extends ConsumerWidget {
             final lectures =
                 lecturesAsync.asData?.value ?? const <LectureItem>[];
 
-            return DefaultTabController(
-              length: SubjectTabs.items.length,
-              initialIndex: SubjectTabs.indexFor(initialTab),
-              child: Column(
-                children: [
-                  SubjectHeaderCard(
-                    subject: subject,
-                    lectureCount: lectures.length,
-                    quizCount: quizzes.length,
-                    taskCount: tasks.length,
+            return ListView(
+              children: [
+                SubjectHeaderCard(
+                  subject: subject,
+                  lectureCount: lectures.length,
+                  quizCount: quizzes.length,
+                  taskCount: tasks.length,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                SubjectRequiredNowSection(
+                  subject: subject,
+                  tasks: tasks,
+                  quizzes: quizzes,
+                  lectures: lectures,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _QuickActionsRow(
+                  subjectId: widget.subjectId,
+                  quizzes: quizzes,
+                  tasks: tasks,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.xs),
+                  decoration: BoxDecoration(
+                    color: context.appColors.surface,
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: context.appColors.border),
                   ),
-                  const SizedBox(height: AppSpacing.lg),
-                  SubjectRequiredNowSection(
-                    subject: subject,
-                    tasks: tasks,
-                    quizzes: quizzes,
-                    lectures: lectures,
+                  child: TabBar(
+                    controller: _tabController,
+                    isScrollable: true,
+                    tabAlignment: TabAlignment.start,
+                    dividerColor: Colors.transparent,
+                    onTap: (index) {
+                      if (index == _selectedIndex) {
+                        return;
+                      }
+                      setState(() => _selectedIndex = index);
+                    },
+                    tabs: [
+                      for (final tab in SubjectTabs.items) Tab(text: tab.$2),
+                    ],
                   ),
-                  const SizedBox(height: AppSpacing.lg),
-                  _QuickActionsRow(
-                    subjectId: subjectId,
-                    quizzes: quizzes,
-                    tasks: tasks,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 220),
+                  child: KeyedSubtree(
+                    key: ValueKey(SubjectTabs.items[_selectedIndex].$1),
+                    child: _buildTabContent(),
                   ),
-                  const SizedBox(height: AppSpacing.lg),
-                  Container(
-                    padding: const EdgeInsets.all(AppSpacing.xs),
-                    decoration: BoxDecoration(
-                      color: context.appColors.surface,
-                      borderRadius: BorderRadius.circular(22),
-                      border: Border.all(color: context.appColors.border),
-                    ),
-                    child: TabBar(
-                      isScrollable: true,
-                      tabAlignment: TabAlignment.start,
-                      tabs: [
-                        for (final tab in SubjectTabs.items) Tab(text: tab.$2),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  Expanded(
-                    child: TabBarView(
-                      children: [
-                        LecturesTab(subjectId: subjectId),
-                        SectionsTab(subjectId: subjectId),
-                        QuizzesTab(subjectId: subjectId),
-                        TasksTab(subjectId: subjectId),
-                        SummariesTab(subjectId: subjectId),
-                        FilesTab(subjectId: subjectId),
-                        GroupTab(subjectId: subjectId),
-                        GradesTab(subjectId: subjectId),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             );
           },
           loading: () =>
@@ -123,6 +158,29 @@ class SubjectDetailsPage extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildTabContent() {
+    return switch (SubjectTabs.items[_selectedIndex].$1) {
+      'lectures' => LecturesTab(
+        subjectId: widget.subjectId,
+        usePageScroll: true,
+      ),
+      'sections' => SectionsTab(
+        subjectId: widget.subjectId,
+        usePageScroll: true,
+      ),
+      'quizzes' => QuizzesTab(subjectId: widget.subjectId, usePageScroll: true),
+      'tasks' => TasksTab(subjectId: widget.subjectId, usePageScroll: true),
+      'summaries' => SummariesTab(
+        subjectId: widget.subjectId,
+        usePageScroll: true,
+      ),
+      'files' => FilesTab(subjectId: widget.subjectId, usePageScroll: true),
+      'group' => GroupTab(subjectId: widget.subjectId, usePageScroll: true),
+      'grades' => GradesTab(subjectId: widget.subjectId, usePageScroll: true),
+      _ => LecturesTab(subjectId: widget.subjectId, usePageScroll: true),
+    };
   }
 }
 

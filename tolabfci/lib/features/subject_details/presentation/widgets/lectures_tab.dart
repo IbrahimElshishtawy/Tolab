@@ -12,9 +12,14 @@ import '../../../../core/widgets/loading_widget.dart';
 import '../../../subjects/presentation/providers/subjects_providers.dart';
 
 class LecturesTab extends ConsumerWidget {
-  const LecturesTab({super.key, required this.subjectId});
+  const LecturesTab({
+    super.key,
+    required this.subjectId,
+    this.usePageScroll = false,
+  });
 
   final String subjectId;
+  final bool usePageScroll;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,6 +44,8 @@ class LecturesTab extends ConsumerWidget {
         }).toList()..sort((a, b) => b.startsAt!.compareTo(a.startsAt!));
 
         return ListView(
+          shrinkWrap: usePageScroll,
+          physics: usePageScroll ? const NeverScrollableScrollPhysics() : null,
           children: [
             if (upcoming.isNotEmpty) ...[
               _SectionHeader(

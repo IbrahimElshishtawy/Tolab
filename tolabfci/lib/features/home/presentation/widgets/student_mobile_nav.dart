@@ -85,7 +85,11 @@ class _NavIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final child = Icon(icon, color: selected ? AppColors.primary : null);
+    final child = Icon(
+      icon,
+      size: 22,
+      color: selected ? AppColors.primary : null,
+    );
     if (badgeCount <= 0) {
       return child;
     }

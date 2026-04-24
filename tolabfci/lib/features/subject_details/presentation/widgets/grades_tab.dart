@@ -10,9 +10,14 @@ import '../../../../core/widgets/loading_widget.dart';
 import '../../../results/presentation/providers/results_providers.dart';
 
 class GradesTab extends ConsumerWidget {
-  const GradesTab({super.key, required this.subjectId});
+  const GradesTab({
+    super.key,
+    required this.subjectId,
+    this.usePageScroll = false,
+  });
 
   final String subjectId;
+  final bool usePageScroll;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,6 +36,8 @@ class GradesTab extends ConsumerWidget {
         }
 
         return ListView(
+          shrinkWrap: usePageScroll,
+          physics: usePageScroll ? const NeverScrollableScrollPhysics() : null,
           children: [
             AppCard(
               child: Column(

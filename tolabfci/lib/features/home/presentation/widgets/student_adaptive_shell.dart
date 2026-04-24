@@ -255,13 +255,13 @@ class _DrawerTile extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         tileColor: Theme.of(context).extension<AppColorsScheme>()!.surfaceAlt,
         leading: Container(
-          width: 42,
-          height: 42,
+          width: 38,
+          height: 38,
           decoration: BoxDecoration(
             color: AppColors.primary.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(14),
           ),
-          child: Icon(icon, color: AppColors.primary),
+          child: Icon(icon, size: 20, color: AppColors.primary),
         ),
         title: Text(title),
         subtitle: Text(subtitle),

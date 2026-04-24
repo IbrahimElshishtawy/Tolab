@@ -33,14 +33,14 @@ class QuizListTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 alignment: Alignment.center,
-                child: Icon(Icons.quiz_outlined, color: color),
+                child: Icon(Icons.quiz_outlined, size: 24, color: color),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(

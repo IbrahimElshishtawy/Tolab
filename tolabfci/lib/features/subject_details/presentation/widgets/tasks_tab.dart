@@ -13,9 +13,14 @@ import '../../../../core/widgets/loading_widget.dart';
 import '../../../subjects/presentation/providers/subjects_providers.dart';
 
 class TasksTab extends ConsumerWidget {
-  const TasksTab({super.key, required this.subjectId});
+  const TasksTab({
+    super.key,
+    required this.subjectId,
+    this.usePageScroll = false,
+  });
 
   final String subjectId;
+  final bool usePageScroll;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,6 +33,10 @@ class TasksTab extends ConsumerWidget {
               subtitle: 'ستظهر تكليفات المادة هنا بمجرد نشرها.',
             )
           : ListView.separated(
+              shrinkWrap: usePageScroll,
+              physics: usePageScroll
+                  ? const NeverScrollableScrollPhysics()
+                  : null,
               itemCount: tasks.length,
               separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
               itemBuilder: (context, index) {
