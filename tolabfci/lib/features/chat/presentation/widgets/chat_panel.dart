@@ -17,11 +17,13 @@ class ChatPanel extends ConsumerWidget {
     required this.subjectId,
     this.fillAvailable = true,
     this.compact = false,
+    this.showHeader = true,
   });
 
   final String subjectId;
   final bool fillAvailable;
   final bool compact;
+  final bool showHeader;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,29 +35,48 @@ class ChatPanel extends ConsumerWidget {
         padding: const EdgeInsets.all(AppSpacing.sm),
         child: Column(
           children: [
-            Row(
-              children: [
-                const Icon(
-                  Icons.groups_2_outlined,
-                  color: AppColors.primary,
-                  size: 22,
-                ),
-                const SizedBox(width: AppSpacing.xs),
-                Expanded(
-                  child: Text(
-                    'الجروب / Course Group',
-                    style: Theme.of(context).textTheme.titleLarge,
+            if (showHeader) ...[
+              Row(
+                children: [
+                  const Icon(
+                    Icons.groups_2_outlined,
+                    color: AppColors.primary,
+                    size: 22,
+                  ),
+                  const SizedBox(width: AppSpacing.xs),
+                  Expanded(
+                    child: Text(
+                      'الجروب / Course Group',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  if (chatState.messages.isNotEmpty)
+                    Text(
+                      '${chatState.messages.length} رسالة',
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                ],
+              ),
+              if (chatState.hasMore) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: AppButton(
+                    label: chatState.isLoadingMore
+                        ? 'جار التحميل...'
+                        : 'رسائل أقدم',
+                    onPressed: chatState.isLoadingMore
+                        ? null
+                        : () => ref
+                              .read(chatControllerProvider(subjectId).notifier)
+                              .loadMore(),
+                    variant: AppButtonVariant.ghost,
+                    isExpanded: false,
                   ),
                 ),
-                if (chatState.messages.isNotEmpty)
-                  Text(
-                    '${chatState.messages.length} رسالة',
-                    style: Theme.of(context).textTheme.labelLarge,
-                  ),
               ],
-            ),
-            if (chatState.hasMore) ...[
-              const SizedBox(height: AppSpacing.xs),
+            ],
+            if (!showHeader && chatState.hasMore) ...[
               Align(
                 alignment: Alignment.centerLeft,
                 child: AppButton(

@@ -6,13 +6,13 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/adaptive_page_container.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
-import '../../../notifications/presentation/providers/notifications_providers.dart';
+import '../../../../core/localization/app_localization.dart';
 import '../../../subject_details/presentation/providers/community_providers.dart';
 import '../../../subjects/presentation/providers/subjects_providers.dart';
-import '../widgets/community_chat_section.dart';
 import '../widgets/community_posts_section.dart';
+import 'group_chat_page.dart';
 
-class CourseCommunityPage extends ConsumerStatefulWidget {
+class CourseCommunityPage extends ConsumerWidget {
   const CourseCommunityPage({
     super.key,
     required this.subjectId,
@@ -25,24 +25,9 @@ class CourseCommunityPage extends ConsumerStatefulWidget {
   final bool usePageScroll;
 
   @override
-  ConsumerState<CourseCommunityPage> createState() =>
-      _CourseCommunityPageState();
-}
-
-class _CourseCommunityPageState extends ConsumerState<CourseCommunityPage> {
-  final GlobalKey _chatSectionKey = GlobalKey();
-
-  @override
-  Widget build(BuildContext context) {
-    final postsAsync = ref.watch(communityControllerProvider(widget.subjectId));
-    final subjectAsync = ref.watch(subjectByIdProvider(widget.subjectId));
-    final notifications =
-        ref.watch(notificationsStreamProvider).value ?? const [];
-    final unreadCount = notifications.where((item) {
-      return !item.isRead &&
-          item.pathParameters['subjectId'] == widget.subjectId &&
-          item.category.contains('الجروب');
-    }).length;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final postsAsync = ref.watch(communityControllerProvider(subjectId));
+    final subjectAsync = ref.watch(subjectByIdProvider(subjectId));
 
     final body = postsAsync.when(
       data: (posts) {
@@ -61,8 +46,9 @@ class _CourseCommunityPageState extends ConsumerState<CourseCommunityPage> {
                 style: Theme.of(context).textTheme.titleLarge,
               );
               final action = AppButton(
-                label: 'دخول الشات الجماعي',
-                onPressed: _openGroupChat,
+                label: context.tr('دخول الشات الجماعي', 'Open Group Chat'),
+                onPressed: () =>
+                    _openGroupChat(context, subjectName: subjectName),
                 icon: Icons.chat_bubble_outline_rounded,
                 isExpanded: compact,
               );
@@ -95,58 +81,19 @@ class _CourseCommunityPageState extends ConsumerState<CourseCommunityPage> {
           ),
         );
 
-        final content = LayoutBuilder(
-          builder: (context, constraints) {
-            final desktop = constraints.maxWidth > 1100;
-            final tablet = constraints.maxWidth >= 700;
-            final chatHeight = desktop
-                ? 620.0
-                : tablet
-                ? 520.0
-                : 500.0;
-            final postsSection = CommunityPostsSection(
-              subjectId: widget.subjectId,
-              posts: posts,
-              subjectName: subjectName,
-            );
-            final chatSection = KeyedSubtree(
-              key: _chatSectionKey,
-              child: CommunityChatSection(
-                subjectId: widget.subjectId,
-                unreadCount: unreadCount,
-                height: chatHeight,
-              ),
-            );
-
-            if (!desktop) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  postsSection,
-                  const SizedBox(height: AppSpacing.md),
-                  chatSection,
-                ],
-              );
-            }
-
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(flex: 7, child: postsSection),
-                const SizedBox(width: AppSpacing.md),
-                SizedBox(width: 420, child: chatSection),
-              ],
-            );
-          },
+        final postsSection = CommunityPostsSection(
+          subjectId: subjectId,
+          posts: posts,
+          subjectName: subjectName,
         );
 
         final children = <Widget>[
           header,
           const SizedBox(height: AppSpacing.md),
-          content,
+          postsSection,
         ];
 
-        if (widget.usePageScroll) {
+        if (usePageScroll) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: children,
@@ -159,7 +106,7 @@ class _CourseCommunityPageState extends ConsumerState<CourseCommunityPage> {
       error: (error, _) => Center(child: Text(error.toString())),
     );
 
-    if (widget.embedded) {
+    if (embedded) {
       return body;
     }
 
@@ -169,16 +116,23 @@ class _CourseCommunityPageState extends ConsumerState<CourseCommunityPage> {
     );
   }
 
-  void _openGroupChat() {
-    final chatContext = _chatSectionKey.currentContext;
-    if (chatContext == null) {
-      return;
-    }
-    Scrollable.ensureVisible(
-      chatContext,
-      duration: const Duration(milliseconds: 360),
-      curve: Curves.easeOutCubic,
-      alignment: 0.08,
+  void _openGroupChat(BuildContext context, {String? subjectName}) {
+    Navigator.of(context, rootNavigator: true).push(
+      PageRouteBuilder<void>(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            GroupChatPage(subjectId: subjectId, subjectName: subjectName),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final offset = Tween<Offset>(
+            begin: const Offset(0.12, 0),
+            end: Offset.zero,
+          ).chain(CurveTween(curve: Curves.easeOutCubic)).animate(animation);
+
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(position: offset, child: child),
+          );
+        },
+      ),
     );
   }
 }
