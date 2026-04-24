@@ -69,14 +69,30 @@ class StudentAdaptiveShell extends StatelessWidget {
       floatingActionButton: isStaff
           ? null
           : Builder(
-              builder: (context) => FloatingActionButton.small(
-                onPressed: () => Scaffold.of(context).openEndDrawer(),
-                backgroundColor: palette.surfaceElevated,
-                foregroundColor: AppColors.primary,
-                child: const Icon(Icons.grid_view_rounded),
+              builder: (context) => SafeArea(
+                left: false,
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    top: AppSpacing.lg,
+                    right: AppSpacing.sm,
+                  ),
+                  child: FloatingActionButton.small(
+                    heroTag: 'student-drawer-toggle',
+                    onPressed: () => Scaffold.of(context).openEndDrawer(),
+                    backgroundColor: palette.surfaceElevated,
+                    foregroundColor: AppColors.primary,
+                    elevation: 8,
+                    highlightElevation: 10,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: const Icon(Icons.grid_view_rounded),
+                  ),
+                ),
               ),
             ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
       bottomNavigationBar: StudentMobileNav(
         destinations: destinations,
         currentIndex: navigationShell.currentIndex,

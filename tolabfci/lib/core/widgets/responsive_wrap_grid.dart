@@ -6,19 +6,25 @@ class ResponsiveWrapGrid extends StatelessWidget {
     required this.children,
     this.minItemWidth = 280,
     this.spacing = 16,
+    this.maxColumns = 4,
   });
 
   final List<Widget> children;
   final double minItemWidth;
   final double spacing;
+  final int maxColumns;
 
   @override
   Widget build(BuildContext context) {
+    if (children.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = (constraints.maxWidth / (minItemWidth + spacing))
-            .floor()
-            .clamp(1, 4);
+        var columns = (constraints.maxWidth / (minItemWidth + spacing)).floor();
+        columns = columns.clamp(1, maxColumns).toInt();
+        columns = columns.clamp(1, children.length).toInt();
         final totalSpacing = spacing * (columns - 1);
         final itemWidth = (constraints.maxWidth - totalSpacing) / columns;
 

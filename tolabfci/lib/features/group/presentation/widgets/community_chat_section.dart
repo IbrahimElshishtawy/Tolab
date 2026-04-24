@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../chat/presentation/widgets/chat_panel.dart';
-import '../../../subject_details/presentation/providers/chat_providers.dart';
 
-class CommunityChatSection extends ConsumerWidget {
+class CommunityChatSection extends StatelessWidget {
   const CommunityChatSection({
     super.key,
     required this.subjectId,
@@ -20,13 +18,7 @@ class CommunityChatSection extends ConsumerWidget {
   final double height;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final chatAsync = ref.watch(chatControllerProvider(subjectId));
-    final messages = chatAsync.asData?.value.messages;
-    final latestMessage = messages == null || messages.isEmpty
-        ? null
-        : messages.last;
-
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -44,12 +36,6 @@ class CommunityChatSection extends ConsumerWidget {
                 label: '$unreadCount غير مقروء',
                 backgroundColor: AppColors.warning.withValues(alpha: 0.12),
                 foregroundColor: AppColors.warning,
-                dense: true,
-              ),
-            if (latestMessage != null)
-              AppBadge(
-                label:
-                    '${latestMessage.authorName} • ${latestMessage.sentAtLabel}',
                 dense: true,
               ),
           ],

@@ -18,7 +18,6 @@ import '../widgets/group_tab.dart';
 import '../widgets/lectures_tab.dart';
 import '../widgets/quizzes_tab.dart';
 import '../widgets/sections_tab.dart';
-import '../widgets/subject_group_preview_card.dart';
 import '../widgets/subject_header_card.dart';
 import '../widgets/subject_required_now_section.dart';
 import '../widgets/subject_tabs.dart';
@@ -115,11 +114,6 @@ class _SubjectDetailsPageState extends ConsumerState<SubjectDetailsPage>
                   sections: sections,
                 ),
                 const SizedBox(height: AppSpacing.md),
-                SubjectGroupPreviewCard(
-                  subjectId: widget.subjectId,
-                  onOpenGroup: () => _openTab('group'),
-                ),
-                const SizedBox(height: AppSpacing.md),
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.xs),
                   decoration: BoxDecoration(
@@ -183,16 +177,5 @@ class _SubjectDetailsPageState extends ConsumerState<SubjectDetailsPage>
       'grades' => GradesTab(subjectId: widget.subjectId, usePageScroll: true),
       _ => LecturesTab(subjectId: widget.subjectId, usePageScroll: true),
     };
-  }
-
-  void _openTab(String tab) {
-    final nextIndex = SubjectTabs.indexFor(tab);
-    if (nextIndex == _selectedIndex) {
-      return;
-    }
-    setState(() {
-      _selectedIndex = nextIndex;
-      _tabController.index = nextIndex;
-    });
   }
 }

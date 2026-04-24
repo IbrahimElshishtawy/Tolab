@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/models/home_dashboard.dart';
 import '../../../../core/models/notification_item.dart';
+import '../../../../core/responsive/breakpoints.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/adaptive_page_container.dart';
@@ -38,6 +39,7 @@ class StudentHomePage extends ConsumerWidget {
               ResponsiveWrapGrid(
                 minItemWidth: 190,
                 spacing: AppSpacing.sm,
+                maxColumns: 3,
                 children: [
                   for (final item in viewModel.requiredTodayItems)
                     _RequiredActionCard(item: item),
@@ -52,24 +54,19 @@ class StudentHomePage extends ConsumerWidget {
               const SizedBox(height: AppSpacing.md),
               _AgendaSection(groups: viewModel.timelineGroups),
               const SizedBox(height: AppSpacing.lg),
-              ResponsiveWrapGrid(
-                minItemWidth: 280,
-                spacing: AppSpacing.md,
+              _HomeResponsiveGrid(
                 children: [
-                  _SnapshotSection(viewModel: viewModel),
                   _TipSection(viewModel: viewModel),
+                  _SnapshotSection(viewModel: viewModel),
+                  _ActivitySummaryCard(
+                    activities: viewModel.courseActivities,
+                    notifications: viewModel.notificationsPreview,
+                  ),
+                  _CourseActivityCard(activities: viewModel.courseActivities),
+                  _NotificationsCard(
+                    notifications: viewModel.notificationsPreview,
+                  ),
                 ],
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              const _SectionTitle(
-                title: 'آخر النشاط',
-                subtitle:
-                    'محاضرات جديدة وكويزات وإعلانات ودرجات مضافة داخل المواد.',
-              ),
-              const SizedBox(height: AppSpacing.md),
-              _RecentActivitySection(
-                activities: viewModel.courseActivities,
-                notifications: viewModel.notificationsPreview,
               ),
             ],
           ),
@@ -78,6 +75,45 @@ class StudentHomePage extends ConsumerWidget {
           error: (error, _) => ErrorStateWidget(message: error.toString()),
         ),
       ),
+    );
+  }
+}
+
+class _HomeResponsiveGrid extends StatelessWidget {
+  const _HomeResponsiveGrid({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    if (children.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final targetColumns = width > AppBreakpoints.desktop
+            ? 3
+            : width >= AppBreakpoints.tablet
+            ? 2
+            : 1;
+        final columns = targetColumns.clamp(1, children.length).toInt();
+        final spacing = width > AppBreakpoints.desktop
+            ? AppSpacing.xl
+            : AppSpacing.md;
+        final totalSpacing = spacing * (columns - 1);
+        final itemWidth = (width - totalSpacing) / columns;
+
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (final child in children)
+              SizedBox(width: itemWidth, child: child),
+          ],
+        );
+      },
     );
   }
 }
@@ -441,8 +477,8 @@ class _TipSection extends StatelessWidget {
   }
 }
 
-class _RecentActivitySection extends StatelessWidget {
-  const _RecentActivitySection({
+class _ActivitySummaryCard extends StatelessWidget {
+  const _ActivitySummaryCard({
     required this.activities,
     required this.notifications,
   });
@@ -452,61 +488,125 @@ class _RecentActivitySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsiveWrapGrid(
-      minItemWidth: 320,
-      spacing: AppSpacing.md,
-      children: [
-        AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    final latestActivity = activities.isEmpty ? null : activities.first;
+    final latestNotification = notifications.isEmpty
+        ? null
+        : notifications.first;
+
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('آخر النشاط', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: AppSpacing.md),
+          ResponsiveWrapGrid(
+            minItemWidth: 120,
+            spacing: AppSpacing.sm,
+            maxColumns: 2,
             children: [
-              Text(
-                'داخل المواد',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              ...activities
-                  .take(4)
-                  .map(
-                    (activity) => Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                      child: _ActivityTile(
-                        title: activity.title,
-                        subtitle: activity.subjectName,
-                        description: activity.description,
-                        meta: activity.createdAtLabel,
-                        accent: _activityColor(activity.type),
-                      ),
+              _MetricTile(label: 'داخل المواد', value: '${activities.length}'),
+              _MetricTile(label: 'التنبيهات', value: '${notifications.length}'),
+            ],
+          ),
+          if (latestActivity != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            _ActivityTile(
+              title: latestActivity.title,
+              subtitle: latestActivity.subjectName,
+              description: latestActivity.description,
+              meta: latestActivity.createdAtLabel,
+              accent: _activityColor(latestActivity.type),
+            ),
+          ],
+          if (latestNotification != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            _ActivityTile(
+              title: latestNotification.title,
+              subtitle:
+                  latestNotification.subjectName ?? latestNotification.category,
+              description: latestNotification.body,
+              meta: latestNotification.createdAtLabel,
+              accent: _notificationColor(latestNotification.urgency),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _CourseActivityCard extends StatelessWidget {
+  const _CourseActivityCard({required this.activities});
+
+  final List<CourseActivityItem> activities;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('داخل المواد', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: AppSpacing.md),
+          if (activities.isEmpty)
+            Text(
+              'لا توجد أنشطة جديدة داخل المواد الآن.',
+              style: Theme.of(context).textTheme.bodySmall,
+            )
+          else
+            ...activities
+                .take(4)
+                .map(
+                  (activity) => Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                    child: _ActivityTile(
+                      title: activity.title,
+                      subtitle: activity.subjectName,
+                      description: activity.description,
+                      meta: activity.createdAtLabel,
+                      accent: _activityColor(activity.type),
                     ),
                   ),
-            ],
-          ),
-        ),
-        AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'التنبيهات الأحدث',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              ...notifications.map(
-                (notification) => Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                  child: _ActivityTile(
-                    title: notification.title,
-                    subtitle: notification.subjectName ?? notification.category,
-                    description: notification.body,
-                    meta: notification.createdAtLabel,
-                    accent: _notificationColor(notification.urgency),
-                  ),
+                ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NotificationsCard extends StatelessWidget {
+  const _NotificationsCard({required this.notifications});
+
+  final List<AppNotificationItem> notifications;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('التنبيهات', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: AppSpacing.md),
+          if (notifications.isEmpty)
+            Text(
+              'لا توجد تنبيهات جديدة الآن.',
+              style: Theme.of(context).textTheme.bodySmall,
+            )
+          else
+            ...notifications.map(
+              (notification) => Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: _ActivityTile(
+                  title: notification.title,
+                  subtitle: notification.subjectName ?? notification.category,
+                  description: notification.body,
+                  meta: notification.createdAtLabel,
+                  accent: _notificationColor(notification.urgency),
                 ),
               ),
-            ],
-          ),
-        ),
-      ],
+            ),
+        ],
+      ),
     );
   }
 }

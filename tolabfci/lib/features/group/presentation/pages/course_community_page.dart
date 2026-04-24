@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/adaptive_page_container.dart';
-import '../../../../core/widgets/app_badge.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../notifications/presentation/providers/notifications_providers.dart';
 import '../../../subject_details/presentation/providers/community_providers.dart';
@@ -12,7 +12,7 @@ import '../../../subjects/presentation/providers/subjects_providers.dart';
 import '../widgets/community_chat_section.dart';
 import '../widgets/community_posts_section.dart';
 
-class CourseCommunityPage extends ConsumerWidget {
+class CourseCommunityPage extends ConsumerStatefulWidget {
   const CourseCommunityPage({
     super.key,
     required this.subjectId,
@@ -25,57 +25,73 @@ class CourseCommunityPage extends ConsumerWidget {
   final bool usePageScroll;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final postsAsync = ref.watch(communityControllerProvider(subjectId));
-    final subjectAsync = ref.watch(subjectByIdProvider(subjectId));
+  ConsumerState<CourseCommunityPage> createState() =>
+      _CourseCommunityPageState();
+}
+
+class _CourseCommunityPageState extends ConsumerState<CourseCommunityPage> {
+  final GlobalKey _chatSectionKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    final postsAsync = ref.watch(communityControllerProvider(widget.subjectId));
+    final subjectAsync = ref.watch(subjectByIdProvider(widget.subjectId));
     final notifications =
         ref.watch(notificationsStreamProvider).value ?? const [];
     final unreadCount = notifications.where((item) {
       return !item.isRead &&
-          item.pathParameters['subjectId'] == subjectId &&
+          item.pathParameters['subjectId'] == widget.subjectId &&
           item.category.contains('الجروب');
     }).length;
 
     final body = postsAsync.when(
       data: (posts) {
-        final pinnedCount = posts.where((post) => post.isPinned).length;
-        final attachmentsCount = posts.fold<int>(
-          0,
-          (count, post) =>
-              count +
-              post.attachments.length +
-              (post.attachmentName == null ? 0 : 1),
-        );
         final subjectName = subjectAsync.value?.name;
 
         final header = AppCard(
           padding: const EdgeInsets.all(AppSpacing.sm),
           backgroundColor: context.appColors.surfaceElevated,
-          child: Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Text(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 700;
+              final title = Text(
                 subjectName == null
                     ? 'مجتمع المقرر / Course Community'
                     : 'مجتمع $subjectName',
                 style: Theme.of(context).textTheme.titleLarge,
-              ),
-              AppBadge(label: '${posts.length} منشور', dense: true),
-              AppBadge(
-                label: '$pinnedCount مثبت',
-                backgroundColor: AppColors.warning.withValues(alpha: 0.12),
-                foregroundColor: AppColors.warning,
-                dense: true,
-              ),
-              AppBadge(
-                label: '$attachmentsCount مرفق',
-                backgroundColor: AppColors.primary.withValues(alpha: 0.12),
-                foregroundColor: AppColors.primary,
-                dense: true,
-              ),
-            ],
+              );
+              final action = AppButton(
+                label: 'دخول الشات الجماعي',
+                onPressed: _openGroupChat,
+                icon: Icons.chat_bubble_outline_rounded,
+                isExpanded: compact,
+              );
+
+              if (compact) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    title,
+                    const SizedBox(height: AppSpacing.sm),
+                    action,
+                  ],
+                );
+              }
+
+              return Row(
+                textDirection: TextDirection.ltr,
+                children: [
+                  Expanded(
+                    child: Directionality(
+                      textDirection: Directionality.of(context),
+                      child: title,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  action,
+                ],
+              );
+            },
           ),
         );
 
@@ -89,14 +105,17 @@ class CourseCommunityPage extends ConsumerWidget {
                 ? 520.0
                 : 500.0;
             final postsSection = CommunityPostsSection(
-              subjectId: subjectId,
+              subjectId: widget.subjectId,
               posts: posts,
               subjectName: subjectName,
             );
-            final chatSection = CommunityChatSection(
-              subjectId: subjectId,
-              unreadCount: unreadCount,
-              height: chatHeight,
+            final chatSection = KeyedSubtree(
+              key: _chatSectionKey,
+              child: CommunityChatSection(
+                subjectId: widget.subjectId,
+                unreadCount: unreadCount,
+                height: chatHeight,
+              ),
             );
 
             if (!desktop) {
@@ -127,7 +146,7 @@ class CourseCommunityPage extends ConsumerWidget {
           content,
         ];
 
-        if (usePageScroll) {
+        if (widget.usePageScroll) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: children,
@@ -140,13 +159,26 @@ class CourseCommunityPage extends ConsumerWidget {
       error: (error, _) => Center(child: Text(error.toString())),
     );
 
-    if (embedded) {
+    if (widget.embedded) {
       return body;
     }
 
     return Scaffold(
       appBar: AppBar(title: const Text('مجتمع المقرر')),
       body: SafeArea(child: AdaptivePageContainer(child: body)),
+    );
+  }
+
+  void _openGroupChat() {
+    final chatContext = _chatSectionKey.currentContext;
+    if (chatContext == null) {
+      return;
+    }
+    Scrollable.ensureVisible(
+      chatContext,
+      duration: const Duration(milliseconds: 360),
+      curve: Curves.easeOutCubic,
+      alignment: 0.08,
     );
   }
 }
