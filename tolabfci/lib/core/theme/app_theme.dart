@@ -61,10 +61,11 @@ class AppTheme {
       useMaterial3: true,
       brightness: brightness,
       extensions: [palette],
+      fontFamily: 'Segoe UI',
       fontFamilyFallback: const [
+        'Noto Sans Arabic',
         'SF Pro Display',
         'SF Pro Text',
-        'Noto Sans Arabic',
         'Segoe UI',
         'Tahoma',
         'Arial',
@@ -74,6 +75,8 @@ class AppTheme {
       cardColor: palette.surface,
       dividerColor: palette.border,
       shadowColor: Colors.black.withValues(alpha: shadowAlpha),
+      canvasColor: palette.background,
+      splashFactory: InkSparkle.splashFactory,
       visualDensity: VisualDensity.comfortable,
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
@@ -81,6 +84,7 @@ class AppTheme {
         centerTitle: false,
         backgroundColor: Colors.transparent,
         foregroundColor: palette.textPrimary,
+        surfaceTintColor: Colors.transparent,
         titleTextStyle: textTheme.titleLarge,
       ),
       cupertinoOverrideTheme: NoDefaultCupertinoThemeData(
@@ -126,6 +130,8 @@ class AppTheme {
             fontWeight: FontWeight.w700,
           ),
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+          elevation: 0,
+          surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadii.md),
           ),
@@ -195,6 +201,32 @@ class AppTheme {
         ),
         iconColor: palette.textSecondary,
         textColor: palette.textPrimary,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: palette.surface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.lg),
+        ),
+      ),
+      drawerTheme: DrawerThemeData(
+        backgroundColor: palette.surface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.xl),
+        ),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: palette.surface,
+        surfaceTintColor: Colors.transparent,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+      ),
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: AppColors.primary,
+        selectionColor: AppColors.primary.withValues(alpha: 0.18),
+        selectionHandleColor: AppColors.primary,
       ),
     );
   }

@@ -22,10 +22,17 @@ class AppCard extends StatelessWidget {
         ? 0.22
         : 0.06;
 
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
-        color: backgroundColor ?? palette.surface,
         borderRadius: BorderRadius.circular(AppRadii.lg),
+        gradient: LinearGradient(
+          colors: [
+            (backgroundColor ?? palette.surface).withValues(alpha: 0.98),
+            backgroundColor ?? palette.surface,
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
         border: Border.all(color: palette.border),
         boxShadow: [
           BoxShadow(

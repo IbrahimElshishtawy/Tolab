@@ -19,6 +19,9 @@ class QuizItem {
     this.questionCount,
     this.submissionStateLabel,
     this.scoreLabel,
+    this.endAtLabel,
+    this.reviewAllowed = true,
+    this.durationMinutes,
   });
 
   final String id;
@@ -40,6 +43,9 @@ class QuizItem {
   final int? questionCount;
   final String? submissionStateLabel;
   final String? scoreLabel;
+  final String? endAtLabel;
+  final bool reviewAllowed;
+  final int? durationMinutes;
 
   QuizItem copyWith({
     String? id,
@@ -61,6 +67,9 @@ class QuizItem {
     int? questionCount,
     String? submissionStateLabel,
     String? scoreLabel,
+    String? endAtLabel,
+    bool? reviewAllowed,
+    int? durationMinutes,
   }) {
     return QuizItem(
       id: id ?? this.id,
@@ -82,6 +91,61 @@ class QuizItem {
       questionCount: questionCount ?? this.questionCount,
       submissionStateLabel: submissionStateLabel ?? this.submissionStateLabel,
       scoreLabel: scoreLabel ?? this.scoreLabel,
+      endAtLabel: endAtLabel ?? this.endAtLabel,
+      reviewAllowed: reviewAllowed ?? this.reviewAllowed,
+      durationMinutes: durationMinutes ?? this.durationMinutes,
     );
   }
+}
+
+enum QuizQuestionType { mcq, trueFalse, checkbox, shortAnswer }
+
+class QuizOption {
+  const QuizOption({
+    required this.id,
+    required this.label,
+    this.isCorrect = false,
+  });
+
+  final String id;
+  final String label;
+  final bool isCorrect;
+}
+
+class QuizQuestion {
+  const QuizQuestion({
+    required this.id,
+    required this.title,
+    required this.type,
+    required this.points,
+    this.description,
+    this.options = const [],
+    this.correctShortAnswer,
+  });
+
+  final String id;
+  final String title;
+  final QuizQuestionType type;
+  final int points;
+  final String? description;
+  final List<QuizOption> options;
+  final String? correctShortAnswer;
+}
+
+class StudentQuizDetails {
+  const StudentQuizDetails({
+    required this.quiz,
+    required this.rules,
+    required this.questions,
+    required this.availableStatusLabel,
+    required this.attemptsLabel,
+    this.overview,
+  });
+
+  final QuizItem quiz;
+  final String? overview;
+  final List<String> rules;
+  final List<QuizQuestion> questions;
+  final String availableStatusLabel;
+  final String attemptsLabel;
 }

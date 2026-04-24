@@ -24,6 +24,7 @@ class AppBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor ?? palette.primarySoft,
         borderRadius: BorderRadius.circular(AppRadii.pill),
+        border: Border.all(color: palette.border.withValues(alpha: 0.7)),
       ),
       child: Text(
         label,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors.dart';
 import '../theme/app_radii.dart';
 
 enum AppButtonVariant { primary, secondary, ghost }
@@ -30,13 +31,18 @@ class AppButton extends StatelessWidget {
   }
 
   Widget _buildButton() {
+    final iconColor = onPressed == null ? null : AppColors.primary;
     final content = icon == null
         ? Text(label)
         : Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 18),
+              Icon(
+                icon,
+                size: 18,
+                color: variant == AppButtonVariant.primary ? null : iconColor,
+              ),
               const SizedBox(width: 8),
               Text(label),
             ],

@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const primary = Color(0xFF4E7CF5);
-  static const primarySoft = Color(0xFFE9F0FF);
-  static const teal = Color(0xFF3DB6B0);
-  static const indigo = Color(0xFF6D73F8);
-  static const success = Color(0xFF4DAA73);
-  static const warning = Color(0xFFF1B95D);
-  static const error = Color(0xFFE17878);
+  static const primary = Color(0xFF2D66F6);
+  static const primarySoft = Color(0xFFE8F0FF);
+  static const teal = Color(0xFF23A4A1);
+  static const indigo = Color(0xFF6B5CF6);
+  static const success = Color(0xFF28A26A);
+  static const warning = Color(0xFFF29A38);
+  static const error = Color(0xFFE1605D);
   static const badge = Color(0xFFFF7B7B);
+  static const support = Color(0xFF18A7C9);
 
   static const textPrimary = Color(0xFF162033);
   static const textSecondary = Color(0xFF647089);
@@ -52,17 +53,17 @@ class AppColorsScheme extends ThemeExtension<AppColorsScheme> {
 
   factory AppColorsScheme.dark() {
     return const AppColorsScheme(
-      background: Color(0xFF08111F),
-      surface: Color(0xFF101B2D),
-      surfaceAlt: Color(0xFF152338),
-      surfaceElevated: Color(0xFF17273D),
-      border: Color(0xFF22344F),
+      background: Color(0xFF07111C),
+      surface: Color(0xFF0F1B2B),
+      surfaceAlt: Color(0xFF162536),
+      surfaceElevated: Color(0xFF1A2A3F),
+      border: Color(0xFF263954),
       textPrimary: Color(0xFFF5F7FF),
-      textSecondary: Color(0xFF9BA9C2),
-      primarySoft: Color(0xFF16325F),
-      successSoft: Color(0xFF11281D),
-      warningSoft: Color(0xFF322713),
-      errorSoft: Color(0xFF33191D),
+      textSecondary: Color(0xFFABB8CF),
+      primarySoft: Color(0xFF173662),
+      successSoft: Color(0xFF143120),
+      warningSoft: Color(0xFF3B2A14),
+      errorSoft: Color(0xFF3C1D22),
     );
   }
 

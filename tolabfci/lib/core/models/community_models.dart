@@ -6,12 +6,16 @@ class CommunityComment {
     required this.authorName,
     required this.content,
     required this.createdAtLabel,
+    this.authorRole,
+    this.isImportant = false,
   });
 
   final String id;
   final String authorName;
   final String content;
   final String createdAtLabel;
+  final String? authorRole;
+  final bool isImportant;
 }
 
 class CommunityPost {
@@ -26,6 +30,12 @@ class CommunityPost {
     required this.comments,
     this.type = CommunityPostType.discussion,
     this.isPinned = false,
+    this.title,
+    this.subjectName,
+    this.preview,
+    this.isImportant = false,
+    this.isUrgent = false,
+    this.attachments = const [],
     this.attachmentName,
   });
 
@@ -39,6 +49,12 @@ class CommunityPost {
   final List<CommunityComment> comments;
   final CommunityPostType type;
   final bool isPinned;
+  final String? title;
+  final String? subjectName;
+  final String? preview;
+  final bool isImportant;
+  final bool isUrgent;
+  final List<String> attachments;
   final String? attachmentName;
 
   CommunityPost copyWith({
@@ -52,6 +68,12 @@ class CommunityPost {
     List<CommunityComment>? comments,
     CommunityPostType? type,
     bool? isPinned,
+    String? title,
+    String? subjectName,
+    String? preview,
+    bool? isImportant,
+    bool? isUrgent,
+    List<String>? attachments,
     String? attachmentName,
   }) {
     return CommunityPost(
@@ -65,6 +87,12 @@ class CommunityPost {
       comments: comments ?? this.comments,
       type: type ?? this.type,
       isPinned: isPinned ?? this.isPinned,
+      title: title ?? this.title,
+      subjectName: subjectName ?? this.subjectName,
+      preview: preview ?? this.preview,
+      isImportant: isImportant ?? this.isImportant,
+      isUrgent: isUrgent ?? this.isUrgent,
+      attachments: attachments ?? this.attachments,
       attachmentName: attachmentName ?? this.attachmentName,
     );
   }

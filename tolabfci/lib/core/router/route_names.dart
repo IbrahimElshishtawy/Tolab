@@ -9,10 +9,14 @@ class RouteNames {
   static const subjects = 'subjects';
   static const subjectDetails = 'subject-details';
   static const quizEntry = 'quiz-entry';
+  static const quizTaking = 'quiz-taking';
   static const assignmentUpload = 'assignment-upload';
   static const addSummary = 'add-summary';
   static const notifications = 'notifications';
   static const results = 'results';
   static const profile = 'profile';
   static const settings = 'settings';
+  static const complaints = 'complaints';
+  static const supportTickets = 'support-tickets';
+  static const itSupport = 'it-support';
 }

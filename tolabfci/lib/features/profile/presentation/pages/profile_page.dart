@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../auth/presentation/providers/auth_providers.dart';
-import '../../../home/presentation/providers/home_providers.dart';
-import '../../../staff_portal/presentation/pages/staff_profile_page.dart';
 import '../../../../core/router/route_names.dart';
+import '../../../../core/models/support_models.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/formatters.dart';
@@ -16,7 +14,11 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/error_state_widget.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/widgets/responsive_wrap_grid.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../home/presentation/providers/home_providers.dart';
 import '../../../settings/presentation/widgets/settings_notifier.dart';
+import '../../../staff_portal/presentation/pages/staff_profile_page.dart';
+import '../../../support/presentation/providers/support_providers.dart';
 import '../providers/profile_providers.dart';
 
 class ProfilePage extends ConsumerWidget {
@@ -31,6 +33,7 @@ class ProfilePage extends ConsumerWidget {
 
     final profileAsync = ref.watch(profileProvider);
     final dashboardAsync = ref.watch(homeDashboardProvider);
+    final ticketsAsync = ref.watch(supportTicketsProvider);
     final settings = ref.watch(settingsNotifierProvider);
 
     if (profileAsync.isLoading || dashboardAsync.isLoading) {
@@ -69,66 +72,97 @@ class ProfilePage extends ConsumerWidget {
                       dashboard.tasks.length) *
                   100)
               .round();
+    final pendingTickets =
+        ticketsAsync.value
+            ?.where((ticket) => ticket.status != SupportTicketStatus.resolved)
+            .length ??
+        0;
 
     return SafeArea(
       child: AdaptivePageContainer(
         child: ListView(
           children: [
             AppCard(
-              child: Row(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AppAvatar(
-                    name: profile.fullName,
-                    imageUrl: profile.avatarUrl,
-                    radius: 36,
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          profile.fullName,
-                          style: Theme.of(context).textTheme.displaySmall,
-                        ),
-                        const SizedBox(height: AppSpacing.xs),
-                        Text(
-                          profile.email,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        const SizedBox(height: AppSpacing.sm),
-                        Wrap(
-                          spacing: AppSpacing.sm,
-                          runSpacing: AppSpacing.sm,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppAvatar(
+                        name: profile.fullName,
+                        imageUrl: profile.avatarUrl,
+                        radius: 34,
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            AppBadge(label: profile.academicStatus),
-                            AppBadge(
-                              label: profile.department,
-                              backgroundColor: Colors.white,
+                            Text(
+                              profile.fullName,
+                              style: Theme.of(context).textTheme.displaySmall,
                             ),
-                            AppBadge(
-                              label: profile.level,
-                              backgroundColor: Colors.white,
+                            const SizedBox(height: AppSpacing.xs),
+                            Text(
+                              profile.email,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            Wrap(
+                              spacing: AppSpacing.sm,
+                              runSpacing: AppSpacing.sm,
+                              children: [
+                                AppBadge(label: profile.academicStatus),
+                                AppBadge(label: profile.department),
+                                AppBadge(label: profile.level),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
+                      ),
+                      IconButton.filledTonal(
+                        onPressed: () => context.goNamed(RouteNames.settings),
+                        icon: const Icon(Icons.settings_outlined),
+                      ),
+                    ],
                   ),
-                  IconButton.filledTonal(
-                    onPressed: () => context.goNamed(RouteNames.settings),
-                    icon: const Icon(Icons.settings_outlined),
+                  const SizedBox(height: AppSpacing.lg),
+                  ResponsiveWrapGrid(
+                    minItemWidth: 180,
+                    spacing: AppSpacing.sm,
+                    children: [
+                      _StatCard(
+                        label: 'GPA',
+                        value: profile.gpa.toStringAsFixed(2),
+                      ),
+                      _StatCard(
+                        label: 'الساعات المسجلة',
+                        value: '${profile.registeredHours}',
+                      ),
+                      _StatCard(
+                        label: 'المواد الحالية',
+                        value: '${dashboard.subjects.length}',
+                      ),
+                      _StatCard(
+                        label: 'التزامك',
+                        value: '$adherence%',
+                        accent: adherence >= 80
+                            ? AppColors.success
+                            : AppColors.warning,
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
             ResponsiveWrapGrid(
-              minItemWidth: 280,
+              minItemWidth: 320,
+              spacing: AppSpacing.md,
               children: [
-                _ProfileBlock(
-                  title: 'ملخص الحساب',
+                _InfoBlock(
+                  title: 'البيانات الأساسية',
                   children: [
                     _InfoRow(
                       label: 'الرقم الجامعي',
@@ -140,24 +174,29 @@ class ProfilePage extends ConsumerWidget {
                       label: 'الرقم القومي',
                       value: maskNationalId(profile.nationalId),
                     ),
+                    _InfoRow(label: 'رقم الجلوس', value: profile.seatNumber),
                   ],
                 ),
-                _ProfileBlock(
-                  title: 'البيانات الأكاديمية',
+                _InfoBlock(
+                  title: 'ملخص أكاديمي',
                   children: [
                     _InfoRow(
-                      label: 'GPA',
-                      value: profile.gpa.toStringAsFixed(2),
+                      label: 'المرشد الأكاديمي',
+                      value: profile.academicAdvisor,
+                    ),
+                    _InfoRow(
+                      label: 'الموقف الأكاديمي',
+                      value: academicStandingLabel(profile.gpa),
                     ),
                     _InfoRow(
                       label: 'عدد المواد',
                       value: '${dashboard.subjects.length}',
                     ),
                     _InfoRow(
-                      label: 'الساعات المسجلة',
-                      value: '${profile.registeredHours}',
+                      label: 'التنبيهات غير المقروءة',
+                      value:
+                          '${dashboard.notifications.where((item) => !item.isRead).length}',
                     ),
-                    _InfoRow(label: 'نسبة الالتزام', value: '$adherence%'),
                   ],
                 ),
               ],
@@ -168,7 +207,7 @@ class ProfilePage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'اختصارات',
+                    'اختصارات سريعة',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: AppSpacing.md),
@@ -185,7 +224,7 @@ class ProfilePage extends ConsumerWidget {
                       _ShortcutTile(
                         icon: Icons.assignment_outlined,
                         title: 'التكليفات',
-                        subtitle: 'رفع ومتابعة التسليمات',
+                        subtitle: 'الرفع ومتابعة التسليمات',
                         onTap: () => context.goNamed(RouteNames.assignments),
                       ),
                       _ShortcutTile(
@@ -212,7 +251,68 @@ class ProfilePage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'الإعدادات',
+                    'الدعم الفني',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    'كل ما يخص التواصل مع IT، إنشاء الطلبات، ومتابعة الحالات السابقة.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.sm,
+                    children: [
+                      AppBadge(
+                        label: 'الطلبات المفتوحة: $pendingTickets',
+                        backgroundColor: AppColors.support.withValues(
+                          alpha: 0.12,
+                        ),
+                        foregroundColor: AppColors.support,
+                      ),
+                      AppBadge(
+                        label: settings.notificationsEnabled
+                            ? 'إشعارات الدعم مفعلة'
+                            : 'إشعارات الدعم متوقفة',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  ResponsiveWrapGrid(
+                    minItemWidth: 220,
+                    spacing: AppSpacing.sm,
+                    children: [
+                      _ShortcutTile(
+                        icon: Icons.support_agent_rounded,
+                        title: 'التحدث مع IT',
+                        subtitle: 'رسالة مباشرة مع ربط بياناتك تلقائيًا',
+                        onTap: () => context.goNamed(RouteNames.itSupport),
+                      ),
+                      _ShortcutTile(
+                        icon: Icons.report_problem_outlined,
+                        title: 'الشكاوى والطلبات',
+                        subtitle: 'إنشاء تذكرة جديدة',
+                        onTap: () => context.goNamed(RouteNames.complaints),
+                      ),
+                      _ShortcutTile(
+                        icon: Icons.confirmation_number_outlined,
+                        title: 'حالة الطلبات',
+                        subtitle: 'عرض السجل والتحديثات',
+                        onTap: () => context.goNamed(RouteNames.supportTickets),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'الإعدادات الحالية',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: AppSpacing.md),
@@ -230,7 +330,6 @@ class ProfilePage extends ConsumerWidget {
                     label: 'المظهر',
                     value: _themeModeLabel(settings.themeMode),
                   ),
-                  _InfoRow(label: 'الأمان', value: 'جلسة مفعلة وآمنة'),
                 ],
               ),
             ),
@@ -249,8 +348,45 @@ class ProfilePage extends ConsumerWidget {
   }
 }
 
-class _ProfileBlock extends StatelessWidget {
-  const _ProfileBlock({required this.title, required this.children});
+class _StatCard extends StatelessWidget {
+  const _StatCard({
+    required this.label,
+    required this.value,
+    this.accent = AppColors.primary,
+  });
+
+  final String label;
+  final String value;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: Theme.of(context).textTheme.labelLarge),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: accent,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoBlock extends StatelessWidget {
+  const _InfoBlock({required this.title, required this.children});
 
   final String title;
   final List<Widget> children;
@@ -297,7 +433,15 @@ class _ShortcutTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, color: AppColors.primary),
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(icon, color: AppColors.primary),
+            ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
