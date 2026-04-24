@@ -21,12 +21,12 @@ class PostReactionsRow extends StatelessWidget {
         TextButton.icon(
           onPressed: onReact,
           icon: const Icon(Icons.favorite_border_rounded),
-          label: Text('$reactions'),
+          label: Text('$reactions تفاعل'),
         ),
         TextButton.icon(
           onPressed: onCommentsTap,
           icon: const Icon(Icons.mode_comment_outlined),
-          label: Text('$commentCount'),
+          label: Text('$commentCount تعليق'),
         ),
       ],
     );

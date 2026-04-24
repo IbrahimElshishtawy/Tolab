@@ -16,6 +16,7 @@ class QuizItem {
     this.attemptsUsed = 0,
     this.maxAttempts = 1,
     this.isSubmitted = false,
+    this.questionCount,
     this.submissionStateLabel,
     this.scoreLabel,
   });
@@ -36,6 +37,7 @@ class QuizItem {
   final int attemptsUsed;
   final int maxAttempts;
   final bool isSubmitted;
+  final int? questionCount;
   final String? submissionStateLabel;
   final String? scoreLabel;
 
@@ -56,6 +58,7 @@ class QuizItem {
     int? attemptsUsed,
     int? maxAttempts,
     bool? isSubmitted,
+    int? questionCount,
     String? submissionStateLabel,
     String? scoreLabel,
   }) {
@@ -76,6 +79,7 @@ class QuizItem {
       attemptsUsed: attemptsUsed ?? this.attemptsUsed,
       maxAttempts: maxAttempts ?? this.maxAttempts,
       isSubmitted: isSubmitted ?? this.isSubmitted,
+      questionCount: questionCount ?? this.questionCount,
       submissionStateLabel: submissionStateLabel ?? this.submissionStateLabel,
       scoreLabel: scoreLabel ?? this.scoreLabel,
     );

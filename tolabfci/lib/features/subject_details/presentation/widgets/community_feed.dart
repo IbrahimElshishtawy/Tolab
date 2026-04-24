@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../providers/community_providers.dart';
@@ -16,27 +18,72 @@ class CommunityFeed extends ConsumerWidget {
     final postsAsync = ref.watch(communityControllerProvider(subjectId));
 
     return postsAsync.when(
-      data: (posts) => posts.isEmpty
-          ? const EmptyStateWidget(
-              title: 'No posts yet',
+      data: (posts) {
+        if (posts.isEmpty) {
+          return const EmptyStateWidget(
+            title: 'لا توجد منشورات بعد',
+            subtitle: 'ستظهر إعلانات الدكتور ومنشورات الطلبة هنا.',
+          );
+        }
+
+        final pinned = posts.where((post) => post.isPinned).toList();
+        final regular = posts.where((post) => !post.isPinned).toList();
+
+        return ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            if (pinned.isNotEmpty) ...[
+              const _FeedHeader(
+                title: 'إعلانات مثبتة',
+                subtitle: 'أهم الإعلانات الأكاديمية الجاهزة للمتابعة الآن.',
+              ),
+              const SizedBox(height: AppSpacing.md),
+              ...pinned.map(
+                (post) => Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                  child: CommunityPostCard(post: post, subjectId: subjectId),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+            ],
+            const _FeedHeader(
+              title: 'آخر النشاط',
               subtitle:
-                  'Subject announcements and student posts will appear here.',
-            )
-          : Column(
-              children: posts
-                  .map(
-                    (post) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: CommunityPostCard(
-                        post: post,
-                        subjectId: subjectId,
-                      ),
-                    ),
-                  )
-                  .toList(),
+                  'منشورات الدكتور، الإعلانات، وأسئلة الطلبة داخل الجروب.',
             ),
-      loading: () => const LoadingWidget(),
-      error: (error, stackTrace) => Text(error.toString()),
+            const SizedBox(height: AppSpacing.md),
+            ...regular.map(
+              (post) => Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: CommunityPostCard(post: post, subjectId: subjectId),
+              ),
+            ),
+          ],
+        );
+      },
+      loading: () => const Center(child: LoadingWidget()),
+      error: (error, _) => Text(error.toString()),
+    );
+  }
+}
+
+class _FeedHeader extends StatelessWidget {
+  const _FeedHeader({required this.title, required this.subtitle});
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: AppSpacing.xs),
+          Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+        ],
+      ),
     );
   }
 }

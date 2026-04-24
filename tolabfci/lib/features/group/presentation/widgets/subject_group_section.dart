@@ -26,16 +26,21 @@ class _SubjectGroupSectionState extends State<SubjectGroupSection> {
           groupValue: _selectedIndex,
           onValueChanged: (value) => setState(() => _selectedIndex = value),
           children: const {
-            0: Padding(padding: EdgeInsets.all(8), child: Text('Community')),
-            1: Padding(padding: EdgeInsets.all(8), child: Text('Chat')),
+            0: Padding(padding: EdgeInsets.all(8), child: Text('المنشورات')),
+            1: Padding(padding: EdgeInsets.all(8), child: Text('الدردشة')),
           },
         ),
         const SizedBox(height: AppSpacing.lg),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 220),
-          child: _selectedIndex == 0
-              ? CommunityFeed(subjectId: widget.subjectId)
-              : ChatPanel(subjectId: widget.subjectId),
+        Expanded(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 220),
+            child: KeyedSubtree(
+              key: ValueKey(_selectedIndex),
+              child: _selectedIndex == 0
+                  ? CommunityFeed(subjectId: widget.subjectId)
+                  : ChatPanel(subjectId: widget.subjectId),
+            ),
+          ),
         ),
       ],
     );

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/models/community_models.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../providers/community_providers.dart';
 import 'comments_sheet.dart';
@@ -20,15 +22,60 @@ class CommunityPostCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final accent = _postColor(post.type);
+
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(post.authorName, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: AppSpacing.xs),
-          Text(post.authorRole, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: AppSpacing.md),
-          Text(post.content),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(
+                post.authorName,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              AppBadge(
+                label: post.authorRole,
+                backgroundColor: accent.withValues(alpha: 0.12),
+                foregroundColor: accent,
+              ),
+              if (post.isPinned)
+                AppBadge(
+                  label: 'مثبت',
+                  backgroundColor: AppColors.warning.withValues(alpha: 0.12),
+                  foregroundColor: AppColors.warning,
+                ),
+              AppBadge(
+                label: _typeLabel(post.type),
+                backgroundColor: Colors.white,
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(post.content, style: Theme.of(context).textTheme.bodyMedium),
+          if (post.attachmentName != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              decoration: BoxDecoration(
+                color: context.appColors.surfaceAlt,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.attach_file_rounded,
+                    color: AppColors.primary,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(child: Text(post.attachmentName!)),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.md),
           Text(
             post.createdAtLabel,
@@ -53,4 +100,20 @@ class CommunityPostCard extends ConsumerWidget {
       ),
     );
   }
+}
+
+Color _postColor(CommunityPostType type) {
+  return switch (type) {
+    CommunityPostType.announcement => AppColors.error,
+    CommunityPostType.question => AppColors.warning,
+    CommunityPostType.discussion => AppColors.primary,
+  };
+}
+
+String _typeLabel(CommunityPostType type) {
+  return switch (type) {
+    CommunityPostType.announcement => 'إعلان',
+    CommunityPostType.question => 'سؤال',
+    CommunityPostType.discussion => 'نقاش',
+  };
 }

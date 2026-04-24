@@ -166,6 +166,9 @@ class MockBackendService {
           'راجعوا تسجيل شرح clean architecture قبل محاضرة الأحد، وسيتم حل case study مباشرة في اللقاء.',
       createdAtLabel: 'منذ ساعتين',
       reactions: 18,
+      type: CommunityPostType.announcement,
+      isPinned: true,
+      attachmentName: 'clean-architecture-case-study.pdf',
       comments: [
         CommunityComment(
           id: 'comment-1',
@@ -183,6 +186,21 @@ class MockBackendService {
       content: 'رفعت ملاحظات سريعة عن autoscaling والـ scheduling لمن يحتاجها.',
       createdAtLabel: 'أمس',
       reactions: 11,
+      type: CommunityPostType.discussion,
+      comments: [],
+    ),
+    CommunityPost(
+      id: 'post-3',
+      subjectId: 'subject-3',
+      authorName: 'Ø¯. Ù†ÙˆØ±Ù‡Ø§Ù† ÙÙˆØ²ÙŠ',
+      authorRole: 'Ø§Ù„Ø¯ÙƒØªÙˆØ±',
+      content:
+          'ØªÙ… ØªØ«Ø¨ÙŠØª Rubric Ø§Ù„Ù…Ø´Ø±ÙˆØ¹ Ø§Ù„ØµØºÙŠØ±. Ø§Ù„Ø£ÙˆÙ„ÙˆÙŠØ© Ù‡Ø°Ø§ Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ Ù„Ù…Ø±Ø§Ø¬Ø¹Ø© Ø§Ù„Ù‚Ø§Ø¨Ù„ÙŠØ© ÙˆØ§Ù„ÙˆØµÙˆÙ„ Ø¹Ø¨Ø± mobile.',
+      createdAtLabel: 'Ù…Ù†Ø° 5 Ø³Ø§Ø¹Ø§Øª',
+      reactions: 26,
+      type: CommunityPostType.announcement,
+      isPinned: true,
+      attachmentName: 'hci-mini-project-rubric.pdf',
       comments: [],
     ),
   ];
@@ -400,6 +418,10 @@ class MockBackendService {
         isRead: false,
         routeName: RouteNames.assignmentUpload,
         pathParameters: {'subjectId': subjectId, 'taskId': taskId},
+        subjectName: _subjects
+            .firstWhere((subject) => subject.id == subjectId)
+            .name,
+        urgency: NotificationUrgency.important,
       ),
       ..._notifications,
     ];
@@ -514,11 +536,25 @@ class MockBackendService {
   Future<List<SubjectResult>> fetchResults() async => _results;
 
   List<LectureItem> _buildLectures(DateTime now) {
+    final recapLectureStart = now.subtract(const Duration(days: 1, hours: 3));
     final firstLectureStart = now.add(const Duration(hours: 1, minutes: 15));
     final secondLectureStart = now.add(const Duration(days: 1, hours: 3));
     final thirdLectureStart = now.add(const Duration(days: 3, hours: 2));
 
     return [
+      LectureItem(
+        id: 'lecture-0',
+        subjectId: 'subject-1',
+        subjectName: 'ØªØ·ÙˆÙŠØ± ØªØ·Ø¨ÙŠÙ‚Ø§Øª Ø§Ù„Ù‡Ø§ØªÙ Ø§Ù„Ù…ØªÙ‚Ø¯Ù…Ø©',
+        title: 'ØªØ³Ø¬ÙŠÙ„ Ù…Ø±Ø§Ø¬Ø¹Ø© Architecture Decisions',
+        scheduleLabel: formatArabicSchedule(recapLectureStart, reference: now),
+        startsAt: recapLectureStart,
+        endsAt: recapLectureStart.add(const Duration(hours: 1, minutes: 10)),
+        meetingUrl: 'https://video.tolab.edu/architecture-decisions',
+        isOnline: true,
+        instructorName: 'Ø¯. Ø¹Ù…Ø± Ù†Ø¨ÙŠÙ„',
+        locationLabel: 'Ù…Ø³Ø¬Ù„ Ø¹Ù„Ù‰ Ø§Ù„Ù…Ù†ØµØ©',
+      ),
       LectureItem(
         id: 'lecture-1',
         subjectId: 'subject-1',
@@ -853,6 +889,8 @@ class MockBackendService {
         routeName: RouteNames.quizEntry,
         pathParameters: {'subjectId': 'subject-1', 'quizId': 'quiz-1'},
         isImportant: true,
+        subjectName: 'ØªØ·ÙˆÙŠØ± ØªØ·Ø¨ÙŠÙ‚Ø§Øª Ø§Ù„Ù‡Ø§ØªÙ Ø§Ù„Ù…ØªÙ‚Ø¯Ù…Ø©',
+        urgency: NotificationUrgency.urgent,
       ),
       AppNotificationItem(
         id: 'notification-2',
@@ -866,6 +904,8 @@ class MockBackendService {
         isRead: false,
         routeName: RouteNames.subjectDetails,
         pathParameters: {'subjectId': 'subject-1'},
+        subjectName: 'ØªØ·ÙˆÙŠØ± ØªØ·Ø¨ÙŠÙ‚Ø§Øª Ø§Ù„Ù‡Ø§ØªÙ Ø§Ù„Ù…ØªÙ‚Ø¯Ù…Ø©',
+        urgency: NotificationUrgency.important,
       ),
       AppNotificationItem(
         id: 'notification-3',
@@ -878,6 +918,8 @@ class MockBackendService {
         routeName: RouteNames.assignmentUpload,
         pathParameters: {'subjectId': 'subject-2', 'taskId': 'task-1'},
         isImportant: true,
+        subjectName: 'Ø§Ù„Ø­ÙˆØ³Ø¨Ø© Ø§Ù„Ø³Ø­Ø§Ø¨ÙŠØ©',
+        urgency: NotificationUrgency.urgent,
       ),
       AppNotificationItem(
         id: 'notification-4',
@@ -890,6 +932,8 @@ class MockBackendService {
         category: 'درجات',
         isRead: true,
         routeName: RouteNames.results,
+        subjectName: 'Ø§Ù„ØªÙØ§Ø¹Ù„ Ø¨ÙŠÙ† Ø§Ù„Ø¥Ù†Ø³Ø§Ù† ÙˆØ§Ù„Ø­Ø§Ø³ÙˆØ¨',
+        urgency: NotificationUrgency.newItem,
       ),
       AppNotificationItem(
         id: 'notification-5',
@@ -903,6 +947,8 @@ class MockBackendService {
         isRead: false,
         routeName: RouteNames.subjectDetails,
         pathParameters: {'subjectId': 'subject-3'},
+        subjectName: 'Ø§Ù„ØªÙØ§Ø¹Ù„ Ø¨ÙŠÙ† Ø§Ù„Ø¥Ù†Ø³Ø§Ù† ÙˆØ§Ù„Ø­Ø§Ø³ÙˆØ¨',
+        urgency: NotificationUrgency.important,
       ),
     ];
   }

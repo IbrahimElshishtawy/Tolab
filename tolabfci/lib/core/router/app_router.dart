@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/assignments/presentation/pages/assignment_upload_page.dart';
+import '../../features/assignments/presentation/pages/student_assignments_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/auth/presentation/pages/verify_national_id_page.dart';
@@ -58,6 +59,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     path: 'quizzes',
                     name: RouteNames.quizzes,
                     builder: (context, state) => const QuizzesPage(),
+                  ),
+                  GoRoute(
+                    path: 'assignments',
+                    name: RouteNames.assignments,
+                    builder: (context, state) => const StudentAssignmentsPage(),
                   ),
                 ],
               ),

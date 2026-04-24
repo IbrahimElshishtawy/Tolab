@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/models/subject_models.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_badge.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/loading_widget.dart';
@@ -18,47 +21,199 @@ class SectionsTab extends ConsumerWidget {
     final sectionsAsync = ref.watch(sectionsProvider(subjectId));
 
     return sectionsAsync.when(
-      data: (sections) => sections.isEmpty
-          ? const EmptyStateWidget(
-              title: 'لا توجد سكاشن',
-              subtitle: 'ستظهر السكاشن العملية هنا عند توفرها.',
-            )
-          : ListView.separated(
-              itemCount: sections.length,
-              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
-              itemBuilder: (context, index) {
-                final section = sections[index];
-                return AppCard(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.co_present_outlined),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              section.title,
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(fontWeight: FontWeight.w700),
-                            ),
-                            const SizedBox(height: AppSpacing.xs),
-                            Text(section.scheduleLabel),
-                            const SizedBox(height: AppSpacing.xs),
-                            Text(
-                              '${section.assistantName} - ${section.location}',
-                            ),
-                          ],
-                        ),
-                      ),
-                      AppBadge(label: section.isOnline ? 'أونلاين' : 'حضوري'),
-                    ],
+      data: (sections) {
+        if (sections.isEmpty) {
+          return const EmptyStateWidget(
+            title: 'لا توجد سكاشن',
+            subtitle: 'ستظهر السكاشن العملية هنا عند توفرها.',
+          );
+        }
+
+        final upcoming = sections.where((section) {
+          final startsAt = section.startsAt;
+          return startsAt != null && startsAt.isAfter(DateTime.now());
+        }).toList()..sort((a, b) => a.startsAt!.compareTo(b.startsAt!));
+        final previous = sections.where((section) {
+          final startsAt = section.startsAt;
+          return startsAt != null && !startsAt.isAfter(DateTime.now());
+        }).toList()..sort((a, b) => b.startsAt!.compareTo(a.startsAt!));
+
+        return ListView(
+          children: [
+            if (upcoming.isNotEmpty) ...[
+              _SectionHeader(
+                title: 'السكشن القادم',
+                subtitle: 'أقرب سكشن عملي يمكنك الاستعداد له أو الدخول إليه.',
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _SectionCard(section: upcoming.first, highlight: true),
+              const SizedBox(height: AppSpacing.lg),
+            ],
+            if (upcoming.length > 1) ...[
+              _SectionHeader(
+                title: 'السكاشن القادمة',
+                subtitle: 'باقي مواعيد السكاشن داخل هذه المادة.',
+              ),
+              const SizedBox(height: AppSpacing.md),
+              ...upcoming
+                  .skip(1)
+                  .map(
+                    (section) => Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                      child: _SectionCard(section: section),
+                    ),
                   ),
-                );
-              },
-            ),
+              const SizedBox(height: AppSpacing.lg),
+            ],
+            if (previous.isNotEmpty) ...[
+              _SectionHeader(
+                title: 'سكاشن سابقة',
+                subtitle: 'مرجع سريع للسكاشن السابقة وحالة كل سكشن.',
+              ),
+              const SizedBox(height: AppSpacing.md),
+              ...previous.map(
+                (section) => Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                  child: _SectionCard(section: section),
+                ),
+              ),
+            ],
+          ],
+        );
+      },
       loading: () => const LoadingWidget(),
-      error: (error, stackTrace) => Text(error.toString()),
+      error: (error, _) => Text(error.toString()),
     );
   }
 }
+
+class _SectionCard extends StatelessWidget {
+  const _SectionCard({required this.section, this.highlight = false});
+
+  final SectionItem section;
+  final bool highlight;
+
+  @override
+  Widget build(BuildContext context) {
+    final status = _sectionStatus(section);
+    final accent = switch (status) {
+      _SectionStatus.upcoming => AppColors.indigo,
+      _SectionStatus.soon => AppColors.warning,
+      _SectionStatus.live => AppColors.error,
+      _SectionStatus.ended => AppColors.success,
+    };
+
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      section.title,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      section.scheduleLabel,
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                  ],
+                ),
+              ),
+              AppBadge(
+                label: _statusLabel(status),
+                backgroundColor: accent.withValues(alpha: 0.12),
+                foregroundColor: accent,
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              AppBadge(
+                label: section.isOnline ? 'أونلاين' : 'حضوري',
+                backgroundColor: Colors.white,
+              ),
+              AppBadge(label: section.location, backgroundColor: Colors.white),
+              AppBadge(
+                label: section.assistantName,
+                backgroundColor: Colors.white,
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          AppButton(
+            label: status == _SectionStatus.ended ? 'عرض' : 'دخول',
+            onPressed: () {},
+            isExpanded: false,
+            variant: highlight
+                ? AppButtonVariant.primary
+                : AppButtonVariant.secondary,
+            icon: status == _SectionStatus.ended
+                ? Icons.visibility_rounded
+                : Icons.meeting_room_outlined,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title, required this.subtitle});
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: AppSpacing.xs),
+        Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+      ],
+    );
+  }
+}
+
+_SectionStatus _sectionStatus(SectionItem section) {
+  final now = DateTime.now();
+  final startsAt = section.startsAt;
+  final endsAt = section.endsAt;
+  if (startsAt == null || endsAt == null) {
+    return _SectionStatus.upcoming;
+  }
+  if (startsAt.isBefore(now) && endsAt.isAfter(now)) {
+    return _SectionStatus.live;
+  }
+  if (startsAt.isBefore(now)) {
+    return _SectionStatus.ended;
+  }
+  if (startsAt.difference(now).inHours <= 6) {
+    return _SectionStatus.soon;
+  }
+  return _SectionStatus.upcoming;
+}
+
+String _statusLabel(_SectionStatus status) {
+  return switch (status) {
+    _SectionStatus.upcoming => 'متاح لاحقًا',
+    _SectionStatus.soon => 'قريب',
+    _SectionStatus.live => 'مباشر الآن',
+    _SectionStatus.ended => 'انتهى',
+  };
+}
+
+enum _SectionStatus { upcoming, soon, live, ended }

@@ -1,3 +1,5 @@
+enum CommunityPostType { announcement, question, discussion }
+
 class CommunityComment {
   const CommunityComment({
     required this.id,
@@ -22,6 +24,9 @@ class CommunityPost {
     required this.createdAtLabel,
     required this.reactions,
     required this.comments,
+    this.type = CommunityPostType.discussion,
+    this.isPinned = false,
+    this.attachmentName,
   });
 
   final String id;
@@ -32,6 +37,9 @@ class CommunityPost {
   final String createdAtLabel;
   final int reactions;
   final List<CommunityComment> comments;
+  final CommunityPostType type;
+  final bool isPinned;
+  final String? attachmentName;
 
   CommunityPost copyWith({
     String? id,
@@ -42,6 +50,9 @@ class CommunityPost {
     String? createdAtLabel,
     int? reactions,
     List<CommunityComment>? comments,
+    CommunityPostType? type,
+    bool? isPinned,
+    String? attachmentName,
   }) {
     return CommunityPost(
       id: id ?? this.id,
@@ -52,6 +63,9 @@ class CommunityPost {
       createdAtLabel: createdAtLabel ?? this.createdAtLabel,
       reactions: reactions ?? this.reactions,
       comments: comments ?? this.comments,
+      type: type ?? this.type,
+      isPinned: isPinned ?? this.isPinned,
+      attachmentName: attachmentName ?? this.attachmentName,
     );
   }
 }

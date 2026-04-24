@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../home/presentation/providers/home_providers.dart';
 import '../../../staff_portal/presentation/pages/staff_profile_page.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -12,9 +13,9 @@ import '../../../../core/widgets/adaptive_page_container.dart';
 import '../../../../core/widgets/app_avatar.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_card.dart';
-import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/error_state_widget.dart';
 import '../../../../core/widgets/loading_widget.dart';
+import '../../../../core/widgets/responsive_wrap_grid.dart';
 import '../../../settings/presentation/widgets/settings_notifier.dart';
 import '../providers/profile_providers.dart';
 
@@ -29,120 +30,211 @@ class ProfilePage extends ConsumerWidget {
     }
 
     final profileAsync = ref.watch(profileProvider);
+    final dashboardAsync = ref.watch(homeDashboardProvider);
     final settings = ref.watch(settingsNotifierProvider);
+
+    if (profileAsync.isLoading || dashboardAsync.isLoading) {
+      return const SafeArea(
+        child: AdaptivePageContainer(
+          child: LoadingWidget(label: 'جارٍ تحميل الملف الشخصي...'),
+        ),
+      );
+    }
+
+    if (profileAsync.hasError || dashboardAsync.hasError) {
+      return SafeArea(
+        child: AdaptivePageContainer(
+          child: ErrorStateWidget(
+            message:
+                profileAsync.error?.toString() ??
+                dashboardAsync.error.toString(),
+          ),
+        ),
+      );
+    }
+
+    final profile = profileAsync.value;
+    final dashboard = dashboardAsync.value;
+    if (profile == null || dashboard == null) {
+      return const SafeArea(
+        child: AdaptivePageContainer(
+          child: ErrorStateWidget(message: 'تعذر تحميل بيانات الملف الشخصي.'),
+        ),
+      );
+    }
+
+    final adherence = dashboard.tasks.isEmpty
+        ? 100
+        : ((dashboard.tasks.where((task) => task.isCompleted).length /
+                      dashboard.tasks.length) *
+                  100)
+              .round();
 
     return SafeArea(
       child: AdaptivePageContainer(
-        child: profileAsync.when(
-          data: (profile) => ListView(
-            children: [
-              AppCard(
-                backgroundColor: context.appColors.surfaceElevated,
-                child: Row(
-                  children: [
-                    AppAvatar(
-                      name: profile.fullName,
-                      imageUrl: profile.avatarUrl,
-                      radius: 34,
+        child: ListView(
+          children: [
+            AppCard(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppAvatar(
+                    name: profile.fullName,
+                    imageUrl: profile.avatarUrl,
+                    radius: 36,
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          profile.fullName,
+                          style: Theme.of(context).textTheme.displaySmall,
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          profile.email,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        Wrap(
+                          spacing: AppSpacing.sm,
+                          runSpacing: AppSpacing.sm,
+                          children: [
+                            AppBadge(label: profile.academicStatus),
+                            AppBadge(
+                              label: profile.department,
+                              backgroundColor: Colors.white,
+                            ),
+                            AppBadge(
+                              label: profile.level,
+                              backgroundColor: Colors.white,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            profile.fullName,
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: AppSpacing.xs),
-                          Text(
-                            profile.email,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                          const SizedBox(height: AppSpacing.xs),
-                          AppBadge(label: profile.academicStatus),
-                        ],
+                  ),
+                  IconButton.filledTonal(
+                    onPressed: () => context.goNamed(RouteNames.settings),
+                    icon: const Icon(Icons.settings_outlined),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            ResponsiveWrapGrid(
+              minItemWidth: 280,
+              children: [
+                _ProfileBlock(
+                  title: 'ملخص الحساب',
+                  children: [
+                    _InfoRow(
+                      label: 'الرقم الجامعي',
+                      value: profile.studentNumber,
+                    ),
+                    _InfoRow(label: 'القسم', value: profile.department),
+                    _InfoRow(label: 'المستوى', value: profile.level),
+                    _InfoRow(
+                      label: 'الرقم القومي',
+                      value: maskNationalId(profile.nationalId),
+                    ),
+                  ],
+                ),
+                _ProfileBlock(
+                  title: 'البيانات الأكاديمية',
+                  children: [
+                    _InfoRow(
+                      label: 'GPA',
+                      value: profile.gpa.toStringAsFixed(2),
+                    ),
+                    _InfoRow(
+                      label: 'عدد المواد',
+                      value: '${dashboard.subjects.length}',
+                    ),
+                    _InfoRow(
+                      label: 'الساعات المسجلة',
+                      value: '${profile.registeredHours}',
+                    ),
+                    _InfoRow(label: 'نسبة الالتزام', value: '$adherence%'),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'اختصارات',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  ResponsiveWrapGrid(
+                    minItemWidth: 220,
+                    spacing: AppSpacing.sm,
+                    children: [
+                      _ShortcutTile(
+                        icon: Icons.bar_chart_rounded,
+                        title: 'النتائج والتحليل',
+                        subtitle: 'GPA والدرجات والرؤى',
+                        onTap: () => context.goNamed(RouteNames.results),
                       ),
-                    ),
-                    IconButton.filledTonal(
-                      onPressed: () => context.goNamed(RouteNames.settings),
-                      icon: const Icon(Icons.settings_outlined),
-                    ),
-                  ],
-                ),
+                      _ShortcutTile(
+                        icon: Icons.assignment_outlined,
+                        title: 'التكليفات',
+                        subtitle: 'رفع ومتابعة التسليمات',
+                        onTap: () => context.goNamed(RouteNames.assignments),
+                      ),
+                      _ShortcutTile(
+                        icon: Icons.notifications_active_outlined,
+                        title: 'التنبيهات',
+                        subtitle:
+                            '${dashboard.notifications.where((n) => !n.isRead).length} غير مقروء',
+                        onTap: () => context.goNamed(RouteNames.notifications),
+                      ),
+                      _ShortcutTile(
+                        icon: Icons.quiz_outlined,
+                        title: 'الكويزات',
+                        subtitle: 'المفتوح والقادم',
+                        onTap: () => context.goNamed(RouteNames.quizzes),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              const SizedBox(height: AppSpacing.lg),
-              AppCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const AppSectionHeader(title: 'اختصارات الحساب'),
-                    const SizedBox(height: AppSpacing.md),
-                    _ActionTile(
-                      icon: Icons.bar_chart_rounded,
-                      title: 'النتائج والتحليل',
-                      subtitle: 'GPA ودرجات المواد والرؤية الأكاديمية',
-                      onTap: () => context.goNamed(RouteNames.results),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    _ActionTile(
-                      icon: Icons.language_rounded,
-                      title: 'اللغة',
-                      subtitle: settings.languageCode == 'ar'
-                          ? 'العربية'
-                          : 'English',
-                      onTap: () => context.goNamed(RouteNames.settings),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    _ActionTile(
-                      icon: Icons.notifications_active_outlined,
-                      title: 'التنبيهات',
-                      subtitle: settings.notificationsEnabled
-                          ? 'مفعلة'
-                          : 'متوقفة',
-                      onTap: () => context.goNamed(RouteNames.settings),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    _ActionTile(
-                      icon: Icons.dark_mode_outlined,
-                      title: 'المظهر',
-                      subtitle: _themeModeLabel(settings.themeMode),
-                      onTap: () => context.goNamed(RouteNames.settings),
-                    ),
-                  ],
-                ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'الإعدادات',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  _InfoRow(
+                    label: 'اللغة',
+                    value: settings.languageCode == 'ar'
+                        ? 'العربية'
+                        : 'English',
+                  ),
+                  _InfoRow(
+                    label: 'الإشعارات',
+                    value: settings.notificationsEnabled ? 'مفعلة' : 'متوقفة',
+                  ),
+                  _InfoRow(
+                    label: 'المظهر',
+                    value: _themeModeLabel(settings.themeMode),
+                  ),
+                  _InfoRow(label: 'الأمان', value: 'جلسة مفعلة وآمنة'),
+                ],
               ),
-              const SizedBox(height: AppSpacing.lg),
-              _InfoCard(
-                title: 'البيانات الشخصية',
-                items: {
-                  'الاسم': profile.fullName,
-                  'الرقم الجامعي': profile.studentNumber,
-                  'البريد الجامعي': profile.email,
-                  'الرقم القومي': maskNationalId(profile.nationalId),
-                  'المؤهل السابق': profile.previousQualification,
-                },
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              _InfoCard(
-                title: 'البيانات الأكاديمية',
-                items: {
-                  'الكلية': profile.faculty,
-                  'القسم': profile.department,
-                  'المستوى': profile.level,
-                  'GPA': profile.gpa.toStringAsFixed(2),
-                  'المرشد الأكاديمي': profile.academicAdvisor,
-                  'الساعات المنجزة': '${profile.completedHours}',
-                  'الساعات المسجلة': '${profile.registeredHours}',
-                  'رقم الجلوس': profile.seatNumber,
-                },
-              ),
-            ],
-          ),
-          loading: () =>
-              const LoadingWidget(label: 'جاري تحميل الملف الشخصي...'),
-          error: (error, stackTrace) =>
-              ErrorStateWidget(message: error.toString()),
+            ),
+          ],
         ),
       ),
     );
@@ -157,55 +249,29 @@ class ProfilePage extends ConsumerWidget {
   }
 }
 
-class _InfoCard extends StatelessWidget {
-  const _InfoCard({required this.title, required this.items});
+class _ProfileBlock extends StatelessWidget {
+  const _ProfileBlock({required this.title, required this.children});
 
   final String title;
-  final Map<String, String> items;
+  final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
-    final palette = context.appColors;
-
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: AppSpacing.md),
-          ...items.entries.map(
-            (entry) => Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.md),
-              child: Container(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                decoration: BoxDecoration(
-                  color: palette.surfaceAlt,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        entry.key,
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(entry.value, textAlign: TextAlign.end),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          ...children,
         ],
       ),
     );
   }
 }
 
-class _ActionTile extends StatelessWidget {
-  const _ActionTile({
+class _ShortcutTile extends StatelessWidget {
+  const _ShortcutTile({
     required this.icon,
     required this.title,
     required this.subtitle,
@@ -219,30 +285,19 @@ class _ActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = context.appColors;
-
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(18),
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: palette.surfaceAlt,
+          color: context.appColors.surfaceAlt,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: palette.border),
+          border: Border.all(color: context.appColors.border),
         ),
         child: Row(
           children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: palette.primarySoft,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              alignment: Alignment.center,
-              child: Icon(icon, color: AppColors.primary),
-            ),
+            Icon(icon, color: AppColors.primary),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
@@ -254,9 +309,38 @@ class _ActionTile extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(label, style: Theme.of(context).textTheme.labelLarge),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
       ),
     );
   }

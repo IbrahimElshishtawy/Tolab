@@ -4,53 +4,38 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/models/result_item.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/adaptive_page_container.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_card.dart';
-import '../../../../core/widgets/app_section_header.dart';
-import '../../../../core/widgets/app_segmented_control.dart';
-import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/error_state_widget.dart';
 import '../../../../core/widgets/loading_widget.dart';
+import '../../../../core/widgets/responsive_wrap_grid.dart';
 import '../../../profile/presentation/providers/profile_providers.dart';
 import '../providers/results_providers.dart';
 
-class ResultsPage extends ConsumerStatefulWidget {
+class ResultsPage extends ConsumerWidget {
   const ResultsPage({super.key});
 
   @override
-  ConsumerState<ResultsPage> createState() => _ResultsPageState();
-}
-
-class _ResultsPageState extends ConsumerState<ResultsPage> {
-  String _view = 'overview';
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final resultsAsync = ref.watch(resultsProvider);
     final profileAsync = ref.watch(profileProvider);
 
     if (resultsAsync.isLoading || profileAsync.isLoading) {
       return const SafeArea(
         child: AdaptivePageContainer(
-          child: LoadingWidget(label: 'جاري تحميل النتائج...'),
+          child: LoadingWidget(label: 'جارٍ تحميل النتائج...'),
         ),
       );
     }
 
-    if (resultsAsync.hasError) {
+    if (resultsAsync.hasError || profileAsync.hasError) {
       return SafeArea(
         child: AdaptivePageContainer(
-          child: ErrorStateWidget(message: resultsAsync.error.toString()),
-        ),
-      );
-    }
-
-    if (profileAsync.hasError) {
-      return SafeArea(
-        child: AdaptivePageContainer(
-          child: ErrorStateWidget(message: profileAsync.error.toString()),
+          child: ErrorStateWidget(
+            message:
+                resultsAsync.error?.toString() ?? profileAsync.error.toString(),
+          ),
         ),
       );
     }
@@ -61,10 +46,7 @@ class _ResultsPageState extends ConsumerState<ResultsPage> {
     if (results.isEmpty || profile == null) {
       return const SafeArea(
         child: AdaptivePageContainer(
-          child: EmptyStateWidget(
-            title: 'لا توجد نتائج',
-            subtitle: 'ستظهر نتائجك الأكاديمية هنا فور اعتمادها.',
-          ),
+          child: ErrorStateWidget(message: 'لا توجد نتائج متاحة حاليًا.'),
         ),
       );
     }
@@ -79,61 +61,75 @@ class _ResultsPageState extends ConsumerState<ResultsPage> {
       child: AdaptivePageContainer(
         child: ListView(
           children: [
-            AppSectionHeader(
-              title: 'النتائج',
-              subtitle:
-                  'الموقف الأكاديمي: ${academicStandingLabel(profile.gpa)}',
+            AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'النتائج والتحليل',
+                    style: Theme.of(context).textTheme.displaySmall,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    'تحليل أكاديمي واضح يجمع GPA، أقوى وأضعف مادة، وتفصيل الأداء داخل كل مادة.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  ResponsiveWrapGrid(
+                    minItemWidth: 180,
+                    spacing: AppSpacing.sm,
+                    children: [
+                      _OverviewMetric(
+                        label: 'GPA',
+                        value: profile.gpa.toStringAsFixed(2),
+                      ),
+                      _OverviewMetric(
+                        label: 'أعلى مادة',
+                        value: strongest.first.subjectName,
+                      ),
+                      _OverviewMetric(
+                        label: 'أضعف مادة',
+                        value: weakest.first.subjectName,
+                      ),
+                      _OverviewMetric(
+                        label: 'مواد ناجحة',
+                        value: '$passed / ${results.length}',
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: AppSpacing.lg),
-            _OverviewStrip(
-              gpa: profile.gpa.toStringAsFixed(2),
-              strongest: strongest.first.subjectName,
-              weakest: weakest.first.subjectName,
-              passedLabel: '$passed / ${results.length}',
+            ResponsiveWrapGrid(
+              minItemWidth: 320,
+              children: [
+                _InsightPanel(
+                  title: 'Academic Insights',
+                  lines: [
+                    'أداؤك قوي في ${strongest.first.subjectName}.',
+                    'تحتاج تحسينًا أكبر في ${weakest.first.subjectName}.',
+                    profile.gpa >= 3.5
+                        ? 'مستواك العام ممتاز ومستقر هذا الفصل.'
+                        : 'هناك فرصة واضحة لرفع المعدل عبر التركيز على المواد الأضعف.',
+                  ],
+                  accent: AppColors.primary,
+                ),
+                _TrendPanel(results: results),
+              ],
             ),
             const SizedBox(height: AppSpacing.lg),
-            AppSegmentedControl<String>(
-              groupValue: _view,
-              onValueChanged: (value) => setState(() => _view = value),
-              children: const {
-                'overview': Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: Text('نظرة عامة'),
-                ),
-                'details': Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: Text('تفاصيل المواد'),
-                ),
-              },
+            Text(
+              'تفاصيل المواد',
+              style: Theme.of(context).textTheme.titleLarge,
             ),
-            const SizedBox(height: AppSpacing.lg),
-            if (_view == 'overview') ...[
-              _InsightCard(
-                title: 'أفضل أداء',
-                body: strongest.first.subjectName,
-                color: AppColors.success,
+            const SizedBox(height: AppSpacing.md),
+            ...results.map(
+              (result) => Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: _SubjectResultCard(result: result),
               ),
-              const SizedBox(height: AppSpacing.md),
-              _InsightCard(
-                title: 'تحتاج تحسينًا في',
-                body: weakest.first.subjectName,
-                color: AppColors.warning,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              _InsightCard(
-                title: 'تحليل أكاديمي',
-                body: profile.gpa >= 3.0
-                    ? 'مستواك جيد، حافظي على نفس الوتيرة في المواد الأساسية.'
-                    : 'ركزي أكثر على المواد الأضعف وابدئي بالمهمات القصيرة أولًا.',
-                color: AppColors.primary,
-              ),
-            ] else
-              ...results.map(
-                (result) => Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                  child: _ResultCard(result: result),
-                ),
-              ),
+            ),
           ],
         ),
       ),
@@ -141,104 +137,74 @@ class _ResultsPageState extends ConsumerState<ResultsPage> {
   }
 }
 
-class _OverviewStrip extends StatelessWidget {
-  const _OverviewStrip({
-    required this.gpa,
-    required this.strongest,
-    required this.weakest,
-    required this.passedLabel,
-  });
-
-  final String gpa;
-  final String strongest;
-  final String weakest;
-  final String passedLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: AppSpacing.md,
-      runSpacing: AppSpacing.md,
-      children: [
-        _MetricCard(label: 'GPA', value: gpa),
-        _MetricCard(label: 'أعلى مادة', value: strongest),
-        _MetricCard(label: 'أقل مادة', value: weakest),
-        _MetricCard(label: 'مواد ناجحة', value: passedLabel),
-      ],
-    );
-  }
-}
-
-class _MetricCard extends StatelessWidget {
-  const _MetricCard({required this.label, required this.value});
+class _OverviewMetric extends StatelessWidget {
+  const _OverviewMetric({required this.label, required this.value});
 
   final String label;
   final String value;
 
   @override
   Widget build(BuildContext context) {
-    final palette = context.appColors;
-
-    return SizedBox(
-      width: 170,
-      child: AppCard(
-        backgroundColor: palette.surfaceElevated,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: Theme.of(context).textTheme.labelLarge),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              value,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: context.appColors.surfaceAlt,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: Theme.of(context).textTheme.labelLarge),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            value,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _InsightCard extends StatelessWidget {
-  const _InsightCard({
+class _InsightPanel extends StatelessWidget {
+  const _InsightPanel({
     required this.title,
-    required this.body,
-    required this.color,
+    required this.lines,
+    required this.accent,
   });
 
   final String title;
-  final String body;
-  final Color color;
+  final List<String> lines;
+  final Color accent;
 
   @override
   Widget build(BuildContext context) {
     return AppCard(
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 10,
-            height: 72,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: Theme.of(context).textTheme.labelLarge),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  body,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
-                ),
-              ],
+          Text(title, style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: AppSpacing.md),
+          ...lines.map(
+            (line) => Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Icon(
+                      Icons.insights_rounded,
+                      size: 16,
+                      color: accent,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(child: Text(line)),
+                ],
+              ),
             ),
           ),
         ],
@@ -247,53 +213,123 @@ class _InsightCard extends StatelessWidget {
   }
 }
 
-class _ResultCard extends StatelessWidget {
-  const _ResultCard({required this.result});
+class _TrendPanel extends StatelessWidget {
+  const _TrendPanel({required this.results});
+
+  final List<SubjectResult> results;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('اتجاه الأداء', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: AppSpacing.md),
+          ...results.map(
+            (result) => Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(child: Text(result.subjectName)),
+                      Text('${result.totalGrade}%'),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(999),
+                    child: LinearProgressIndicator(
+                      value: result.totalGrade / 100,
+                      minHeight: 8,
+                      color: result.totalGrade >= 85
+                          ? AppColors.success
+                          : result.totalGrade >= 70
+                          ? AppColors.warning
+                          : AppColors.error,
+                      backgroundColor: context.appColors.surfaceAlt,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SubjectResultCard extends StatelessWidget {
+  const _SubjectResultCard({required this.result});
 
   final SubjectResult result;
 
   @override
   Widget build(BuildContext context) {
-    final palette = context.appColors;
+    final totalColor = result.totalGrade >= 85
+        ? AppColors.success
+        : result.totalGrade >= 70
+        ? AppColors.warning
+        : AppColors.error;
 
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Text(
-                  result.subjectName,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      result.subjectName,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      result.status,
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                  ],
                 ),
               ),
               AppBadge(
                 label: result.letterGrade,
-                backgroundColor: palette.primarySoft,
-                foregroundColor: AppColors.primary,
+                backgroundColor: totalColor.withValues(alpha: 0.12),
+                foregroundColor: totalColor,
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.sm),
-          Wrap(
+          const SizedBox(height: AppSpacing.md),
+          ResponsiveWrapGrid(
+            minItemWidth: 140,
             spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
             children: [
               _GradeTile(label: 'الإجمالي', value: '${result.totalGrade}'),
               _GradeTile(label: 'الكويزات', value: '${result.quizGrade}'),
               _GradeTile(label: 'الشيتات', value: '${result.assignmentGrade}'),
               if (result.midtermGrade != null)
-                _GradeTile(label: 'الميدترم', value: '${result.midtermGrade}'),
+                _GradeTile(label: 'Midterm', value: '${result.midtermGrade}'),
               if (result.finalGrade != null)
-                _GradeTile(label: 'الفاينل', value: '${result.finalGrade}'),
+                _GradeTile(label: 'Final', value: '${result.finalGrade}'),
             ],
           ),
           if (result.notes != null) ...[
-            const SizedBox(height: AppSpacing.sm),
-            Text(result.notes!, style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              result.notes!,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: totalColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ],
       ),
@@ -309,20 +345,24 @@ class _GradeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = context.appColors;
-
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: palette.surfaceAlt,
-        borderRadius: BorderRadius.circular(14),
+        color: context.appColors.surfaceAlt,
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: Text(
-        '$label: $value',
-        style: Theme.of(context).textTheme.labelLarge,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: Theme.of(context).textTheme.labelLarge),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            value,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+        ],
       ),
     );
   }

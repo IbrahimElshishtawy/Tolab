@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/models/community_models.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
-import 'add_comment_field.dart';
 import '../providers/community_providers.dart';
+import 'add_comment_field.dart';
 
 class CommentsSheet extends ConsumerWidget {
   const CommentsSheet({super.key, required this.subjectId, required this.post});
@@ -20,10 +20,10 @@ class CommentsSheet extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Comments', style: Theme.of(context).textTheme.titleLarge),
+          Text('التعليقات', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: AppSpacing.md),
           if (post.comments.isEmpty)
-            const Text('No comments yet. Start the conversation.')
+            const Text('لا توجد تعليقات بعد. ابدأ النقاش.')
           else
             ...post.comments.map(
               (comment) => Padding(

@@ -1,3 +1,5 @@
+enum NotificationUrgency { newItem, important, urgent }
+
 class AppNotificationItem {
   const AppNotificationItem({
     required this.id,
@@ -10,6 +12,8 @@ class AppNotificationItem {
     required this.routeName,
     this.pathParameters = const {},
     this.isImportant = false,
+    this.subjectName,
+    this.urgency = NotificationUrgency.newItem,
   });
 
   final String id;
@@ -22,6 +26,8 @@ class AppNotificationItem {
   final String routeName;
   final Map<String, String> pathParameters;
   final bool isImportant;
+  final String? subjectName;
+  final NotificationUrgency urgency;
 
   AppNotificationItem copyWith({
     String? id,
@@ -34,6 +40,8 @@ class AppNotificationItem {
     String? routeName,
     Map<String, String>? pathParameters,
     bool? isImportant,
+    String? subjectName,
+    NotificationUrgency? urgency,
   }) {
     return AppNotificationItem(
       id: id ?? this.id,
@@ -46,6 +54,8 @@ class AppNotificationItem {
       routeName: routeName ?? this.routeName,
       pathParameters: pathParameters ?? this.pathParameters,
       isImportant: isImportant ?? this.isImportant,
+      subjectName: subjectName ?? this.subjectName,
+      urgency: urgency ?? this.urgency,
     );
   }
 }

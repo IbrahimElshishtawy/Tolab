@@ -11,11 +11,11 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/adaptive_page_container.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_card.dart';
-import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_segmented_control.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/error_state_widget.dart';
 import '../../../../core/widgets/loading_widget.dart';
+import '../../../../core/widgets/responsive_wrap_grid.dart';
 import '../providers/timetable_providers.dart';
 
 class TimetablePage extends ConsumerStatefulWidget {
@@ -41,37 +41,105 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
       child: AdaptivePageContainer(
         child: itemsAsync.when(
           data: (items) {
-            final filtered = _filterItems(items);
+            final filtered = _filterItems(items, _view);
+            final nextEvent = filtered.firstWhere(
+              (item) => item.startsAt.isAfter(DateTime.now()),
+              orElse: () => filtered.isEmpty ? _emptyItem : filtered.first,
+            );
+            final conflicts = _findConflicts(filtered);
             final grouped = _groupItems(filtered);
 
             return ListView(
               children: [
-                const AppSectionHeader(
-                  title: 'الجدول الدراسي',
-                  subtitle:
-                      'عرض اليوم أو الأسبوع مع فتح الوجهة المرتبطة مباشرة.',
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                AppSegmentedControl<String>(
-                  groupValue: _view,
-                  onValueChanged: (value) => setState(() => _view = value),
-                  children: const {
-                    'today': Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'الجدول الدراسي',
+                        style: Theme.of(context).textTheme.displaySmall,
                       ),
-                      child: Text('اليوم'),
-                    ),
-                    'week': Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        'عرض مريح لليوم أو الأسبوع مع next event واضح وتنبيه عند وجود تعارضات.',
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
-                      child: Text('الأسبوع'),
-                    ),
-                  },
+                      const SizedBox(height: AppSpacing.lg),
+                      AppSegmentedControl<String>(
+                        groupValue: _view,
+                        onValueChanged: (value) =>
+                            setState(() => _view = value),
+                        children: const {
+                          'today': Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            child: Text('اليوم'),
+                          ),
+                          'week': Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            child: Text('الأسبوع'),
+                          ),
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      ResponsiveWrapGrid(
+                        minItemWidth: 240,
+                        spacing: AppSpacing.sm,
+                        children: [
+                          _HeroInfo(
+                            title: 'Upcoming today',
+                            body: '${grouped['اليوم']?.length ?? 0} عناصر',
+                            color: AppColors.primary,
+                          ),
+                          _HeroInfo(
+                            title: 'Next event',
+                            body: nextEvent.id.isEmpty
+                                ? 'لا يوجد'
+                                : nextEvent.title,
+                            color: AppColors.warning,
+                          ),
+                          _HeroInfo(
+                            title: 'Warnings',
+                            body: conflicts.isEmpty
+                                ? 'لا يوجد تعارض'
+                                : '${conflicts.length} تعارض',
+                            color: conflicts.isEmpty
+                                ? AppColors.success
+                                : AppColors.error,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
+                if (conflicts.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.lg),
+                  AppCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'تحذيرات الجدول',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        ...conflicts.map(
+                          (warning) => Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: AppSpacing.sm,
+                            ),
+                            child: Text('• $warning'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: AppSpacing.lg),
                 if (filtered.isEmpty)
                   const EmptyStateWidget(
@@ -92,54 +160,48 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
               ],
             );
           },
-          loading: () => const LoadingWidget(label: 'جاري تحميل الجدول...'),
-          error: (error, stackTrace) =>
-              ErrorStateWidget(message: error.toString()),
+          loading: () => const LoadingWidget(label: 'جارٍ تحميل الجدول...'),
+          error: (error, _) => ErrorStateWidget(message: error.toString()),
         ),
       ),
     );
   }
+}
 
-  List<TimetableItem> _filterItems(List<TimetableItem> items) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final endOfWeek = today.add(const Duration(days: 7));
+class _HeroInfo extends StatelessWidget {
+  const _HeroInfo({
+    required this.title,
+    required this.body,
+    required this.color,
+  });
 
-    if (_view == 'today') {
-      return items.where((item) {
-        final date = DateTime(
-          item.startsAt.year,
-          item.startsAt.month,
-          item.startsAt.day,
-        );
-        return date == today;
-      }).toList();
-    }
+  final String title;
+  final String body;
+  final Color color;
 
-    return items.where((item) => item.startsAt.isBefore(endOfWeek)).toList();
-  }
-
-  Map<String, List<TimetableItem>> _groupItems(List<TimetableItem> items) {
-    final grouped = <String, List<TimetableItem>>{};
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final tomorrow = today.add(const Duration(days: 1));
-
-    for (final item in items) {
-      final itemDate = DateTime(
-        item.startsAt.year,
-        item.startsAt.month,
-        item.startsAt.day,
-      );
-      final key = itemDate == today
-          ? 'اليوم'
-          : itemDate == tomorrow
-          ? 'غدًا'
-          : formatArabicDate(item.startsAt, pattern: 'EEEE d MMM');
-      grouped.putIfAbsent(key, () => []).add(item);
-    }
-
-    return grouped;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: Theme.of(context).textTheme.labelLarge),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            body,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -155,45 +217,53 @@ class _TimetableGroup extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: AppSpacing.sm),
-        ...items.map((item) => _TimetableTile(item: item)),
+        const SizedBox(height: AppSpacing.md),
+        ...items.map(
+          (item) => Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.md),
+            child: _TimetableCard(item: item),
+          ),
+        ),
       ],
     );
   }
 }
 
-class _TimetableTile extends StatelessWidget {
-  const _TimetableTile({required this.item});
+class _TimetableCard extends StatelessWidget {
+  const _TimetableCard({required this.item});
 
   final TimetableItem item;
 
   @override
   Widget build(BuildContext context) {
-    final palette = context.appColors;
+    final accent = _typeColor(item.typeLabel);
 
     return InkWell(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(20),
       onTap: () =>
           context.goNamed(item.routeName, pathParameters: item.pathParameters),
       child: AppCard(
-        backgroundColor: palette.surfaceElevated,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 52,
-              height: 52,
+              width: 60,
+              padding: const EdgeInsets.all(AppSpacing.sm),
               decoration: BoxDecoration(
-                color: palette.primarySoft,
-                borderRadius: BorderRadius.circular(16),
+                color: accent.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(18),
               ),
-              alignment: Alignment.center,
-              child: Text(
-                formatArabicTime(item.startsAt),
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+              child: Column(
+                children: [
+                  Text(
+                    formatArabicTime(item.startsAt),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: accent,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(width: AppSpacing.md),
@@ -206,33 +276,34 @@ class _TimetableTile extends StatelessWidget {
                       Expanded(
                         child: Text(
                           item.title,
-                          style: Theme.of(context).textTheme.bodyMedium
+                          style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(fontWeight: FontWeight.w700),
                         ),
                       ),
                       AppBadge(
                         label: item.typeLabel,
-                        backgroundColor: palette.surfaceAlt,
-                        foregroundColor: AppColors.primary,
+                        backgroundColor: accent.withValues(alpha: 0.12),
+                        foregroundColor: accent,
                       ),
                     ],
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
                     item.subjectName,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    '${item.locationLabel} • ${item.hostName}',
                     style: Theme.of(context).textTheme.labelLarge,
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    _statusBadge(item),
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: AppColors.indigo),
+                    '${item.locationLabel} • ${item.hostName}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    _statusLabel(item),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: accent,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ],
               ),
@@ -242,22 +313,105 @@ class _TimetableTile extends StatelessWidget {
       ),
     );
   }
-
-  String _statusBadge(TimetableItem item) {
-    final now = DateTime.now();
-    if (item.startsAt.isBefore(now) && item.endsAt.isAfter(now)) {
-      return 'الآن';
-    }
-    final difference = item.startsAt.difference(now);
-    if (difference.inMinutes <= 60 && difference.inMinutes >= 0) {
-      return 'بعد قليل';
-    }
-    if (difference.inDays == 0) {
-      return 'اليوم';
-    }
-    if (difference.inDays == 1) {
-      return 'غدًا';
-    }
-    return item.typeLabel;
-  }
 }
+
+List<TimetableItem> _filterItems(List<TimetableItem> items, String view) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final endOfWeek = today.add(const Duration(days: 7));
+
+  if (view == 'today') {
+    return items.where((item) {
+      final itemDate = DateTime(
+        item.startsAt.year,
+        item.startsAt.month,
+        item.startsAt.day,
+      );
+      return itemDate == today;
+    }).toList();
+  }
+
+  return items.where((item) => item.startsAt.isBefore(endOfWeek)).toList();
+}
+
+Map<String, List<TimetableItem>> _groupItems(List<TimetableItem> items) {
+  final grouped = <String, List<TimetableItem>>{};
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final tomorrow = today.add(const Duration(days: 1));
+
+  for (final item in items) {
+    final itemDate = DateTime(
+      item.startsAt.year,
+      item.startsAt.month,
+      item.startsAt.day,
+    );
+    final key = itemDate == today
+        ? 'اليوم'
+        : itemDate == tomorrow
+        ? 'غدًا'
+        : formatArabicDate(item.startsAt, pattern: 'EEEE d MMM');
+    grouped.putIfAbsent(key, () => []).add(item);
+  }
+
+  return grouped;
+}
+
+List<String> _findConflicts(List<TimetableItem> items) {
+  final warnings = <String>[];
+  final sorted = [...items]..sort((a, b) => a.startsAt.compareTo(b.startsAt));
+
+  for (var i = 0; i < sorted.length - 1; i++) {
+    final current = sorted[i];
+    final next = sorted[i + 1];
+    if (current.endsAt.isAfter(next.startsAt)) {
+      warnings.add('يوجد تعارض بين ${current.title} و${next.title}.');
+    }
+  }
+  return warnings;
+}
+
+String _statusLabel(TimetableItem item) {
+  final now = DateTime.now();
+  if (item.startsAt.isBefore(now) && item.endsAt.isAfter(now)) {
+    return 'يحدث الآن';
+  }
+  final diff = item.startsAt.difference(now);
+  if (diff.inMinutes >= 0 && diff.inMinutes <= 60) {
+    return 'بعد قليل';
+  }
+  if (diff.inDays == 0) {
+    return 'اليوم';
+  }
+  if (diff.inDays == 1) {
+    return 'غدًا';
+  }
+  return 'قادم';
+}
+
+Color _typeColor(String type) {
+  if (type.contains('محاضرة')) {
+    return AppColors.primary;
+  }
+  if (type.contains('سكشن')) {
+    return AppColors.indigo;
+  }
+  if (type.contains('كويز')) {
+    return AppColors.error;
+  }
+  return AppColors.warning;
+}
+
+final _emptyItem = TimetableItem(
+  id: '',
+  subjectId: '',
+  subjectName: '',
+  title: 'لا يوجد حدث قادم',
+  typeLabel: '',
+  locationLabel: '',
+  hostName: '',
+  startsAt: DateTime.now(),
+  endsAt: DateTime.now(),
+  routeName: '',
+  pathParameters: const {},
+);

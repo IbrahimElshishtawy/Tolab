@@ -39,8 +39,19 @@ class ChatPanel extends ConsumerWidget {
                 ),
               ),
             const SizedBox(height: AppSpacing.md),
-            ...chatState.messages.map(
-              (message) => ChatMessageBubble(message: message),
+            Expanded(
+              child: ListView.separated(
+                reverse: true,
+                itemCount: chatState.messages.length,
+                separatorBuilder: (_, _) =>
+                    const SizedBox(height: AppSpacing.sm),
+                itemBuilder: (context, index) {
+                  final reversedIndex = chatState.messages.length - 1 - index;
+                  return ChatMessageBubble(
+                    message: chatState.messages[reversedIndex],
+                  );
+                },
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
             ChatInputBar(
@@ -52,7 +63,7 @@ class ChatPanel extends ConsumerWidget {
           ],
         ),
       ),
-      loading: () => const LoadingWidget(),
+      loading: () => const Center(child: LoadingWidget()),
       error: (error, stackTrace) => Text(error.toString()),
     );
   }
