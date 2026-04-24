@@ -36,7 +36,7 @@ class StudentHomePage extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.md),
               ResponsiveWrapGrid(
-                minItemWidth: 230,
+                minItemWidth: 190,
                 spacing: AppSpacing.sm,
                 children: [
                   for (final item in viewModel.requiredTodayItems)
@@ -176,21 +176,21 @@ class _RequiredActionCard extends StatelessWidget {
     final accent = _priorityColor(item.priority);
 
     return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                width: 38,
-                height: 38,
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(11),
                 ),
                 alignment: Alignment.center,
-                child: Icon(item.icon, size: 20, color: accent),
+                child: Icon(item.icon, size: 18, color: accent),
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
@@ -208,7 +208,7 @@ class _RequiredActionCard extends StatelessWidget {
             item.title,
             style: Theme.of(
               context,
-            ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(item.subtitle, style: Theme.of(context).textTheme.bodySmall),
@@ -228,6 +228,7 @@ class _RequiredActionCard extends StatelessWidget {
                 : () => _openTarget(context, item.target!),
             isExpanded: false,
             icon: Icons.arrow_forward_rounded,
+            variant: AppButtonVariant.secondary,
           ),
         ],
       ),

@@ -5,7 +5,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_card.dart';
-import '../../../../core/widgets/responsive_wrap_grid.dart';
 
 class SubjectHeaderCard extends StatelessWidget {
   const SubjectHeaderCard({
@@ -28,106 +27,146 @@ class SubjectHeaderCard extends StatelessWidget {
 
     return AppCard(
       backgroundColor: palette.surfaceElevated,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 700;
+          final titleBlock = Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 44,
-                height: 44,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(Icons.auto_stories_rounded, color: accent),
+                child: Icon(
+                  Icons.auto_stories_rounded,
+                  color: accent,
+                  size: 22,
+                ),
               ),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      subject.name,
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      subject.description,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
                     Wrap(
                       spacing: AppSpacing.sm,
-                      runSpacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.xs,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        AppBadge(label: subject.code, dense: true),
-                        AppBadge(
-                          label: 'الدكتور ${subject.instructor}',
-                          dense: true,
+                        Text(
+                          subject.name,
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w800),
                         ),
                         AppBadge(
-                          label: 'المعيد ${subject.assistantName}',
+                          label: subject.status,
+                          backgroundColor: accent.withValues(alpha: 0.12),
+                          foregroundColor: accent,
                           dense: true,
                         ),
                       ],
                     ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      '${subject.code} • ${subject.description}',
+                      maxLines: compact ? 2 : 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
-              AppBadge(
-                label: subject.status,
-                backgroundColor: accent.withValues(alpha: 0.12),
-                foregroundColor: accent,
-                dense: true,
-              ),
             ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          ResponsiveWrapGrid(
-            minItemWidth: 120,
-            spacing: AppSpacing.sm,
+          );
+
+          final infoChips = Wrap(
+            spacing: AppSpacing.xs,
+            runSpacing: AppSpacing.xs,
             children: [
-              _Metric(
+              AppBadge(label: subject.code, dense: true),
+              AppBadge(label: 'الدكتور ${subject.instructor}', dense: true),
+              AppBadge(label: 'المعيد ${subject.assistantName}', dense: true),
+            ],
+          );
+
+          final stats = Wrap(
+            spacing: AppSpacing.xs,
+            runSpacing: AppSpacing.xs,
+            children: [
+              _MiniStatPill(
                 label: 'التقدم',
                 value: '${(subject.progress * 100).round()}%',
                 accent: accent,
               ),
-              _Metric(
-                label: 'المحاضرات',
+              _MiniStatPill(
+                label: 'محاضرات',
                 value: '$lectureCount',
                 accent: AppColors.primary,
               ),
-              _Metric(
-                label: 'الكويزات',
-                value: '$quizCount',
-                accent: AppColors.error,
-              ),
-              _Metric(
-                label: 'الشيتات',
-                value: '$taskCount',
-                accent: AppColors.warning,
-              ),
-              _Metric(
-                label: 'السكاشن',
+              _MiniStatPill(
+                label: 'سكاشن',
                 value: '${subject.sectionsCount}',
                 accent: AppColors.indigo,
               ),
+              _MiniStatPill(
+                label: 'كويزات',
+                value: '$quizCount',
+                accent: AppColors.error,
+              ),
+              _MiniStatPill(
+                label: 'شيتات',
+                value: '$taskCount',
+                accent: AppColors.warning,
+              ),
             ],
-          ),
-        ],
+          );
+
+          if (compact) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                titleBlock,
+                const SizedBox(height: AppSpacing.sm),
+                infoChips,
+                const SizedBox(height: AppSpacing.sm),
+                stats,
+              ],
+            );
+          }
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(flex: 5, child: titleBlock),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                flex: 4,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    infoChips,
+                    const SizedBox(height: AppSpacing.sm),
+                    stats,
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
-class _Metric extends StatelessWidget {
-  const _Metric({
+class _MiniStatPill extends StatelessWidget {
+  const _MiniStatPill({
     required this.label,
     required this.value,
     required this.accent,
@@ -140,24 +179,27 @@ class _Metric extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: context.appColors.surfaceAlt,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(999),
         border: Border.all(color: context.appColors.border),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(label, style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 4),
           Text(
             value,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: accent,
               fontWeight: FontWeight.w800,
             ),
           ),
+          const SizedBox(width: 6),
+          Text(label, style: Theme.of(context).textTheme.labelLarge),
         ],
       ),
     );

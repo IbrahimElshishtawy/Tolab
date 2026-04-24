@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 
+import '../app/localization/app_localizations.dart';
+import '../app/localization/current_locale_state.dart';
+import '../app/localization/locale_controller.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'modules/notifications/presentation/widgets/notification_toast_host.dart';
@@ -34,6 +37,10 @@ class _TolabAdminAppState extends State<TolabAdminApp> {
         distinct: true,
         converter: (store) => store.state.settingsState.bundle,
         builder: (context, bundle) {
+          final languageCode = LocaleController.normalizeLanguageCode(
+            bundle.localeCode,
+          );
+          CurrentLocaleState.update(languageCode);
           return MaterialApp.router(
             title: 'Tolab Admin',
             debugShowCheckedModeBanner: false,
@@ -46,6 +53,9 @@ class _TolabAdminAppState extends State<TolabAdminApp> {
               secondaryColor: bundle.theme.secondaryColor,
             ),
             themeMode: bundle.themeMode,
+            locale: Locale(languageCode),
+            supportedLocales: LocaleController.supportedLocales,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
             routerConfig: _router.router,
             builder: (context, child) {
               return Stack(

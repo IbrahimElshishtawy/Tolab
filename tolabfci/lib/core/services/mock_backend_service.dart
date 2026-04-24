@@ -192,11 +192,11 @@ class MockBackendService {
     CommunityPost(
       id: 'post-3',
       subjectId: 'subject-3',
-      authorName: 'Ø¯. Ù†ÙˆØ±Ù‡Ø§Ù† ÙÙˆØ²ÙŠ',
-      authorRole: 'Ø§Ù„Ø¯ÙƒØªÙˆØ±',
+      authorName: 'د. نورهان فوزي',
+      authorRole: 'الدكتور',
       content:
-          'ØªÙ… ØªØ«Ø¨ÙŠØª Rubric Ø§Ù„Ù…Ø´Ø±ÙˆØ¹ Ø§Ù„ØµØºÙŠØ±. Ø§Ù„Ø£ÙˆÙ„ÙˆÙŠØ© Ù‡Ø°Ø§ Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ Ù„Ù…Ø±Ø§Ø¬Ø¹Ø© Ø§Ù„Ù‚Ø§Ø¨Ù„ÙŠØ© ÙˆØ§Ù„ÙˆØµÙˆÙ„ Ø¹Ø¨Ø± mobile.',
-      createdAtLabel: 'Ù…Ù†Ø° 5 Ø³Ø§Ø¹Ø§Øª',
+          'تم تثبيت Rubric المشروع الصغير. الأولوية هذا الأسبوع لمراجعة القابلية والوصول عبر mobile.',
+      createdAtLabel: 'منذ 5 ساعات',
       reactions: 26,
       type: CommunityPostType.announcement,
       isPinned: true,
@@ -213,6 +213,7 @@ class MockBackendService {
       content: 'هل انتهى أحد من sheet الـ repository abstraction؟',
       sentAtLabel: '10:18 ص',
       isMine: false,
+      authorRole: 'student',
     ),
     ChatMessage(
       id: 'chat-2',
@@ -221,6 +222,7 @@ class MockBackendService {
       content: 'نعم، سأشارك ملاحظاتي بعد المحاضرة مباشرة.',
       sentAtLabel: '10:20 ص',
       isMine: true,
+      authorRole: 'student',
     ),
     ChatMessage(
       id: 'chat-3',
@@ -229,6 +231,16 @@ class MockBackendService {
       content: 'تذكير: كويز الأمن غدًا داخل المعمل وليس أونلاين.',
       sentAtLabel: '8:42 ص',
       isMine: false,
+      authorRole: 'assistant',
+    ),
+    ChatMessage(
+      id: 'chat-4',
+      subjectId: 'subject-1',
+      authorName: 'م. نورا سامح',
+      content: 'رابط المعمل التجريبي هيتثبت هنا قبل السكشن بنصف ساعة.',
+      sentAtLabel: '10:24 ص',
+      isMine: false,
+      authorRole: 'assistant',
     ),
   ];
 
@@ -512,6 +524,7 @@ class MockBackendService {
         content: content,
         sentAtLabel: formatArabicTime(DateTime.now()),
         isMine: true,
+        authorRole: 'student',
       ),
     ];
   }
@@ -545,15 +558,15 @@ class MockBackendService {
       LectureItem(
         id: 'lecture-0',
         subjectId: 'subject-1',
-        subjectName: 'ØªØ·ÙˆÙŠØ± ØªØ·Ø¨ÙŠÙ‚Ø§Øª Ø§Ù„Ù‡Ø§ØªÙ Ø§Ù„Ù…ØªÙ‚Ø¯Ù…Ø©',
-        title: 'ØªØ³Ø¬ÙŠÙ„ Ù…Ø±Ø§Ø¬Ø¹Ø© Architecture Decisions',
+        subjectName: 'تطوير تطبيقات الهاتف المتقدمة',
+        title: 'تسجيل مراجعة Architecture Decisions',
         scheduleLabel: formatArabicSchedule(recapLectureStart, reference: now),
         startsAt: recapLectureStart,
         endsAt: recapLectureStart.add(const Duration(hours: 1, minutes: 10)),
         meetingUrl: 'https://video.tolab.edu/architecture-decisions',
         isOnline: true,
-        instructorName: 'Ø¯. Ø¹Ù…Ø± Ù†Ø¨ÙŠÙ„',
-        locationLabel: 'Ù…Ø³Ø¬Ù„ Ø¹Ù„Ù‰ Ø§Ù„Ù…Ù†ØµØ©',
+        instructorName: 'د. عمر نبيل',
+        locationLabel: 'مسجل على المنصة',
       ),
       LectureItem(
         id: 'lecture-1',
@@ -889,7 +902,7 @@ class MockBackendService {
         routeName: RouteNames.quizEntry,
         pathParameters: {'subjectId': 'subject-1', 'quizId': 'quiz-1'},
         isImportant: true,
-        subjectName: 'ØªØ·ÙˆÙŠØ± ØªØ·Ø¨ÙŠÙ‚Ø§Øª Ø§Ù„Ù‡Ø§ØªÙ Ø§Ù„Ù…ØªÙ‚Ø¯Ù…Ø©',
+        subjectName: 'تطوير تطبيقات الهاتف المتقدمة',
         urgency: NotificationUrgency.urgent,
       ),
       AppNotificationItem(
@@ -904,7 +917,7 @@ class MockBackendService {
         isRead: false,
         routeName: RouteNames.subjectDetails,
         pathParameters: {'subjectId': 'subject-1'},
-        subjectName: 'ØªØ·ÙˆÙŠØ± ØªØ·Ø¨ÙŠÙ‚Ø§Øª Ø§Ù„Ù‡Ø§ØªÙ Ø§Ù„Ù…ØªÙ‚Ø¯Ù…Ø©',
+        subjectName: 'تطوير تطبيقات الهاتف المتقدمة',
         urgency: NotificationUrgency.important,
       ),
       AppNotificationItem(
@@ -918,7 +931,7 @@ class MockBackendService {
         routeName: RouteNames.assignmentUpload,
         pathParameters: {'subjectId': 'subject-2', 'taskId': 'task-1'},
         isImportant: true,
-        subjectName: 'Ø§Ù„Ø­ÙˆØ³Ø¨Ø© Ø§Ù„Ø³Ø­Ø§Ø¨ÙŠØ©',
+        subjectName: 'الحوسبة السحابية',
         urgency: NotificationUrgency.urgent,
       ),
       AppNotificationItem(
@@ -932,7 +945,7 @@ class MockBackendService {
         category: 'درجات',
         isRead: true,
         routeName: RouteNames.results,
-        subjectName: 'Ø§Ù„ØªÙØ§Ø¹Ù„ Ø¨ÙŠÙ† Ø§Ù„Ø¥Ù†Ø³Ø§Ù† ÙˆØ§Ù„Ø­Ø§Ø³ÙˆØ¨',
+        subjectName: 'التفاعل بين الإنسان والحاسوب',
         urgency: NotificationUrgency.newItem,
       ),
       AppNotificationItem(
@@ -947,7 +960,7 @@ class MockBackendService {
         isRead: false,
         routeName: RouteNames.subjectDetails,
         pathParameters: {'subjectId': 'subject-3'},
-        subjectName: 'Ø§Ù„ØªÙØ§Ø¹Ù„ Ø¨ÙŠÙ† Ø§Ù„Ø¥Ù†Ø³Ø§Ù† ÙˆØ§Ù„Ø­Ø§Ø³ÙˆØ¨',
+        subjectName: 'التفاعل بين الإنسان والحاسوب',
         urgency: NotificationUrgency.important,
       ),
     ];

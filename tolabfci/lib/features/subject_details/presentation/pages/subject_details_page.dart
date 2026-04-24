@@ -84,6 +84,7 @@ class _SubjectDetailsPageState extends ConsumerState<SubjectDetailsPage>
     final tasksAsync = ref.watch(tasksProvider(widget.subjectId));
     final quizzesAsync = ref.watch(quizzesProvider(widget.subjectId));
     final lecturesAsync = ref.watch(lecturesProvider(widget.subjectId));
+    final sectionsAsync = ref.watch(sectionsProvider(widget.subjectId));
 
     return SafeArea(
       child: AdaptivePageContainer(
@@ -93,8 +94,11 @@ class _SubjectDetailsPageState extends ConsumerState<SubjectDetailsPage>
             final quizzes = quizzesAsync.asData?.value ?? const <QuizItem>[];
             final lectures =
                 lecturesAsync.asData?.value ?? const <LectureItem>[];
+            final sections =
+                sectionsAsync.asData?.value ?? const <SectionItem>[];
 
             return ListView(
+              padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
               children: [
                 SubjectHeaderCard(
                   subject: subject,
@@ -108,6 +112,7 @@ class _SubjectDetailsPageState extends ConsumerState<SubjectDetailsPage>
                   tasks: tasks,
                   quizzes: quizzes,
                   lectures: lectures,
+                  sections: sections,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 SubjectGroupPreviewCard(

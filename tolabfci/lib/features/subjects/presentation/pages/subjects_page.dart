@@ -125,11 +125,11 @@ class _SubjectsPageState extends ConsumerState<SubjectsPage> {
   bool _matchesFilter(SubjectOverview subject) {
     switch (_filter) {
       case 'active':
-        return subject.status == 'Ù†Ø´Ø·Ø©';
+        return subject.status == 'نشطة';
       case 'new':
-        return subject.status == 'Ø¬Ø¯ÙŠØ¯';
+        return subject.status == 'جديد';
       case 'watch':
-        return subject.status == 'Ù…Ø·Ù„ÙˆØ¨ ØªØ³Ù„ÙŠÙ…' ||
+        return subject.status == 'مطلوب تسليم' ||
             subject.progress < 0.55;
       default:
         return true;
@@ -156,12 +156,12 @@ class _SubjectsHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final active = subjects
-        .where((subject) => subject.status == 'Ù†Ø´Ø·Ø©')
+        .where((subject) => subject.status == 'نشطة')
         .length;
     final watchList = subjects
         .where(
           (subject) =>
-              subject.status == 'Ù…Ø·Ù„ÙˆØ¨ ØªØ³Ù„ÙŠÙ…' ||
+              subject.status == 'مطلوب تسليم' ||
               subject.progress < 0.55,
         )
         .length;

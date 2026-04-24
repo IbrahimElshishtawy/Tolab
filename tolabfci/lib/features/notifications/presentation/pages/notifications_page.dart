@@ -251,7 +251,8 @@ class _NotificationCard extends StatelessWidget {
                     if (item.subjectName != null)
                       AppBadge(
                         label: item.subjectName!,
-                        backgroundColor: Colors.white,
+                        backgroundColor: palette.surfaceAlt,
+                        foregroundColor: palette.textPrimary,
                       ),
                   ],
                 ),

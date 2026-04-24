@@ -4,6 +4,7 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../app/localization/current_locale_state.dart';
 import '../../../core/colors/app_colors.dart';
 import '../../../core/routing/route_paths.dart';
 import '../../../core/spacing/app_spacing.dart';
@@ -101,13 +102,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       PageHeader(
-                        title: 'Notification Center',
-                        subtitle:
-                            'Realtime operational updates, delivery history, and quick actions for academic, system, and message events.',
-                        breadcrumbs: const ['Admin', 'Notifications'],
+                        title: _tx('مركز التنبيهات', 'Notification Center'),
+                        subtitle: _tx(
+                          'تحديثات تشغيلية مباشرة، سجل الإرسال، وإجراءات سريعة للتنبيهات الأكاديمية ورسائل النظام.',
+                          'Realtime operational updates, delivery history, and quick actions for academic, system, and message events.',
+                        ),
+                        breadcrumbs: [
+                          _tx('الإدارة', 'Admin'),
+                          _tx('التنبيهات', 'Notifications'),
+                        ],
                         actions: [
                           PremiumButton(
-                            label: 'Refresh',
+                            label: _tx('تحديث', 'Refresh'),
                             icon: Icons.refresh_rounded,
                             onPressed: () => StoreProvider.of<AppState>(
                               context,
@@ -115,7 +121,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             ).dispatch(const LoadNotificationsAction()),
                           ),
                           PremiumButton(
-                            label: 'Mark all read',
+                            label: _tx('تحديد الكل كمقروء', 'Mark all read'),
                             icon: Icons.done_all_rounded,
                             onPressed: state.unreadCount == 0
                                 ? null
@@ -137,12 +143,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           horizontal: AppSpacing.md,
                           vertical: AppSpacing.sm,
                         ),
-                        child: const TabBar(
+                        child: TabBar(
                           isScrollable: true,
                           tabAlignment: TabAlignment.start,
                           tabs: [
-                            Tab(text: 'Center'),
-                            Tab(text: 'History'),
+                            Tab(text: _tx('المركز', 'Center')),
+                            Tab(text: _tx('السجل', 'History')),
                           ],
                         ),
                       ),
@@ -203,7 +209,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          'Live inbox',
+                          _tx('صندوق التنبيهات', 'Live inbox'),
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                       ),
@@ -219,7 +225,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     runSpacing: AppSpacing.sm,
                     children: [
                       FilterChip(
-                        label: Text('All (${state.items.length})'),
+                        label: Text(
+                          '${_tx('الكل', 'All')} (${state.items.length})',
+                        ),
                         selected: _centerCategory == null,
                         onSelected: (_) =>
                             setState(() => _centerCategory = null),
@@ -355,9 +363,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               final searchField = TextField(
                 controller: _historySearchController,
                 onChanged: (_) => setState(() {}),
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.search_rounded),
-                  hintText: 'Search title, body, category, or audience',
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  hintText: _tx(
+                    'ابحث في العنوان أو المحتوى أو الفئة أو الجمهور',
+                    'Search title, body, category, or audience',
+                  ),
                 ),
               );
               final dateField =
@@ -375,7 +386,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       if (value == null) return;
                       setState(() => _historyDateFilter = value);
                     },
-                    decoration: const InputDecoration(labelText: 'Date range'),
+                    decoration: InputDecoration(
+                      labelText: _tx('نطاق التاريخ', 'Date range'),
+                    ),
                   );
 
               return Column(
@@ -398,13 +411,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     runSpacing: AppSpacing.sm,
                     children: [
                       FilterChip(
-                        label: const Text('Unread only'),
+                        label: Text(_tx('غير المقروء فقط', 'Unread only')),
                         selected: _historyUnreadOnly,
                         onSelected: (value) =>
                             setState(() => _historyUnreadOnly = value),
                       ),
                       FilterChip(
-                        label: const Text('All categories'),
+                        label: Text(_tx('كل الفئات', 'All categories')),
                         selected: _historyCategory == null,
                         onSelected: (_) =>
                             setState(() => _historyCategory = null),
@@ -1380,3 +1393,5 @@ class _DetailRow extends StatelessWidget {
     );
   }
 }
+
+String _tx(String ar, String en) => CurrentLocaleState.isArabic ? ar : en;

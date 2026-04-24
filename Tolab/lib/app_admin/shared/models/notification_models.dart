@@ -1,5 +1,7 @@
 import 'package:intl/intl.dart';
 
+import '../../../app/localization/current_locale_state.dart';
+
 enum AdminNotificationCategory { academic, messages, system, announcements }
 
 enum NotificationQuickActionType { approve, open, reply }
@@ -30,10 +32,14 @@ enum NotificationTone { message, alert, warning }
 
 extension AdminNotificationCategoryX on AdminNotificationCategory {
   String get label => switch (this) {
-    AdminNotificationCategory.academic => 'Academic',
-    AdminNotificationCategory.messages => 'Messages',
-    AdminNotificationCategory.system => 'System',
-    AdminNotificationCategory.announcements => 'Announcements',
+    AdminNotificationCategory.academic =>
+      CurrentLocaleState.isArabic ? 'أكاديمي' : 'Academic',
+    AdminNotificationCategory.messages =>
+      CurrentLocaleState.isArabic ? 'رسائل' : 'Messages',
+    AdminNotificationCategory.system =>
+      CurrentLocaleState.isArabic ? 'النظام' : 'System',
+    AdminNotificationCategory.announcements =>
+      CurrentLocaleState.isArabic ? 'إعلانات' : 'Announcements',
   };
 
   String get backendType => switch (this) {
@@ -65,29 +71,42 @@ extension AdminNotificationCategoryX on AdminNotificationCategory {
 
 extension NotificationQuickActionTypeX on NotificationQuickActionType {
   String get label => switch (this) {
-    NotificationQuickActionType.approve => 'Approve',
-    NotificationQuickActionType.open => 'Open',
-    NotificationQuickActionType.reply => 'Reply',
+    NotificationQuickActionType.approve =>
+      CurrentLocaleState.isArabic ? 'اعتماد' : 'Approve',
+    NotificationQuickActionType.open =>
+      CurrentLocaleState.isArabic ? 'فتح' : 'Open',
+    NotificationQuickActionType.reply =>
+      CurrentLocaleState.isArabic ? 'رد' : 'Reply',
   };
 }
 
 extension NotificationRealtimeStatusX on NotificationRealtimeStatus {
   String get label => switch (this) {
-    NotificationRealtimeStatus.idle => 'Idle',
-    NotificationRealtimeStatus.connecting => 'Connecting',
-    NotificationRealtimeStatus.live => 'Realtime live',
-    NotificationRealtimeStatus.polling => 'Polling backup',
-    NotificationRealtimeStatus.disconnected => 'Disconnected',
-    NotificationRealtimeStatus.error => 'Connection issue',
+    NotificationRealtimeStatus.idle =>
+      CurrentLocaleState.isArabic ? 'متوقف' : 'Idle',
+    NotificationRealtimeStatus.connecting =>
+      CurrentLocaleState.isArabic ? 'جاري الاتصال' : 'Connecting',
+    NotificationRealtimeStatus.live =>
+      CurrentLocaleState.isArabic ? 'مباشر الآن' : 'Realtime live',
+    NotificationRealtimeStatus.polling =>
+      CurrentLocaleState.isArabic ? 'تحديث احتياطي' : 'Polling backup',
+    NotificationRealtimeStatus.disconnected =>
+      CurrentLocaleState.isArabic ? 'غير متصل' : 'Disconnected',
+    NotificationRealtimeStatus.error =>
+      CurrentLocaleState.isArabic ? 'مشكلة اتصال' : 'Connection issue',
   };
 }
 
 extension NotificationHistoryDateFilterX on NotificationHistoryDateFilter {
   String get label => switch (this) {
-    NotificationHistoryDateFilter.all => 'All time',
-    NotificationHistoryDateFilter.today => 'Today',
-    NotificationHistoryDateFilter.last7Days => 'Last 7 days',
-    NotificationHistoryDateFilter.last30Days => 'Last 30 days',
+    NotificationHistoryDateFilter.all =>
+      CurrentLocaleState.isArabic ? 'كل الوقت' : 'All time',
+    NotificationHistoryDateFilter.today =>
+      CurrentLocaleState.isArabic ? 'اليوم' : 'Today',
+    NotificationHistoryDateFilter.last7Days =>
+      CurrentLocaleState.isArabic ? 'آخر 7 أيام' : 'Last 7 days',
+    NotificationHistoryDateFilter.last30Days =>
+      CurrentLocaleState.isArabic ? 'آخر 30 يوم' : 'Last 30 days',
   };
 
   bool matches(DateTime value, DateTime now) {
@@ -109,12 +128,18 @@ extension NotificationHistoryDateFilterX on NotificationHistoryDateFilter {
 
 extension NotificationAudienceTypeX on NotificationAudienceType {
   String get label => switch (this) {
-    NotificationAudienceType.general => 'General',
-    NotificationAudienceType.cohorts => 'Cohorts',
-    NotificationAudienceType.doctors => 'Doctors',
-    NotificationAudienceType.students => 'Students',
-    NotificationAudienceType.staff => 'Staff',
-    NotificationAudienceType.departments => 'Departments',
+    NotificationAudienceType.general =>
+      CurrentLocaleState.isArabic ? 'عام' : 'General',
+    NotificationAudienceType.cohorts =>
+      CurrentLocaleState.isArabic ? 'دفعات' : 'Cohorts',
+    NotificationAudienceType.doctors =>
+      CurrentLocaleState.isArabic ? 'دكاترة' : 'Doctors',
+    NotificationAudienceType.students =>
+      CurrentLocaleState.isArabic ? 'طلاب' : 'Students',
+    NotificationAudienceType.staff =>
+      CurrentLocaleState.isArabic ? 'طاقم' : 'Staff',
+    NotificationAudienceType.departments =>
+      CurrentLocaleState.isArabic ? 'أقسام' : 'Departments',
   };
 
   String get backendValue => switch (this) {
@@ -148,16 +173,20 @@ extension NotificationAudienceTypeX on NotificationAudienceType {
 
 extension NotificationDeliveryModeX on NotificationDeliveryMode {
   String get label => switch (this) {
-    NotificationDeliveryMode.instant => 'Send now',
-    NotificationDeliveryMode.scheduled => 'Schedule',
+    NotificationDeliveryMode.instant =>
+      CurrentLocaleState.isArabic ? 'إرسال الآن' : 'Send now',
+    NotificationDeliveryMode.scheduled =>
+      CurrentLocaleState.isArabic ? 'جدولة' : 'Schedule',
   };
 }
 
 extension NotificationToneX on NotificationTone {
   String get label => switch (this) {
-    NotificationTone.message => 'Message',
-    NotificationTone.alert => 'Alert',
-    NotificationTone.warning => 'Warning',
+    NotificationTone.message =>
+      CurrentLocaleState.isArabic ? 'رسالة' : 'Message',
+    NotificationTone.alert => CurrentLocaleState.isArabic ? 'تنبيه' : 'Alert',
+    NotificationTone.warning =>
+      CurrentLocaleState.isArabic ? 'تحذير' : 'Warning',
   };
 
   String get backendValue => switch (this) {
@@ -226,10 +255,14 @@ class AdminNotification {
     final startOfYesterday = startOfToday.subtract(const Duration(days: 1));
 
     if (!createdAt.isBefore(startOfToday)) {
-      return 'Today, ${DateFormat('HH:mm').format(createdAt)}';
+      return CurrentLocaleState.isArabic
+          ? 'اليوم، ${DateFormat('HH:mm').format(createdAt)}'
+          : 'Today, ${DateFormat('HH:mm').format(createdAt)}';
     }
     if (!createdAt.isBefore(startOfYesterday)) {
-      return 'Yesterday, ${DateFormat('HH:mm').format(createdAt)}';
+      return CurrentLocaleState.isArabic
+          ? 'أمس، ${DateFormat('HH:mm').format(createdAt)}'
+          : 'Yesterday, ${DateFormat('HH:mm').format(createdAt)}';
     }
     if (createdAt.year == now.year) {
       return DateFormat('MMM d, HH:mm').format(createdAt);

@@ -7,6 +7,7 @@ import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../notifications/presentation/providers/notifications_providers.dart';
+import '../providers/chat_providers.dart';
 import '../providers/community_providers.dart';
 
 class SubjectGroupPreviewCard extends ConsumerWidget {
@@ -22,6 +23,7 @@ class SubjectGroupPreviewCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final postsAsync = ref.watch(communityControllerProvider(subjectId));
+    final chatAsync = ref.watch(chatControllerProvider(subjectId));
     final notifications =
         ref.watch(notificationsStreamProvider).value ?? const [];
     final unreadCount = notifications.where((item) {
@@ -32,93 +34,108 @@ class SubjectGroupPreviewCard extends ConsumerWidget {
 
     return postsAsync.when(
       data: (posts) {
-        final latest = posts.isEmpty ? null : posts.first;
-        final title = latest?.title ?? 'الجروب / Course Group';
-        final preview = latest?.preview ?? latest?.content;
-        final meta = latest == null
-            ? 'سيظهر آخر نشاط داخل مجتمع المادة هنا.'
-            : '${latest.authorName} • ${latest.createdAtLabel}';
+        final latestPost = posts.isEmpty ? null : posts.first;
+        final messages = chatAsync.asData?.value.messages;
+        final latestMessage = messages == null || messages.isEmpty
+            ? null
+            : messages.last;
 
         return AppCard(
           backgroundColor: context.appColors.surfaceElevated,
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(
-                  Icons.forum_outlined,
-                  color: AppColors.primary,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      spacing: AppSpacing.sm,
-                      runSpacing: AppSpacing.xs,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Text(
-                          'الجروب / Course Group',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        if (unreadCount > 0)
-                          AppBadge(
-                            label: '$unreadCount غير مقروء',
-                            backgroundColor: AppColors.warning.withValues(
-                              alpha: 0.12,
-                            ),
-                            foregroundColor: AppColors.warning,
-                            dense: true,
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(meta, style: Theme.of(context).textTheme.bodySmall),
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    if (preview != null) ...[
-                      const SizedBox(height: AppSpacing.xs),
+          padding: const EdgeInsets.all(AppSpacing.sm),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 680;
+              final preview = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.xs,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
                       Text(
-                        preview,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodySmall,
+                        'الجروب / Course Group',
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
+                      if (unreadCount > 0)
+                        AppBadge(
+                          label: '$unreadCount غير مقروء',
+                          backgroundColor: AppColors.warning.withValues(
+                            alpha: 0.12,
+                          ),
+                          foregroundColor: AppColors.warning,
+                          dense: true,
+                        ),
                     ],
-                  ],
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              AppButton(
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  _PreviewLine(
+                    icon: Icons.push_pin_outlined,
+                    label: 'آخر منشور',
+                    value: latestPost == null
+                        ? 'لا توجد منشورات بعد'
+                        : '${latestPost.authorName} • ${latestPost.title ?? latestPost.preview ?? latestPost.content}',
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  _PreviewLine(
+                    icon: Icons.chat_bubble_outline_rounded,
+                    label: 'آخر رسالة',
+                    value: latestMessage == null
+                        ? 'لا توجد رسائل بعد'
+                        : '${latestMessage.authorName} • ${latestMessage.content} • ${latestMessage.sentAtLabel}',
+                  ),
+                ],
+              );
+
+              final action = AppButton(
                 label: 'فتح الجروب',
                 onPressed: onOpenGroup,
-                isExpanded: false,
-                icon: Icons.arrow_forward_rounded,
+                isExpanded: compact,
+                icon: Icons.open_in_new_rounded,
                 variant: AppButtonVariant.secondary,
-              ),
-            ],
+              );
+
+              if (compact) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    preview,
+                    const SizedBox(height: AppSpacing.sm),
+                    action,
+                  ],
+                );
+              }
+
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.forum_outlined,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(child: preview),
+                  const SizedBox(width: AppSpacing.sm),
+                  action,
+                ],
+              );
+            },
           ),
         );
       },
       loading: () => const AppCard(
         child: SizedBox(
-          height: 92,
+          height: 72,
           child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
         ),
       ),
@@ -128,6 +145,37 @@ class SubjectGroupPreviewCard extends ConsumerWidget {
           style: Theme.of(context).textTheme.bodySmall,
         ),
       ),
+    );
+  }
+}
+
+class _PreviewLine extends StatelessWidget {
+  const _PreviewLine({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 17, color: AppColors.primary),
+        const SizedBox(width: AppSpacing.xs),
+        Text('$label: ', style: Theme.of(context).textTheme.labelLarge),
+        Expanded(
+          child: Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
+      ],
     );
   }
 }

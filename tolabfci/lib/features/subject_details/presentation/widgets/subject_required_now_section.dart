@@ -15,12 +15,14 @@ class SubjectRequiredNowSection extends StatelessWidget {
     required this.tasks,
     required this.quizzes,
     required this.lectures,
+    required this.sections,
   });
 
   final SubjectOverview subject;
   final List<TaskItem> tasks;
   final List<QuizItem> quizzes;
   final List<LectureItem> lectures;
+  final List<SectionItem> sections;
 
   @override
   Widget build(BuildContext context) {
@@ -43,47 +45,63 @@ class SubjectRequiredNowSection extends StatelessWidget {
       (lecture) => lecture?.startsAt?.isAfter(now) ?? false,
       orElse: () => null,
     );
+    final nextSection = sections.cast<SectionItem?>().firstWhere(
+      (section) => section?.startsAt?.isAfter(now) ?? false,
+      orElse: () => null,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('المطلوب الآن', style: Theme.of(context).textTheme.titleLarge),
+        Text(
+          'المطلوب الآن / Required now',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         const SizedBox(height: AppSpacing.xs),
         Text(
-          'نظرة سريعة على أقرب ما يحتاج منك تدخلاً داخل هذه المادة.',
+          'أقرب محاضرة وسكشن وكويز وتسليم، بدون كروت ضخمة أو مساحة ضائعة.',
           style: Theme.of(context).textTheme.bodySmall,
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.sm),
         ResponsiveWrapGrid(
-          minItemWidth: 180,
+          minItemWidth: 168,
           spacing: AppSpacing.sm,
           children: [
             _FocusCard(
-              title: 'تكليف',
-              body: requiredTask?.title ?? 'لا يوجد عنصر عاجل الآن',
-              meta: requiredTask?.dueDateLabel ?? subject.lastActivityLabel,
-              accent: AppColors.primary,
-              icon: Icons.assignment_outlined,
-            ),
-            _FocusCard(
-              title: 'كويز',
-              body: openQuiz?.title ?? 'لا يوجد كويز مفتوح حاليًا',
-              meta: openQuiz?.startAtLabel ?? 'راقب تبويب الكويزات للمستجدات',
-              accent: AppColors.error,
-              icon: Icons.quiz_outlined,
-            ),
-            _FocusCard(
-              title: 'محاضرة',
+              title: 'المحاضرة التالية',
               body: nextLecture?.title ?? 'لا توجد محاضرة قريبة الآن',
               meta: nextLecture?.scheduleLabel ?? 'الجدول مستقر حاليًا',
               accent: AppColors.indigo,
               icon: Icons.play_circle_outline_rounded,
             ),
             _FocusCard(
+              title: 'السكشن القادم',
+              body: nextSection?.title ?? 'لا يوجد سكشن قريب الآن',
+              meta: nextSection == null
+                  ? 'تابع تبويب السكاشن'
+                  : '${nextSection.scheduleLabel} • ${nextSection.isOnline ? 'أونلاين' : 'حضوري'}',
+              accent: AppColors.success,
+              icon: Icons.co_present_outlined,
+            ),
+            _FocusCard(
+              title: 'الكويز المفتوح',
+              body: openQuiz?.title ?? 'لا يوجد كويز مفتوح حاليًا',
+              meta: openQuiz?.startAtLabel ?? 'راقب تبويب الكويزات',
+              accent: AppColors.error,
+              icon: Icons.quiz_outlined,
+            ),
+            _FocusCard(
+              title: 'التسليم المعلق',
+              body: requiredTask?.title ?? 'لا يوجد تسليم عاجل الآن',
+              meta: requiredTask?.dueDateLabel ?? 'كل التسليمات مستقرة',
+              accent: AppColors.warning,
+              icon: Icons.assignment_outlined,
+            ),
+            _FocusCard(
               title: 'آخر نشاط',
               body: subject.lastActivityLabel,
               meta: subject.status,
-              accent: AppColors.success,
+              accent: AppColors.primary,
               icon: Icons.bolt_rounded,
             ),
           ],
@@ -112,20 +130,23 @@ class _FocusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppCard(
       backgroundColor: context.appColors.surfaceElevated,
-      padding: const EdgeInsets.all(AppSpacing.sm),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.sm,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                width: 34,
-                height: 34,
+                width: 30,
+                height: 30,
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, size: 18, color: accent),
+                child: Icon(icon, size: 17, color: accent),
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
@@ -145,10 +166,15 @@ class _FocusCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: Theme.of(
               context,
-            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+            ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 4),
-          Text(meta, style: Theme.of(context).textTheme.bodySmall),
+          Text(
+            meta,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
         ],
       ),
     );

@@ -106,6 +106,7 @@ class ChatMessage {
     required this.content,
     required this.sentAtLabel,
     required this.isMine,
+    this.authorRole = 'student',
   });
 
   final String id;
@@ -114,4 +115,5 @@ class ChatMessage {
   final String content;
   final String sentAtLabel;
   final bool isMine;
+  final String authorRole;
 }

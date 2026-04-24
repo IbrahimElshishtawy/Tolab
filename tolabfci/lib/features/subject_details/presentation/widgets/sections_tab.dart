@@ -49,38 +49,31 @@ class SectionsTab extends ConsumerWidget {
           children: [
             if (upcoming.isNotEmpty) ...[
               const _SectionHeader(
-                title: 'السكشن القادم',
-                subtitle: 'أقرب سكشن عملي يمكنك الاستعداد له أو الدخول إليه.',
-              ),
-              const SizedBox(height: AppSpacing.md),
-              _SectionCard(section: upcoming.first, highlight: true),
-              const SizedBox(height: AppSpacing.lg),
-            ],
-            if (upcoming.length > 1) ...[
-              const _SectionHeader(
                 title: 'السكاشن القادمة',
-                subtitle: 'باقي مواعيد السكاشن داخل هذه المادة.',
+                subtitle:
+                    'كل سكشن موضح هل هو أونلاين أو حضوري مع مكانه أو رابط الاجتماع.',
               ),
-              const SizedBox(height: AppSpacing.md),
-              ...upcoming
-                  .skip(1)
-                  .map(
-                    (section) => Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                      child: _SectionCard(section: section),
-                    ),
+              const SizedBox(height: AppSpacing.sm),
+              ...upcoming.map(
+                (section) => Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: _SectionCard(
+                    section: section,
+                    highlight: section == upcoming.first,
                   ),
-              const SizedBox(height: AppSpacing.lg),
+                ),
+              ),
             ],
             if (previous.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.md),
               const _SectionHeader(
                 title: 'سكاشن سابقة',
-                subtitle: 'مرجع سريع للسكاشن السابقة وحالة كل سكشن.',
+                subtitle: 'مرجع سريع للحضور، المعمل، وحالة كل سكشن.',
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.sm),
               ...previous.map(
                 (section) => Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                   child: _SectionCard(section: section),
                 ),
               ),
@@ -109,69 +102,107 @@ class _SectionCard extends StatelessWidget {
       _SectionStatus.live => AppColors.error,
       _SectionStatus.ended => AppColors.success,
     };
+    final typeColor = section.isOnline ? AppColors.primary : AppColors.success;
+    final locationLabel = section.isOnline
+        ? (section.meetingUrl.isNotEmpty
+              ? section.meetingUrl
+              : section.location)
+        : section.location;
 
     return AppCard(
       backgroundColor: context.appColors.surfaceElevated,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 620;
+          final details = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      section.title,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+              Wrap(
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(
+                    section.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
                     ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      section.scheduleLabel,
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                  ],
-                ),
+                  ),
+                  AppBadge(
+                    label: section.isOnline
+                        ? 'أونلاين / Online'
+                        : 'حضوري / Offline',
+                    backgroundColor: typeColor.withValues(alpha: 0.12),
+                    foregroundColor: typeColor,
+                    dense: true,
+                  ),
+                  AppBadge(
+                    label: _statusLabel(status),
+                    backgroundColor: accent.withValues(alpha: 0.12),
+                    foregroundColor: accent,
+                    dense: true,
+                  ),
+                ],
               ),
-              AppBadge(
-                label: _statusLabel(status),
-                backgroundColor: accent.withValues(alpha: 0.12),
-                foregroundColor: accent,
-                dense: true,
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                section.subjectName ?? 'المادة',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Wrap(
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
+                children: [
+                  AppBadge(label: section.scheduleLabel, dense: true),
+                  AppBadge(label: section.assistantName, dense: true),
+                  AppBadge(
+                    label: locationLabel,
+                    dense: true,
+                    foregroundColor: section.isOnline
+                        ? AppColors.primary
+                        : context.appColors.textPrimary,
+                  ),
+                ],
               ),
             ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: [
-              AppBadge(
-                label: section.isOnline ? 'أونلاين' : 'حضوري',
-                foregroundColor: accent,
-                dense: true,
-              ),
-              AppBadge(label: section.location, dense: true),
-              AppBadge(label: section.assistantName, dense: true),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          AppButton(
-            label: status == _SectionStatus.ended ? 'عرض' : 'دخول',
+          );
+
+          final action = AppButton(
+            label: section.isOnline ? 'دخول الاجتماع' : 'عرض التفاصيل',
             onPressed: () {},
-            isExpanded: false,
+            isExpanded: compact,
             variant: highlight
                 ? AppButtonVariant.primary
                 : AppButtonVariant.secondary,
-            icon: status == _SectionStatus.ended
-                ? Icons.visibility_rounded
+            icon: section.isOnline
+                ? Icons.video_call_outlined
                 : Icons.meeting_room_outlined,
-          ),
-        ],
+          );
+
+          if (compact) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                details,
+                const SizedBox(height: AppSpacing.sm),
+                action,
+              ],
+            );
+          }
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(child: details),
+              const SizedBox(width: AppSpacing.sm),
+              action,
+            ],
+          );
+        },
       ),
     );
   }
@@ -217,9 +248,9 @@ _SectionStatus _sectionStatus(SectionItem section) {
 
 String _statusLabel(_SectionStatus status) {
   return switch (status) {
-    _SectionStatus.upcoming => 'متاح لاحقًا',
-    _SectionStatus.soon => 'قريب',
-    _SectionStatus.live => 'مباشر الآن',
+    _SectionStatus.upcoming => 'قريب',
+    _SectionStatus.soon => 'قريب جدًا',
+    _SectionStatus.live => 'الآن',
     _SectionStatus.ended => 'انتهى',
   };
 }

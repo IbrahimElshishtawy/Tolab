@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/models/subject_models.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/utils/readable_text.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -49,39 +50,32 @@ class LecturesTab extends ConsumerWidget {
           children: [
             if (upcoming.isNotEmpty) ...[
               const _SectionHeader(
-                title: 'المحاضرة القادمة',
-                subtitle: 'أقرب محاضرات المادة الجاهزة للحضور أو المتابعة.',
-              ),
-              const SizedBox(height: AppSpacing.md),
-              _LectureCard(lecture: upcoming.first, highlight: true),
-              const SizedBox(height: AppSpacing.lg),
-            ],
-            if (upcoming.length > 1) ...[
-              const _SectionHeader(
                 title: 'المحاضرات القادمة',
-                subtitle: 'جدول المحاضرات التالية داخل هذه المادة.',
+                subtitle:
+                    'موعد المحاضرة، الدكتور، نوع الحضور، ورابط الدخول في بطاقة واحدة.',
               ),
-              const SizedBox(height: AppSpacing.md),
-              ...upcoming
-                  .skip(1)
-                  .map(
-                    (lecture) => Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                      child: _LectureCard(lecture: lecture),
-                    ),
+              const SizedBox(height: AppSpacing.sm),
+              ...upcoming.map(
+                (lecture) => Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: _LectureCard(
+                    lecture: lecture,
+                    highlight: lecture == upcoming.first,
                   ),
-              const SizedBox(height: AppSpacing.lg),
+                ),
+              ),
             ],
             if (previous.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.md),
               const _SectionHeader(
                 title: 'محاضرات سابقة أو مسجلة',
                 subtitle:
-                    'يمكنك مراجعة ما فاتك أو فتح المواد المسجلة إن كانت متاحة.',
+                    'النصوص المكسورة يتم استبدالها بعنوان مفهوم بدل عرض رموز غير مقروءة.',
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.sm),
               ...previous.map(
                 (lecture) => Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                   child: _LectureCard(lecture: lecture),
                 ),
               ),
@@ -110,73 +104,109 @@ class _LectureCard extends StatelessWidget {
       _LectureStatus.ended => AppColors.success,
       _LectureStatus.live => AppColors.error,
     };
+    final typeColor = lecture.isOnline ? AppColors.primary : AppColors.success;
+    final title = readableText(lecture.title, 'محاضرة المادة');
+    final teacher = readableText(lecture.instructorName, 'دكتور المادة');
+    final location = readableText(
+      lecture.locationLabel,
+      lecture.isOnline ? 'Tolab Meet' : 'قاعة المحاضرة',
+    );
+    final hasLink = lecture.meetingUrl.trim().isNotEmpty;
 
     return AppCard(
       backgroundColor: context.appColors.surfaceElevated,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 620;
+          final details = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      lecture.title,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
+              Wrap(
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  AppBadge(
+                    label: _statusLabel(status),
+                    backgroundColor: accent.withValues(alpha: 0.12),
+                    foregroundColor: accent,
+                    dense: true,
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Wrap(
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
+                children: [
+                  AppBadge(label: lecture.scheduleLabel, dense: true),
+                  AppBadge(label: teacher, dense: true),
+                  AppBadge(
+                    label: lecture.isOnline
+                        ? 'أونلاين / Online'
+                        : 'حضوري / Offline',
+                    backgroundColor: typeColor.withValues(alpha: 0.12),
+                    foregroundColor: typeColor,
+                    dense: true,
+                  ),
+                  AppBadge(label: location, dense: true),
+                  if (hasLink)
+                    AppBadge(
+                      label: status == _LectureStatus.ended
+                          ? 'تسجيل متاح'
+                          : 'رابط متاح',
+                      backgroundColor: AppColors.success.withValues(
+                        alpha: 0.12,
                       ),
+                      foregroundColor: AppColors.success,
+                      dense: true,
                     ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      lecture.scheduleLabel,
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                  ],
-                ),
-              ),
-              AppBadge(
-                label: _statusLabel(status),
-                backgroundColor: accent.withValues(alpha: 0.12),
-                foregroundColor: accent,
-                dense: true,
+                ],
               ),
             ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: [
-              AppBadge(
-                label: lecture.isOnline ? 'أونلاين' : 'حضوري',
-                foregroundColor: accent,
-                dense: true,
-              ),
-              AppBadge(
-                label: lecture.locationLabel ?? 'قاعة المحاضرة',
-                dense: true,
-              ),
-              if (lecture.instructorName != null)
-                AppBadge(label: lecture.instructorName!, dense: true),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          AppButton(
+          );
+
+          final action = AppButton(
             label: status == _LectureStatus.ended ? 'عرض' : 'دخول',
             onPressed: () {},
-            isExpanded: false,
+            isExpanded: compact,
             variant: highlight
                 ? AppButtonVariant.primary
                 : AppButtonVariant.secondary,
             icon: status == _LectureStatus.ended
                 ? Icons.visibility_rounded
                 : Icons.play_circle_outline_rounded,
-          ),
-        ],
+          );
+
+          if (compact) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                details,
+                const SizedBox(height: AppSpacing.sm),
+                action,
+              ],
+            );
+          }
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(child: details),
+              const SizedBox(width: AppSpacing.sm),
+              action,
+            ],
+          );
+        },
       ),
     );
   }
@@ -222,9 +252,9 @@ _LectureStatus _lectureStatus(LectureItem lecture) {
 
 String _statusLabel(_LectureStatus status) {
   return switch (status) {
-    _LectureStatus.upcoming => 'متاحة لاحقًا',
-    _LectureStatus.soon => 'قريبة',
-    _LectureStatus.live => 'مباشرة الآن',
+    _LectureStatus.upcoming => 'قريب',
+    _LectureStatus.soon => 'قريب جدًا',
+    _LectureStatus.live => 'الآن',
     _LectureStatus.ended => 'انتهت',
   };
 }
