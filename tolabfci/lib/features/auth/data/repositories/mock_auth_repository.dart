@@ -31,7 +31,7 @@ class MockAuthRepository implements AuthRepository {
   final PreferencesService _preferencesService;
 
   @override
-  Future<AppUserRole> login({
+  Future<AuthSessionData> login({
     required String email,
     required String password,
   }) async {
@@ -44,35 +44,47 @@ class MockAuthRepository implements AuthRepository {
       StorageKeys.currentUserRole,
       session.role.storageValue,
     );
+    await _secureStorageService.write(
+      StorageKeys.pendingNationalId,
+      session.nationalId,
+    );
     await _preferencesService.setBool(StorageKeys.hasVerifiedNationalId, false);
-    return session.role;
+    return session;
   }
 
   @override
-  Future<(AuthStage, AppUserRole)> restoreSession() async {
+  Future<(AuthStage, AppUserRole, String?)> restoreSession() async {
     final token = await _secureStorageService.read(StorageKeys.authToken);
     final role = AppUserRole.fromStorage(
       _preferencesService.getString(StorageKeys.currentUserRole),
     );
     if (token == null || token.isEmpty) {
-      return (AuthStage.unauthenticated, role);
+      return (AuthStage.unauthenticated, role, null);
     }
     final hasVerified = _preferencesService.getBool(
       StorageKeys.hasVerifiedNationalId,
     );
+    final pendingNationalId = hasVerified
+        ? null
+        : await _secureStorageService.read(StorageKeys.pendingNationalId);
     return (
       hasVerified ? AuthStage.authenticated : AuthStage.awaitingNationalId,
       role,
+      pendingNationalId,
     );
   }
 
   @override
-  Future<void> verifyNationalId(String nationalId) async {
-    final role = AppUserRole.fromStorage(
-      _preferencesService.getString(StorageKeys.currentUserRole),
+  Future<void> verifyNationalId(
+    String nationalId, {
+    required String expectedNationalId,
+  }) async {
+    await _backendService.verifyNationalId(
+      nationalId,
+      expectedNationalId: expectedNationalId,
     );
-    await _backendService.verifyNationalId(nationalId, role: role);
     await _preferencesService.setBool(StorageKeys.hasVerifiedNationalId, true);
+    await _secureStorageService.delete(StorageKeys.pendingNationalId);
   }
 
   @override

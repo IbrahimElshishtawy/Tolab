@@ -43,7 +43,7 @@ class MockBackendService {
   final StudentProfile _profile = const StudentProfile(
     id: 'student-1',
     fullName: 'مريم حسن',
-    email: 'mariam.hassan@tolab.edu',
+    email: 'student@test.com',
     avatarUrl: '',
     studentNumber: '20241182',
     nationalId: '29801011234567',
@@ -62,7 +62,7 @@ class MockBackendService {
   final AuthSessionData _studentSession = const AuthSessionData(
     token: 'mock-student-access-token',
     role: AppUserRole.student,
-    email: 'mariam.hassan@tolab.edu',
+    email: 'student@test.com',
     nationalId: '29801011234567',
   );
 
@@ -290,7 +290,7 @@ class MockBackendService {
     await Future<void>.delayed(const Duration(milliseconds: 700));
     final normalizedEmail = email.trim().toLowerCase();
 
-    if (normalizedEmail == _studentSession.email && password == 'student123') {
+    if (normalizedEmail == _studentSession.email && password == '123456') {
       return _studentSession;
     }
     if (normalizedEmail == _doctorSession.email && password == 'doctor123') {
@@ -308,14 +308,9 @@ class MockBackendService {
 
   Future<void> verifyNationalId(
     String nationalId, {
-    required AppUserRole role,
+    required String expectedNationalId,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 500));
-    final expectedNationalId = switch (role) {
-      AppUserRole.student => _studentSession.nationalId,
-      AppUserRole.doctor => _doctorSession.nationalId,
-      AppUserRole.assistant => _assistantSession.nationalId,
-    };
 
     if (nationalId.trim() != expectedNationalId) {
       throw const AppException(

@@ -20,10 +20,8 @@ class LoginForm extends ConsumerStatefulWidget {
 
 class _LoginFormState extends ConsumerState<LoginForm> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(
-    text: 'mariam.hassan@tolab.edu',
-  );
-  final _passwordController = TextEditingController(text: 'student123');
+  final _emailController = TextEditingController(text: 'student@test.com');
+  final _passwordController = TextEditingController(text: '123456');
   bool _obscurePassword = true;
 
   @override
@@ -82,9 +80,14 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             AppTextField(
               controller: _emailController,
               label: context.tr('البريد الجامعي', 'University email'),
-              hintText: 'name@tolab.edu',
+              hintText: 'student@test.com',
               keyboardType: TextInputType.emailAddress,
               prefixIcon: Icons.alternate_email_rounded,
+              onChanged: (_) {
+                if (authState.errorMessage != null) {
+                  ref.read(authNotifierProvider.notifier).clearError();
+                }
+              },
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return context.tr('البريد مطلوب', 'Email is required');
@@ -104,6 +107,11 @@ class _LoginFormState extends ConsumerState<LoginForm> {
               label: context.tr('كلمة المرور', 'Password'),
               prefixIcon: Icons.lock_outline_rounded,
               obscureText: _obscurePassword,
+              onChanged: (_) {
+                if (authState.errorMessage != null) {
+                  ref.read(authNotifierProvider.notifier).clearError();
+                }
+              },
               suffixIcon: IconButton(
                 tooltip: _obscurePassword
                     ? context.tr('إظهار كلمة المرور', 'Show password')
@@ -178,8 +186,8 @@ class _StudentCredentialHint extends StatelessWidget {
             Expanded(
               child: Text(
                 context.tr(
-                  'حساب الطالب التجريبي: mariam.hassan@tolab.edu / student123',
-                  'Student demo account: mariam.hassan@tolab.edu / student123',
+                  'حساب الطالب التجريبي: student@test.com / 123456',
+                  'Student demo account: student@test.com / 123456',
                 ),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: palette.textPrimary,

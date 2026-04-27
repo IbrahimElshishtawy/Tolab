@@ -26,21 +26,28 @@ class AuthNotifier extends Notifier<AuthState> {
   AuthState build() => const AuthState.initial();
 
   Future<void> restoreSession() async {
-    final (stage, role) = await ref
+    final (stage, role, nationalId) = await ref
         .read(authRepositoryProvider)
         .restoreSession();
-    state = state.copyWith(stage: stage, role: role, clearError: true);
+    state = state.copyWith(
+      stage: stage,
+      role: role,
+      nationalId: nationalId,
+      clearNationalId: nationalId == null,
+      clearError: true,
+    );
   }
 
   Future<void> login({required String email, required String password}) async {
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {
-      final role = await ref
+      final session = await ref
           .read(authRepositoryProvider)
           .login(email: email, password: password);
       state = state.copyWith(
         stage: AuthStage.awaitingNationalId,
-        role: role,
+        role: session.role,
+        nationalId: session.nationalId,
         isSubmitting: false,
         clearError: true,
       );
@@ -52,10 +59,16 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> verifyNationalId(String nationalId) async {
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {
-      await ref.read(authRepositoryProvider).verifyNationalId(nationalId);
+      await ref
+          .read(authRepositoryProvider)
+          .verifyNationalId(
+            nationalId,
+            expectedNationalId: state.nationalId ?? '',
+          );
       state = state.copyWith(
         stage: AuthStage.authenticated,
         isSubmitting: false,
+        clearNationalId: true,
         clearError: true,
       );
     } on AppException catch (error) {
@@ -66,5 +79,12 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> logout() async {
     await ref.read(authRepositoryProvider).logout();
     state = const AuthState.initial();
+  }
+
+  void clearError() {
+    if (state.errorMessage == null) {
+      return;
+    }
+    state = state.copyWith(clearError: true);
   }
 }

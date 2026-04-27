@@ -1,6 +1,7 @@
 class StorageKeys {
   static const authToken = 'auth_token';
   static const refreshToken = 'refresh_token';
+  static const pendingNationalId = 'pending_national_id';
   static const hasVerifiedNationalId = 'has_verified_national_id';
   static const currentUserRole = 'current_user_role';
   static const preferredLocale = 'preferred_locale';
