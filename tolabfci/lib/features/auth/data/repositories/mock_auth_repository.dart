@@ -77,11 +77,23 @@ class MockAuthRepository implements AuthRepository {
   @override
   Future<void> verifyNationalId(
     String nationalId, {
-    required String expectedNationalId,
+    String? expectedNationalId,
   }) async {
+    final role = AppUserRole.fromStorage(
+      _preferencesService.getString(StorageKeys.currentUserRole),
+    );
+    final storedNationalId = await _secureStorageService.read(
+      StorageKeys.pendingNationalId,
+    );
+    final resolvedExpectedNationalId = _firstNonEmpty([
+      expectedNationalId,
+      storedNationalId,
+      _backendService.nationalIdForRole(role),
+    ]);
+
     await _backendService.verifyNationalId(
       nationalId,
-      expectedNationalId: expectedNationalId,
+      expectedNationalId: resolvedExpectedNationalId,
     );
     await _preferencesService.setBool(StorageKeys.hasVerifiedNationalId, true);
     await _secureStorageService.delete(StorageKeys.pendingNationalId);
@@ -95,5 +107,15 @@ class MockAuthRepository implements AuthRepository {
       StorageKeys.currentUserRole,
       AppUserRole.student.storageValue,
     );
+  }
+
+  String _firstNonEmpty(List<String?> values) {
+    for (final value in values) {
+      final normalized = value?.trim().replaceAll(RegExp(r'\s+'), '');
+      if (normalized != null && normalized.isNotEmpty) {
+        return normalized;
+      }
+    }
+    return '';
   }
 }

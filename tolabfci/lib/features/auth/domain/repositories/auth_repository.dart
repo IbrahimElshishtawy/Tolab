@@ -11,7 +11,7 @@ abstract class AuthRepository {
 
   Future<void> verifyNationalId(
     String nationalId, {
-    required String expectedNationalId,
+    String? expectedNationalId,
   });
 
   Future<void> logout();

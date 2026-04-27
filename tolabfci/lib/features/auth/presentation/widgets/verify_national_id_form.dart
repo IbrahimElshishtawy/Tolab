@@ -87,16 +87,17 @@ class _VerifyNationalIdFormState extends ConsumerState<VerifyNationalIdForm> {
                 child: Icon(Icons.pin_rounded),
               ),
               validator: (value) {
-                final trimmed = value?.trim() ?? '';
-                if (trimmed.isEmpty) {
+                final normalized = (value ?? '').trim().replaceAll(
+                  RegExp(r'\s+'),
+                  '',
+                );
+                if (normalized.isEmpty) {
                   return context.tr(
                     'الرقم القومي مطلوب',
                     'National ID is required',
                   );
                 }
-                if (trimmed.length != 14 ||
-                    int.tryParse(trimmed) == null ||
-                    trimmed.contains(RegExp(r'\s'))) {
+                if (!RegExp(r'^\d{14}$').hasMatch(normalized)) {
                   return context.tr(
                     'الرقم القومي يجب أن يكون 14 رقمًا',
                     'National ID must be 14 digits',

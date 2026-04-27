@@ -59,11 +59,18 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> verifyNationalId(String nationalId) async {
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {
+      final expectedNationalId = state.nationalId?.trim().replaceAll(
+        RegExp(r'\s+'),
+        '',
+      );
       await ref
           .read(authRepositoryProvider)
           .verifyNationalId(
             nationalId,
-            expectedNationalId: state.nationalId ?? '',
+            expectedNationalId:
+                expectedNationalId != null && expectedNationalId.isNotEmpty
+                ? expectedNationalId
+                : null,
           );
       state = state.copyWith(
         stage: AuthStage.authenticated,

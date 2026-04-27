@@ -80,6 +80,14 @@ class MockBackendService {
     nationalId: '29701011234567',
   );
 
+  String nationalIdForRole(AppUserRole role) {
+    return switch (role) {
+      AppUserRole.student => _studentSession.nationalId,
+      AppUserRole.doctor => _doctorSession.nationalId,
+      AppUserRole.assistant => _assistantSession.nationalId,
+    };
+  }
+
   final List<SubjectOverview> _subjects = const [
     SubjectOverview(
       id: 'subject-1',
@@ -311,8 +319,12 @@ class MockBackendService {
     required String expectedNationalId,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 500));
+    final enteredNationalId = _normalizeNationalId(nationalId);
+    final normalizedExpectedNationalId = _normalizeNationalId(
+      expectedNationalId,
+    );
 
-    if (nationalId.trim() != expectedNationalId) {
+    if (enteredNationalId != normalizedExpectedNationalId) {
       throw const AppException(
         'تعذر التحقق من الرقم القومي. راجع الرقم وحاول مرة أخرى.',
         code: 'invalid_national_id',
@@ -321,6 +333,10 @@ class MockBackendService {
   }
 
   Future<StudentProfile> fetchProfile() async => _profile;
+
+  String _normalizeNationalId(String value) {
+    return value.trim().replaceAll(RegExp(r'\s+'), '');
+  }
 
   Future<List<SubjectOverview>> fetchSubjects() async => _subjects;
 
