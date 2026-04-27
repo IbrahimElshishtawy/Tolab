@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/localization/app_localization.dart';
 import '../../../../core/responsive/responsive_extensions.dart';
+import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radii.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -43,6 +45,15 @@ class _VerifyNationalIdFormState extends ConsumerState<VerifyNationalIdForm> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
     final textTheme = Theme.of(context).textTheme;
+
+    ref.listen(authNotifierProvider, (previous, next) {
+      if (previous?.stage != next.stage &&
+          next.stage == AuthStage.authenticated) {
+        if (mounted) {
+          GoRouter.of(context).goNamed(RouteNames.home);
+        }
+      }
+    });
 
     return AppCard(
       padding: EdgeInsets.all(
