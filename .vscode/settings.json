@@ -1,4 +1,22 @@
 {
     "java.configuration.updateBuildConfiguration": "interactive",
-    "cmake.sourceDirectory": "E:/FLutter_project_Tolab/LMS_tolab/Tolab-feature-university/Tolab/windows/runner"
+    "cmake.sourceDirectory": "E:/FLutter_project_Tolab/LMS_tolab/Tolab-feature-university/Tolab/windows/runner",
+    "cSpell.words": [
+        "أدخل",
+        "إضافية",
+        "الدخول",
+        "الدراسية",
+        "الرئيسية",
+        "الرقم",
+        "الطالب",
+        "القومي",
+        "انتقل",
+        "تحقق",
+        "تسجيل",
+        "حماية",
+        "خطوة",
+        "مساحة",
+        "هويتك",
+        "والمواد"
+    ]
 }
