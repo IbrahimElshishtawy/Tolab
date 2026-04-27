@@ -1,3 +1,4 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "cmake.sourceDirectory": "E:/FLutter_project_Tolab/LMS_tolab/Tolab-feature-university/Tolab/windows/runner"
 }

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/localization/app_localization.dart';
+import '../../../../core/responsive/responsive_extensions.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radii.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -17,8 +20,11 @@ class LoginForm extends ConsumerStatefulWidget {
 
 class _LoginFormState extends ConsumerState<LoginForm> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: 'omar.nabil@tolab.edu');
-  final _passwordController = TextEditingController(text: 'doctor123');
+  final _emailController = TextEditingController(
+    text: 'mariam.hassan@tolab.edu',
+  );
+  final _passwordController = TextEditingController(text: 'student123');
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -27,19 +33,56 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     super.dispose();
   }
 
+  Future<void> _submit() async {
+    FocusScope.of(context).unfocus();
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    await ref
+        .read(authNotifierProvider.notifier)
+        .login(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
+    final textTheme = Theme.of(context).textTheme;
 
     return AppCard(
+      padding: EdgeInsets.all(
+        context.responsiveValue(
+          mobile: AppSpacing.lg,
+          tablet: AppSpacing.xl,
+          desktop: AppSpacing.xxl,
+        ),
+      ),
       child: Form(
         key: _formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              context.tr('تسجيل الدخول', 'Sign in'),
+              style: textTheme.headlineSmall,
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              context.tr(
+                'استخدم حساب الطالب الجامعي للمتابعة.',
+                'Use your student university account to continue.',
+              ),
+              style: textTheme.bodySmall?.copyWith(height: 1.45),
+            ),
+            const SizedBox(height: AppSpacing.xl),
             AppTextField(
               controller: _emailController,
               label: context.tr('البريد الجامعي', 'University email'),
+              hintText: 'name@tolab.edu',
               keyboardType: TextInputType.emailAddress,
               prefixIcon: Icons.alternate_email_rounded,
               validator: (value) {
@@ -60,7 +103,20 @@ class _LoginFormState extends ConsumerState<LoginForm> {
               controller: _passwordController,
               label: context.tr('كلمة المرور', 'Password'),
               prefixIcon: Icons.lock_outline_rounded,
-              obscureText: true,
+              obscureText: _obscurePassword,
+              suffixIcon: IconButton(
+                tooltip: _obscurePassword
+                    ? context.tr('إظهار كلمة المرور', 'Show password')
+                    : context.tr('إخفاء كلمة المرور', 'Hide password'),
+                onPressed: () {
+                  setState(() => _obscurePassword = !_obscurePassword);
+                },
+                icon: Icon(
+                  _obscurePassword
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                ),
+              ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return context.tr(
@@ -77,34 +133,97 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                 return null;
               },
             ),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              context.tr(
-                'حسابات تجريبية: doctor `omar.nabil@tolab.edu / doctor123`، assistant `nora.sameh@tolab.edu / assistant123`، student `mariam.hassan@tolab.edu / student123`.',
-                'Demo accounts: doctor `omar.nabil@tolab.edu / doctor123`, assistant `nora.sameh@tolab.edu / assistant123`, student `mariam.hassan@tolab.edu / student123`.',
-              ),
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+            const SizedBox(height: AppSpacing.lg),
+            const _StudentCredentialHint(),
             if (authState.errorMessage != null) ...[
               const SizedBox(height: AppSpacing.md),
-              Text(
-                authState.errorMessage!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
+              _AuthErrorMessage(message: authState.errorMessage!),
             ],
             const SizedBox(height: AppSpacing.lg),
             LoginSubmitButton(
               isLoading: authState.isSubmitting,
-              onPressed: () async {
-                if (_formKey.currentState?.validate() ?? false) {
-                  await ref
-                      .read(authNotifierProvider.notifier)
-                      .login(
-                        email: _emailController.text,
-                        password: _passwordController.text,
-                      );
-                }
-              },
+              onPressed: authState.isSubmitting ? null : _submit,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StudentCredentialHint extends StatelessWidget {
+  const _StudentCredentialHint();
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appColors;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.surfaceAlt,
+        borderRadius: BorderRadius.circular(AppRadii.md),
+        border: Border.all(color: palette.border),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(
+              Icons.info_outline_rounded,
+              size: 20,
+              color: AppColors.primary,
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Text(
+                context.tr(
+                  'حساب الطالب التجريبي: mariam.hassan@tolab.edu / student123',
+                  'Student demo account: mariam.hassan@tolab.edu / student123',
+                ),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: palette.textPrimary,
+                  height: 1.45,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AuthErrorMessage extends StatelessWidget {
+  const _AuthErrorMessage({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appColors;
+    final errorColor = Theme.of(context).colorScheme.error;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.errorSoft,
+        borderRadius: BorderRadius.circular(AppRadii.md),
+        border: Border.all(color: errorColor.withValues(alpha: 0.32)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.error_outline_rounded, color: errorColor, size: 20),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Text(
+                message,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: errorColor, height: 1.4),
+              ),
             ),
           ],
         ),
