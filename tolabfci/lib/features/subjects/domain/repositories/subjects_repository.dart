@@ -52,4 +52,9 @@ abstract class SubjectsRepository {
     required String subjectId,
     required String content,
   });
+
+  Future<void> deleteChatMessage({
+    required String subjectId,
+    required String messageId,
+  });
 }

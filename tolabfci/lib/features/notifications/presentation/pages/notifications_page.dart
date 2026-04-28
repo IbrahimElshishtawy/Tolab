@@ -24,8 +24,7 @@ class NotificationsPage extends ConsumerStatefulWidget {
 }
 
 class _NotificationsPageState extends ConsumerState<NotificationsPage> {
-  String _filter = 'الكل';
-  bool _unreadOnly = false;
+  String _filter = 'all';
 
   @override
   Widget build(BuildContext context) {
@@ -40,14 +39,13 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
       child: AdaptivePageContainer(
         child: notificationsAsync.when(
           data: (notifications) {
-            final filtered =
-                notifications
-                    .where(
-                      (item) => _filter == 'الكل' || item.category == _filter,
-                    )
-                    .where((item) => !_unreadOnly || !item.isRead)
-                    .toList()
-                  ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+            final filtered = notifications.where((item) {
+              return switch (_filter) {
+                'unread' => !item.isRead,
+                'important' => item.isImportant,
+                _ => true,
+              };
+            }).toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
             final today = DateTime.now();
             final dayStart = DateTime(today.year, today.month, today.day);
@@ -89,29 +87,18 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                         spacing: AppSpacing.sm,
                         runSpacing: AppSpacing.sm,
                         children: [
-                          for (final filter in const [
-                            'الكل',
-                            'أكاديمي',
-                            'كويزات',
-                            'شيتات',
-                            'درجات',
-                            'الجروب',
-                          ])
+                          for (final filter in const {
+                            'all': 'All',
+                            'unread': 'Unread',
+                            'important': 'Important',
+                          }.entries)
                             ChoiceChip(
-                              label: Text(filter),
-                              selected: _filter == filter,
+                              label: Text(filter.value),
+                              selected: _filter == filter.key,
                               onSelected: (_) =>
-                                  setState(() => _filter = filter),
+                                  setState(() => _filter = filter.key),
                             ),
                         ],
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      SwitchListTile.adaptive(
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text('غير المقروء فقط'),
-                        value: _unreadOnly,
-                        onChanged: (value) =>
-                            setState(() => _unreadOnly = value),
                       ),
                     ],
                   ),

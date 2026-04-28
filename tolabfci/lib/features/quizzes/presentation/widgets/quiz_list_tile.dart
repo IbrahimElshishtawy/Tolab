@@ -19,9 +19,9 @@ class QuizListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final status = _quizStatus(quiz);
     final color = switch (status) {
-      'مفتوح' => AppColors.error,
-      'قريب' => AppColors.warning,
-      'تم التسليم' => AppColors.success,
+      'Available' => AppColors.error,
+      'Upcoming' => AppColors.warning,
+      'Completed' => AppColors.success,
       _ => AppColors.textSecondary,
     };
 
@@ -76,6 +76,8 @@ class QuizListTile extends StatelessWidget {
               _MetaPill(label: quiz.startAtLabel),
               _MetaPill(label: quiz.durationLabel),
               _MetaPill(label: quiz.isOnline ? 'أونلاين' : 'حضوري'),
+              if (quiz.questionCount != null)
+                _MetaPill(label: '${quiz.questionCount} سؤال'),
               _MetaPill(label: _remainingLabel(quiz)),
             ],
           ),
@@ -92,7 +94,7 @@ class QuizListTile extends StatelessWidget {
             runSpacing: AppSpacing.sm,
             children: [
               AppButton(
-                label: status == 'مفتوح' ? 'دخول الكويز' : 'عرض التفاصيل',
+                label: status == 'Available' ? 'دخول الكويز' : 'عرض التفاصيل',
                 onPressed: () => context.goNamed(
                   RouteNames.quizEntry,
                   pathParameters: {
@@ -101,7 +103,7 @@ class QuizListTile extends StatelessWidget {
                   },
                 ),
                 isExpanded: false,
-                icon: status == 'مفتوح'
+                icon: status == 'Available'
                     ? Icons.play_arrow_rounded
                     : Icons.visibility_rounded,
               ),
@@ -142,7 +144,7 @@ class _MetaPill extends StatelessWidget {
 
 String _quizStatus(QuizItem quiz) {
   if (quiz.isSubmitted) {
-    return 'تم التسليم';
+    return 'Completed';
   }
 
   final now = DateTime.now();
@@ -150,22 +152,22 @@ String _quizStatus(QuizItem quiz) {
       quiz.closesAt != null &&
       !quiz.startsAt!.isAfter(now) &&
       quiz.closesAt!.isAfter(now)) {
-    return 'مفتوح';
+    return 'Available';
   }
   if (quiz.startsAt != null && quiz.startsAt!.isAfter(now)) {
-    return 'قريب';
+    return 'Upcoming';
   }
-  return 'منتهي';
+  return 'Expired';
 }
 
 String _remainingLabel(QuizItem quiz) {
   if (quiz.isSubmitted) {
     return 'تم الإنهاء';
   }
-  if (_quizStatus(quiz) == 'مفتوح') {
+  if (_quizStatus(quiz) == 'Available') {
     return 'المتبقي ${formatTimeUntilArabic(quiz.closesAt)}';
   }
-  if (_quizStatus(quiz) == 'قريب') {
+  if (_quizStatus(quiz) == 'Upcoming') {
     return 'يبدأ ${formatTimeUntilArabic(quiz.startsAt)}';
   }
   return 'مغلق';

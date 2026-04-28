@@ -12,13 +12,14 @@ import '../../../../core/widgets/error_state_widget.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../quizzes/presentation/providers/quizzes_providers.dart';
 import '../../../subjects/presentation/providers/subjects_providers.dart';
-import '../widgets/files_tab.dart';
 import '../widgets/grades_tab.dart';
 import '../widgets/group_tab.dart';
 import '../widgets/lectures_tab.dart';
 import '../widgets/quizzes_tab.dart';
 import '../widgets/sections_tab.dart';
+import '../widgets/subject_group_chat_tab.dart';
 import '../widgets/subject_header_card.dart';
+import '../widgets/subject_overview_tab.dart';
 import '../widgets/subject_required_now_section.dart';
 import '../widgets/subject_tabs.dart';
 import '../widgets/summaries_tab.dart';
@@ -158,6 +159,10 @@ class _SubjectDetailsPageState extends ConsumerState<SubjectDetailsPage>
 
   Widget _buildTabContent() {
     return switch (SubjectTabs.items[_selectedIndex].$1) {
+      'overview' => SubjectOverviewTab(
+        subjectId: widget.subjectId,
+        usePageScroll: true,
+      ),
       'lectures' => LecturesTab(
         subjectId: widget.subjectId,
         usePageScroll: true,
@@ -172,10 +177,13 @@ class _SubjectDetailsPageState extends ConsumerState<SubjectDetailsPage>
         subjectId: widget.subjectId,
         usePageScroll: true,
       ),
-      'files' => FilesTab(subjectId: widget.subjectId, usePageScroll: true),
-      'group' => GroupTab(subjectId: widget.subjectId, usePageScroll: true),
       'grades' => GradesTab(subjectId: widget.subjectId, usePageScroll: true),
-      _ => LecturesTab(subjectId: widget.subjectId, usePageScroll: true),
+      'community' => GroupTab(subjectId: widget.subjectId, usePageScroll: true),
+      'chat' => SubjectGroupChatTab(
+        subjectId: widget.subjectId,
+        usePageScroll: true,
+      ),
+      _ => SubjectOverviewTab(subjectId: widget.subjectId, usePageScroll: true),
     };
   }
 }

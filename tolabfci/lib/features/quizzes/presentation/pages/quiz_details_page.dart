@@ -13,6 +13,7 @@ import '../../../../core/widgets/error_state_widget.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/widgets/responsive_wrap_grid.dart';
 import '../providers/quizzes_providers.dart';
+import '../../../subjects/presentation/providers/subjects_providers.dart';
 
 class QuizDetailsPage extends ConsumerWidget {
   const QuizDetailsPage({
@@ -29,6 +30,7 @@ class QuizDetailsPage extends ConsumerWidget {
     final detailsAsync = ref.watch(
       quizDetailsProvider((subjectId: subjectId, quizId: quizId)),
     );
+    final subject = ref.watch(subjectByIdProvider(subjectId)).value;
 
     return Scaffold(
       appBar: AppBar(title: const Text('تفاصيل الكويز')),
@@ -91,10 +93,24 @@ class QuizDetailsPage extends ConsumerWidget {
                               value: '${details.questions.length}',
                             ),
                             _QuizInfoCard(
+                              label: 'الدكتور/المعيد',
+                              value: subject == null
+                                  ? 'طاقم المادة'
+                                  : '${subject.instructor} / ${subject.assistantName}',
+                            ),
+                            _QuizInfoCard(
                               label: 'المدة',
                               value: quiz.durationMinutes == null
                                   ? quiz.durationLabel
                                   : '${quiz.durationMinutes} دقيقة',
+                            ),
+                            _QuizInfoCard(
+                              label: 'وقت البداية',
+                              value: quiz.startAtLabel,
+                            ),
+                            _QuizInfoCard(
+                              label: 'وقت النهاية',
+                              value: quiz.endAtLabel ?? 'حسب مدة الكويز',
                             ),
                             _QuizInfoCard(
                               label: 'المحاولات',

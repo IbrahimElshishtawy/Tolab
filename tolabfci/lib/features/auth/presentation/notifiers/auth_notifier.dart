@@ -44,15 +44,11 @@ class AuthNotifier extends Notifier<AuthState> {
       final session = await ref
           .read(authRepositoryProvider)
           .login(email: email, password: password);
-      final isStudent = session.role == AppUserRole.student;
       state = state.copyWith(
-        stage: isStudent
-            ? AuthStage.authenticated
-            : AuthStage.awaitingNationalId,
+        stage: AuthStage.awaitingNationalId,
         role: session.role,
-        nationalId: isStudent ? null : session.nationalId,
+        nationalId: session.nationalId,
         isSubmitting: false,
-        clearNationalId: isStudent,
         clearError: true,
       );
     } on AppException catch (error) {

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/localization/app_localization.dart';
 import '../core/router/app_router.dart';
+import '../core/services/root_scaffold_messenger.dart';
 import '../core/theme/app_theme.dart';
 import '../features/settings/presentation/widgets/settings_notifier.dart';
 
@@ -18,6 +19,7 @@ class TolabApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Tolab',
       debugShowCheckedModeBanner: false,
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: settings.themeMode,

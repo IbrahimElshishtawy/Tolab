@@ -123,4 +123,15 @@ class MockSubjectsRepository implements SubjectsRepository {
       content: content,
     );
   }
+
+  @override
+  Future<void> deleteChatMessage({
+    required String subjectId,
+    required String messageId,
+  }) {
+    return _backendService.deleteChatMessage(
+      subjectId: subjectId,
+      messageId: messageId,
+    );
+  }
 }

@@ -152,6 +152,13 @@ class _QuickActionSpec {
           icon: Icons.insights_outlined,
           color: AppColors.success,
         );
+      case StudentQuickActionType.latestAnnouncement:
+        return const _QuickActionSpec(
+          label: 'آخر إعلان',
+          helperText: 'الإعلانات الرسمية',
+          icon: Icons.campaign_outlined,
+          color: AppColors.support,
+        );
     }
   }
 

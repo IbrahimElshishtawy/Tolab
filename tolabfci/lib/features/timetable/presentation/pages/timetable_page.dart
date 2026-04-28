@@ -5,11 +5,13 @@ import 'package:go_router/go_router.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../staff_portal/presentation/pages/staff_schedule_page.dart';
 import '../../../../core/models/timetable_item.dart';
+import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/adaptive_page_container.dart';
 import '../../../../core/widgets/app_badge.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_segmented_control.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
@@ -27,6 +29,7 @@ class TimetablePage extends ConsumerStatefulWidget {
 
 class _TimetablePageState extends ConsumerState<TimetablePage> {
   String _view = 'today';
+  String _weekType = 'all';
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +44,10 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
       child: AdaptivePageContainer(
         child: itemsAsync.when(
           data: (items) {
-            final filtered = _filterItems(items, _view);
+            final filtered = _filterByWeekType(
+              _filterItems(items, _view),
+              _weekType,
+            );
             final nextEvent = filtered.firstWhere(
               (item) => item.startsAt.isAfter(DateTime.now()),
               orElse: () => filtered.isEmpty ? _emptyItem : filtered.first,
@@ -77,6 +83,13 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                             ),
                             child: Text('اليوم'),
                           ),
+                          'tomorrow': Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            child: Text('غدًا'),
+                          ),
                           'week': Padding(
                             padding: EdgeInsets.symmetric(
                               horizontal: 12,
@@ -85,6 +98,24 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                             child: Text('الأسبوع'),
                           ),
                         },
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Wrap(
+                        spacing: AppSpacing.sm,
+                        runSpacing: AppSpacing.sm,
+                        children: [
+                          for (final entry in const {
+                            'all': 'All',
+                            'odd': 'Odd week',
+                            'even': 'Even week',
+                          }.entries)
+                            ChoiceChip(
+                              label: Text(entry.value),
+                              selected: _weekType == entry.key,
+                              onSelected: (_) =>
+                                  setState(() => _weekType = entry.key),
+                            ),
+                        ],
                       ),
                       const SizedBox(height: AppSpacing.lg),
                       ResponsiveWrapGrid(
@@ -305,6 +336,17 @@ class _TimetableCard extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                  const SizedBox(height: AppSpacing.sm),
+                  AppButton(
+                    label: 'فتح المادة',
+                    onPressed: () => context.goNamed(
+                      RouteNames.subjectDetails,
+                      pathParameters: {'subjectId': item.subjectId},
+                    ),
+                    icon: Icons.open_in_new_rounded,
+                    isExpanded: false,
+                    variant: AppButtonVariant.secondary,
+                  ),
                 ],
               ),
             ),
@@ -331,7 +373,32 @@ List<TimetableItem> _filterItems(List<TimetableItem> items, String view) {
     }).toList();
   }
 
+  if (view == 'tomorrow') {
+    final tomorrow = today.add(const Duration(days: 1));
+    return items.where((item) {
+      final itemDate = DateTime(
+        item.startsAt.year,
+        item.startsAt.month,
+        item.startsAt.day,
+      );
+      return itemDate == tomorrow;
+    }).toList();
+  }
+
   return items.where((item) => item.startsAt.isBefore(endOfWeek)).toList();
+}
+
+List<TimetableItem> _filterByWeekType(List<TimetableItem> items, String type) {
+  if (type == 'all') {
+    return items;
+  }
+  return items.where((item) {
+    final weekNumber =
+        ((item.startsAt.difference(DateTime(item.startsAt.year)).inDays) ~/ 7) +
+        1;
+    final isOdd = weekNumber.isOdd;
+    return type == 'odd' ? isOdd : !isOdd;
+  }).toList();
 }
 
 Map<String, List<TimetableItem>> _groupItems(List<TimetableItem> items) {

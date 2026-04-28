@@ -9,12 +9,14 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/adaptive_page_container.dart';
 import '../../../../core/widgets/app_badge.dart';
+import '../../../../core/widgets/app_avatar.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/error_state_widget.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/widgets/responsive_wrap_grid.dart';
 import '../providers/home_providers.dart';
+import '../widgets/quick_actions_section.dart';
 
 class StudentHomePage extends ConsumerWidget {
   const StudentHomePage({super.key});
@@ -29,6 +31,10 @@ class StudentHomePage extends ConsumerWidget {
           data: (viewModel) => ListView(
             children: [
               _HomeHero(viewModel: viewModel),
+              const SizedBox(height: AppSpacing.lg),
+              _SmartDashboardCards(viewModel: viewModel),
+              const SizedBox(height: AppSpacing.lg),
+              QuickActionsSection(actions: viewModel.quickActions),
               const SizedBox(height: AppSpacing.lg),
               const _SectionTitle(
                 title: 'المطلوب منك الآن',
@@ -118,6 +124,132 @@ class _HomeResponsiveGrid extends StatelessWidget {
   }
 }
 
+class _SmartDashboardCards extends StatelessWidget {
+  const _SmartDashboardCards({required this.viewModel});
+
+  final StudentHomeViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return ResponsiveWrapGrid(
+      minItemWidth: 180,
+      spacing: AppSpacing.sm,
+      maxColumns: 5,
+      children: [
+        _SmartMetricCard(
+          icon: Icons.play_lesson_outlined,
+          title: 'محاضرات اليوم',
+          value: '${viewModel.todayLecturesCount}',
+          subtitle: 'ضمن الجدول الحالي',
+          color: AppColors.primary,
+        ),
+        _SmartMetricCard(
+          icon: Icons.quiz_outlined,
+          title: 'كويزات متاحة',
+          value: '${viewModel.availableQuizzesCount}',
+          subtitle: 'جاهزة للدخول',
+          color: AppColors.error,
+        ),
+        _SmartMetricCard(
+          icon: Icons.campaign_outlined,
+          title: 'إعلانات مهمة',
+          value: '${viewModel.importantAnnouncementsCount}',
+          subtitle: 'غير قابلة للتأجيل',
+          color: AppColors.warning,
+        ),
+        _SmartMetricCard(
+          icon: Icons.trending_up_rounded,
+          title: 'التقدم العام',
+          value: '${(viewModel.overallProgress * 100).round()}%',
+          subtitle: 'متوسط موادك',
+          color: AppColors.teal,
+          progress: viewModel.overallProgress,
+        ),
+        _SmartMetricCard(
+          icon: Icons.grade_outlined,
+          title: 'متوسط الدرجات',
+          value: '${viewModel.averageGrade.round()}%',
+          subtitle: 'تقدير مستمر',
+          color: AppColors.success,
+          progress: viewModel.averageGrade / 100,
+        ),
+      ],
+    );
+  }
+}
+
+class _SmartMetricCard extends StatelessWidget {
+  const _SmartMetricCard({
+    required this.icon,
+    required this.title,
+    required this.value,
+    required this.subtitle,
+    required this.color,
+    this.progress,
+  });
+
+  final IconData icon;
+  final String title;
+  final String value;
+  final String subtitle;
+  final Color color;
+  final double? progress;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      backgroundColor: context.appColors.surfaceElevated,
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                alignment: Alignment.center,
+                child: Icon(icon, color: color, size: 20),
+              ),
+              const Spacer(),
+              Text(
+                value,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            title,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+          if (progress != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            LinearProgressIndicator(
+              value: progress!.clamp(0, 1),
+              minHeight: 7,
+              borderRadius: BorderRadius.circular(999),
+              backgroundColor: color.withValues(alpha: 0.12),
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 class _HomeHero extends StatelessWidget {
   const _HomeHero({required this.viewModel});
 
@@ -136,17 +268,10 @@ class _HomeHero extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Icon(
-                  Icons.person_rounded,
-                  color: AppColors.primary,
-                ),
+              AppAvatar(
+                name: viewModel.profile.fullName,
+                imageUrl: viewModel.profile.avatarUrl,
+                radius: 28,
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
@@ -161,7 +286,7 @@ class _HomeHero extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'Student Academic Workspace',
+                      'مساحتك الأكاديمية اليومية',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -181,16 +306,16 @@ class _HomeHero extends StatelessWidget {
             runSpacing: AppSpacing.sm,
             children: [
               _HeroInfoTile(
-                label: 'Department',
+                label: 'القسم',
                 value: viewModel.profile.department,
               ),
-              _HeroInfoTile(label: 'Level', value: viewModel.profile.level),
+              _HeroInfoTile(label: 'الفرقة', value: viewModel.profile.level),
               _HeroInfoTile(
-                label: 'Student ID',
+                label: 'كود الطالب',
                 value: viewModel.profile.studentNumber,
               ),
               _HeroInfoTile(
-                label: 'GPA',
+                label: 'المعدل',
                 value: viewModel.profile.gpa.toStringAsFixed(2),
                 accent: AppColors.primary,
               ),

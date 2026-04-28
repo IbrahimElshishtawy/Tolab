@@ -39,6 +39,11 @@ class StudentHomeViewModel {
     required this.requiredTodayItems,
     required this.timelineGroups,
     required this.academicSnapshot,
+    required this.todayLecturesCount,
+    required this.availableQuizzesCount,
+    required this.importantAnnouncementsCount,
+    required this.overallProgress,
+    required this.averageGrade,
     required this.courseActivities,
     required this.upcomingQuizzes,
     required this.nearbyTasks,
@@ -97,6 +102,23 @@ class StudentHomeViewModel {
     final totalTasks =
         dashboard.studyInsights.completedTasks +
         dashboard.studyInsights.pendingTasks;
+    final todayLecturesCount = lectures.where((lecture) {
+      final startsAt = lecture.startsAt;
+      return startsAt != null && _isSameDate(startsAt, now);
+    }).length;
+    final availableQuizzesCount = quizzes
+        .where((quiz) => _isQuizOpen(quiz, now))
+        .length;
+    final importantAnnouncementsCount = notifications
+        .where((notification) => notification.isImportant)
+        .length;
+    final overallProgress = dashboard.subjects.isEmpty
+        ? 0.0
+        : dashboard.subjects
+                  .map((subject) => subject.progress)
+                  .reduce((a, b) => a + b) /
+              dashboard.subjects.length;
+    final averageGrade = (dashboard.profile.gpa / 4 * 100).clamp(0, 100);
     final delayedSubjects = dashboard.subjects
         .where((subject) => subject.status == 'مطلوب تسليم')
         .toList();
@@ -148,9 +170,9 @@ class StudentHomeViewModel {
               nextLecture?.subjectName ?? dashboard.subjects.firstOrNull?.name,
         ),
         const StudentQuickActionItem(
-          type: StudentQuickActionType.checkResults,
-          target: StudentActionTarget(routeName: RouteNames.results),
-          helperText: 'اعرفي مستواك ومواد التحسين',
+          type: StudentQuickActionType.latestAnnouncement,
+          target: StudentActionTarget(routeName: RouteNames.notifications),
+          helperText: 'آخر إعلان رسمي',
         ),
       ],
       requiredTodayItems: [
@@ -249,6 +271,11 @@ class StudentHomeViewModel {
         engagementSummary: dashboard.studyInsights.engagementLabel,
         academicStatus: dashboard.profile.academicStatus,
       ),
+      todayLecturesCount: todayLecturesCount,
+      availableQuizzesCount: availableQuizzesCount,
+      importantAnnouncementsCount: importantAnnouncementsCount,
+      overallProgress: overallProgress,
+      averageGrade: averageGrade.toDouble(),
       courseActivities: [...dashboard.courseActivities]
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt)),
       upcomingQuizzes: quizzes
@@ -311,6 +338,11 @@ class StudentHomeViewModel {
   final List<StudentRequiredActionItem> requiredTodayItems;
   final List<StudentTimelineGroup> timelineGroups;
   final StudentAcademicSnapshot academicSnapshot;
+  final int todayLecturesCount;
+  final int availableQuizzesCount;
+  final int importantAnnouncementsCount;
+  final double overallProgress;
+  final double averageGrade;
   final List<CourseActivityItem> courseActivities;
   final List<StudentUpcomingItem> upcomingQuizzes;
   final List<StudentUpcomingItem> nearbyTasks;
@@ -339,6 +371,7 @@ enum StudentQuickActionType {
   uploadAssignment,
   openCourse,
   checkResults,
+  latestAnnouncement,
 }
 
 class StudentRequiredActionItem {
@@ -620,6 +653,12 @@ bool _isQuizOpen(QuizItem? quiz, DateTime now) {
   }
 
   return !quiz.startsAt!.isAfter(now) && quiz.closesAt!.isAfter(now);
+}
+
+bool _isSameDate(DateTime first, DateTime second) {
+  return first.year == second.year &&
+      first.month == second.month &&
+      first.day == second.day;
 }
 
 StudentActionTarget _subjectTarget(String subjectId) {

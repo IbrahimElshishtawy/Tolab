@@ -52,7 +52,7 @@ class SettingsNotifier extends Notifier<SettingsState> {
     return switch (value) {
       'dark' => ThemeMode.dark,
       'light' => ThemeMode.light,
-      _ => ThemeMode.system,
+      _ => ThemeMode.dark,
     };
   }
 }

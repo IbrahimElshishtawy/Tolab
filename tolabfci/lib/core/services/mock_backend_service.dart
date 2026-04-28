@@ -142,6 +142,40 @@ class MockBackendService {
       progress: 0.82,
       status: 'جديد',
     ),
+    SubjectOverview(
+      id: 'subject-4',
+      name: 'الذكاء الاصطناعي',
+      code: 'CS420',
+      instructor: 'د. ياسر عادل',
+      assistantName: 'م. سارة كمال',
+      creditHours: 3,
+      accentHex: '#9B6AFB',
+      description: 'البحث، الاستدلال، التعلم الآلي، وتطبيقات النماذج الذكية.',
+      lecturesCount: 11,
+      sectionsCount: 7,
+      quizCount: 2,
+      sheetCount: 4,
+      lastActivityLabel: 'تم نشر تدريب جديد على خوارزميات البحث',
+      progress: 0.63,
+      status: 'نشطة',
+    ),
+    SubjectOverview(
+      id: 'subject-5',
+      name: 'أمن المعلومات',
+      code: 'CS415',
+      instructor: 'د. أحمد فاروق',
+      assistantName: 'م. ليلى هشام',
+      creditHours: 3,
+      accentHex: '#F07F5A',
+      description: 'التشفير، أمن الشبكات، إدارة الهوية، ومراجعة المخاطر.',
+      lecturesCount: 10,
+      sectionsCount: 6,
+      quizCount: 2,
+      sheetCount: 3,
+      lastActivityLabel: 'تنبيه هام بخصوص معمل التشفير',
+      progress: 0.57,
+      status: 'مطلوب تسليم',
+    ),
   ];
 
   List<SummaryItem> _summaries = const [
@@ -161,6 +195,23 @@ class MockBackendService {
       title: 'قاموس مصطلحات البنية السحابية',
       createdAtLabel: 'أمس',
       attachmentName: 'cloud-glossary.png',
+    ),
+    SummaryItem(
+      id: 'summary-3',
+      subjectId: 'subject-4',
+      authorName: 'ندى خالد',
+      title: 'خريطة مراجعة Search Strategies',
+      createdAtLabel: 'منذ يومين',
+      videoUrl: 'https://video.tolab.edu/ai-search',
+      attachmentName: 'ai-search-map.pdf',
+    ),
+    SummaryItem(
+      id: 'summary-4',
+      subjectId: 'subject-5',
+      authorName: 'مريم حسن',
+      title: 'ملخص أساسيات التشفير',
+      createdAtLabel: 'هذا الأسبوع',
+      attachmentName: 'crypto-basics.pdf',
     ),
   ];
 
@@ -189,12 +240,14 @@ class MockBackendService {
     CommunityPost(
       id: 'post-2',
       subjectId: 'subject-2',
-      authorName: 'منة طارق',
-      authorRole: 'طالبة',
-      content: 'رفعت ملاحظات سريعة عن autoscaling والـ scheduling لمن يحتاجها.',
+      authorName: 'م. كريم راضي',
+      authorRole: 'المعيد',
+      content:
+          'تم رفع ملف ملاحظات سريع عن autoscaling والـ scheduling ضمن مرفقات المادة.',
       createdAtLabel: 'أمس',
       reactions: 11,
-      type: CommunityPostType.discussion,
+      type: CommunityPostType.announcement,
+      attachmentName: 'autoscaling-notes.pdf',
       comments: [],
     ),
     CommunityPost(
@@ -209,6 +262,35 @@ class MockBackendService {
       type: CommunityPostType.announcement,
       isPinned: true,
       attachmentName: 'hci-mini-project-rubric.pdf',
+      comments: [],
+    ),
+    CommunityPost(
+      id: 'post-4',
+      subjectId: 'subject-4',
+      authorName: 'د. ياسر عادل',
+      authorRole: 'الدكتور',
+      content:
+          'تدريب خوارزميات البحث متاح الآن، والمناقشة العملية ستكون على A* وMinimax في السكشن القادم.',
+      createdAtLabel: 'منذ 40 دقيقة',
+      reactions: 21,
+      type: CommunityPostType.announcement,
+      isPinned: true,
+      isImportant: true,
+      attachmentName: 'ai-search-practice.pdf',
+      comments: [],
+    ),
+    CommunityPost(
+      id: 'post-5',
+      subjectId: 'subject-5',
+      authorName: 'م. ليلى هشام',
+      authorRole: 'المعيدة',
+      content:
+          'ملف معمل التشفير مرفق هنا. اقرأ التعليمات قبل الحضور لأن التسليم سيكون داخل المعمل.',
+      createdAtLabel: 'اليوم',
+      reactions: 17,
+      type: CommunityPostType.announcement,
+      isImportant: true,
+      attachmentName: 'crypto-lab-guide.pdf',
       comments: [],
     ),
   ];
@@ -250,6 +332,33 @@ class MockBackendService {
       isMine: false,
       authorRole: 'assistant',
     ),
+    ChatMessage(
+      id: 'chat-5',
+      subjectId: 'subject-4',
+      authorName: 'سارة',
+      content: 'هل تدريب A* محتاج تسليم كود ولا شرح خطوات فقط؟',
+      sentAtLabel: '11:05 ص',
+      isMine: false,
+      authorRole: 'assistant',
+    ),
+    ChatMessage(
+      id: 'chat-6',
+      subjectId: 'subject-5',
+      authorName: 'مريم حسن',
+      content: 'راجعت ملف التشفير، هل نحتاج تثبيت أدوات معينة قبل المعمل؟',
+      sentAtLabel: '12:18 م',
+      isMine: true,
+      authorRole: 'student',
+    ),
+    ChatMessage(
+      id: 'chat-7',
+      subjectId: 'subject-5',
+      authorName: 'م. ليلى هشام',
+      content: 'نعم، سيتم نشر checklist قبل المحاضرة بساعتين.',
+      sentAtLabel: '12:22 م',
+      isMine: false,
+      authorRole: 'assistant',
+    ),
   ];
 
   final List<SubjectResult> _results = const [
@@ -288,6 +397,32 @@ class MockBackendService {
       midtermGrade: 22,
       finalGrade: 24,
       notes: 'أداء قوي جدًا في التحليل والتقييم.',
+    ),
+    SubjectResult(
+      subjectId: 'subject-4',
+      subjectName: 'الذكاء الاصطناعي',
+      totalGrade: 84,
+      letterGrade: 'B+',
+      status: 'ناجح',
+      quizGrade: 16,
+      assignmentGrade: 25,
+      midtermGrade: 20,
+      finalGrade: 23,
+      notes:
+          'فهم جيد لخوارزميات البحث. ركزي على تفسير خطوات الحل في الأسئلة العملية.',
+    ),
+    SubjectResult(
+      subjectId: 'subject-5',
+      subjectName: 'أمن المعلومات',
+      totalGrade: 81,
+      letterGrade: 'B',
+      status: 'يحتاج متابعة',
+      quizGrade: 15,
+      assignmentGrade: 23,
+      midtermGrade: 19,
+      finalGrade: 24,
+      notes:
+          'المستوى جيد، لكن مطلوب مراجعة إضافية في مفاهيم المفاتيح العامة والتوقيع الرقمي.',
     ),
   ];
 
@@ -540,6 +675,20 @@ class MockBackendService {
     ];
   }
 
+  Future<void> deleteChatMessage({
+    required String subjectId,
+    required String messageId,
+  }) async {
+    _chatMessages = _chatMessages
+        .where(
+          (message) =>
+              message.subjectId != subjectId ||
+              message.id != messageId ||
+              !message.isMine,
+        )
+        .toList();
+  }
+
   Stream<List<AppNotificationItem>> watchNotifications() =>
       _notificationsController.stream;
 
@@ -564,6 +713,8 @@ class MockBackendService {
     final firstLectureStart = now.add(const Duration(hours: 1, minutes: 15));
     final secondLectureStart = now.add(const Duration(days: 1, hours: 3));
     final thirdLectureStart = now.add(const Duration(days: 3, hours: 2));
+    final fourthLectureStart = now.add(const Duration(days: 2, hours: 1));
+    final fifthLectureStart = now.add(const Duration(days: 4, hours: 4));
 
     return [
       LectureItem(
@@ -618,6 +769,32 @@ class MockBackendService {
         instructorName: 'د. نورهان فوزي',
         locationLabel: 'قاعة B201',
       ),
+      LectureItem(
+        id: 'lecture-4',
+        subjectId: 'subject-4',
+        subjectName: 'الذكاء الاصطناعي',
+        title: 'خوارزميات البحث والاستدلال',
+        scheduleLabel: formatArabicSchedule(fourthLectureStart, reference: now),
+        startsAt: fourthLectureStart,
+        endsAt: fourthLectureStart.add(const Duration(hours: 1, minutes: 30)),
+        meetingUrl: 'https://meet.tolab.edu/ai-search',
+        isOnline: true,
+        instructorName: 'د. ياسر عادل',
+        locationLabel: 'Tolab Meet',
+      ),
+      LectureItem(
+        id: 'lecture-5',
+        subjectId: 'subject-5',
+        subjectName: 'أمن المعلومات',
+        title: 'مقدمة في التشفير العملي',
+        scheduleLabel: formatArabicSchedule(fifthLectureStart, reference: now),
+        startsAt: fifthLectureStart,
+        endsAt: fifthLectureStart.add(const Duration(hours: 2)),
+        meetingUrl: '',
+        isOnline: false,
+        instructorName: 'د. أحمد فاروق',
+        locationLabel: 'معمل أمن 1',
+      ),
     ];
   }
 
@@ -625,6 +802,8 @@ class MockBackendService {
     final firstSectionStart = now.add(const Duration(hours: 3, minutes: 20));
     final secondSectionStart = now.add(const Duration(days: 1, hours: 1));
     final thirdSectionStart = now.add(const Duration(days: 2, hours: 5));
+    final fourthSectionStart = now.add(const Duration(days: 2, hours: 7));
+    final fifthSectionStart = now.add(const Duration(days: 5, hours: 2));
 
     return [
       SectionItem(
@@ -662,6 +841,28 @@ class MockBackendService {
         startsAt: thirdSectionStart,
         endsAt: thirdSectionStart.add(const Duration(hours: 1)),
       ),
+      SectionItem(
+        id: 'section-4',
+        subjectId: 'subject-4',
+        subjectName: 'الذكاء الاصطناعي',
+        title: 'سكشن A* وMinimax',
+        location: 'معمل 5',
+        scheduleLabel: formatArabicSchedule(fourthSectionStart, reference: now),
+        assistantName: 'م. سارة كمال',
+        startsAt: fourthSectionStart,
+        endsAt: fourthSectionStart.add(const Duration(hours: 1, minutes: 30)),
+      ),
+      SectionItem(
+        id: 'section-5',
+        subjectId: 'subject-5',
+        subjectName: 'أمن المعلومات',
+        title: 'معمل التشفير',
+        location: 'معمل أمن 1',
+        scheduleLabel: formatArabicSchedule(fifthSectionStart, reference: now),
+        assistantName: 'م. ليلى هشام',
+        startsAt: fifthSectionStart,
+        endsAt: fifthSectionStart.add(const Duration(hours: 2)),
+      ),
     ];
   }
 
@@ -670,6 +871,8 @@ class MockBackendService {
     final tomorrowDeadline = now.add(const Duration(days: 1, hours: 5));
     final laterDeadline = now.add(const Duration(days: 3, hours: 2));
     final gradedDeadline = now.subtract(const Duration(days: 1, hours: 2));
+    final aiDeadline = now.add(const Duration(days: 2, hours: 8));
+    final securityDeadline = now.add(const Duration(hours: 10));
 
     return [
       TaskItem(
@@ -725,6 +928,31 @@ class MockBackendService {
         gradeLabel: '9 / 10',
         allowResubmission: false,
       ),
+      TaskItem(
+        id: 'task-5',
+        subjectId: 'subject-4',
+        subjectName: 'الذكاء الاصطناعي',
+        title: 'تدريب خوارزميات البحث',
+        description:
+            'قارن بين BFS وA* في مسألة قصيرة مع توضيح cost function وخطوات الوصول للحل.',
+        dueDateLabel: formatDueLabelArabic(aiDeadline, reference: now),
+        dueAt: aiDeadline,
+        status: 'لم يتم الرفع',
+        allowResubmission: true,
+      ),
+      TaskItem(
+        id: 'task-6',
+        subjectId: 'subject-5',
+        subjectName: 'أمن المعلومات',
+        title: 'تقرير مفاتيح RSA',
+        description:
+            'ارفع تقرير PDF يشرح خطوات توليد المفاتيح وسيناريو توقيع رقمي بسيط.',
+        dueDateLabel: formatDueLabelArabic(securityDeadline, reference: now),
+        dueAt: securityDeadline,
+        status: 'لم يتم الرفع',
+        isMissingSubmission: true,
+        allowResubmission: true,
+      ),
     ];
   }
 
@@ -733,6 +961,8 @@ class MockBackendService {
     final openQuizClose = now.add(const Duration(minutes: 50));
     final upcomingQuizStart = now.add(const Duration(days: 1, hours: 4));
     final closedQuizStart = now.subtract(const Duration(days: 3, hours: 2));
+    final aiQuizStart = now.add(const Duration(days: 2, hours: 2));
+    final securityQuizStart = now.subtract(const Duration(days: 5, hours: 1));
 
     return [
       QuizItem(
@@ -793,6 +1023,47 @@ class MockBackendService {
         scoreLabel: '19 / 20',
         instructions: const ['تم غلق هذا الكويز.'],
       ),
+      QuizItem(
+        id: 'quiz-4',
+        subjectId: 'subject-4',
+        subjectName: 'الذكاء الاصطناعي',
+        title: 'كويز Search Algorithms',
+        typeLabel: 'كويز أونلاين',
+        startAtLabel: formatArabicSchedule(aiQuizStart, reference: now),
+        startsAt: aiQuizStart,
+        closesAt: aiQuizStart.add(const Duration(minutes: 35)),
+        durationLabel: '35 دقيقة',
+        durationMinutes: 35,
+        isOnline: true,
+        description: 'أسئلة اختيارية على BFS وDFS وA*.',
+        locationLabel: 'على تطبيق طلاب',
+        questionCount: 8,
+        instructions: const [
+          'راجع ورقة السكشن قبل بدء الكويز.',
+          'محاولة واحدة فقط خلال وقت الفتح.',
+        ],
+      ),
+      QuizItem(
+        id: 'quiz-5',
+        subjectId: 'subject-5',
+        subjectName: 'أمن المعلومات',
+        title: 'كويز Cryptography Basics',
+        typeLabel: 'كويز منتهي',
+        startAtLabel: formatArabicSchedule(securityQuizStart, reference: now),
+        startsAt: securityQuizStart,
+        closesAt: securityQuizStart.add(const Duration(minutes: 25)),
+        durationLabel: '25 دقيقة',
+        durationMinutes: 25,
+        isOnline: true,
+        description: 'تم إنهاء كويز أساسيات التشفير.',
+        attemptsUsed: 1,
+        maxAttempts: 1,
+        isSubmitted: true,
+        submissionStateLabel: 'تم التسليم',
+        scoreLabel: '15 / 20',
+        questionCount: 10,
+        instructions: const ['تم غلق هذا الكويز.'],
+      ),
     ];
   }
 
@@ -826,6 +1097,26 @@ class MockBackendService {
         typeLabel: 'ملف إضافي',
         createdAtLabel: formatRelativeArabic(
           now.subtract(const Duration(days: 2)),
+        ),
+      ),
+      SubjectFileItem(
+        id: 'file-4',
+        subjectId: 'subject-4',
+        title: 'تدريب خوارزميات البحث',
+        fileName: 'ai-search-practice.pdf',
+        typeLabel: 'سكشن',
+        createdAtLabel: formatRelativeArabic(
+          now.subtract(const Duration(hours: 3)),
+        ),
+      ),
+      SubjectFileItem(
+        id: 'file-5',
+        subjectId: 'subject-5',
+        title: 'دليل معمل التشفير',
+        fileName: 'crypto-lab-guide.pdf',
+        typeLabel: 'معمل',
+        createdAtLabel: formatRelativeArabic(
+          now.subtract(const Duration(hours: 5)),
         ),
       ),
     ];
@@ -882,6 +1173,30 @@ class MockBackendService {
         ),
         createdAt: now.subtract(const Duration(days: 1)),
       ),
+      CourseActivityItem(
+        id: 'activity-5',
+        subjectId: 'subject-4',
+        subjectName: 'الذكاء الاصطناعي',
+        title: 'تم نشر تدريب AI جديد',
+        description: 'تدريب خوارزميات البحث متاح الآن مع ملف PDF للمراجعة.',
+        type: CourseActivityType.assignment,
+        createdAtLabel: formatRelativeArabic(
+          now.subtract(const Duration(minutes: 45)),
+        ),
+        createdAt: now.subtract(const Duration(minutes: 45)),
+      ),
+      CourseActivityItem(
+        id: 'activity-6',
+        subjectId: 'subject-5',
+        subjectName: 'أمن المعلومات',
+        title: 'إعلان معمل التشفير',
+        description: 'تم رفع تعليمات الحضور والتسليم لمعمل التشفير القادم.',
+        type: CourseActivityType.announcement,
+        createdAtLabel: formatRelativeArabic(
+          now.subtract(const Duration(hours: 4)),
+        ),
+        createdAt: now.subtract(const Duration(hours: 4)),
+      ),
     ];
   }
 
@@ -892,7 +1207,7 @@ class MockBackendService {
     return StudyInsightsData(
       completedTasks: completedTasks,
       pendingTasks: pendingTasks,
-      viewedLectures: 8,
+      viewedLectures: 12,
       engagementScore: 0.82,
       engagementLabel: 'تفاعل قوي هذا الأسبوع',
     );
@@ -973,6 +1288,52 @@ class MockBackendService {
         pathParameters: {'subjectId': 'subject-3'},
         subjectName: 'التفاعل بين الإنسان والحاسوب',
         urgency: NotificationUrgency.important,
+      ),
+      AppNotificationItem(
+        id: 'notification-6',
+        title: 'College Announcement',
+        body: 'تم فتح باب تسجيل الرغبات للمواد الاختيارية حتى الخميس القادم.',
+        createdAt: now.subtract(const Duration(minutes: 25)),
+        createdAtLabel: formatRelativeArabic(
+          now.subtract(const Duration(minutes: 25)),
+        ),
+        category: 'إعلان الكلية',
+        isRead: false,
+        routeName: RouteNames.notifications,
+        isImportant: true,
+        urgency: NotificationUrgency.important,
+      ),
+      AppNotificationItem(
+        id: 'notification-7',
+        title: 'Subject Announcement',
+        body: 'تم نشر تدريب خوارزميات البحث داخل مادة الذكاء الاصطناعي.',
+        createdAt: now.subtract(const Duration(minutes: 45)),
+        createdAtLabel: formatRelativeArabic(
+          now.subtract(const Duration(minutes: 45)),
+        ),
+        category: 'إعلان مادة',
+        isRead: false,
+        routeName: RouteNames.subjectDetails,
+        pathParameters: {'subjectId': 'subject-4'},
+        subjectName: 'الذكاء الاصطناعي',
+        isImportant: true,
+        urgency: NotificationUrgency.important,
+      ),
+      AppNotificationItem(
+        id: 'notification-8',
+        title: 'Personal Notification',
+        body: 'لديك تقرير RSA يحتاج رفع قبل نهاية اليوم.',
+        createdAt: now.subtract(const Duration(hours: 2)),
+        createdAtLabel: formatRelativeArabic(
+          now.subtract(const Duration(hours: 2)),
+        ),
+        category: 'شخصي',
+        isRead: false,
+        routeName: RouteNames.assignmentUpload,
+        pathParameters: {'subjectId': 'subject-5', 'taskId': 'task-6'},
+        subjectName: 'أمن المعلومات',
+        isImportant: true,
+        urgency: NotificationUrgency.urgent,
       ),
     ];
   }

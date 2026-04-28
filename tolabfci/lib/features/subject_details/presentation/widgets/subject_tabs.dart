@@ -1,13 +1,14 @@
 class SubjectTabs {
   static const items = <(String, String)>[
+    ('overview', 'Overview'),
     ('lectures', 'المحاضرات'),
     ('sections', 'السكاشن'),
     ('quizzes', 'الكويزات'),
     ('tasks', 'الشيتات'),
     ('summaries', 'الملخصات'),
-    ('files', 'الملفات'),
-    ('group', 'الجروب'),
     ('grades', 'الدرجات'),
+    ('community', 'Community'),
+    ('chat', 'Group Chat'),
   ];
 
   static int indexFor(String? key) {

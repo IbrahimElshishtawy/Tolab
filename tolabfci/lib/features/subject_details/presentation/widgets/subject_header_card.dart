@@ -80,6 +80,16 @@ class SubjectHeaderCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'آخر نشاط: ${subject.lastActivityLabel}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: accent,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -124,6 +134,12 @@ class SubjectHeaderCard extends StatelessWidget {
                 label: 'شيتات',
                 value: '$taskCount',
                 accent: AppColors.warning,
+              ),
+              _MiniStatPill(
+                label: 'درجة الطالب',
+                value:
+                    '${(subject.progress * 100 + 18).clamp(0, 100).round()}%',
+                accent: AppColors.success,
               ),
             ],
           );

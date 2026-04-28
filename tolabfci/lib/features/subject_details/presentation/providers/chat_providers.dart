@@ -97,4 +97,21 @@ class ChatController extends AsyncNotifier<ChatState> {
       ),
     );
   }
+
+  Future<void> deleteMessage(String messageId) async {
+    final current = state.value;
+    if (current == null) {
+      return;
+    }
+    state = AsyncData(
+      current.copyWith(
+        messages: current.messages
+            .where((message) => message.id != messageId)
+            .toList(),
+      ),
+    );
+    await ref
+        .read(subjectsRepositoryProvider)
+        .deleteChatMessage(subjectId: _subjectId, messageId: messageId);
+  }
 }

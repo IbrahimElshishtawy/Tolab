@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/models/community_models.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/loading_widget.dart';
@@ -46,10 +47,16 @@ class ChatPanel extends ConsumerWidget {
                   const SizedBox(width: AppSpacing.xs),
                   Expanded(
                     child: Text(
-                      'الجروب / Course Group',
+                      'جروب المادة',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
+                  const AppBadge(
+                    label: '37 online',
+                    foregroundColor: AppColors.success,
+                    dense: true,
+                  ),
+                  const SizedBox(width: AppSpacing.xs),
                   if (chatState.messages.isNotEmpty)
                     Text(
                       '${chatState.messages.length} رسالة',
@@ -97,6 +104,9 @@ class ChatPanel extends ConsumerWidget {
             _MessageList(
               fillAvailable: fillAvailable,
               messages: chatState.messages,
+              onDelete: (message) => ref
+                  .read(chatControllerProvider(subjectId).notifier)
+                  .deleteMessage(message.id),
             ),
             const SizedBox(height: AppSpacing.sm),
             ChatInputBar(
@@ -116,10 +126,15 @@ class ChatPanel extends ConsumerWidget {
 }
 
 class _MessageList extends StatelessWidget {
-  const _MessageList({required this.fillAvailable, required this.messages});
+  const _MessageList({
+    required this.fillAvailable,
+    required this.messages,
+    required this.onDelete,
+  });
 
   final bool fillAvailable;
   final List<ChatMessage> messages;
+  final ValueChanged<ChatMessage> onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +152,11 @@ class _MessageList extends StatelessWidget {
             separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.xs),
             itemBuilder: (context, index) {
               final reversedIndex = messages.length - 1 - index;
-              return ChatMessageBubble(message: messages[reversedIndex]);
+              final message = messages[reversedIndex];
+              return ChatMessageBubble(
+                message: message,
+                onDelete: () => onDelete(message),
+              );
             },
           );
 

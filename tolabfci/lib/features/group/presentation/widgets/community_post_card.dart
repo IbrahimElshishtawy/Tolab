@@ -134,10 +134,14 @@ class CommunityPostCard extends ConsumerWidget {
               spacing: AppSpacing.xs,
               runSpacing: AppSpacing.xs,
               children: attachments.map((attachment) {
-                return AppBadge(
-                  label: attachment,
-                  foregroundColor: AppColors.primary,
-                  dense: true,
+                return InkWell(
+                  borderRadius: BorderRadius.circular(999),
+                  onTap: () => _showAttachmentPreview(context, attachment),
+                  child: AppBadge(
+                    label: attachment,
+                    foregroundColor: AppColors.primary,
+                    dense: true,
+                  ),
                 );
               }).toList(),
             ),
@@ -272,6 +276,56 @@ class CommunityPostCard extends ConsumerWidget {
                 }
               },
               icon: Icons.send_rounded,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAttachmentPreview(BuildContext context, String attachment) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'معاينة المرفق',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              decoration: BoxDecoration(
+                color: context.appColors.surfaceAlt,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: context.appColors.border),
+              ),
+              child: Column(
+                children: [
+                  const Icon(
+                    Icons.picture_as_pdf_outlined,
+                    color: AppColors.error,
+                    size: 42,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    attachment,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    'Mock PDF preview',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
