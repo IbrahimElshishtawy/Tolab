@@ -44,11 +44,22 @@ class MockAuthRepository implements AuthRepository {
       StorageKeys.currentUserRole,
       session.role.storageValue,
     );
-    await _secureStorageService.write(
-      StorageKeys.pendingNationalId,
-      session.nationalId,
-    );
-    await _preferencesService.setBool(StorageKeys.hasVerifiedNationalId, false);
+    if (session.role == AppUserRole.student) {
+      await _secureStorageService.delete(StorageKeys.pendingNationalId);
+      await _preferencesService.setBool(
+        StorageKeys.hasVerifiedNationalId,
+        true,
+      );
+    } else {
+      await _secureStorageService.write(
+        StorageKeys.pendingNationalId,
+        session.nationalId,
+      );
+      await _preferencesService.setBool(
+        StorageKeys.hasVerifiedNationalId,
+        false,
+      );
+    }
     return session;
   }
 

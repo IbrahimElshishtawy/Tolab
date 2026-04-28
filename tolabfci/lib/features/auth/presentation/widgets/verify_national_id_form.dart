@@ -22,7 +22,7 @@ class VerifyNationalIdForm extends ConsumerStatefulWidget {
 
 class _VerifyNationalIdFormState extends ConsumerState<VerifyNationalIdForm> {
   final _formKey = GlobalKey<FormState>();
-  final _nationalIdController = TextEditingController(text: '29801011234567');
+  final _nationalIdController = TextEditingController(text: '12345678901234');
 
   @override
   void dispose() {
@@ -32,7 +32,7 @@ class _VerifyNationalIdFormState extends ConsumerState<VerifyNationalIdForm> {
 
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
-    if (!(_formKey.currentState?.validate() ?? false)) {
+    if (!(_formKey.currentState?.validate() ?? true)) {
       return;
     }
 
@@ -49,9 +49,8 @@ class _VerifyNationalIdFormState extends ConsumerState<VerifyNationalIdForm> {
     ref.listen(authNotifierProvider, (previous, next) {
       if (previous?.stage != next.stage &&
           next.stage == AuthStage.authenticated) {
-        if (mounted) {
-          GoRouter.of(context).goNamed(RouteNames.home);
-        }
+        GoRouter.of(context).goNamed(RouteNames.home);
+        // if (mounted) {}
       }
     });
 
@@ -85,7 +84,7 @@ class _VerifyNationalIdFormState extends ConsumerState<VerifyNationalIdForm> {
             AppTextField(
               controller: _nationalIdController,
               label: context.tr('الرقم القومي', 'National ID'),
-              hintText: '29801011234567',
+              hintText: '++++++++++++++++',
               keyboardType: TextInputType.number,
               prefixIcon: Icons.badge_outlined,
               onChanged: (_) {
@@ -118,7 +117,7 @@ class _VerifyNationalIdFormState extends ConsumerState<VerifyNationalIdForm> {
               },
             ),
             const SizedBox(height: AppSpacing.md),
-            const _NationalIdHint(),
+            // const _NationalIdHint(),
             if (authState.errorMessage != null) ...[
               const SizedBox(height: AppSpacing.md),
               _VerifyErrorMessage(message: authState.errorMessage!),
@@ -135,48 +134,48 @@ class _VerifyNationalIdFormState extends ConsumerState<VerifyNationalIdForm> {
   }
 }
 
-class _NationalIdHint extends StatelessWidget {
-  const _NationalIdHint();
+// class _NationalIdHint extends StatelessWidget {
+//   const _NationalIdHint();
 
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.appColors;
+//   @override
+//   Widget build(BuildContext context) {
+//     final palette = context.appColors;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.surfaceAlt,
-        borderRadius: BorderRadius.circular(AppRadii.md),
-        border: Border.all(color: palette.border),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(
-              Icons.info_outline_rounded,
-              size: 20,
-              color: AppColors.primary,
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Text(
-                context.tr(
-                  'رقم التحقق التجريبي: 29801011234567',
-                  'Mock verification ID: 29801011234567',
-                ),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: palette.textPrimary,
-                  height: 1.45,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+//     return DecoratedBox(
+//       decoration: BoxDecoration(
+//         color: palette.surfaceAlt,
+//         borderRadius: BorderRadius.circular(AppRadii.md),
+//         border: Border.all(color: palette.border),
+//       ),
+//       child: Padding(
+//         padding: const EdgeInsets.all(AppSpacing.md),
+//         child: Row(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             const Icon(
+//               Icons.info_outline_rounded,
+//               size: 20,
+//               color: AppColors.primary,
+//             ),
+//             const SizedBox(width: AppSpacing.sm),
+//             Expanded(
+//               child: Text(
+//                 context.tr(
+//                   'رقم التحقق التجريبي: 29801011234567',
+//                   'Mock verification ID: 29801011234567',
+//                 ),
+//                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
+//                   color: palette.textPrimary,
+//                   height: 1.45,
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 class _VerifyErrorMessage extends StatelessWidget {
   const _VerifyErrorMessage({required this.message});

@@ -27,10 +27,10 @@ import 'route_names.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authNotifierProvider);
-  final bootstrap = ref.watch(sessionBootstrapProvider);
+  ref.watch(sessionBootstrapProvider);
 
   return GoRouter(
-    initialLocation: '/splash',
+    initialLocation: '/login',
     routes: [
       GoRoute(
         path: '/splash',
@@ -186,23 +186,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
     redirect: (context, state) {
       final location = state.matchedLocation;
-      final isBootstrapping = bootstrap.isLoading;
-
-      if (isBootstrapping) {
-        return location == '/splash' ? null : '/splash';
-      }
+      final isLogin = location == '/login';
+      final isSplash = location == '/splash';
+      final isVerifyNationalId = location == '/verify-national-id';
 
       switch (authState.stage) {
         case AuthStage.unauthenticated:
-          return location == '/login' ? null : '/login';
+          return isLogin ? null : '/login';
         case AuthStage.awaitingNationalId:
-          return location == '/verify-national-id'
-              ? null
-              : '/verify-national-id';
+          return isVerifyNationalId ? null : '/verify-national-id';
         case AuthStage.authenticated:
-          if (location == '/splash' ||
-              location == '/login' ||
-              location == '/verify-national-id') {
+          if (isLogin || isSplash || isVerifyNationalId) {
             return '/home';
           }
           return null;

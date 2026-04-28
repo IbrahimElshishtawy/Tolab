@@ -46,7 +46,7 @@ class MockBackendService {
     email: 'student@test.com',
     avatarUrl: '',
     studentNumber: '20241182',
-    nationalId: '29801011234567',
+    nationalId: '12345678901234',
     faculty: 'كلية الحاسبات والمعلومات',
     department: 'علوم الحاسب',
     level: 'الفرقة الرابعة',
@@ -63,21 +63,21 @@ class MockBackendService {
     token: 'mock-student-access-token',
     role: AppUserRole.student,
     email: 'student@test.com',
-    nationalId: '29801011234567',
+    nationalId: '12345678901234',
   );
 
   final AuthSessionData _doctorSession = const AuthSessionData(
     token: 'mock-doctor-access-token',
     role: AppUserRole.doctor,
     email: 'omar.nabil@tolab.edu',
-    nationalId: '28601011234567',
+    nationalId: '12345678901234',
   );
 
   final AuthSessionData _assistantSession = const AuthSessionData(
     token: 'mock-assistant-access-token',
     role: AppUserRole.assistant,
     email: 'nora.sameh@tolab.edu',
-    nationalId: '29701011234567',
+    nationalId: '12345678901234',
   );
 
   String nationalIdForRole(AppUserRole role) {
@@ -327,7 +327,7 @@ class MockBackendService {
     if (enteredNationalId != normalizedExpectedNationalId) {
       throw const AppException(
         'تعذر التحقق من الرقم القومي. راجع الرقم وحاول مرة أخرى.',
-        code: 'invalid_national_id',
+        code: '12345678901234',
       );
     }
   }
