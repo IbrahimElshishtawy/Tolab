@@ -14,8 +14,21 @@ class MockQuizzesRepository implements QuizzesRepository {
   final MockBackendService _backendService;
 
   @override
+  Future<List<QuizItem>> getQuizzes(String? courseOfferingId) {
+    return fetchQuizzes(subjectId: courseOfferingId);
+  }
+
+  @override
   Future<List<QuizItem>> fetchQuizzes({String? subjectId}) {
     return _backendService.fetchQuizzes(subjectId: subjectId);
+  }
+
+  @override
+  Future<StudentQuizDetails> getQuizDetails({
+    required String courseOfferingId,
+    required String quizId,
+  }) {
+    return fetchQuizDetails(subjectId: courseOfferingId, quizId: quizId);
   }
 
   @override
@@ -41,7 +54,19 @@ class MockQuizzesRepository implements QuizzesRepository {
   }
 
   @override
-  Future<QuizItem> submitQuiz(String quizId, {String? subjectId}) async {
+  Future<StudentQuizDetails> startQuiz({
+    required String courseOfferingId,
+    required String quizId,
+  }) {
+    return fetchQuizDetails(subjectId: courseOfferingId, quizId: quizId);
+  }
+
+  @override
+  Future<QuizItem> submitQuiz(
+    String quizId, {
+    String? subjectId,
+    Map<String, Object?> answers = const {},
+  }) async {
     await _backendService.submitQuiz(quizId);
     final quizzes = await _backendService.fetchQuizzes(subjectId: subjectId);
     return quizzes.firstWhere((quiz) => quiz.id == quizId);

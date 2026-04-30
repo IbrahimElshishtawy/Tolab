@@ -16,6 +16,7 @@ import '../../../../core/widgets/error_state_widget.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/widgets/responsive_wrap_grid.dart';
 import '../providers/home_providers.dart';
+import '../widgets/latest_updates_widget.dart';
 import '../widgets/quick_actions_section.dart';
 
 class StudentHomePage extends ConsumerWidget {
@@ -69,8 +70,9 @@ class StudentHomePage extends ConsumerWidget {
                     notifications: viewModel.notificationsPreview,
                   ),
                   _CourseActivityCard(activities: viewModel.courseActivities),
-                  _NotificationsCard(
-                    notifications: viewModel.notificationsPreview,
+                  LatestUpdatesWidget(
+                    items: viewModel.notificationsPreview,
+                    unreadCount: viewModel.unreadCount,
                   ),
                 ],
               ),
@@ -693,43 +695,6 @@ class _CourseActivityCard extends StatelessWidget {
                     ),
                   ),
                 ),
-        ],
-      ),
-    );
-  }
-}
-
-class _NotificationsCard extends StatelessWidget {
-  const _NotificationsCard({required this.notifications});
-
-  final List<AppNotificationItem> notifications;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('التنبيهات', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: AppSpacing.md),
-          if (notifications.isEmpty)
-            Text(
-              'لا توجد تنبيهات جديدة الآن.',
-              style: Theme.of(context).textTheme.bodySmall,
-            )
-          else
-            ...notifications.map(
-              (notification) => Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                child: _ActivityTile(
-                  title: notification.title,
-                  subtitle: notification.subjectName ?? notification.category,
-                  description: notification.body,
-                  meta: notification.createdAtLabel,
-                  accent: _notificationColor(notification.urgency),
-                ),
-              ),
-            ),
         ],
       ),
     );
