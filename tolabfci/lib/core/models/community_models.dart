@@ -1,5 +1,27 @@
 enum CommunityPostType { announcement, question, discussion }
 
+class CourseGroup {
+  const CourseGroup({
+    required this.id,
+    required this.courseOfferingId,
+    required this.courseName,
+    required this.doctorName,
+    required this.assistantName,
+    required this.membersCount,
+    required this.onlineCount,
+    this.pinnedAnnouncement,
+  });
+
+  final String id;
+  final String courseOfferingId;
+  final String courseName;
+  final String doctorName;
+  final String assistantName;
+  final int membersCount;
+  final int onlineCount;
+  final String? pinnedAnnouncement;
+}
+
 class CommunityComment {
   const CommunityComment({
     required this.id,

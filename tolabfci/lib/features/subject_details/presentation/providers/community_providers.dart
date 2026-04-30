@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/models/community_models.dart';
-import '../../../subjects/data/repositories/mock_subjects_repository.dart';
+import '../../../group/data/repositories/mock_group_repository.dart';
 
 final communityControllerProvider =
     AsyncNotifierProvider.family<
@@ -16,33 +16,30 @@ class CommunityController extends AsyncNotifier<List<CommunityPost>> {
 
   @override
   Future<List<CommunityPost>> build() async {
-    return ref
-        .watch(subjectsRepositoryProvider)
-        .fetchCommunityPosts(_subjectId);
+    return ref.watch(communityRepositoryProvider).getPosts(_subjectId);
+  }
+
+  Future<void> createPost(String content) async {
+    await ref.read(communityRepositoryProvider).createPost(_subjectId, content);
+    state = AsyncData(
+      await ref.read(communityRepositoryProvider).getPosts(_subjectId),
+    );
   }
 
   Future<void> addComment({
     required String postId,
     required String content,
   }) async {
-    await ref
-        .read(subjectsRepositoryProvider)
-        .addComment(subjectId: _subjectId, postId: postId, content: content);
+    await ref.read(communityRepositoryProvider).createComment(postId, content);
     state = AsyncData(
-      await ref
-          .read(subjectsRepositoryProvider)
-          .fetchCommunityPosts(_subjectId),
+      await ref.read(communityRepositoryProvider).getPosts(_subjectId),
     );
   }
 
   Future<void> reactToPost(String postId) async {
-    await ref
-        .read(subjectsRepositoryProvider)
-        .reactToPost(subjectId: _subjectId, postId: postId);
+    await ref.read(communityRepositoryProvider).reactToPost(postId);
     state = AsyncData(
-      await ref
-          .read(subjectsRepositoryProvider)
-          .fetchCommunityPosts(_subjectId),
+      await ref.read(communityRepositoryProvider).getPosts(_subjectId),
     );
   }
 }

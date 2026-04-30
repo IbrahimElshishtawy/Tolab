@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/models/community_models.dart';
-import '../../../subjects/data/repositories/mock_subjects_repository.dart';
+import '../../../group/data/repositories/mock_group_repository.dart';
 
 class ChatState {
   const ChatState({
@@ -48,8 +48,8 @@ class ChatController extends AsyncNotifier<ChatState> {
   @override
   Future<ChatState> build() async {
     final messages = await ref
-        .watch(subjectsRepositoryProvider)
-        .fetchChatMessages(_subjectId, pageSize: _pageSize);
+        .watch(communityRepositoryProvider)
+        .getMessages(_subjectId, pageSize: _pageSize);
     return ChatState(
       messages: messages,
       page: 0,
@@ -65,8 +65,8 @@ class ChatController extends AsyncNotifier<ChatState> {
     state = AsyncData(current.copyWith(isLoadingMore: true));
     final nextPage = current.page + 1;
     final olderMessages = await ref
-        .read(subjectsRepositoryProvider)
-        .fetchChatMessages(_subjectId, page: nextPage, pageSize: _pageSize);
+        .read(communityRepositoryProvider)
+        .getMessages(_subjectId, page: nextPage, pageSize: _pageSize);
     state = AsyncData(
       current.copyWith(
         messages: [...olderMessages, ...current.messages],
@@ -83,12 +83,10 @@ class ChatController extends AsyncNotifier<ChatState> {
       return;
     }
     state = AsyncData(current.copyWith(isSending: true));
-    await ref
-        .read(subjectsRepositoryProvider)
-        .sendChatMessage(subjectId: _subjectId, content: content);
+    await ref.read(communityRepositoryProvider).sendMessage(_subjectId, content);
     final refreshed = await ref
-        .read(subjectsRepositoryProvider)
-        .fetchChatMessages(_subjectId, pageSize: _pageSize);
+        .read(communityRepositoryProvider)
+        .getMessages(_subjectId, pageSize: _pageSize);
     state = AsyncData(
       ChatState(
         messages: refreshed,
@@ -111,7 +109,7 @@ class ChatController extends AsyncNotifier<ChatState> {
       ),
     );
     await ref
-        .read(subjectsRepositoryProvider)
-        .deleteChatMessage(subjectId: _subjectId, messageId: messageId);
+        .read(communityRepositoryProvider)
+        .deleteMessage(_subjectId, messageId);
   }
 }

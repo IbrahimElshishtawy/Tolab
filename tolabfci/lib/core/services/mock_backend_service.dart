@@ -624,8 +624,65 @@ class MockBackendService {
     );
   }
 
+  Future<CourseGroup> fetchCourseGroup(String subjectId) async {
+    final subject = await fetchSubjectById(subjectId);
+    final pinned = _posts
+        .where((post) => post.subjectId == subjectId && post.isPinned)
+        .cast<CommunityPost?>()
+        .firstWhere((post) => post != null, orElse: () => null);
+
+    return CourseGroup(
+      id: 'group-$subjectId',
+      courseOfferingId: subjectId,
+      courseName: subject.name,
+      doctorName: subject.instructor,
+      assistantName: subject.assistantName,
+      membersCount: 42 + _subjects.indexWhere((item) => item.id == subjectId),
+      onlineCount: 12 + _subjects.indexWhere((item) => item.id == subjectId),
+      pinnedAnnouncement: pinned?.content,
+    );
+  }
+
   Future<List<CommunityPost>> fetchCommunityPosts(String subjectId) async {
     return _posts.where((post) => post.subjectId == subjectId).toList();
+  }
+
+  Future<CommunityPost> createCommunityPost({
+    required String subjectId,
+    required String content,
+  }) async {
+    final subject = await fetchSubjectById(subjectId);
+    final post = CommunityPost(
+      id: 'post-${_posts.length + 1}',
+      subjectId: subjectId,
+      subjectName: subject.name,
+      authorName: _profile.fullName,
+      authorRole: 'طالب',
+      content: content,
+      createdAtLabel: 'الآن',
+      reactions: 0,
+      comments: const [],
+      type: CommunityPostType.discussion,
+    );
+    _posts = [post, ..._posts];
+    return post;
+  }
+
+  Future<List<CommunityComment>> fetchComments(String postId) async {
+    final post = _posts.firstWhere((post) => post.id == postId);
+    return post.comments;
+  }
+
+  Future<void> addCommentByPostId({
+    required String postId,
+    required String content,
+  }) async {
+    final post = _posts.firstWhere((post) => post.id == postId);
+    await addComment(
+      subjectId: post.subjectId,
+      postId: postId,
+      content: content,
+    );
   }
 
   Future<void> addComment({
@@ -649,6 +706,11 @@ class MockBackendService {
         ],
       );
     }).toList();
+  }
+
+  Future<void> reactToPostById(String postId) async {
+    final post = _posts.firstWhere((post) => post.id == postId);
+    await reactToPost(subjectId: post.subjectId, postId: postId);
   }
 
   Future<void> reactToPost({
