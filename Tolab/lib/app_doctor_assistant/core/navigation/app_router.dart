@@ -25,7 +25,7 @@ import '../../modules/students/presentation/students_screen.dart';
 import '../../modules/subjects/presentation/subject_details_screen.dart';
 import '../../modules/subjects/presentation/subjects_screen.dart';
 import '../../modules/tasks/presentation/tasks_screen.dart';
-import '../../modules/uploads/presentation/uploads_screen.dart';
+
 import '../../modules/announcements/presentation/announcements_screen.dart';
 import '../../modules/analytics/presentation/analytics_screen.dart';
 import '../../state/app_state.dart';
@@ -38,7 +38,8 @@ GoRouter createAppRouter(Store<DoctorAssistantAppState> store) {
     redirect: (context, state) {
       final session = store.state.sessionState;
       final isAuthenticated = session.isAuthenticated;
-      final isAuthRoute = state.matchedLocation == AppRoutes.login ||
+      final isAuthRoute =
+          state.matchedLocation == AppRoutes.login ||
           state.matchedLocation == AppRoutes.forgotPassword;
 
       if (!isAuthenticated && !isAuthRoute) {
@@ -84,8 +85,9 @@ GoRouter createAppRouter(Store<DoctorAssistantAppState> store) {
           GoRoute(
             path: 'new',
             builder: (context, state) {
-              final subjectId =
-                  int.tryParse(state.uri.queryParameters['subjectId'] ?? '');
+              final subjectId = int.tryParse(
+                state.uri.queryParameters['subjectId'] ?? '',
+              );
               return AddLecturePage(initialSubjectId: subjectId);
             },
           ),
@@ -154,10 +156,7 @@ GoRouter createAppRouter(Store<DoctorAssistantAppState> store) {
         path: AppRoutes.analytics,
         builder: (context, state) => const AnalyticsScreen(),
       ),
-      GoRoute(
-        path: AppRoutes.uploads,
-        builder: (context, state) => const UploadsScreen(),
-      ),
+
       GoRoute(
         path: AppRoutes.staff,
         builder: (context, state) => const StaffScreen(),

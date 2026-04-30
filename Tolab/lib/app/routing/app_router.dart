@@ -50,7 +50,7 @@ import '../../app_doctor_assistant/modules/students/presentation/students_screen
 import '../../app_doctor_assistant/modules/subjects/presentation/subject_details_screen.dart';
 import '../../app_doctor_assistant/modules/subjects/presentation/subjects_screen.dart';
 import '../../app_doctor_assistant/modules/tasks/presentation/tasks_screen.dart';
-import '../../app_doctor_assistant/modules/uploads/presentation/uploads_screen.dart';
+
 import '../../app_doctor_assistant/modules/announcements/presentation/announcements_screen.dart';
 import '../../app_doctor_assistant/modules/analytics/presentation/analytics_screen.dart';
 import '../../features/admin/presentation/admin_shell.dart';
@@ -228,7 +228,8 @@ class UnifiedAppRouter {
     ),
     GoRoute(
       path: staff_routes.AppRoutes.subjects,
-      pageBuilder: (context, state) => _doctorPage(state, const SubjectsScreen()),
+      pageBuilder: (context, state) =>
+          _doctorPage(state, const SubjectsScreen()),
     ),
     GoRoute(
       path: '${staff_routes.AppRoutes.subjects}/:id',
@@ -239,13 +240,15 @@ class UnifiedAppRouter {
     ),
     GoRoute(
       path: staff_routes.AppRoutes.lectures,
-      pageBuilder: (context, state) => _doctorPage(state, const LecturesScreen()),
+      pageBuilder: (context, state) =>
+          _doctorPage(state, const LecturesScreen()),
     ),
     GoRoute(
       path: staff_routes.AppRoutes.addLecture,
       pageBuilder: (context, state) {
-        final subjectId =
-            int.tryParse(state.uri.queryParameters['subjectId'] ?? '');
+        final subjectId = int.tryParse(
+          state.uri.queryParameters['subjectId'] ?? '',
+        );
         return _doctorPage(state, AddLecturePage(initialSubjectId: subjectId));
       },
     ),
@@ -263,7 +266,8 @@ class UnifiedAppRouter {
     ),
     GoRoute(
       path: staff_routes.AppRoutes.quizzes,
-      pageBuilder: (context, state) => _doctorPage(state, const QuizzesScreen()),
+      pageBuilder: (context, state) =>
+          _doctorPage(state, const QuizzesScreen()),
     ),
     GoRoute(
       path: '${staff_routes.AppRoutes.quizzes}/:id',
@@ -292,7 +296,8 @@ class UnifiedAppRouter {
     ),
     GoRoute(
       path: staff_routes.AppRoutes.results,
-      pageBuilder: (context, state) => _doctorPage(state, const ResultsScreen()),
+      pageBuilder: (context, state) =>
+          _doctorPage(state, const ResultsScreen()),
     ),
     GoRoute(
       path: '${staff_routes.AppRoutes.results}/:id',
@@ -315,7 +320,8 @@ class UnifiedAppRouter {
     ),
     GoRoute(
       path: staff_routes.AppRoutes.schedule,
-      pageBuilder: (context, state) => _doctorPage(state, const ScheduleScreen()),
+      pageBuilder: (context, state) =>
+          _doctorPage(state, const ScheduleScreen()),
     ),
     GoRoute(
       path: staff_routes.AppRoutes.notifications,
@@ -329,19 +335,18 @@ class UnifiedAppRouter {
     ),
     GoRoute(
       path: staff_routes.AppRoutes.analytics,
-      pageBuilder: (context, state) => _doctorPage(state, const AnalyticsScreen()),
+      pageBuilder: (context, state) =>
+          _doctorPage(state, const AnalyticsScreen()),
     ),
-    GoRoute(
-      path: staff_routes.AppRoutes.uploads,
-      pageBuilder: (context, state) => _doctorPage(state, const UploadsScreen()),
-    ),
+
     GoRoute(
       path: staff_routes.AppRoutes.staff,
       pageBuilder: (context, state) => _doctorPage(state, const StaffScreen()),
     ),
     GoRoute(
       path: staff_routes.AppRoutes.settings,
-      pageBuilder: (context, state) => _doctorPage(state, const SettingsScreen()),
+      pageBuilder: (context, state) =>
+          _doctorPage(state, const SettingsScreen()),
     ),
     GoRoute(
       path: '${staff_routes.AppRoutes.subjects}/:id/group',

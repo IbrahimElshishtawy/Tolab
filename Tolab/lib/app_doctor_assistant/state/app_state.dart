@@ -14,7 +14,6 @@ import '../modules/settings/state/settings_state.dart';
 import '../modules/staff/state/staff_state.dart';
 import '../modules/subjects/state/subjects_state.dart';
 import '../modules/tasks/state/tasks_state.dart';
-import '../modules/uploads/state/uploads_state.dart';
 
 class DoctorAssistantAppState {
   const DoctorAssistantAppState({
@@ -32,7 +31,7 @@ class DoctorAssistantAppState {
     this.tasksState = const TasksState(),
     this.scheduleState = const ScheduleState(),
     this.notificationsState = const NotificationsState(),
-    this.uploadsState = const UploadsState(),
+
     this.settingsState = const SettingsState(),
     this.adminState = const AdminState(),
   });
@@ -51,7 +50,7 @@ class DoctorAssistantAppState {
   final TasksState tasksState;
   final ScheduleState scheduleState;
   final NotificationsState notificationsState;
-  final UploadsState uploadsState;
+
   final SettingsState settingsState;
   final AdminState adminState;
 
@@ -70,7 +69,7 @@ class DoctorAssistantAppState {
     TasksState? tasksState,
     ScheduleState? scheduleState,
     NotificationsState? notificationsState,
-    UploadsState? uploadsState,
+
     SettingsState? settingsState,
     AdminState? adminState,
   }) {
@@ -89,7 +88,7 @@ class DoctorAssistantAppState {
       tasksState: tasksState ?? this.tasksState,
       scheduleState: scheduleState ?? this.scheduleState,
       notificationsState: notificationsState ?? this.notificationsState,
-      uploadsState: uploadsState ?? this.uploadsState,
+
       settingsState: settingsState ?? this.settingsState,
       adminState: adminState ?? this.adminState,
     );

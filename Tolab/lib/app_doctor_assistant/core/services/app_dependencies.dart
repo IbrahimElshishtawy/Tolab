@@ -18,7 +18,7 @@ import '../../modules/settings/repositories/settings_repository.dart';
 import '../../modules/staff/repositories/staff_repository.dart';
 import '../../modules/subjects/repositories/subjects_repository.dart';
 import '../../modules/tasks/repositories/tasks_repository.dart';
-import '../../modules/uploads/repositories/uploads_repository.dart';
+
 import '../../mock/doctor_assistant_mock_repository.dart';
 
 class AppDependencies {
@@ -37,7 +37,7 @@ class AppDependencies {
     required this.tasksRepository,
     required this.scheduleRepository,
     required this.notificationsRepository,
-    required this.uploadsRepository,
+
     required this.settingsRepository,
     required this.staffRepository,
     required this.adminRepository,
@@ -57,7 +57,7 @@ class AppDependencies {
   final TasksRepository tasksRepository;
   final ScheduleRepository scheduleRepository;
   final NotificationsRepository notificationsRepository;
-  final UploadsRepository uploadsRepository;
+
   final SettingsRepository settingsRepository;
   final StaffRepository staffRepository;
   final AdminRepository adminRepository;
@@ -107,9 +107,6 @@ class AppDependencies {
       notificationsRepository: useMockBackend
           ? MockNotificationsRepository(tokenStorage, mockRepository)
           : ApiNotificationsRepository(apiClient),
-      uploadsRepository: useMockBackend
-          ? MockUploadsRepository(tokenStorage, mockRepository)
-          : ApiUploadsRepository(apiClient),
       settingsRepository: useMockBackend
           ? MockSettingsRepository(tokenStorage, mockRepository)
           : ApiSettingsRepository(apiClient, tokenStorage),

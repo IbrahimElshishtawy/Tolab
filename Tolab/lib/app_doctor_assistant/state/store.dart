@@ -32,8 +32,7 @@ import '../modules/subjects/state/subjects_middleware.dart';
 import '../modules/subjects/state/subjects_reducer.dart';
 import '../modules/tasks/state/tasks_middleware.dart';
 import '../modules/tasks/state/tasks_reducer.dart';
-import '../modules/uploads/state/uploads_middleware.dart';
-import '../modules/uploads/state/uploads_reducer.dart';
+
 import 'app_state.dart';
 
 Store<DoctorAssistantAppState> createDoctorAssistantStore(
@@ -56,7 +55,7 @@ Store<DoctorAssistantAppState> createDoctorAssistantStore(
       ...createTasksMiddleware(dependencies.tasksRepository),
       ...createScheduleMiddleware(dependencies.scheduleRepository),
       ...createNotificationsMiddleware(dependencies.notificationsRepository),
-      ...createUploadsMiddleware(dependencies.uploadsRepository),
+
       ...createSettingsMiddleware(dependencies.settingsRepository),
       ...createAdminMiddleware(dependencies.adminRepository),
     ],
@@ -82,7 +81,7 @@ DoctorAssistantAppState _reducer(
     tasksState: tasksReducer(state.tasksState, action),
     scheduleState: scheduleReducer(state.scheduleState, action),
     notificationsState: notificationsReducer(state.notificationsState, action),
-    uploadsState: uploadsReducer(state.uploadsState, action),
+   
     settingsState: settingsReducer(state.settingsState, action),
     adminState: adminReducer(state.adminState, action),
   );

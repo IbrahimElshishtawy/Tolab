@@ -5041,12 +5041,8 @@ class _AddSummaryPrototypePageState extends State<AddSummaryPrototypePage> {
                 onPressed: () {
                   final title = _title.text.trim();
                   if (title.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          t('اكتب عنوان الملخص', 'Enter the summary title'),
-                        ),
-                      ),
+                    showRootSnackBar(
+                      t('اكتب عنوان الملخص', 'Enter the summary title'),
                     );
                     return;
                   }
@@ -5434,17 +5430,9 @@ class _GroupChatPrototypePageState extends State<GroupChatPrototypePage> {
                   children: [
                     IconButton(
                       tooltip: t('إرفاق', 'Attach'),
-                      onPressed: () =>
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                t(
-                                  'اختيار مرفق تجريبي',
-                                  'Mock attachment picker',
-                                ),
-                              ),
-                            ),
-                          ),
+                      onPressed: () => showRootSnackBar(
+                        t('اختيار مرفق تجريبي', 'Mock attachment picker'),
+                      ),
                       icon: const Icon(Icons.attach_file_rounded),
                     ),
                     Expanded(
@@ -5493,9 +5481,7 @@ class _GroupChatPrototypePageState extends State<GroupChatPrototypePage> {
                 title: Text(t('Copy', 'Copy')),
                 onTap: () {
                   Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(t('تم النسخ', 'Copied'))),
-                  );
+                  showRootSnackBar(t('تم النسخ', 'Copied'));
                 },
               ),
               if (message.isMine)
