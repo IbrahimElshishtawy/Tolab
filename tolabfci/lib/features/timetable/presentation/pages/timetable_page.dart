@@ -457,13 +457,13 @@ String _statusLabel(TimetableItem item) {
 }
 
 Color _typeColor(String type) {
-  if (type.contains('محاضرة')) {
+  if (type.contains('محاضرة') || type == 'Lecture') {
     return AppColors.primary;
   }
-  if (type.contains('سكشن')) {
+  if (type.contains('سكشن') || type == 'Section') {
     return AppColors.indigo;
   }
-  if (type.contains('كويز')) {
+  if (type.contains('كويز') || type == 'Quiz') {
     return AppColors.error;
   }
   return AppColors.warning;
