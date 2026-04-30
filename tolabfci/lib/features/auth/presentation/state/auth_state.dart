@@ -1,6 +1,12 @@
 import '../../../../core/session/app_session.dart';
 
-enum AuthStage { unauthenticated, awaitingNationalId, authenticated }
+enum AuthStage {
+  unauthenticated,
+  awaitingNationalId,
+  awaitingOtp,
+  awaitingNewPassword,
+  authenticated,
+}
 
 class AuthState {
   const AuthState({

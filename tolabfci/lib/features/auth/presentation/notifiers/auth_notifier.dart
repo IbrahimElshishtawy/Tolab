@@ -45,7 +45,9 @@ class AuthNotifier extends Notifier<AuthState> {
           .read(authRepositoryProvider)
           .login(email: email, password: password);
       state = state.copyWith(
-        stage: AuthStage.awaitingNationalId,
+        stage: session.role == AppUserRole.student
+            ? AuthStage.awaitingNationalId
+            : AuthStage.authenticated,
         role: session.role,
         nationalId: session.nationalId,
         isSubmitting: false,
@@ -72,6 +74,34 @@ class AuthNotifier extends Notifier<AuthState> {
                 ? expectedNationalId
                 : null,
           );
+      state = state.copyWith(
+        stage: AuthStage.awaitingOtp,
+        isSubmitting: false,
+        clearError: true,
+      );
+    } on AppException catch (error) {
+      state = state.copyWith(isSubmitting: false, errorMessage: error.message);
+    }
+  }
+
+  Future<void> verifyOtp(String code) async {
+    state = state.copyWith(isSubmitting: true, clearError: true);
+    try {
+      await ref.read(authRepositoryProvider).verifyOtp(code);
+      state = state.copyWith(
+        stage: AuthStage.awaitingNewPassword,
+        isSubmitting: false,
+        clearError: true,
+      );
+    } on AppException catch (error) {
+      state = state.copyWith(isSubmitting: false, errorMessage: error.message);
+    }
+  }
+
+  Future<void> setNewPassword(String password) async {
+    state = state.copyWith(isSubmitting: true, clearError: true);
+    try {
+      await ref.read(authRepositoryProvider).setNewPassword(password);
       state = state.copyWith(
         stage: AuthStage.authenticated,
         isSubmitting: false,

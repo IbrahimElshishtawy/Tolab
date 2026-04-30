@@ -44,11 +44,27 @@ class MockAuthRepository implements AuthRepository {
       StorageKeys.currentUserRole,
       session.role.storageValue,
     );
-    await _secureStorageService.write(
-      StorageKeys.pendingNationalId,
-      session.nationalId,
-    );
-    await _preferencesService.setBool(StorageKeys.hasVerifiedNationalId, false);
+    if (session.role == AppUserRole.student) {
+      await _secureStorageService.write(
+        StorageKeys.pendingNationalId,
+        session.nationalId,
+      );
+      await _preferencesService.setBool(
+        StorageKeys.hasVerifiedNationalId,
+        false,
+      );
+      await _preferencesService.setString(
+        StorageKeys.pendingAuthStage,
+        _stageToStorage(AuthStage.awaitingNationalId),
+      );
+    } else {
+      await _secureStorageService.delete(StorageKeys.pendingNationalId);
+      await _preferencesService.setBool(
+        StorageKeys.hasVerifiedNationalId,
+        true,
+      );
+      await _preferencesService.setString(StorageKeys.pendingAuthStage, '');
+    }
     return session;
   }
 
@@ -61,14 +77,20 @@ class MockAuthRepository implements AuthRepository {
     if (token == null || token.isEmpty) {
       return (AuthStage.unauthenticated, role, null);
     }
+    if (role.isStaff) {
+      return (AuthStage.authenticated, role, null);
+    }
     final hasVerified = _preferencesService.getBool(
       StorageKeys.hasVerifiedNationalId,
     );
     final pendingNationalId = hasVerified
         ? null
         : await _secureStorageService.read(StorageKeys.pendingNationalId);
+    final pendingStage = _stageFromStorage(
+      _preferencesService.getString(StorageKeys.pendingAuthStage),
+    );
     return (
-      hasVerified ? AuthStage.authenticated : AuthStage.awaitingNationalId,
+      hasVerified ? AuthStage.authenticated : pendingStage,
       role,
       pendingNationalId,
     );
@@ -95,7 +117,26 @@ class MockAuthRepository implements AuthRepository {
       nationalId,
       expectedNationalId: resolvedExpectedNationalId,
     );
+    await _preferencesService.setString(
+      StorageKeys.pendingAuthStage,
+      _stageToStorage(AuthStage.awaitingOtp),
+    );
+  }
+
+  @override
+  Future<void> verifyOtp(String code) async {
+    await _backendService.verifyOtp(code);
+    await _preferencesService.setString(
+      StorageKeys.pendingAuthStage,
+      _stageToStorage(AuthStage.awaitingNewPassword),
+    );
+  }
+
+  @override
+  Future<void> setNewPassword(String password) async {
+    await _backendService.setNewPassword(password);
     await _preferencesService.setBool(StorageKeys.hasVerifiedNationalId, true);
+    await _preferencesService.setString(StorageKeys.pendingAuthStage, '');
     await _secureStorageService.delete(StorageKeys.pendingNationalId);
   }
 
@@ -107,6 +148,7 @@ class MockAuthRepository implements AuthRepository {
       StorageKeys.currentUserRole,
       AppUserRole.student.storageValue,
     );
+    await _preferencesService.setString(StorageKeys.pendingAuthStage, '');
   }
 
   String _firstNonEmpty(List<String?> values) {
@@ -117,5 +159,23 @@ class MockAuthRepository implements AuthRepository {
       }
     }
     return '';
+  }
+
+  String _stageToStorage(AuthStage stage) {
+    return switch (stage) {
+      AuthStage.awaitingOtp => 'otp',
+      AuthStage.awaitingNewPassword => 'password',
+      AuthStage.awaitingNationalId => 'national_id',
+      AuthStage.authenticated => 'authenticated',
+      AuthStage.unauthenticated => 'unauthenticated',
+    };
+  }
+
+  AuthStage _stageFromStorage(String? value) {
+    return switch (value) {
+      'otp' => AuthStage.awaitingOtp,
+      'password' => AuthStage.awaitingNewPassword,
+      _ => AuthStage.awaitingNationalId,
+    };
   }
 }

@@ -2,6 +2,8 @@ class RouteNames {
   static const splash = 'splash';
   static const login = 'login';
   static const verifyNationalId = 'verify-national-id';
+  static const verifyCode = 'verify-code';
+  static const setNewPassword = 'set-new-password';
   static const home = 'home';
   static const timetable = 'timetable';
   static const quizzes = 'quizzes';

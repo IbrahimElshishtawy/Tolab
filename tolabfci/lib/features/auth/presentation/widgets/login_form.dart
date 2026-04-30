@@ -21,7 +21,7 @@ class LoginForm extends ConsumerStatefulWidget {
 class _LoginFormState extends ConsumerState<LoginForm> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController(text: 'student@test.com');
-  final _passwordController = TextEditingController(text: '123456');
+  final _passwordController = TextEditingController(text: '12345678901234');
   bool _obscurePassword = true;
 
   @override
@@ -77,6 +77,8 @@ class _LoginFormState extends ConsumerState<LoginForm> {
               style: textTheme.bodySmall?.copyWith(height: 1.45),
             ),
             const SizedBox(height: AppSpacing.xl),
+            const _MicrosoftAccountEntry(),
+            const SizedBox(height: AppSpacing.lg),
             AppTextField(
               controller: _emailController,
               label: context.tr('البريد الجامعي', 'University email'),
@@ -105,6 +107,10 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             AppTextField(
               controller: _passwordController,
               label: context.tr('كلمة المرور', 'Password'),
+              hintText: context.tr(
+                'الرقم القومي في أول تسجيل دخول',
+                'National ID for first sign-in',
+              ),
               prefixIcon: Icons.lock_outline_rounded,
               obscureText: _obscurePassword,
               onChanged: (_) {
@@ -159,6 +165,65 @@ class _LoginFormState extends ConsumerState<LoginForm> {
   }
 }
 
+class _MicrosoftAccountEntry extends StatelessWidget {
+  const _MicrosoftAccountEntry();
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appColors;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.surfaceAlt,
+        borderRadius: BorderRadius.circular(AppRadii.md),
+        border: Border.all(color: palette.border),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: palette.border),
+              ),
+              child: const Icon(Icons.window_rounded, color: AppColors.primary),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.tr(
+                      'تسجيل دخول بحساب Microsoft الجامعي',
+                      'Microsoft university account',
+                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xxs),
+                  Text(
+                    context.tr(
+                      'استخدم البريد الجامعي، وكلمة المرور الافتراضية هي الرقم القومي في وضع التجربة.',
+                      'Use the university email. In mock mode the default password is the National ID.',
+                    ),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _StudentCredentialHint extends StatelessWidget {
   const _StudentCredentialHint();
 
@@ -186,8 +251,8 @@ class _StudentCredentialHint extends StatelessWidget {
             Expanded(
               child: Text(
                 context.tr(
-                  'حساب الطالب التجريبي: student@test.com / 123456',
-                  'Student demo account: student@test.com / 123456',
+                  'حساب الطالب التجريبي: student@test.com / 12345678901234',
+                  'Student demo account: student@test.com / 12345678901234',
                 ),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: palette.textPrimary,

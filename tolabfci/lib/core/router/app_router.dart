@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../features/assignments/presentation/pages/assignment_upload_page.dart';
 import '../../features/assignments/presentation/pages/student_assignments_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/otp_verification_page.dart';
+import '../../features/auth/presentation/pages/set_new_password_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/auth/presentation/pages/verify_national_id_page.dart';
 import '../../features/auth/presentation/providers/auth_providers.dart';
@@ -46,6 +48,43 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/verify-national-id',
         name: RouteNames.verifyNationalId,
         builder: (context, state) => const VerifyNationalIdPage(),
+      ),
+      GoRoute(
+        path: '/verify-code',
+        name: RouteNames.verifyCode,
+        builder: (context, state) => const OtpVerificationPage(),
+      ),
+      GoRoute(
+        path: '/set-new-password',
+        name: RouteNames.setNewPassword,
+        builder: (context, state) => const SetNewPasswordPage(),
+      ),
+      GoRoute(
+        path: '/student/home',
+        redirect: (context, state) => '/home',
+      ),
+      GoRoute(
+        path: '/student/courses',
+        redirect: (context, state) => '/subjects',
+      ),
+      GoRoute(
+        path: '/student/timetable',
+        redirect: (context, state) => '/timetable',
+      ),
+      GoRoute(
+        path: '/student/course/:subjectId',
+        redirect: (context, state) =>
+            '/subjects/${state.pathParameters['subjectId']}',
+      ),
+      GoRoute(
+        path: '/student/course/:subjectId/group',
+        redirect: (context, state) =>
+            '/subjects/${state.pathParameters['subjectId']}?tab=community',
+      ),
+      GoRoute(
+        path: '/student/course/:subjectId/quiz/:quizId',
+        redirect: (context, state) =>
+            '/subjects/${state.pathParameters['subjectId']}/quizzes/${state.pathParameters['quizId']}',
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
@@ -189,14 +228,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final isLogin = location == '/login';
       final isSplash = location == '/splash';
       final isVerifyNationalId = location == '/verify-national-id';
+      final isVerifyCode = location == '/verify-code';
+      final isSetNewPassword = location == '/set-new-password';
 
       switch (authState.stage) {
         case AuthStage.unauthenticated:
           return isLogin ? null : '/login';
         case AuthStage.awaitingNationalId:
           return isVerifyNationalId ? null : '/verify-national-id';
+        case AuthStage.awaitingOtp:
+          return isVerifyCode ? null : '/verify-code';
+        case AuthStage.awaitingNewPassword:
+          return isSetNewPassword ? null : '/set-new-password';
         case AuthStage.authenticated:
-          if (isLogin || isSplash || isVerifyNationalId) {
+          if (isLogin ||
+              isSplash ||
+              isVerifyNationalId ||
+              isVerifyCode ||
+              isSetNewPassword) {
             return '/home';
           }
           return null;

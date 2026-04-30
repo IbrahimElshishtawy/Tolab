@@ -433,7 +433,8 @@ class MockBackendService {
     await Future<void>.delayed(const Duration(milliseconds: 700));
     final normalizedEmail = email.trim().toLowerCase();
 
-    if (normalizedEmail == _studentSession.email && password == '123456') {
+    if (normalizedEmail == _studentSession.email &&
+        (password == '123456' || password == _studentSession.nationalId)) {
       return _studentSession;
     }
     if (normalizedEmail == _doctorSession.email && password == 'doctor123') {
@@ -463,6 +464,27 @@ class MockBackendService {
       throw const AppException(
         'تعذر التحقق من الرقم القومي. راجع الرقم وحاول مرة أخرى.',
         code: '12345678901234',
+      );
+    }
+  }
+
+  Future<void> verifyOtp(String code) async {
+    await Future<void>.delayed(const Duration(milliseconds: 450));
+    final normalizedCode = code.trim().replaceAll(RegExp(r'\s+'), '');
+    if (normalizedCode != '123456') {
+      throw const AppException(
+        'كود التحقق غير صحيح. استخدم كود التجربة 123456.',
+        code: 'invalid_otp',
+      );
+    }
+  }
+
+  Future<void> setNewPassword(String password) async {
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    if (password.trim().length < 8) {
+      throw const AppException(
+        'كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل.',
+        code: 'weak_password',
       );
     }
   }

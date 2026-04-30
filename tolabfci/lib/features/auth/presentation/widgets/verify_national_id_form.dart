@@ -11,6 +11,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../providers/auth_providers.dart';
+import '../state/auth_state.dart';
 
 class VerifyNationalIdForm extends ConsumerStatefulWidget {
   const VerifyNationalIdForm({super.key});
@@ -47,10 +48,8 @@ class _VerifyNationalIdFormState extends ConsumerState<VerifyNationalIdForm> {
     final textTheme = Theme.of(context).textTheme;
 
     ref.listen(authNotifierProvider, (previous, next) {
-      if (previous?.stage != next.stage &&
-          next.stage == AuthStage.authenticated) {
-        GoRouter.of(context).goNamed(RouteNames.home);
-        // if (mounted) {}
+      if (previous?.stage != next.stage && next.stage == AuthStage.awaitingOtp) {
+        GoRouter.of(context).goNamed(RouteNames.verifyCode);
       }
     });
 

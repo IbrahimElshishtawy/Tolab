@@ -14,5 +14,9 @@ abstract class AuthRepository {
     String? expectedNationalId,
   });
 
+  Future<void> verifyOtp(String code);
+
+  Future<void> setNewPassword(String password);
+
   Future<void> logout();
 }

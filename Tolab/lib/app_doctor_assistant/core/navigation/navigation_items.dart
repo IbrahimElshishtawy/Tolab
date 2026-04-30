@@ -130,12 +130,7 @@ DoctorAssistantNavigationConfig buildDoctorAssistantNavigationConfig(
         path: AppRoutes.staff,
         icon: Icons.person_rounded,
       ),
-    if (user.hasPermission('uploads.view'))
-      const DoctorAssistantNavigationItem(
-        label: 'الاضفات',
-        path: AppRoutes.uploads,
-        icon: Icons.upload_file_rounded,
-      ),
+
     if (user.hasPermission('analytics.view'))
       const DoctorAssistantNavigationItem(
         label: 'Analytics',
