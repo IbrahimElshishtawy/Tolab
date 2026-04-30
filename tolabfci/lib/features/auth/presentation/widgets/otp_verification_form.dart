@@ -69,9 +69,9 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
                 'أدخل كود التحقق المرسل إلى بريدك الجامعي. كود التجربة هو 123456.',
                 'Enter the code sent to your university email. The mock code is 123456.',
               ),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                height: 1.45,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(height: 1.45),
             ),
             const SizedBox(height: AppSpacing.xl),
             AppTextField(
@@ -156,10 +156,9 @@ class _FlowErrorMessage extends StatelessWidget {
             Expanded(
               child: Text(
                 message,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: errorColor,
-                  height: 1.4,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: errorColor, height: 1.4),
               ),
             ),
           ],

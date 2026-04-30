@@ -37,10 +37,7 @@ class GroupChatPage extends StatelessWidget {
               backgroundColor: palette.surfaceElevated,
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.groups_2_outlined,
-                    color: AppColors.primary,
-                  ),
+                  const Icon(Icons.groups_2_outlined, color: AppColors.primary),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(

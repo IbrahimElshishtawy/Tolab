@@ -51,9 +51,9 @@ class MockTimetableRepository implements TimetableRepository {
     final quizzes = dashboard.upcomingQuizzes
         .where((item) => item.startsAt != null && item.closesAt != null)
         .map(_quizToItem);
-    final tasks = dashboard.tasks.where((item) => item.dueAt != null).map(
-          _taskToItem,
-        );
+    final tasks = dashboard.tasks
+        .where((item) => item.dueAt != null)
+        .map(_taskToItem);
 
     final items = [...lectures, ...sections, ...quizzes, ...tasks]
       ..sort((a, b) => a.startsAt.compareTo(b.startsAt));
@@ -136,8 +136,8 @@ class MockTimetableRepository implements TimetableRepository {
     return items.where((item) {
       final weekNumber =
           ((item.startsAt.difference(DateTime(item.startsAt.year)).inDays) ~/
-                  7) +
-              1;
+              7) +
+          1;
       final isOdd = weekNumber.isOdd;
       return weekPattern == 'odd' ? isOdd : !isOdd;
     }).toList();

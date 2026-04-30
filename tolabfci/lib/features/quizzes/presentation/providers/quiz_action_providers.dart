@@ -14,10 +14,14 @@ class QuizActionsController {
 
   final Ref _ref;
 
-  Future<QuizItem> submitQuiz(String quizId, {String? subjectId}) async {
+  Future<QuizItem> submitQuiz(
+    String quizId, {
+    String? subjectId,
+    Map<String, Object?> answers = const {},
+  }) async {
     final updated = await _ref
         .read(quizzesRepositoryProvider)
-        .submitQuiz(quizId, subjectId: subjectId);
+        .submitQuiz(quizId, subjectId: subjectId, answers: answers);
     _ref.invalidate(quizzesProvider(null));
     _ref.invalidate(homeDashboardProvider);
     if (subjectId != null) {

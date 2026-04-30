@@ -65,6 +65,42 @@ class AppRouter {
           path: RoutePaths.login,
           builder: (context, state) => const LoginScreen(),
         ),
+        GoRoute(
+          path: '/admin/dashboard',
+          redirect: (context, state) => RoutePaths.dashboard,
+        ),
+        GoRoute(
+          path: '/admin/users',
+          redirect: (context, state) => RoutePaths.students,
+        ),
+        GoRoute(
+          path: '/admin/students',
+          redirect: (context, state) => RoutePaths.students,
+        ),
+        GoRoute(
+          path: '/admin/subjects',
+          redirect: (context, state) => RoutePaths.subjects,
+        ),
+        GoRoute(
+          path: '/admin/course-offerings',
+          redirect: (context, state) => RoutePaths.courseOfferings,
+        ),
+        GoRoute(
+          path: '/admin/enrollments',
+          redirect: (context, state) => RoutePaths.enrollments,
+        ),
+        GoRoute(
+          path: '/admin/content',
+          redirect: (context, state) => RoutePaths.content,
+        ),
+        GoRoute(
+          path: '/admin/schedule',
+          redirect: (context, state) => RoutePaths.schedule,
+        ),
+        GoRoute(
+          path: '/admin/moderation',
+          redirect: (context, state) => RoutePaths.moderation,
+        ),
         _shellPageRoute(
           path: RoutePaths.dashboard,
           child: const DashboardScreen(),

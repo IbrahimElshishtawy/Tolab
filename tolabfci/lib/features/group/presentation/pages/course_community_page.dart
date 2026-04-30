@@ -124,7 +124,9 @@ class _CourseCommunityPageState extends ConsumerState<CourseCommunityPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(context.tr('مجتمع المقرر', 'Course Community'))),
+      appBar: AppBar(
+        title: Text(context.tr('مجتمع المقرر', 'Course Community')),
+      ),
       body: SafeArea(child: AdaptivePageContainer(child: body)),
     );
   }

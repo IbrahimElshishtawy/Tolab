@@ -33,6 +33,7 @@ class _QuizTakingPageState extends ConsumerState<QuizTakingPage> {
   Timer? _timer;
   int _remainingSeconds = 0;
   int _currentQuestionIndex = 0;
+  final Set<String> _markedForReview = {};
   bool _submitted = false;
   String? _scoreLabel;
 
@@ -90,12 +91,17 @@ class _QuizTakingPageState extends ConsumerState<QuizTakingPage> {
                       children: details.questions.asMap().entries.map((entry) {
                         final selected = entry.key == _currentQuestionIndex;
                         final answered = _answers.containsKey(entry.value.id);
+                        final marked = _markedForReview.contains(
+                          entry.value.id,
+                        );
                         return OutlinedButton(
                           onPressed: () =>
                               setState(() => _currentQuestionIndex = entry.key),
                           style: OutlinedButton.styleFrom(
                             backgroundColor: selected
                                 ? AppColors.primary.withValues(alpha: 0.12)
+                                : marked
+                                ? AppColors.warning.withValues(alpha: 0.12)
                                 : answered
                                 ? AppColors.success.withValues(alpha: 0.10)
                                 : null,
@@ -149,6 +155,25 @@ class _QuizTakingPageState extends ConsumerState<QuizTakingPage> {
                       spacing: AppSpacing.sm,
                       runSpacing: AppSpacing.sm,
                       children: [
+                        FilledButton.tonalIcon(
+                          onPressed: () => setState(() {
+                            if (_markedForReview.contains(question.id)) {
+                              _markedForReview.remove(question.id);
+                            } else {
+                              _markedForReview.add(question.id);
+                            }
+                          }),
+                          icon: Icon(
+                            _markedForReview.contains(question.id)
+                                ? Icons.bookmark_rounded
+                                : Icons.bookmark_border_rounded,
+                          ),
+                          label: Text(
+                            _markedForReview.contains(question.id)
+                                ? 'إزالة المراجعة'
+                                : 'تحديد للمراجعة',
+                          ),
+                        ),
                         FilledButton.tonal(
                           onPressed: _currentQuestionIndex == 0
                               ? null
@@ -249,7 +274,11 @@ class _QuizTakingPageState extends ConsumerState<QuizTakingPage> {
   Future<void> _submitQuiz() async {
     final updated = await ref
         .read(quizActionsProvider)
-        .submitQuiz(widget.quizId, subjectId: widget.subjectId);
+        .submitQuiz(
+          widget.quizId,
+          subjectId: widget.subjectId,
+          answers: Map<String, Object?>.from(_answers),
+        );
     if (!mounted) {
       return;
     }

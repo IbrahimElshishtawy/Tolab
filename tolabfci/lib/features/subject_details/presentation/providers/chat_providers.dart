@@ -83,7 +83,9 @@ class ChatController extends AsyncNotifier<ChatState> {
       return;
     }
     state = AsyncData(current.copyWith(isSending: true));
-    await ref.read(communityRepositoryProvider).sendMessage(_subjectId, content);
+    await ref
+        .read(communityRepositoryProvider)
+        .sendMessage(_subjectId, content);
     final refreshed = await ref
         .read(communityRepositoryProvider)
         .getMessages(_subjectId, pageSize: _pageSize);

@@ -48,7 +48,8 @@ class _VerifyNationalIdFormState extends ConsumerState<VerifyNationalIdForm> {
     final textTheme = Theme.of(context).textTheme;
 
     ref.listen(authNotifierProvider, (previous, next) {
-      if (previous?.stage != next.stage && next.stage == AuthStage.awaitingOtp) {
+      if (previous?.stage != next.stage &&
+          next.stage == AuthStage.awaitingOtp) {
         GoRouter.of(context).goNamed(RouteNames.verifyCode);
       }
     });

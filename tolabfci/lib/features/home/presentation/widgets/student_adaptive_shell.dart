@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/responsive/breakpoints.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -42,7 +43,7 @@ class StudentAdaptiveShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.appColors;
 
-    if (MediaQuery.sizeOf(context).width >= 1100) {
+    if (MediaQuery.sizeOf(context).width >= AppBreakpoints.desktop) {
       return Scaffold(
         body: Row(
           children: [

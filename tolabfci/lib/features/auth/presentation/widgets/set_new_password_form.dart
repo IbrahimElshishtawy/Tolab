@@ -72,9 +72,9 @@ class _SetNewPasswordFormState extends ConsumerState<SetNewPasswordForm> {
                 'بعد هذه الخطوة لن تحتاج لاستخدام الرقم القومي ككلمة مرور افتراضية.',
                 'After this step you can stop using the National ID as the default password.',
               ),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                height: 1.45,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(height: 1.45),
             ),
             const SizedBox(height: AppSpacing.xl),
             AppTextField(
@@ -198,10 +198,9 @@ class _FlowErrorMessage extends StatelessWidget {
             Expanded(
               child: Text(
                 message,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: errorColor,
-                  height: 1.4,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: errorColor, height: 1.4),
               ),
             ),
           ],

@@ -25,5 +25,4 @@ abstract class QuizzesRepository {
     required String subjectId,
     required String quizId,
   });
-
 }

@@ -59,10 +59,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: RouteNames.setNewPassword,
         builder: (context, state) => const SetNewPasswordPage(),
       ),
-      GoRoute(
-        path: '/student/home',
-        redirect: (context, state) => '/home',
-      ),
+      GoRoute(path: '/student/home', redirect: (context, state) => '/home'),
       GoRoute(
         path: '/student/courses',
         redirect: (context, state) => '/subjects',

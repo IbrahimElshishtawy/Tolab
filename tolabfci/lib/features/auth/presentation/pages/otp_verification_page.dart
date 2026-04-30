@@ -134,9 +134,9 @@ class _OtpPanel extends StatelessWidget {
                 'هذه خطوة تجريبية جاهزة لاحقا للتكامل مع خدمة OTP أو Microsoft Entra.',
                 'This mock step is ready to map later to an OTP service or Microsoft Entra.',
               ),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                height: 1.5,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(height: 1.5),
             ),
           ],
         ),

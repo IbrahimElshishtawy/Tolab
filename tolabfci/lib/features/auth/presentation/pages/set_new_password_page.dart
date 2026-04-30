@@ -134,9 +134,9 @@ class _PasswordPanel extends StatelessWidget {
                 'سيتم حفظ كلمة المرور الجديدة في وضع التجربة محليا، ويمكن لاحقا ربطها بنقطة API مخصصة.',
                 'The mock flow stores completion locally and can later connect to a dedicated API endpoint.',
               ),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                height: 1.5,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(height: 1.5),
             ),
           ],
         ),

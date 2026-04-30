@@ -51,7 +51,9 @@ class LatestUpdatesWidget extends StatelessWidget {
           if (items.isEmpty)
             _EmptyUpdatesState()
           else
-            ...items.take(5).map(
+            ...items
+                .take(5)
+                .map(
                   (item) => Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                     child: _LatestUpdateTile(item: item),
@@ -103,16 +105,16 @@ class _LatestUpdateTile extends StatelessWidget {
                   Text(
                     item.title,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.xxs),
                   Text(
                     item.subjectName ?? item.category,
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: accent,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      color: accent,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.xxs),
                   Text(item.createdAtLabel),
@@ -149,13 +151,16 @@ class _EmptyUpdatesState extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Icon(Icons.notifications_none_rounded, color: AppColors.primary),
+          const Icon(
+            Icons.notifications_none_rounded,
+            color: AppColors.primary,
+          ),
           const SizedBox(height: AppSpacing.sm),
           Text(
             context.tr('لا توجد تحديثات جديدة', 'No new updates'),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
