@@ -5,6 +5,7 @@ import '../../../../core/models/subject_models.dart';
 import '../../../home/presentation/providers/home_providers.dart';
 import '../../../subjects/data/repositories/mock_subjects_repository.dart';
 import '../../../subjects/presentation/providers/subjects_providers.dart';
+import '../../../timetable/presentation/providers/timetable_providers.dart';
 
 typedef AssignmentUploadKey = ({String subjectId, String taskId});
 
@@ -102,6 +103,7 @@ class AssignmentUploadController
       ref.invalidate(tasksProvider(key.subjectId));
       ref.invalidate(subjectByIdProvider(key.subjectId));
       ref.invalidate(homeDashboardProvider);
+      ref.invalidate(timetableItemsProvider);
       _setState(
         key,
         _readState(key).copyWith(isUploading: false, isSuccess: true),

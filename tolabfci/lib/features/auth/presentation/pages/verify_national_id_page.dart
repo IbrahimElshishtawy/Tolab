@@ -178,6 +178,19 @@ class _VerificationPanel extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.md),
               _VerificationStep(
+                icon: Icons.mark_email_read_outlined,
+                label: context.tr(
+                  'أكد كود البريد الجامعي',
+                  'Confirm email code',
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _VerificationStep(
+                icon: Icons.lock_reset_rounded,
+                label: context.tr('عين كلمة مرور جديدة', 'Set new password'),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _VerificationStep(
                 icon: Icons.home_rounded,
                 label: context.tr('انتقل إلى الرئيسية', 'Continue home'),
               ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/models/quiz_models.dart';
 import '../../data/repositories/mock_quizzes_repository.dart';
 import '../../../home/presentation/providers/home_providers.dart';
+import '../../../timetable/presentation/providers/timetable_providers.dart';
 import 'quizzes_providers.dart';
 
 final quizActionsProvider = Provider<QuizActionsController>((ref) {
@@ -24,6 +25,7 @@ class QuizActionsController {
         .submitQuiz(quizId, subjectId: subjectId, answers: answers);
     _ref.invalidate(quizzesProvider(null));
     _ref.invalidate(homeDashboardProvider);
+    _ref.invalidate(timetableItemsProvider);
     if (subjectId != null) {
       _ref.invalidate(quizzesProvider(subjectId));
       _ref.invalidate(
