@@ -10,7 +10,6 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../providers/auth_providers.dart';
-import '../state/auth_state.dart';
 
 class SetNewPasswordForm extends ConsumerStatefulWidget {
   const SetNewPasswordForm({super.key});
