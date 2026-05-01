@@ -141,7 +141,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               _AdaptiveOperationsRow(
                 bundle: bundle,
                 onQuickActionSelected: (action) {
-                  if (action.route.isEmpty) {
+                  final route = action.route;
+                  if (route.isEmpty) {
                     StoreProvider.of<AppState>(context, listen: false).dispatch(
                       DashboardFeedbackShownAction(
                         '${action.label} is ready for the connected backend flow.',
@@ -149,7 +150,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     );
                     return;
                   }
-                  context.go(action.route);
+                  context.go(route);
                 },
               ),
             ],

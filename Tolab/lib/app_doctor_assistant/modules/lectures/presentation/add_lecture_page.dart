@@ -97,7 +97,7 @@ class _AddLecturePageState extends State<AddLecturePage> {
                   'Choose one of your assigned subjects, prepare the lecture details, and either save as draft or publish on schedule.',
               formKey: _formKey,
               primaryLabel: 'Save lecture',
-              secondaryLabel: 'Cancel',
+              secondaryLabel: 'Back',
               onSecondaryTap: () => Navigator.of(context).maybePop(),
               onSubmit: () => _submit(vm.store),
               children: [

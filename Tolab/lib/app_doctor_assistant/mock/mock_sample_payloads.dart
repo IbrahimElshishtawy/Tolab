@@ -33,6 +33,11 @@ class MockSamplePayloads {
         'analytics.view',
         'staff.view',
         'admin.view',
+        'subjects.manage',
+        'staff.manage',
+        'schedule.manage',
+        'uploads.manage',
+        'notifications.send',
       ],
     },
     {
