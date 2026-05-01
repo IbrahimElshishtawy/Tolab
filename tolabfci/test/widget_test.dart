@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tolabfci/app/tolab_student_prototype.dart';
+import 'package:tolabfci/app/app.dart';
 
 void main() {
   testWidgets('renders Tolab student prototype splash', (tester) async {
-    await tester.pumpWidget(const TolabStudentPrototypeApp());
+    await tester.pumpWidget(const TolabApp());
 
-    expect(find.text('Tolab'), findsOneWidget);
+    expect(find.text('Tola'), findsOneWidget);
     expect(find.text('ابدأ التجربة'), findsOneWidget);
   });
 }
