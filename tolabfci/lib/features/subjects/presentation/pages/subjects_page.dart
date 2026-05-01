@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../auth/presentation/providers/auth_providers.dart';
-import '../../../staff_portal/presentation/pages/staff_subjects_page.dart';
 import '../../../../core/models/subject_models.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -39,9 +38,7 @@ class _SubjectsPageState extends ConsumerState<SubjectsPage> {
   @override
   Widget build(BuildContext context) {
     final isStaff = ref.watch(isStaffUserProvider);
-    if (isStaff) {
-      return const StaffSubjectsPage();
-    }
+    if (isStaff) {}
 
     final subjectsAsync = ref.watch(subjectsProvider);
 
@@ -129,8 +126,7 @@ class _SubjectsPageState extends ConsumerState<SubjectsPage> {
       case 'new':
         return subject.status == 'جديد';
       case 'watch':
-        return subject.status == 'مطلوب تسليم' ||
-            subject.progress < 0.55;
+        return subject.status == 'مطلوب تسليم' || subject.progress < 0.55;
       default:
         return true;
     }
@@ -155,14 +151,11 @@ class _SubjectsHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final active = subjects
-        .where((subject) => subject.status == 'نشطة')
-        .length;
+    final active = subjects.where((subject) => subject.status == 'نشطة').length;
     final watchList = subjects
         .where(
           (subject) =>
-              subject.status == 'مطلوب تسليم' ||
-              subject.progress < 0.55,
+              subject.status == 'مطلوب تسليم' || subject.progress < 0.55,
         )
         .length;
     final avgProgress = subjects.isEmpty

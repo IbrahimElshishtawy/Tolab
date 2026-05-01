@@ -17,7 +17,6 @@ import '../../../../core/widgets/responsive_wrap_grid.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../home/presentation/providers/home_providers.dart';
 import '../../../settings/presentation/widgets/settings_notifier.dart';
-import '../../../staff_portal/presentation/pages/staff_profile_page.dart';
 import '../../../support/presentation/providers/support_providers.dart';
 import '../providers/profile_providers.dart';
 
@@ -28,7 +27,7 @@ class ProfilePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isStaff = ref.watch(isStaffUserProvider);
     if (isStaff) {
-      return const StaffProfilePage();
+      //return const StaffProfilePage();
     }
 
     final profileAsync = ref.watch(profileProvider);

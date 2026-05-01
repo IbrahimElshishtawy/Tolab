@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../auth/presentation/providers/auth_providers.dart';
-import '../../../staff_portal/presentation/pages/staff_subject_workspace_page.dart';
 import '../../../../core/models/quiz_models.dart';
 import '../../../../core/models/subject_models.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -76,9 +75,7 @@ class _SubjectDetailsPageState extends ConsumerState<SubjectDetailsPage>
   @override
   Widget build(BuildContext context) {
     final isStaff = ref.watch(isStaffUserProvider);
-    if (isStaff) {
-      return StaffSubjectWorkspacePage(subjectId: widget.subjectId);
-    }
+    if (isStaff) {}
 
     final subjectAsync = ref.watch(subjectByIdProvider(widget.subjectId));
     final tasksAsync = ref.watch(tasksProvider(widget.subjectId));
