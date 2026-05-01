@@ -1,19 +1,12 @@
 enum AppUserRole {
-  student,
-  doctor,
-  assistant;
+  student;
 
-  bool get isStaff =>
-      this == AppUserRole.doctor || this == AppUserRole.assistant;
+  bool get isStaff => false;
 
   String get storageValue => name;
 
   static AppUserRole fromStorage(String? value) {
-    return switch (value) {
-      'doctor' => AppUserRole.doctor,
-      'assistant' => AppUserRole.assistant,
-      _ => AppUserRole.student,
-    };
+    return AppUserRole.student;
   }
 }
 

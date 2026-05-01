@@ -66,26 +66,8 @@ class MockBackendService {
     nationalId: '12345678901234',
   );
 
-  final AuthSessionData _doctorSession = const AuthSessionData(
-    token: 'mock-doctor-access-token',
-    role: AppUserRole.doctor,
-    email: 'omar.nabil@tolab.edu',
-    nationalId: '12345678901234',
-  );
-
-  final AuthSessionData _assistantSession = const AuthSessionData(
-    token: 'mock-assistant-access-token',
-    role: AppUserRole.assistant,
-    email: 'nora.sameh@tolab.edu',
-    nationalId: '12345678901234',
-  );
-
   String nationalIdForRole(AppUserRole role) {
-    return switch (role) {
-      AppUserRole.student => _studentSession.nationalId,
-      AppUserRole.doctor => _doctorSession.nationalId,
-      AppUserRole.assistant => _assistantSession.nationalId,
-    };
+    return _studentSession.nationalId;
   }
 
   final List<SubjectOverview> _subjects = const [
@@ -436,13 +418,6 @@ class MockBackendService {
     if (normalizedEmail == _studentSession.email &&
         (password == '123456' || password == _studentSession.nationalId)) {
       return _studentSession;
-    }
-    if (normalizedEmail == _doctorSession.email && password == 'doctor123') {
-      return _doctorSession;
-    }
-    if (normalizedEmail == _assistantSession.email &&
-        password == 'assistant123') {
-      return _assistantSession;
     }
     throw const AppException(
       'بيانات الدخول غير صحيحة. استخدم حساب الطالب المعتمد.',
