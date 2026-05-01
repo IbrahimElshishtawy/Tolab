@@ -88,7 +88,7 @@ class _AddPostPageState extends State<AddPostPage> {
                   'Publish a clean academic post with title, content, priority, and optional attachment label.',
               formKey: _formKey,
               primaryLabel: 'Publish post',
-              secondaryLabel: 'Cancel',
+              secondaryLabel: 'Back',
               onSecondaryTap: () => Navigator.of(context).maybePop(),
               onSubmit: submit,
               children: [

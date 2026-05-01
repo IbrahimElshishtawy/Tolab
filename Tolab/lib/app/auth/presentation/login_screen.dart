@@ -27,6 +27,7 @@ class _UnifiedLoginScreenState extends State<UnifiedLoginScreen> {
   bool _obscurePassword = true;
 
   static const Map<String, String> _presets = <String, String>{
+    'Super Admin': 'superadmin@tolab.edu',
     'Admin': 'admin@tolab.edu',
     'Doctor': 'doctor@tolab.edu',
     'Assistant': 'assistant@tolab.edu',
