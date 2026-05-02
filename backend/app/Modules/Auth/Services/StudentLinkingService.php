@@ -62,7 +62,6 @@ class StudentLinkingService
         if (! is_array($linkPayload)) {
             throw new ApiException('The Microsoft link session is invalid or has expired.', [], Response::HTTP_UNAUTHORIZED);
         }
-
         $student = User::query()
             ->whereKey($linkPayload['user_id'])
             ->where('role', UserRole::STUDENT->value)
@@ -77,17 +76,14 @@ class StudentLinkingService
         if (! $student->is_active) {
             throw new ApiException('This student account is inactive.', [], Response::HTTP_FORBIDDEN);
         }
-
         if (! hash_equals((string) $student->national_id, (string) $payload['national_id'])) {
             Log::warning('Microsoft student link rejected due to national ID mismatch.', [
                 'user_id' => $student->id,
                 'ip' => request()->ip(),
             ]);
-
             $this->auditLogService->log(null, 'auth.microsoft.link-failed', $student, [
                 'reason' => 'national_id_mismatch',
             ], request());
-
             throw new ApiException(
                 'Unable to verify your identity with the provided information.',
                 ['national_id' => ['Unable to verify your identity with the provided information.']],
