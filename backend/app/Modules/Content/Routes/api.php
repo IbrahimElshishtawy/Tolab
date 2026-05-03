@@ -1,7 +1,7 @@
 <?php
 
-use App\Modules\Content\Controllers\AdminContentController;
-use App\Modules\Content\Controllers\FileUploadController;
+use App\Modules\Content\Interface\Controllers\AdminContentController;
+use App\Modules\Content\Interface\Controllers\FileUploadController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->group(function () {

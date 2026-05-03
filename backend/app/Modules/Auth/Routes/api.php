@@ -1,7 +1,7 @@
 <?php
 
-use App\Modules\Auth\Controllers\AuthController;
-use App\Modules\Auth\Controllers\MicrosoftAuthController;
+use App\Modules\Auth\Interface\Controllers\AuthController;
+use App\Modules\Auth\Interface\Controllers\MicrosoftAuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');

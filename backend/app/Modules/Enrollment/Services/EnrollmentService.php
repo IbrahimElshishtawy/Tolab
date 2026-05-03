@@ -5,7 +5,7 @@ namespace App\Modules\Enrollment\Services;
 use App\Core\Enums\GroupMemberRole;
 use App\Core\Enums\UserRole;
 use App\Core\Exceptions\ApiException;
-use App\Modules\Academic\Models\CourseOffering;
+use App\Modules\Academic\Infrastructure\CourseOffering;
 use App\Modules\Enrollment\Models\Enrollment;
 use App\Modules\Group\Models\GroupMember;
 use App\Modules\Shared\Services\AuditLogService;

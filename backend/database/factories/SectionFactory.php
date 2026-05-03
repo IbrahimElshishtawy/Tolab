@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Modules\Academic\Models\Department;
-use App\Modules\Academic\Models\Section;
+use App\Modules\Academic\Infrastructure\Department;
+use App\Modules\Academic\Infrastructure\Section;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

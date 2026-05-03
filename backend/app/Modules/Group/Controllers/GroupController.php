@@ -4,7 +4,7 @@ namespace App\Modules\Group\Controllers;
 
 use App\Core\Base\ApiController;
 use App\Core\Services\PaginationSanitizer;
-use App\Modules\Academic\Models\CourseOffering;
+use App\Modules\Academic\Infrastructure\CourseOffering;
 use App\Modules\Group\Models\Comment;
 use App\Modules\Group\Models\GroupChat;
 use App\Modules\Group\Models\Message;

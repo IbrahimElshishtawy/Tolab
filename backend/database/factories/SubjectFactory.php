@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use App\Core\Enums\Semester;
-use App\Modules\Academic\Models\Department;
-use App\Modules\Academic\Models\Subject;
+use App\Modules\Academic\Infrastructure\Department;
+use App\Modules\Academic\Infrastructure\Subject;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

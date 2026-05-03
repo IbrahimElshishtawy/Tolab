@@ -70,7 +70,7 @@ return new class extends Migration
         Schema::create('staff_assignments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
+            $table->foreignId('course_offering_id')->constrained('subjects')->cascadeOnDelete();
             $table->foreignId('section_id')->nullable()->constrained('sections')->nullOnDelete();
             $table->foreignId('department_id')->constrained('departments')->cascadeOnDelete();
             $table->foreignId('academic_year_id')->nullable()->constrained('academic_years')->nullOnDelete();
@@ -80,7 +80,7 @@ return new class extends Migration
 
         Schema::create('academic_section_contents', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
+            $table->foreignId('course_offering_id')->constrained('subjects')->cascadeOnDelete();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->unsignedTinyInteger('week_number')->default(1);
             $table->string('title', 180);
@@ -94,7 +94,7 @@ return new class extends Migration
 
         Schema::create('quizzes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
+            $table->foreignId('course_offering_id')->constrained('subjects')->cascadeOnDelete();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->unsignedTinyInteger('week_number')->default(1);
             $table->string('title', 180);
@@ -108,14 +108,14 @@ return new class extends Migration
 
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
+            $table->foreignId('course_offering_id')->constrained('subjects')->cascadeOnDelete();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->unsignedTinyInteger('week_number')->default(1);
             $table->string('title', 180);
             $table->string('lecture_or_section_name', 180)->nullable();
             $table->string('owner_name', 180)->nullable();
             $table->string('file_path', 255)->nullable();
-            $table->date('due_date')->nullable();
+            $table->date('due_at')->nullable();
             $table->boolean('is_published')->default(false);
             $table->timestamps();
         });

@@ -3,7 +3,7 @@
 namespace App\Modules\Grades\Services;
 
 use App\Core\Exceptions\ApiException;
-use App\Modules\Academic\Models\CourseOffering;
+use App\Modules\Academic\Infrastructure\CourseOffering;
 use App\Modules\Grades\Models\GradeItem;
 use App\Modules\Shared\Services\AuditLogService;
 use App\Modules\UserManagement\Models\User;

@@ -3,9 +3,9 @@
 namespace Database\Factories;
 
 use App\Core\Enums\Semester;
-use App\Modules\Academic\Models\CourseOffering;
-use App\Modules\Academic\Models\Section;
-use App\Modules\Academic\Models\Subject;
+use App\Modules\Academic\Infrastructure\CourseOffering;
+use App\Modules\Academic\Infrastructure\Section;
+use App\Modules\Academic\Infrastructure\Subject;
 use App\Modules\UserManagement\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

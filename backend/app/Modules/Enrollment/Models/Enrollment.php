@@ -2,7 +2,7 @@
 
 namespace App\Modules\Enrollment\Models;
 
-use App\Modules\Academic\Models\CourseOffering;
+use App\Modules\Academic\Infrastructure\CourseOffering;
 use App\Modules\UserManagement\Models\User;
 use Database\Factories\EnrollmentFactory;
 use Illuminate\Database\Eloquent\Builder;

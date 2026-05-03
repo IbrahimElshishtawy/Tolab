@@ -3,7 +3,7 @@
 namespace App\Modules\StaffPortal\Controllers;
 
 use App\Core\Base\ApiController;
-use App\Modules\Academic\Models\Subject;
+use App\Modules\Academic\Infrastructure\Subject;
 use App\Modules\StaffPortal\Resources\SubjectPortalResource;
 use App\Modules\StaffPortal\Services\PortalService;
 use Illuminate\Http\Request;

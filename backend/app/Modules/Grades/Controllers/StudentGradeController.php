@@ -3,7 +3,7 @@
 namespace App\Modules\Grades\Controllers;
 
 use App\Core\Base\ApiController;
-use App\Modules\Academic\Models\CourseOffering;
+use App\Modules\Academic\Infrastructure\CourseOffering;
 use App\Modules\Grades\Resources\GradeItemResource;
 
 class StudentGradeController extends ApiController

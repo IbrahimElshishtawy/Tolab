@@ -4,7 +4,7 @@ namespace App\Modules\StaffPortal\Services;
 
 use App\Core\Enums\UserRole;
 use App\Core\Exceptions\ApiException;
-use App\Modules\Auth\Services\TokenService;
+use App\Modules\Auth\Application\TokenService;
 use App\Modules\Shared\Services\AuditLogService;
 use App\Modules\UserManagement\Models\User;
 use Illuminate\Support\Facades\DB;

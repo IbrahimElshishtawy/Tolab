@@ -3,7 +3,7 @@
 namespace App\Modules\StaffPortal\Controllers;
 
 use App\Core\Base\ApiController;
-use App\Modules\Auth\Requests\RefreshTokenRequest;
+use App\Modules\Auth\Interface\Requests\RefreshTokenRequest;
 use App\Modules\StaffPortal\Requests\ForgotPasswordRequest;
 use App\Modules\StaffPortal\Requests\PortalLoginRequest;
 use App\Modules\StaffPortal\Resources\SessionUserResource;

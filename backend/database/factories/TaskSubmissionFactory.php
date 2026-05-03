@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Modules\StaffPortal\Models\Task;
-use App\Modules\StaffPortal\Models\TaskSubmission;
+use App\Modules\Tasks\Infrastructure\Task;
+use App\Modules\Tasks\Infrastructure\TaskSubmission;
 use App\Modules\UserManagement\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

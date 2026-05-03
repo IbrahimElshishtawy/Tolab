@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Modules\Academic\Models\Subject;
+use App\Modules\Academic\Infrastructure\Subject;
 use App\Modules\StaffPortal\Models\AcademicSectionContent;
 use App\Modules\UserManagement\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;

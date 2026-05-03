@@ -3,7 +3,7 @@
 namespace App\Modules\UserManagement\Models;
 
 use App\Core\Enums\StaffTitle;
-use App\Modules\Academic\Models\Department;
+use App\Modules\Academic\Infrastructure\Department;
 use Database\Factories\StaffProfileFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
