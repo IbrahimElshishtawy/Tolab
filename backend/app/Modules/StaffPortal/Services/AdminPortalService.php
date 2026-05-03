@@ -2,7 +2,7 @@
 
 namespace App\Modules\StaffPortal\Services;
 
-use App\Modules\Academic\Models\Department;
+use App\Modules\Academic\Infrastructure\Department;
 use App\Modules\StaffPortal\Models\Permission;
 use App\Modules\UserManagement\Models\User;
 use Illuminate\Database\Eloquent\Collection;

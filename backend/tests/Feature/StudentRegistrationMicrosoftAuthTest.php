@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use App\Core\Enums\UserRole;
-use App\Modules\Academic\Models\Department;
-use App\Modules\Academic\Models\Section;
+use App\Modules\Academic\Infrastructure\Department;
+use App\Modules\Academic\Infrastructure\Section;
 use App\Modules\UserManagement\Models\StudentProfile;
 use App\Modules\UserManagement\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;

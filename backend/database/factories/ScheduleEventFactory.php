@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Core\Enums\WeekPattern;
-use App\Modules\Academic\Models\CourseOffering;
+use App\Modules\Academic\Infrastructure\CourseOffering;
 use App\Modules\Schedule\Enums\ScheduleEventType;
 use App\Modules\Schedule\Models\ScheduleEvent;
 use Illuminate\Database\Eloquent\Factories\Factory;

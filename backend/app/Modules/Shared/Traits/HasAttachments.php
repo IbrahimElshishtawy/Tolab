@@ -2,7 +2,7 @@
 
 namespace App\Modules\Shared\Traits;
 
-use App\Modules\Content\Models\Attachment;
+use App\Modules\Content\Infrastructure\Attachment;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait HasAttachments

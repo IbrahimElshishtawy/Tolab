@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Modules\Academic\Models\CourseOffering;
-use App\Modules\Academic\Policies\CourseOfferingPolicy;
+use App\Modules\Academic\Infrastructure\CourseOffering;
+use App\Modules\Academic\Infrastructure\Policies\CourseOfferingPolicy;
 use App\Modules\Grades\Models\GradeItem;
 use App\Modules\Grades\Policies\GradePolicy;
 use App\Modules\Group\Models\Comment;

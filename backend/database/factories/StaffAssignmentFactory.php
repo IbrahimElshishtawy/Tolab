@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Modules\Academic\Models\Department;
-use App\Modules\Academic\Models\Section;
-use App\Modules\Academic\Models\Subject;
+use App\Modules\Academic\Infrastructure\Department;
+use App\Modules\Academic\Infrastructure\Section;
+use App\Modules\Academic\Infrastructure\Subject;
 use App\Modules\StaffPortal\Models\AcademicYear;
 use App\Modules\StaffPortal\Models\StaffAssignment;
 use App\Modules\UserManagement\Models\User;

@@ -3,7 +3,7 @@
 namespace App\Modules\Schedule\Controllers;
 
 use App\Core\Base\ApiController;
-use App\Modules\Academic\Models\CourseOffering;
+use App\Modules\Academic\Infrastructure\CourseOffering;
 use App\Modules\Schedule\Models\ScheduleEvent;
 use App\Modules\Schedule\Requests\BulkScheduleEventRequest;
 use App\Modules\Schedule\Requests\StoreScheduleEventRequest;

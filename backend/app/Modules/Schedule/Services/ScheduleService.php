@@ -3,7 +3,7 @@
 namespace App\Modules\Schedule\Services;
 
 use App\Core\Exceptions\ApiException;
-use App\Modules\Academic\Models\CourseOffering;
+use App\Modules\Academic\Infrastructure\CourseOffering;
 use App\Modules\Schedule\Models\ScheduleEvent;
 use App\Modules\Shared\Services\AuditLogService;
 use App\Modules\UserManagement\Models\User;

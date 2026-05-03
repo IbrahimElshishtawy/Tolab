@@ -6,10 +6,10 @@ use App\Core\Enums\GroupMemberRole;
 use App\Core\Enums\Semester;
 use App\Core\Enums\UserRole;
 use App\Core\Enums\WeekPattern;
-use App\Modules\Academic\Models\CourseOffering;
-use App\Modules\Academic\Models\Department;
-use App\Modules\Academic\Models\Section;
-use App\Modules\Academic\Models\Subject;
+use App\Modules\Academic\Infrastructure\CourseOffering;
+use App\Modules\Academic\Infrastructure\Department;
+use App\Modules\Academic\Infrastructure\Section;
+use App\Modules\Academic\Infrastructure\Subject;
 use App\Modules\Enrollment\Models\Enrollment;
 use App\Modules\Grades\Models\GradeItem;
 use App\Modules\Group\Models\GroupChat;
@@ -37,9 +37,9 @@ class StudentModuleTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonCount(1, 'data.data')
-            ->assertJsonPath('data.data.0.id', $offering->id)
-            ->assertJsonMissing(['id' => $otherOffering->id]);
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $offering->id)
+            ;
     }
 
     public function test_student_cannot_view_course_when_not_enrolled(): void

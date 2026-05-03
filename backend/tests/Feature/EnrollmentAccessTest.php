@@ -4,10 +4,10 @@ namespace Tests\Feature;
 
 use App\Core\Enums\Semester;
 use App\Core\Enums\UserRole;
-use App\Modules\Academic\Models\CourseOffering;
-use App\Modules\Academic\Models\Department;
-use App\Modules\Academic\Models\Section;
-use App\Modules\Academic\Models\Subject;
+use App\Modules\Academic\Infrastructure\CourseOffering;
+use App\Modules\Academic\Infrastructure\Department;
+use App\Modules\Academic\Infrastructure\Section;
+use App\Modules\Academic\Infrastructure\Subject;
 use App\Modules\Enrollment\Models\Enrollment;
 use App\Modules\Group\Models\GroupChat;
 use App\Modules\UserManagement\Models\User;
