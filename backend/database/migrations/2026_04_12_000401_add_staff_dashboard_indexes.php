@@ -9,28 +9,28 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('staff_assignments', function (Blueprint $table) {
-            $table->index(['user_id', 'subject_id'], 'staff_assignments_user_subject_idx');
+            $table->index(['user_id', 'course_offering_id'], 'staff_assignments_user_course_offering_idx');
         });
 
         Schema::table('lectures', function (Blueprint $table) {
-            $table->index(['subject_id', 'is_published', 'published_at'], 'lectures_subject_publish_idx');
+            $table->index(['course_offering_id', 'is_published', 'published_at'], 'lectures_subject_publish_idx');
         });
 
         Schema::table('academic_section_contents', function (Blueprint $table) {
-            $table->index(['subject_id', 'is_published', 'published_at'], 'section_contents_subject_publish_idx');
+            $table->index(['course_offering_id', 'is_published', 'published_at'], 'section_contents_subject_publish_idx');
         });
 
         Schema::table('quizzes', function (Blueprint $table) {
-            $table->index(['subject_id', 'quiz_date', 'is_published'], 'quizzes_subject_date_publish_idx');
+            $table->index(['course_offering_id', 'quiz_date', 'is_published'], 'quizzes_subject_date_publish_idx');
         });
 
         Schema::table('tasks', function (Blueprint $table) {
-            $table->index(['subject_id', 'due_date', 'is_published'], 'tasks_subject_due_publish_idx');
+            $table->index(['course_offering_id', 'due_at', 'is_published'], 'tasks_subject_due_publish_idx');
         });
 
         Schema::table('schedule_events', function (Blueprint $table) {
             $table->index(['staff_user_id', 'event_date', 'start_time'], 'schedule_events_staff_date_idx');
-            $table->index(['subject_id', 'event_type', 'event_date'], 'schedule_events_subject_type_date_idx');
+            $table->index(['course_offering_id', 'event_type', 'event_date'], 'schedule_events_subject_type_date_idx');
         });
 
         Schema::table('user_notifications', function (Blueprint $table) {
@@ -74,7 +74,7 @@ return new class extends Migration
         });
 
         Schema::table('staff_assignments', function (Blueprint $table) {
-            $table->dropIndex('staff_assignments_user_subject_idx');
+            $table->dropIndex('staff_assignments_user_course_offering_idx');
         });
     }
 };

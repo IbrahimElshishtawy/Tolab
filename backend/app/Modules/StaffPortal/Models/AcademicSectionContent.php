@@ -2,7 +2,7 @@
 
 namespace App\Modules\StaffPortal\Models;
 
-use App\Modules\Academic\Models\Subject;
+use App\Modules\Academic\Infrastructure\Subject;
 use App\Modules\UserManagement\Models\User;
 use Database\Factories\AcademicSectionContentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

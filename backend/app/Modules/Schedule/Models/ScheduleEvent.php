@@ -3,9 +3,9 @@
 namespace App\Modules\Schedule\Models;
 
 use App\Core\Enums\WeekPattern;
-use App\Modules\Academic\Models\CourseOffering;
-use App\Modules\Academic\Models\Department;
-use App\Modules\Academic\Models\Subject;
+use App\Modules\Academic\Infrastructure\CourseOffering;
+use App\Modules\Academic\Infrastructure\Department;
+use App\Modules\Academic\Infrastructure\Subject;
 use App\Modules\Schedule\Enums\ScheduleEventType;
 use App\Modules\StaffPortal\Models\AcademicYear;
 use App\Modules\UserManagement\Models\User;

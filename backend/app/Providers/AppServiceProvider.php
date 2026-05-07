@@ -3,12 +3,14 @@
 namespace App\Providers;
 
 use App\Core\Enums\UserRole;
-use App\Modules\Content\Models\Assessment;
-use App\Modules\Content\Models\CourseFile;
-use App\Modules\Content\Models\Exam;
-use App\Modules\Content\Models\Lecture;
-use App\Modules\Content\Models\SectionSession;
-use App\Modules\Content\Models\Summary;
+use App\Modules\Auth\Domain\Repositories\AuthRepositoryInterface;
+use App\Modules\Auth\Infrastructure\Repositories\AuthRepository;
+use App\Modules\Content\Infrastructure\Assessment;
+use App\Modules\Content\Infrastructure\CourseFile;
+use App\Modules\Content\Infrastructure\Exam;
+use App\Modules\Content\Infrastructure\Lecture;
+use App\Modules\Content\Infrastructure\SectionSession;
+use App\Modules\Content\Infrastructure\Summary;
 use App\Modules\Group\Models\Comment;
 use App\Modules\Group\Models\Message;
 use App\Modules\Group\Models\Post;
@@ -24,7 +26,10 @@ use SocialiteProviders\Microsoft\Provider as MicrosoftProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
+    }
 
     public function boot(): void
     {

@@ -2,9 +2,9 @@
 
 namespace App\Modules\StaffPortal\Models;
 
-use App\Modules\Academic\Models\Department;
-use App\Modules\Academic\Models\Section;
-use App\Modules\Academic\Models\Subject;
+use App\Modules\Academic\Infrastructure\Department;
+use App\Modules\Academic\Infrastructure\Section;
+use App\Modules\Academic\Infrastructure\Subject;
 use App\Modules\UserManagement\Models\User;
 use Database\Factories\StaffAssignmentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

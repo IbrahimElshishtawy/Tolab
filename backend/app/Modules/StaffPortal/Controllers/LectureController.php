@@ -3,7 +3,7 @@
 namespace App\Modules\StaffPortal\Controllers;
 
 use App\Core\Base\ApiController;
-use App\Modules\Content\Models\Lecture;
+use App\Modules\Content\Infrastructure\Lecture;
 use App\Modules\StaffPortal\Requests\StoreLecturePortalRequest;
 use App\Modules\StaffPortal\Resources\LecturePortalResource;
 use App\Modules\StaffPortal\Services\PortalService;

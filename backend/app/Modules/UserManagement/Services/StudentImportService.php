@@ -4,8 +4,8 @@ namespace App\Modules\UserManagement\Services;
 
 use App\Core\Enums\UserRole;
 use App\Core\Exceptions\ApiException;
-use App\Modules\Academic\Models\Department;
-use App\Modules\Academic\Models\Section;
+use App\Modules\Academic\Infrastructure\Department;
+use App\Modules\Academic\Infrastructure\Section;
 use App\Modules\Shared\Services\AuditLogService;
 use App\Modules\UserManagement\Imports\StudentSpreadsheetImport;
 use App\Modules\UserManagement\Models\StudentProfile;

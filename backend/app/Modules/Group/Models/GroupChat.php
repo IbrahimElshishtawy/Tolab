@@ -2,7 +2,7 @@
 
 namespace App\Modules\Group\Models;
 
-use App\Modules\Academic\Models\CourseOffering;
+use App\Modules\Academic\Infrastructure\CourseOffering;
 use App\Modules\UserManagement\Models\User;
 use Database\Factories\GroupChatFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

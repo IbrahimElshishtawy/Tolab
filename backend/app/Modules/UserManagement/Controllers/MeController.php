@@ -3,7 +3,7 @@
 namespace App\Modules\UserManagement\Controllers;
 
 use App\Core\Base\ApiController;
-use App\Modules\Auth\Resources\UserIdentityResource;
+use App\Modules\Auth\Interface\Resources\UserIdentityResource;
 use App\Modules\UserManagement\Requests\UpdateProfileRequest;
 use App\Modules\UserManagement\Resources\ProfileResource;
 use App\Modules\UserManagement\Services\UserService;

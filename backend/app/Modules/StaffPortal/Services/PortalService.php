@@ -3,10 +3,10 @@
 namespace App\Modules\StaffPortal\Services;
 
 use App\Core\Exceptions\ApiException;
-use App\Modules\Academic\Models\CourseOffering;
-use App\Modules\Academic\Models\Subject;
-use App\Modules\Content\Models\Attachment;
-use App\Modules\Content\Models\Lecture;
+use App\Modules\Academic\Infrastructure\CourseOffering;
+use App\Modules\Academic\Infrastructure\Subject;
+use App\Modules\Content\Infrastructure\Attachment;
+use App\Modules\Content\Infrastructure\Lecture;
 use App\Modules\Enrollment\Models\Enrollment;
 use App\Modules\Grades\Enums\GradeType;
 use App\Modules\Grades\Models\GradeItem;
@@ -18,7 +18,7 @@ use App\Modules\Schedule\Models\ScheduleEvent;
 use App\Modules\Shared\Services\AuditLogService;
 use App\Modules\StaffPortal\Models\AcademicSectionContent;
 use App\Modules\StaffPortal\Models\Quiz;
-use App\Modules\StaffPortal\Models\Task;
+use App\Modules\Tasks\Infrastructure\Task;
 use App\Modules\UserManagement\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;

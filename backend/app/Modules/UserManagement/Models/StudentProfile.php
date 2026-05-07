@@ -2,8 +2,8 @@
 
 namespace App\Modules\UserManagement\Models;
 
-use App\Modules\Academic\Models\Department;
-use App\Modules\Academic\Models\Section;
+use App\Modules\Academic\Infrastructure\Department;
+use App\Modules\Academic\Infrastructure\Section;
 use Database\Factories\StudentProfileFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

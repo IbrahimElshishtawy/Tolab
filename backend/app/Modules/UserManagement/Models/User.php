@@ -3,12 +3,12 @@
 namespace App\Modules\UserManagement\Models;
 
 use App\Core\Enums\UserRole;
-use App\Modules\Academic\Models\CourseOffering;
-use App\Modules\Academic\Models\Section;
-use App\Modules\Academic\Models\Subject;
-use App\Modules\Content\Models\Assessment;
-use App\Modules\Content\Models\Exam;
-use App\Modules\Content\Models\Summary;
+use App\Modules\Academic\Infrastructure\CourseOffering;
+use App\Modules\Academic\Infrastructure\Section;
+use App\Modules\Academic\Infrastructure\Subject;
+use App\Modules\Content\Infrastructure\Assessment;
+use App\Modules\Content\Infrastructure\Exam;
+use App\Modules\Content\Infrastructure\Summary;
 use App\Modules\Enrollment\Models\Enrollment;
 use App\Modules\Grades\Models\GradeItem;
 use App\Modules\Group\Models\Comment;
@@ -22,7 +22,7 @@ use App\Modules\Shared\Models\RefreshToken;
 use App\Modules\StaffPortal\Models\Permission;
 use App\Modules\StaffPortal\Models\Role;
 use App\Modules\StaffPortal\Models\StaffAssignment;
-use App\Modules\StaffPortal\Models\TaskSubmission;
+use App\Modules\Tasks\Infrastructure\TaskSubmission;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;

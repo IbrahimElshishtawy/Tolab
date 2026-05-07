@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Core\Enums\StaffTitle;
-use App\Modules\Academic\Models\Department;
+use App\Modules\Academic\Infrastructure\Department;
 use App\Modules\UserManagement\Models\StaffProfile;
 use App\Modules\UserManagement\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;

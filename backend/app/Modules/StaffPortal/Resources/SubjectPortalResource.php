@@ -25,7 +25,7 @@ class SubjectPortalResource extends JsonResource
             'lectures_count' => $this->courseOfferings->sum(fn ($offering) => $offering->lectures()->count()),
             'sections_count' => $this->sections->count(),
             'quizzes_count' => \App\Modules\StaffPortal\Models\Quiz::query()->where('subject_id', $this->id)->count(),
-            'tasks_count' => \App\Modules\StaffPortal\Models\Task::query()->where('subject_id', $this->id)->count(),
+            'tasks_count' => \App\Modules\Tasks\Infrastructure\Task::query()->where('subject_id', $this->id)->count(),
             'progress' => 0.72,
             'last_activity_label' => 'Subject workspace synced',
             'status_label' => 'Healthy',

@@ -2,7 +2,7 @@
 
 namespace App\Modules\Grades\Models;
 
-use App\Modules\Academic\Models\CourseOffering;
+use App\Modules\Academic\Infrastructure\CourseOffering;
 use App\Modules\Grades\Enums\GradeType;
 use App\Modules\UserManagement\Models\User;
 use Database\Factories\GradeItemFactory;

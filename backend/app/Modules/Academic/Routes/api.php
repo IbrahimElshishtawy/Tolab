@@ -1,10 +1,10 @@
 <?php
 
-use App\Modules\Academic\Controllers\CourseOfferingController;
-use App\Modules\Academic\Controllers\DepartmentController;
-use App\Modules\Academic\Controllers\SectionController;
-use App\Modules\Academic\Controllers\StudentCourseController;
-use App\Modules\Academic\Controllers\SubjectController;
+use App\Modules\Academic\Interface\Controllers\CourseOfferingController;
+use App\Modules\Academic\Interface\Controllers\DepartmentController;
+use App\Modules\Academic\Interface\Controllers\SectionController;
+use App\Modules\Academic\Interface\Controllers\StudentCourseController;
+use App\Modules\Academic\Interface\Controllers\SubjectController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('departments', [DepartmentController::class, 'index']);
