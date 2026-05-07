@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:go_router/go_router.dart';
 import 'package:redux/redux.dart';
 
 import '../../../../app_admin/core/spacing/app_spacing.dart';
@@ -87,19 +88,72 @@ class _AddLecturePageState extends State<AddLecturePage> {
   }
 
   Future<void> _handleBackPressed() async {
+    // If form is clean, navigate back immediately
     if (!_isFormDirty()) {
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
+      _navigateBack();
       return;
     }
 
+    // Show confirmation dialog for unsaved changes
     if (!mounted) return;
 
-    final shouldDiscard = await showDialog<bool>(
+    final shouldDiscard = await _showDiscardDialog();
+
+    if (shouldDiscard == true && mounted) {
+      _navigateBack();
+    }
+  }
+
+  /// Safely navigate back using GoRouter
+  ///
+  /// This method:
+  /// 1. Checks if the widget is still mounted
+  /// 2. Verifies if there's a page to pop using context.canPop()
+  /// 3. Pops the current page if possible
+  /// 4. Falls back to home route if this is the root page
+  /// 5. Uses addPostFrameCallback to prevent _debugLocked errors
+  void _navigateBack() {
+    if (!mounted) return;
+
+    // Use addPostFrameCallback to ensure we're not in the middle of a frame
+    // This prevents '_debugLocked' assertion errors
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      try {
+        // Check if there's a page to pop in the navigation stack
+        if (context.canPop()) {
+          // Safe to pop - there's a previous page
+          context.pop();
+        } else {
+          // This is the root page - navigate to home instead
+          context.go('/home');
+        }
+      } catch (e) {
+        debugPrint('Navigation error in _navigateBack: $e');
+        // Fallback: navigate to home on any error
+        if (mounted) {
+          try {
+            context.go('/home');
+          } catch (fallbackError) {
+            debugPrint('Fallback navigation also failed: $fallbackError');
+          }
+        }
+      }
+    });
+  }
+
+  /// Show confirmation dialog for discarding unsaved changes
+  ///
+  /// Returns:
+  /// - true if user confirms discard
+  /// - false if user cancels
+  /// - false if dialog is dismissed
+  Future<bool> _showDiscardDialog() async {
+    return await showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Discard changes?'),
           content: const Text(
@@ -107,22 +161,26 @@ class _AddLecturePageState extends State<AddLecturePage> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
+              onPressed: () {
+                // Use Navigator for dialog dismissal (not GoRouter)
+                Navigator.of(dialogContext).pop(false);
+              },
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              onPressed: () {
+                // Use Navigator for dialog dismissal (not GoRouter)
+                Navigator.of(dialogContext).pop(true);
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
               child: const Text('Discard'),
             ),
           ],
         );
       },
-    );
-
-    if (shouldDiscard == true && mounted) {
-      Navigator.of(context).pop();
-    }
+    ) ?? false; // Default to false if dialog is dismissed
   }
 
   @override
