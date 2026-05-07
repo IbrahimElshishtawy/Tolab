@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"E:\\\\FLutter_project_Tolab\\\\LMS_tolab\\\\Tolab-feature-university\\\\Tolab\\\\lib\" -Recurse -Filter \"*lecture*\" -File)",
+      "Bash(Select-Object -ExpandProperty FullName)"
+    ]
+  }
+}

@@ -38,10 +38,91 @@ class _AddLecturePageState extends State<AddLecturePage> {
   bool _publishNow = false;
   bool _saveAsDraft = true;
 
+  // Track initial state for dirty form detection
+  late int? _initialSubjectId;
+  late String _initialTitle;
+  late String _initialDescription;
+  late String _initialDate;
+  late String _initialTime;
+  late String _initialDeliveryMode;
+  late String _initialMeetingUrl;
+  late String _initialLocation;
+  late String _initialAttachment;
+  late bool _initialPublishNow;
+  late bool _initialSaveAsDraft;
+
   @override
   void initState() {
     super.initState();
     _subjectId = widget.initialSubjectId;
+    _captureInitialState();
+  }
+
+  void _captureInitialState() {
+    _initialSubjectId = _subjectId;
+    _initialTitle = _titleController.text;
+    _initialDescription = _descriptionController.text;
+    _initialDate = _dateController.text;
+    _initialTime = _timeController.text;
+    _initialDeliveryMode = _deliveryMode;
+    _initialMeetingUrl = _meetingController.text;
+    _initialLocation = _locationController.text;
+    _initialAttachment = _attachmentController.text;
+    _initialPublishNow = _publishNow;
+    _initialSaveAsDraft = _saveAsDraft;
+  }
+
+  bool _isFormDirty() {
+    return _initialSubjectId != _subjectId ||
+        _initialTitle != _titleController.text ||
+        _initialDescription != _descriptionController.text ||
+        _initialDate != _dateController.text ||
+        _initialTime != _timeController.text ||
+        _initialDeliveryMode != _deliveryMode ||
+        _initialMeetingUrl != _meetingController.text ||
+        _initialLocation != _locationController.text ||
+        _initialAttachment != _attachmentController.text ||
+        _initialPublishNow != _publishNow ||
+        _initialSaveAsDraft != _saveAsDraft;
+  }
+
+  Future<void> _handleBackPressed() async {
+    if (!_isFormDirty()) {
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+      return;
+    }
+
+    if (!mounted) return;
+
+    final shouldDiscard = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Discard changes?'),
+          content: const Text(
+            'You have unsaved changes. Are you sure you want to discard them?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Discard'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDiscard == true && mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -67,7 +148,9 @@ class _AddLecturePageState extends State<AddLecturePage> {
       builder: (context, vm) {
         final lecture = widget.lectureId == null
             ? null
-            : vm.lectures.where((item) => item.id == widget.lectureId).firstOrNull;
+            : vm.lectures
+                  .where((item) => item.id == widget.lectureId)
+                  .firstOrNull;
         if (lecture != null && _titleController.text.isEmpty) {
           _subjectId = lecture.subjectId;
           _titleController.text = lecture.title;
@@ -77,17 +160,22 @@ class _AddLecturePageState extends State<AddLecturePage> {
           _timeController.text = lecture.startsAt == null
               ? _timeController.text
               : lecture.startsAt!.split('T').last.substring(0, 5);
-          _deliveryMode = lecture.deliveryMode == 'online' ? 'Online' : 'In person';
+          _deliveryMode = lecture.deliveryMode == 'online'
+              ? 'Online'
+              : 'In person';
           _meetingController.text = lecture.meetingUrl ?? '';
           _locationController.text = lecture.locationLabel ?? '';
           _attachmentController.text = lecture.attachmentLabel ?? '';
           _publishNow = lecture.statusLabel == 'Published';
           _saveAsDraft = lecture.statusLabel == 'Draft';
+          _captureInitialState();
         }
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(widget.lectureId == null ? 'Add Lecture' : 'Edit Lecture'),
+            title: Text(
+              widget.lectureId == null ? 'Add Lecture' : 'Edit Lecture',
+            ),
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.lg),
@@ -98,7 +186,7 @@ class _AddLecturePageState extends State<AddLecturePage> {
               formKey: _formKey,
               primaryLabel: 'Save lecture',
               secondaryLabel: 'Back',
-              onSecondaryTap: () => Navigator.of(context).maybePop(),
+              onSecondaryTap: _handleBackPressed,
               onSubmit: () => _submit(vm.store),
               children: [
                 DropdownButtonFormField<int>(
@@ -138,7 +226,9 @@ class _AddLecturePageState extends State<AddLecturePage> {
                     Expanded(
                       child: TextFormField(
                         controller: _dateController,
-                        decoration: const InputDecoration(labelText: 'Publish date'),
+                        decoration: const InputDecoration(
+                          labelText: 'Publish date',
+                        ),
                         validator: _required,
                       ),
                     ),
@@ -146,7 +236,9 @@ class _AddLecturePageState extends State<AddLecturePage> {
                     Expanded(
                       child: TextFormField(
                         controller: _timeController,
-                        decoration: const InputDecoration(labelText: 'Publish time'),
+                        decoration: const InputDecoration(
+                          labelText: 'Publish time',
+                        ),
                         validator: _required,
                       ),
                     ),
@@ -174,7 +266,9 @@ class _AddLecturePageState extends State<AddLecturePage> {
                 if (_deliveryMode == 'Online')
                   TextFormField(
                     controller: _meetingController,
-                    decoration: const InputDecoration(labelText: 'Meeting link'),
+                    decoration: const InputDecoration(
+                      labelText: 'Meeting link',
+                    ),
                   )
                 else
                   TextFormField(
@@ -184,7 +278,9 @@ class _AddLecturePageState extends State<AddLecturePage> {
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
                   controller: _attachmentController,
-                  decoration: const InputDecoration(labelText: 'Attachment label'),
+                  decoration: const InputDecoration(
+                    labelText: 'Attachment label',
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 SwitchListTile(
@@ -226,24 +322,22 @@ class _AddLecturePageState extends State<AddLecturePage> {
       return;
     }
     store.dispatch(
-      SaveLectureAction(
-        <String, dynamic>{
-          'lecture_id': widget.lectureId,
-          'subject_id': _subjectId,
-          'title': _titleController.text.trim(),
-          'description': _descriptionController.text.trim(),
-          'publish_date': _dateController.text.trim(),
-          'publish_time': _timeController.text.trim(),
-          'delivery_mode': _deliveryMode,
-          'meeting_url': _meetingController.text.trim(),
-          'location_label': _locationController.text.trim(),
-          'attachment_label': _attachmentController.text.trim(),
-          'publish_now': _publishNow,
-          'save_as_draft': _saveAsDraft,
-        },
-      ),
+      SaveLectureAction(<String, dynamic>{
+        'lecture_id': widget.lectureId,
+        'subject_id': _subjectId,
+        'title': _titleController.text.trim(),
+        'description': _descriptionController.text.trim(),
+        'publish_date': _dateController.text.trim(),
+        'publish_time': _timeController.text.trim(),
+        'delivery_mode': _deliveryMode,
+        'meeting_url': _meetingController.text.trim(),
+        'location_label': _locationController.text.trim(),
+        'attachment_label': _attachmentController.text.trim(),
+        'publish_now': _publishNow,
+        'save_as_draft': _saveAsDraft,
+      }),
     );
-    Navigator.of(context).maybePop();
+    Navigator.of(context).pop();
   }
 
   String? _required(String? value) {
