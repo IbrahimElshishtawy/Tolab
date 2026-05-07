@@ -62,6 +62,25 @@ class AuthRepository {
     }
   }
 
+  /// Refresh the access token using the refresh token
+  Future<AuthTokens> refreshToken(String refreshToken) async {
+    try {
+      final response = await _apiClient.post<AuthTokens>(
+        '/auth/refresh',
+        data: {'refresh_token': refreshToken},
+        decoder: (json) => AuthTokens.fromJson(json as JsonMap),
+      );
+      return response;
+    } on AppException catch (error) {
+      if (error.statusCode == 401) {
+        throw SessionExpiredException();
+      }
+      throw TokenRefreshException();
+    } on DioException {
+      throw TokenRefreshException();
+    }
+  }
+
   bool _shouldUseDemoFallback(int? statusCode, String email, String password) {
     if (!_matchesSeededAdmin(email: email, password: password)) {
       return false;

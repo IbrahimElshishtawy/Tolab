@@ -127,7 +127,7 @@ class _AddLecturePageState extends State<AddLecturePage> {
           context.pop();
         } else {
           // This is the root page - navigate to home instead
-          context.go('/home');
+          context.go('/workspace/lectures');
         }
       } catch (e) {
         debugPrint('Navigation error in _navigateBack: $e');
@@ -151,36 +151,35 @@ class _AddLecturePageState extends State<AddLecturePage> {
   /// - false if dialog is dismissed
   Future<bool> _showDiscardDialog() async {
     return await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: const Text('Discard changes?'),
-          content: const Text(
-            'You have unsaved changes. Are you sure you want to discard them?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                // Use Navigator for dialog dismissal (not GoRouter)
-                Navigator.of(dialogContext).pop(false);
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                // Use Navigator for dialog dismissal (not GoRouter)
-                Navigator.of(dialogContext).pop(true);
-              },
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.red,
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext dialogContext) {
+            return AlertDialog(
+              title: const Text('Discard changes?'),
+              content: const Text(
+                'You have unsaved changes. Are you sure you want to discard them?',
               ),
-              child: const Text('Discard'),
-            ),
-          ],
-        );
-      },
-    ) ?? false; // Default to false if dialog is dismissed
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    // Use Navigator for dialog dismissal (not GoRouter)
+                    Navigator.of(dialogContext).pop(false);
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    // Use Navigator for dialog dismissal (not GoRouter)
+                    Navigator.of(dialogContext).pop(true);
+                  },
+                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                  child: const Text('Discard'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false; // Default to false if dialog is dismissed
   }
 
   @override
