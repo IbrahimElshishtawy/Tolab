@@ -1,0 +1,530 @@
+# 🎨 Authentication System - Visual Architecture Guide
+
+## System Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         FLUTTER APP                                 │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌──────────────────────────────────────────────────────────────┐  │
+│  │                    PRESENTATION LAYER                        │  │
+│  ├──────────────────────────────────────────────────────────────┤  │
+│  │  ┌─────────────┐  ┌──────────────┐  ┌──────────────────┐   │  │
+│  │  │   Login     │  │   Splash     │  │   Dashboard      │   │  │
+│  │  │   Screen    │  │   Screen     │  │   Screen         │   │  │
+│  │  └─────────────┘  └──────────────┘  └──────────────────┘   │  │
+│  │         ↓                ↓                    ↓              │  │
+│  │  ┌─────────────────────────────────────────────────────┐   │  │
+│  │  │           GoRouter (Navigation)                     │   │  │
+│  │  │  - Redirect Logic                                   │   │  │
+│  │  │  - Auto-Login Detection                             │   │  │
+│  │  │  - Session Expiration Handling                       │   │  │
+│  │  └─────────────────────────────────────────────────────┘   │  │
+│  └──────────────────────────────────────────────────────────────┘  │
+│                                                                     │
+│  ┌──────────────────────────────────────────────────────────────┐  │
+│  │                    STATE MANAGEMENT                          │  │
+│  ├──────────────────────────────────────────────────────────────┤  │
+│  │  ┌──────────────────────────────────────────────────────┐   │  │
+│  │  │              Redux Store                             │   │  │
+│  │  │  - AuthState (user, tokens, status)                  │   │  │
+│  │  │  - Actions (Login, Logout, Refresh)                  │   │  │
+│  │  │  - Middleware (API calls, persistence)               │   │  │
+│  │  └──────────────────────────────────────────────────────┘   │  │
+│  └──────────────────────────────────────────────────────────────┘  │
+│                                                                     │
+│  ┌──────────────────────────────────────────────────────────────┐  │
+│  │                    SERVICES LAYER                            │  │
+│  ├──────────────────────────────────────────────────────────────┤  │
+│  │                                                              │  │
+│  │  ┌──────────────────────┐  ┌──────────────────────────┐    │  │
+│  │  │  AutoLoginService    │  │  SessionManager          │    │  │
+│  │  │  - canAutoLogin()    │  │  - handleSessionExpired()│    │  │
+│  │  │  - attemptAutoLogin()│  │  - isSessionValid()      │    │  │
+│  │  └──────────────────────┘  └──────────────────────────┘    │  │
+│  │                                                              │  │
+│  │  ┌──────────────────────────────────────────────────────┐   │  │
+│  │  │         TokenStorageService                          │   │  │
+│  │  │  - Secure Storage (FlutterSecureStorage)             │   │  │
+│  │  │  - Shared Preferences (Non-sensitive data)           │   │  │
+│  │  │  - Token persistence and retrieval                   │   │  │
+│  │  └──────────────────────────────────────────────────────┘   │  │
+│  │                                                              │  │
+│  └──────────────────────────────────────────────────────────────┘  │
+│                                                                     │
+│  ┌──────────────────────────────────────────────────────────────┐  │
+│  │                    NETWORK LAYER                             │  │
+│  ├──────────────────────────────────────────────────────────────┤  │
+│  │                                                              │  │
+│  │  ┌──────────────────────────────────────────────────────┐   │  │
+│  │  │              Dio HTTP Client                         │   │  │
+│  │  │  ┌────────────────────────────────────────────────┐  │   │  │
+│  │  │  │      AuthInterceptor                           │  │   │  │
+│  │  │  │  - onRequest: Add Authorization header         │  │   │  │
+│  │  │  │  - onError: Handle 401 & refresh token         │  │   │  │
+│  │  │  │  - Mutex: Prevent concurrent refresh           │  │   │  │
+│  │  │  │  - Queue: Store pending requests               │  │   │  │
+│  │  │  └────────────────────────────────────────────────┘  │   │  │
+│  │  └──────────────────────────────────────────────────────┘   │  │
+│  │                                                              │  │
+│  │  ┌──────────────────────────────────────────────────────┐   │  │
+│  │  │         AuthRepository                              │   │  │
+│  │  │  - login(email, password)                           │   │  │
+│  │  │  - refreshToken(refreshToken)                       │   │  │
+│  │  │  - me() [fetch user profile]                        │   │  │
+│  │  └──────────────────────────────────────────────────────┘   │  │
+│  │                                                              │  │
+│  └──────────────────────────────────────────────────────────────┘  │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+                                ↓
+                    ┌───────────────────────┐
+                    │   Backend API Server  │
+                    │  - /auth/login        │
+                    │  - /auth/refresh      │
+                    │  - /me                │
+                    │  - Protected Routes   │
+                    └───────────────────────┘
+```
+
+---
+
+## Data Flow Diagram
+
+### Login Flow
+```
+┌─────────────┐
+│  User Input │
+└──────┬──────┘
+       │
+       ↓
+┌──────────────────────┐
+│ LoginSubmittedAction │
+└──────┬───────────────┘
+       │
+       ↓
+┌──────────────────────────────┐
+│ AuthRepository.login()       │
+│ POST /auth/login             │
+└──────┬───────────────────────┘
+       │
+       ↓
+┌──────────────────────────────┐
+│ Receive Tokens & User        │
+└──────┬───────────────────────┘
+       │
+       ↓
+┌──────────────────────────────┐
+│ TokenStorageService.write()  │
+│ Store in SecureStorage       │
+└──────┬───────────────────────┘
+       │
+       ↓
+┌──────────────────────────────┐
+│ LoginSucceededAction         │
+└──────┬───────────────────────┘
+       │
+       ↓
+┌──────────────────────────────┐
+│ GoRouter Redirect            │
+│ → /dashboard                 │
+└──────┬───────────────────────┘
+       │
+       ↓
+┌──────────────────────────────┐
+│ Dashboard Screen Shown       │
+└──────────────────────────────┘
+```
+
+### Auto-Login Flow
+```
+┌──────────────────┐
+│ App Startup      │
+└────────┬─────────┘
+         │
+         ↓
+┌──────────────────────────────┐
+│ SplashScreen Shown           │
+└────────┬─────────────────────┘
+         │
+         ↓
+┌──────────────────────────────┐
+│ AutoLoginService.            │
+│ canAutoLogin()               │
+└────────┬─────────────────────┘
+         │
+    ┌────┴────┐
+    │          │
+   YES        NO
+    │          │
+    ↓          ↓
+┌────────┐  ┌──────────┐
+│Attempt │  │ Go to    │
+│Refresh │  │ Login    │
+└────┬───┘  └──────────┘
+     │
+     ↓
+┌──────────────────────────────┐
+│ AuthRepository.refreshToken()│
+│ POST /auth/refresh           │
+└────────┬─────────────────────┘
+         │
+    ┌────┴────┐
+    │          │
+ SUCCESS     FAIL
+    │          │
+    ↓          ↓
+┌────────┐  ┌──────────┐
+│Fetch   │  │ Clear    │
+│User    │  │ Session  │
+└────┬───┘  └────┬─────┘
+     │           │
+     ↓           ↓
+┌────────┐  ┌──────────┐
+│Login   │  │ Go to    │
+│Success │  │ Login    │
+└────┬───┘  └──────────┘
+     │
+     ↓
+┌──────────────────────────────┐
+│ Dashboard Shown              │
+│ (No Login Screen Flash)      │
+└──────────────────────────────┘
+```
+
+### Token Expiration Flow
+```
+┌──────────────────┐
+│ User Makes       │
+│ Request          │
+└────────┬─────────┘
+         │
+         ↓
+┌──────────────────────────────┐
+│ AuthInterceptor.onRequest()  │
+│ Add Authorization Header     │
+└────────┬─────────────────────┘
+         │
+         ↓
+┌──────────────────────────────┐
+│ Send Request to Server       │
+└────────┬─────────────────────┘
+         │
+         ↓
+┌──────────────────────────────┐
+│ Server Response              │
+└────────┬─────────────────────┘
+         │
+    ┌────┴────┐
+    │          │
+  200        401
+    │          │
+    ↓          ↓
+┌────────┐  ┌──────────────────────┐
+│Return  │  │ AuthInterceptor.     │
+│Success │  │ onError()            │
+└────────┘  └────────┬─────────────┘
+                     │
+                     ↓
+            ┌──────────────────────┐
+            │ Check _isRefreshing  │
+            └────────┬─────────────┘
+                     │
+                ┌────┴────┐
+                │          │
+              FALSE      TRUE
+                │          │
+                ↓          ↓
+            ┌────────┐  ┌──────────┐
+            │Refresh │  │ Queue    │
+            │Token   │  │ Request  │
+            └────┬───┘  └──────────┘
+                 │
+                 ↓
+        ┌──────────────────────┐
+        │ AuthRepository.      │
+        │ refreshToken()       │
+        │ POST /auth/refresh   │
+        └────────┬─────────────┘
+                 │
+            ┌────┴────┐
+            │          │
+         SUCCESS     FAIL
+            │          │
+            ↓          ↓
+        ┌────────┐  ┌──────────────┐
+        │Store   │  │ onSessionExp │
+        │New     │  │ ired()       │
+        │Token   │  └────┬─────────┘
+        └────┬───┘       │
+             │           ↓
+             ↓      ┌──────────────┐
+        ┌────────┐  │ Clear        │
+        │Retry   │  │ Session      │
+        │Request │  └────┬─────────┘
+        └────┬───┘       │
+             │           ↓
+             ↓      ┌──────────────┐
+        ┌────────┐  │ Dispatch     │
+        │Success │  │ Logout       │
+        └────────┘  └────┬─────────┘
+                         │
+                         ↓
+                    ┌──────────────┐
+                    │ GoRouter     │
+                    │ → /login     │
+                    └──────────────┘
+```
+
+---
+
+## Component Interaction Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    PRESENTATION LAYER                           │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
+│  │ Login Screen │  │ Splash Screen│  │ Dashboard Screen     │  │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬───────────────┘  │
+│         │                 │                  │                  │
+│         └─────────────────┼──────────────────┘                  │
+│                           │                                     │
+│                    ┌──────▼──────┐                              │
+│                    │  GoRouter   │                              │
+│                    └──────┬──────┘                              │
+└─────────────────────────┼─────────────────────────────────────┘
+                          │
+        ┌─────────────────┼─────────────────┐
+        │                 │                 │
+        ↓                 ↓                 ↓
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│   Redux      │  │   Services   │  │   Network    │
+│   Store      │  │   Layer      │  │   Layer      │
+├──────────────┤  ├──────────────┤  ├──────────────┤
+│ AuthState    │  │ AutoLogin    │  │ Dio Client   │
+│ - user       │  │ SessionMgr   │  │ - Interceptor
+│ - tokens     │  │ TokenStorage │  │ - Repository │
+│ - status     │  │              │  │              │
+└──────┬───────┘  └──────┬───────┘  └──────┬───────┘
+       │                 │                 │
+       └─────────────────┼─────────────────┘
+                         │
+                    ┌────▼────┐
+                    │ Backend  │
+                    │   API    │
+                    └──────────┘
+```
+
+---
+
+## State Management Flow
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Redux State Tree                         │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  AppState                                                   │
+│  ├── AuthState                                              │
+│  │   ├── status: LoadStatus                                 │
+│  │   │   ├── initial                                        │
+│  │   │   ├── loading                                        │
+│  │   │   ├── success                                        │
+│  │   │   └── failure                                        │
+│  │   ├── currentUser: UserProfile?                          │
+│  │   │   ├── id                                             │
+│  │   │   ├── email                                          │
+│  │   │   ├── firstName                                      │
+│  │   │   ├── lastName                                       │
+│  │   │   └── role                                           │
+│  │   ├── errorMessage: String?                              │
+│  │   └── rememberSession: bool                              │
+│  │                                                          │
+│  ├── BootstrapState                                         │
+│  │   └── isReady: bool                                      │
+│  │                                                          │
+│  └── ... other states                                       │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+
+Actions Flow:
+┌──────────────────────────────────────────────────────────────┐
+│                                                              │
+│  LoginSubmittedAction                                        │
+│  ↓                                                           │
+│  Middleware: Call AuthRepository.login()                     │
+│  ↓                                                           │
+│  LoginSucceededAction / LoginFailedAction                    │
+│  ↓                                                           │
+│  Reducer: Update AuthState                                   │
+│  ↓                                                           │
+│  GoRouter: Redirect based on new state                       │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Token Refresh Mutex Pattern
+
+```
+Request 1 (401)          Request 2 (401)          Request 3 (401)
+    │                        │                        │
+    ↓                        ↓                        ↓
+┌─────────────┐          ┌─────────────┐          ┌─────────────┐
+│ Check       │          │ Check       │          │ Check       │
+│ _isRefresh  │          │ _isRefresh  │          │ _isRefresh  │
+│ ing = false │          │ ing = true  │          │ ing = true  │
+└──────┬──────┘          └──────┬──────┘          └──────┬──────┘
+       │                        │                        │
+       ↓                        ↓                        ↓
+   ┌────────┐             ┌──────────┐            ┌──────────┐
+   │ Set    │             │ Queue    │            │ Queue    │
+   │ _isRef │             │ Request  │            │ Request  │
+   │ reshing│             │ 2        │            │ 3        │
+   │= true  │             └──────────┘            └──────────┘
+   └────┬───┘                  │                        │
+        │                      │                        │
+        ↓                      │                        │
+   ┌────────────┐              │                        │
+   │ Refresh    │              │                        │
+   │ Token      │              │                        │
+   │ (once)     │              │                        │
+   └────┬───────┘              │                        │
+        │                      │                        │
+        ↓                      │                        │
+   ┌────────────┐              │                        │
+   │ Set        │              │                        │
+   │ _isRefresh │              │                        │
+   │ ing = false│              │                        │
+   └────┬───────┘              │                        │
+        │                      │                        │
+        ↓                      ↓                        ↓
+   ┌────────────┐         ┌──────────┐            ┌──────────┐
+   │ Retry      │         │ Retry    │            │ Retry    │
+   │ Request 1  │         │ Request 2│            │ Request 3│
+   └────────────┘         └──────────┘            └──────────┘
+
+Result: Only ONE token refresh happens, all requests are retried
+```
+
+---
+
+## Error Handling Decision Tree
+
+```
+                    ┌─────────────────┐
+                    │ Request Error   │
+                    └────────┬────────┘
+                             │
+                    ┌────────▼────────┐
+                    │ Is 401?         │
+                    └────┬────────┬───┘
+                         │        │
+                        YES      NO
+                         │        │
+                         ↓        ↓
+                    ┌────────┐  ┌──────────────┐
+                    │ Check  │  │ Pass Error   │
+                    │ Public │  │ to Caller    │
+                    │ Path?  │  └──────────────┘
+                    └────┬───┘
+                         │
+                    ┌────┴────┐
+                    │          │
+                   YES        NO
+                    │          │
+                    ↓          ↓
+            ┌──────────┐  ┌──────────────┐
+            │ Pass     │  │ Check Can    │
+            │ Error    │  │ Refresh?     │
+            │ to       │  └────┬─────┬───┘
+            │ Caller   │       │     │
+            └──────────┘      YES   NO
+                               │     │
+                               ↓     ↓
+                        ┌──────────┐ ┌──────────────┐
+                        │ Refresh  │ │ Session      │
+                        │ Token    │ │ Expired      │
+                        └────┬─────┘ └──────────────┘
+                             │
+                        ┌────┴────┐
+                        │          │
+                     SUCCESS     FAIL
+                        │          │
+                        ↓          ↓
+                    ┌────────┐  ┌──────────────┐
+                    │ Retry  │  │ Session      │
+                    │ Request│  │ Expired      │
+                    └────────┘  └──────────────┘
+```
+
+---
+
+## File Dependencies
+
+```
+auth_models.dart
+    ↑
+    │ (imports)
+    │
+    ├── token_storage_service.dart
+    │       ↑
+    │       │ (imports)
+    │       │
+    │       ├── session_manager.dart
+    │       │
+    │       └── auto_login_service.dart
+    │
+    ├── auth_interceptor.dart
+    │       ↑
+    │       │ (imports)
+    │       │
+    │       └── Dio (external)
+    │
+    └── auth_repository.dart
+            ↑
+            │ (imports)
+            │
+            └── ApiClient (existing)
+```
+
+---
+
+## Integration Points
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                  Your Application                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. main.dart / app_dependencies.dart                       │
+│     └─ Initialize all services                              │
+│                                                             │
+│  2. Dio Configuration                                       │
+│     └─ Add AuthInterceptor                                  │
+│                                                             │
+│  3. Redux Middleware                                        │
+│     └─ Handle LoginSubmittedAction                          │
+│     └─ Handle LogoutRequestedAction                         │
+│                                                             │
+│  4. GoRouter Configuration                                  │
+│     └─ Setup redirect logic                                 │
+│     └─ Configure routes                                     │
+│                                                             │
+│  5. Splash Screen                                           │
+│     └─ Implement auto-login                                 │
+│                                                             │
+│  6. Login Screen                                            │
+│     └─ Dispatch LoginSubmittedAction                        │
+│                                                             │
+│  7. Dashboard / Protected Screens                           │
+│     └─ Use authenticated Dio client                         │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+**This visual guide helps understand the complete authentication system architecture and data flows.**
