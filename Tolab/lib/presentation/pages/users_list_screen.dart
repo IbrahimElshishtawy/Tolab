@@ -4,7 +4,6 @@ import 'package:tolab_fci/core/utils/responsive_helper.dart';
 import 'package:tolab_fci/core/widgets/responsive_widgets.dart';
 import 'package:tolab_fci/domain/entities/user_entity.dart';
 import 'package:tolab_fci/mock/fixtures/mock_users.dart';
-import 'package:tolab_fci/mock/fixtures/mock_students.dart';
 
 class UsersListScreen extends StatefulWidget {
   const UsersListScreen({Key? key}) : super(key: key);
@@ -32,7 +31,8 @@ class _UsersListScreenState extends State<UsersListScreen> {
 
   void _applyFilters() {
     filteredUsers = users.where((user) {
-      final matchesSearch = user.fullName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+      final matchesSearch =
+          user.fullName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           user.email.toLowerCase().contains(_searchQuery.toLowerCase());
       final matchesRole = _selectedRole == null || user.role == _selectedRole;
       return matchesSearch && matchesRole;
@@ -73,10 +73,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Manage Users',
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
+        Text('Manage Users', style: Theme.of(context).textTheme.headlineMedium),
         const SizedBox(height: AppSpacing.lg),
         ResponsiveLayout(
           mobile: Column(
@@ -330,10 +327,15 @@ class _UsersListScreenState extends State<UsersListScreen> {
       'student': (AppColors.info, const Color(0xFFDEF7FF)),
     };
 
-    final (color, bgColor) = colors[roleString] ?? (AppColors.textSecondary, AppColors.surfaceVariant);
+    final (color, bgColor) =
+        colors[roleString] ??
+        (AppColors.textSecondary, AppColors.surfaceVariant);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(AppRadius.md),
@@ -351,7 +353,10 @@ class _UsersListScreenState extends State<UsersListScreen> {
 
   Widget _buildStatusBadge(bool isActive) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
       decoration: BoxDecoration(
         color: isActive ? AppColors.secondaryLight : AppColors.surfaceVariant,
         borderRadius: BorderRadius.circular(AppRadius.md),
