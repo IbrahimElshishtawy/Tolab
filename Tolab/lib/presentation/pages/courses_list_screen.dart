@@ -7,7 +7,7 @@ import 'package:tolab_fci/mock/fixtures/mock_courses.dart';
 import 'package:tolab_fci/mock/fixtures/mock_users.dart';
 
 class CoursesListScreen extends StatefulWidget {
-  const CoursesListScreen({Key? key}) : super(key: key);
+  const CoursesListScreen({super.key});
 
   @override
   State<CoursesListScreen> createState() => _CoursesListScreenState();
@@ -141,7 +141,7 @@ class _CoursesListScreenState extends State<CoursesListScreen> {
     };
 
     return DropdownButtonFormField<String?>(
-      value: _selectedDepartment,
+      initialValue: _selectedDepartment,
       decoration: const InputDecoration(labelText: 'Filter by Department'),
       items: [
         const DropdownMenuItem(value: null, child: Text('All Departments')),
@@ -396,7 +396,7 @@ class _CoursesListScreenState extends State<CoursesListScreen> {
                     ),
                     decoration: BoxDecoration(
                       color: course.isFull
-                          ? AppColors.error.withOpacity(0.1)
+                          ? AppColors.error.withValues(alpha: 0.1)
                           : AppColors.secondaryLight,
                       borderRadius: BorderRadius.circular(AppRadius.md),
                     ),

@@ -7,3 +7,11 @@ class AppException implements Exception {
   @override
   String toString() => message;
 }
+
+class SessionExpiredException extends AppException {
+  SessionExpiredException() : super('Session expired, please login again.', statusCode: 401);
+}
+
+class TokenRefreshException extends AppException {
+  TokenRefreshException() : super('Failed to refresh token. Please login again.', statusCode: 401);
+}

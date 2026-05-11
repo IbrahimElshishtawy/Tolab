@@ -4,7 +4,7 @@ import 'package:tolab_fci/core/theme/app_theme.dart';
 import 'package:tolab_fci/presentation/pages/dashboard_screen.dart';
 
 class TolabApp extends StatefulWidget {
-  const TolabApp({Key? key}) : super(key: key);
+  const TolabApp({super.key});
 
   @override
   State<TolabApp> createState() => _TolabAppState();
