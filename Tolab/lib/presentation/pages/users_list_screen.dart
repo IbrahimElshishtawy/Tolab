@@ -6,7 +6,7 @@ import 'package:tolab_fci/domain/entities/user_entity.dart';
 import 'package:tolab_fci/mock/fixtures/mock_users.dart';
 
 class UsersListScreen extends StatefulWidget {
-  const UsersListScreen({Key? key}) : super(key: key);
+  const UsersListScreen({super.key});
 
   @override
   State<UsersListScreen> createState() => _UsersListScreenState();
@@ -130,7 +130,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
 
   Widget _buildRoleFilter() {
     return DropdownButtonFormField<UserRole?>(
-      value: _selectedRole,
+      initialValue: _selectedRole,
       decoration: const InputDecoration(labelText: 'Filter by Role'),
       items: [
         const DropdownMenuItem(value: null, child: Text('All Roles')),
@@ -320,10 +320,13 @@ class _UsersListScreenState extends State<UsersListScreen> {
   Widget _buildRoleBadge(UserRole role) {
     final roleString = role.toString().split('.').last;
     final colors = {
-      'superAdmin': (AppColors.error, AppColors.error.withOpacity(0.1)),
+      'superAdmin': (AppColors.error, AppColors.error.withValues(alpha: 0.1)),
       'admin': (AppColors.accent, AppColors.accentLight),
       'doctor': (AppColors.primary, AppColors.primaryLight),
-      'staff': (AppColors.secondary, AppColors.secondaryLight),
+      'staff': (
+        const Color.fromARGB(255, 106, 206, 172),
+        AppColors.secondaryLight,
+      ),
       'student': (AppColors.info, const Color(0xFFDEF7FF)),
     };
 

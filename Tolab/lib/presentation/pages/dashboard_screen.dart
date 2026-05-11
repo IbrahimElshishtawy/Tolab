@@ -8,7 +8,7 @@ import 'package:tolab_fci/mock/fixtures/mock_courses.dart';
 import 'package:tolab_fci/mock/fixtures/mock_students.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({Key? key}) : super(key: key);
+  const DashboardScreen({super.key});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -85,10 +85,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Overview',
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
+        Text('Overview', style: Theme.of(context).textTheme.headlineMedium),
         const SizedBox(height: AppSpacing.lg),
         ResponsiveGrid(
           mobileColumns: 1,
@@ -137,10 +134,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               'Recent Courses',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            TextButton(
-              onPressed: () {},
-              child: const Text('View All'),
-            ),
+            TextButton(onPressed: () {}, child: const Text('View All')),
           ],
         ),
         const SizedBox(height: AppSpacing.lg),
@@ -175,9 +169,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         child: Text(
                           '${course.creditHours}h',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: AppColors.primary,
-                              ),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(color: AppColors.primary),
                         ),
                       ),
                     ],
@@ -229,10 +222,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               'Top Students',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            TextButton(
-              onPressed: () {},
-              child: const Text('View All'),
-            ),
+            TextButton(onPressed: () {}, child: const Text('View All')),
           ],
         ),
         const SizedBox(height: AppSpacing.lg),
@@ -276,15 +266,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Text(
                       'Year ${student.academicYear}',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: AppColors.secondary,
-                          ),
+                        color: AppColors.secondary,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }
