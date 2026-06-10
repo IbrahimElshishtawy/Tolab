@@ -10,6 +10,7 @@ import '../../../../core/spacing/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../shared/widgets/premium_button.dart';
 import '../../models/upload_model.dart';
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 
 class DragDropArea extends StatefulWidget {
   const DragDropArea({super.key, required this.onFilesSelected, this.subtitle});
@@ -27,8 +28,9 @@ class _DragDropAreaState extends State<DragDropArea> {
   @override
   Widget build(BuildContext context) {
     final title =
-        widget.subtitle ??
-        'Drop PDFs, lecture images, policy sheets, and video assets here.';
+        widget.subtitle != null
+            ? context.l10n.byValue(widget.subtitle!)
+            : context.l10n.byValue('Drop PDFs, lecture images, policy sheets, and video assets here.');
 
     return DropTarget(
       onDragEntered: (_) => setState(() => _isDragging = true),
@@ -73,7 +75,7 @@ class _DragDropAreaState extends State<DragDropArea> {
               ),
               const SizedBox(height: AppSpacing.lg),
               Text(
-                'Desktop drag & drop, mobile file picker',
+                context.l10n.byValue('Desktop drag & drop, mobile file picker'),
                 style: Theme.of(context).textTheme.titleLarge,
                 textAlign: TextAlign.center,
               ),
@@ -93,12 +95,12 @@ class _DragDropAreaState extends State<DragDropArea> {
                 runSpacing: AppSpacing.sm,
                 children: [
                   PremiumButton(
-                    label: 'Browse Files',
+                    label: context.l10n.byValue('Browse Files'),
                     icon: Icons.attach_file_rounded,
                     onPressed: _pickFiles,
                   ),
                   PremiumButton(
-                    label: 'Allowed: PDF, Images, Video',
+                    label: context.l10n.byValue('Allowed: PDF, Images, Video'),
                     icon: Icons.verified_rounded,
                     isSecondary: true,
                     onPressed: null,
@@ -190,7 +192,7 @@ class _FeatureChip extends StatelessWidget {
         color: AppColors.slateSoft.withValues(alpha: 0.45),
         borderRadius: BorderRadius.circular(AppConstants.pillRadius),
       ),
-      child: Text(label, style: Theme.of(context).textTheme.labelMedium),
+      child: Text(context.l10n.byValue(label), style: Theme.of(context).textTheme.labelMedium),
     );
   }
 }

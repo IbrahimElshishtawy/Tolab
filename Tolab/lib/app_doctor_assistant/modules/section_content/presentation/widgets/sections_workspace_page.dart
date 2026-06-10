@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+ 
+import '../../../../../app/localization/app_localizations.dart';
 
 import '../../../dashboard/presentation/theme/dashboard_theme_tokens.dart';
 import '../../../dashboard/presentation/widgets/dashboard_section_primitives.dart';
@@ -76,9 +78,9 @@ class _SectionsWorkspacePageState extends State<SectionsWorkspacePage> {
             _QuickActionsSection(actions: widget.workspaceData.quickActions),
             const SizedBox(height: AppSpacing.lg),
             QuickStatsSection(
-              title: 'Section Quick Stats',
-              subtitle:
-                  'A fast read on this week\'s section volume, readiness, and attendance pressure.',
+              title: context.l10n.byValue('Section Quick Stats'),
+              subtitle: context.l10n.byValue(
+                  'A fast read on this week\'s section volume, readiness, and attendance pressure.'),
               metrics: widget.workspaceData.metrics,
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -132,7 +134,7 @@ class _SectionsWorkspacePageState extends State<SectionsWorkspacePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _formKey.currentState?.prefillFromSection(section);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Loaded ${section.title} into the builder.')),
+        SnackBar(content: Text(context.l10n.byValue('Loaded ${section.title} into the builder.'))),
       );
     });
   }
@@ -141,7 +143,7 @@ class _SectionsWorkspacePageState extends State<SectionsWorkspacePage> {
     widget.onPublishSection(section.id);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${section.title} is now aligned for publishing.'),
+        content: Text(context.l10n.byValue('${section.title} is now aligned for publishing.')),
       ),
     );
   }
@@ -153,7 +155,7 @@ class _SectionsWorkspacePageState extends State<SectionsWorkspacePage> {
       return;
     }
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Access details copied for ${section.title}.')),
+      SnackBar(content: Text(context.l10n.byValue('Access details copied for ${section.title}.'))),
     );
   }
 
@@ -161,7 +163,7 @@ class _SectionsWorkspacePageState extends State<SectionsWorkspacePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Reminder queued for ${section.expectedStudents} students in ${section.title}.',
+          context.l10n.byValue('Reminder queued for ${section.expectedStudents} students in ${section.title}.'),
         ),
       ),
     );
@@ -186,18 +188,18 @@ class _SectionsWorkspacePageState extends State<SectionsWorkspacePage> {
                   style: Theme.of(dialogContext).textTheme.titleMedium,
                 ),
                 const SizedBox(height: AppSpacing.md),
-                _DetailRow(label: 'Date', value: section.dateLabel),
-                _DetailRow(label: 'Time', value: section.timeLabel),
-                _DetailRow(label: 'Mode', value: section.deliveryType),
-                _DetailRow(label: 'Owner', value: section.assistantName),
-                _DetailRow(label: 'Location', value: section.locationLabel),
+                _DetailRow(label: context.l10n.byValue('Date'), value: context.l10n.byValue(section.dateLabel)),
+                _DetailRow(label: context.l10n.byValue('Time'), value: context.l10n.byValue(section.timeLabel)),
+                _DetailRow(label: context.l10n.byValue('Mode'), value: context.l10n.byValue(section.deliveryType)),
+                _DetailRow(label: context.l10n.byValue('Owner'), value: context.l10n.byValue(section.assistantName)),
+                _DetailRow(label: context.l10n.byValue('Location'), value: context.l10n.byValue(section.locationLabel)),
                 _DetailRow(
-                  label: 'Expected attendance',
-                  value: '${section.expectedStudents} students',
+                  label: context.l10n.byValue('Expected attendance'),
+                  value: context.l10n.byValue('${section.expectedStudents} students'),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
-                  section.description,
+                  context.l10n.byValue(section.description),
                   style: Theme.of(dialogContext).textTheme.bodyMedium,
                 ),
               ],
@@ -206,7 +208,7 @@ class _SectionsWorkspacePageState extends State<SectionsWorkspacePage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Close'),
+              child: Text(context.l10n.byValue('Close')),
             ),
             FilledButton.tonalIcon(
               onPressed: () {
@@ -214,7 +216,7 @@ class _SectionsWorkspacePageState extends State<SectionsWorkspacePage> {
                 context.go('${AppRoutes.subjects}/${section.subjectId}');
               },
               icon: const Icon(Icons.menu_book_rounded, size: 18),
-              label: const Text('Open Subject'),
+              label: Text(context.l10n.byValue('Open Subject')),
             ),
           ],
         );

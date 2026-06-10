@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 
 import '../../../../core/animations/app_motion.dart';
 import '../../../../core/colors/app_colors.dart';
@@ -35,7 +36,7 @@ class PermissionCheckboxList extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Center(
           child: Text(
-            emptyMessage,
+            context.l10n.byValue(emptyMessage),
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
@@ -105,12 +106,12 @@ class _PermissionModuleSection extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         StatusBadge(
-                          '${permissions.length} permissions',
+                          '${permissions.length} ${context.l10n.byValue(permissions.length == 1 ? 'permission' : 'permissions')}',
                           icon: Icons.tune_rounded,
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         Text(
-                          title,
+                          context.l10n.byValue(title),
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                       ],
@@ -119,12 +120,12 @@ class _PermissionModuleSection extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            title,
+                            context.l10n.byValue(title),
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ),
                         StatusBadge(
-                          '${permissions.length} permissions',
+                          '${permissions.length} ${context.l10n.byValue(permissions.length == 1 ? 'permission' : 'permissions')}',
                           icon: Icons.tune_rounded,
                         ),
                       ],
@@ -210,14 +211,14 @@ class _PermissionTileState extends State<_PermissionTile> {
                     },
                     itemBuilder: (context) => [
                       if (widget.onEdit != null)
-                        const PopupMenuItem<String>(
+                        PopupMenuItem<String>(
                           value: 'edit',
-                          child: Text('Edit permission'),
+                          child: Text(context.l10n.byValue('Edit permission')),
                         ),
                       if (widget.onDelete != null)
-                        const PopupMenuItem<String>(
+                        PopupMenuItem<String>(
                           value: 'delete',
-                          child: Text('Delete permission'),
+                          child: Text(context.l10n.byValue('Delete permission')),
                         ),
                     ],
                     icon: const Icon(Icons.more_horiz_rounded),
@@ -247,23 +248,23 @@ class _PermissionTileState extends State<_PermissionTile> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.permission.name,
+                  context.l10n.byValue(widget.permission.name),
                   maxLines: isCompact ? 2 : 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.titleSmall,
                 ),
                 const SizedBox(height: 6),
-                StatusBadge(widget.permission.action.label),
+                StatusBadge(context.l10n.byValue(widget.permission.action.label)),
                 const SizedBox(height: 6),
                 Text(
-                  widget.permission.description,
+                  context.l10n.byValue(widget.permission.description),
                   maxLines: isCompact ? 3 : 2,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  widget.permission.key,
+                  context.l10n.byValue(widget.permission.key),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.labelMedium,

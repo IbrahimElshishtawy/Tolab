@@ -204,8 +204,8 @@ class _ResponsiveScaffoldState extends State<ResponsiveScaffold> {
           padding: const EdgeInsets.all(AppSpacing.md),
           child: AdaptiveNavigationMenu(
             title: context.l10n.byValue('المزيد'),
-            subtitle:
-                'روابط إضافية وإعدادات الحساب بدون تزاحم شريط التنقل السفلي.',
+            subtitle: context.l10n.byValue(
+                'روابط إضافية وإعدادات الحساب بدون تزاحم شريط التنقل السفلي.'),
             items: widget.navigation.mobileMoreItems,
             location: widget.location,
             onSelected: (item) {
@@ -240,8 +240,8 @@ class _ResponsiveScaffoldState extends State<ResponsiveScaffold> {
             ),
             child: AdaptiveNavigationMenu(
               title: context.l10n.byValue('المزيد'),
-              subtitle:
-                  'التنقلات الثانوية تبقى هنا حتى يظل الشريط السفلي سريعًا وواضحًا.',
+              subtitle: context.l10n.byValue(
+                  'التنقلات الثانوية تبقى هنا حتى يظل الشريط السفلي سريعًا وواضحًا.'),
               items: widget.navigation.mobileMoreItems,
               location: widget.location,
               onSelected: (item) {
@@ -257,10 +257,13 @@ class _ResponsiveScaffoldState extends State<ResponsiveScaffold> {
 
   String _subtitleFor(String label) {
     switch (label) {
+      case 'home':
       case 'layout.doctor.nav.home':
         return 'Teaching overview, urgent actions, and course health in one place.';
+      case 'subjects':
       case 'layout.doctor.nav.subjects':
         return 'Course planning, sections, and materials for every subject you teach.';
+      case 'schedule':
       case 'layout.doctor.nav.schedule':
         return 'Weekly planning, calendar review, and conflict follow-up.';
       case 'الطلاب':
@@ -392,7 +395,7 @@ class _ResponsiveTopBar extends StatelessWidget {
                 const Icon(Icons.schedule_rounded, size: 16),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
-                  notificationStatus,
+                  context.l10n.byValue(notificationStatus),
                   style: Theme.of(context).textTheme.labelLarge,
                 ),
               ],
@@ -443,7 +446,7 @@ class _ResponsiveTopBar extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            subtitle,
+                            context.l10n.byValue(subtitle),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context).textTheme.bodySmall,
@@ -476,7 +479,7 @@ class _ResponsiveTopBar extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        subtitle,
+                        context.l10n.byValue(subtitle),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall,

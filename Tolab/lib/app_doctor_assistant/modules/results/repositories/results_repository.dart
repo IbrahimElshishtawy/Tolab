@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/storage/token_storage.dart';
 import '../../../mock/doctor_assistant_mock_repository.dart';
@@ -11,6 +12,13 @@ abstract class ResultsRepository {
   Future<void> saveGradesDraft(int subjectId, Map<String, dynamic> payload);
 
   Future<void> publishGrades(int subjectId, Map<String, dynamic> payload);
+
+  Future<void> uploadGradesFile(
+    int subjectId,
+    String categoryKey, {
+    required String fileName,
+    required List<int> fileBytes,
+  });
 }
 
 class ApiResultsRepository implements ResultsRepository {
@@ -52,6 +60,24 @@ class ApiResultsRepository implements ResultsRepository {
     await _apiClient.post<Object?>(
       '/staff-portal/subjects/$subjectId/grades/publish',
       data: payload,
+      parser: (_) => null,
+    );
+  }
+
+  @override
+  Future<void> uploadGradesFile(
+    int subjectId,
+    String categoryKey, {
+    required String fileName,
+    required List<int> fileBytes,
+  }) async {
+    final formData = FormData.fromMap({
+      'category_key': categoryKey,
+      'file': MultipartFile.fromBytes(fileBytes, filename: fileName),
+    });
+    await _apiClient.upload<Object?>(
+      '/staff-portal/subjects/$subjectId/grades/upload-sheet',
+      formData: formData,
       parser: (_) => null,
     );
   }
@@ -97,5 +123,25 @@ class MockResultsRepository implements ResultsRepository {
         _mockRepository.restoreUserFromSession(await _tokenStorage.read()) ??
         _mockRepository.userByEmail('doctor@tolab.edu');
     _mockRepository.saveGrades(subjectId, payload, user, publish: true);
+  }
+
+  @override
+  Future<void> uploadGradesFile(
+    int subjectId,
+    String categoryKey, {
+    required String fileName,
+    required List<int> fileBytes,
+  }) async {
+    await _mockRepository.simulateLatency(const Duration(milliseconds: 300));
+    final user =
+        _mockRepository.restoreUserFromSession(await _tokenStorage.read()) ??
+        _mockRepository.userByEmail('doctor@tolab.edu');
+    _mockRepository.uploadGradesFile(
+      subjectId,
+      categoryKey,
+      fileName,
+      fileBytes,
+      user,
+    );
   }
 }

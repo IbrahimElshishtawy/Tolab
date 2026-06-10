@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/responsive/app_breakpoints.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -29,9 +30,12 @@ class DepartmentFormSheet extends StatefulWidget {
     final store = StoreProvider.of<AppState>(context);
     store.dispatch(const ResetDepartmentMutationAction());
 
-    final child = DepartmentFormSheet(
-      initialDepartment: initialDepartment,
-      faculties: faculties,
+    final child = StoreProvider<AppState>(
+      store: store,
+      child: DepartmentFormSheet(
+        initialDepartment: initialDepartment,
+        faculties: faculties,
+      ),
     );
 
     if (AppBreakpoints.isMobile(context)) {
@@ -139,12 +143,12 @@ class _DepartmentFormSheetState extends State<DepartmentFormSheet> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            isEditing ? 'Edit department' : 'Create department',
+                            context.l10n.byValue(isEditing ? 'Edit department' : 'Create department'),
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                           const SizedBox(height: AppSpacing.xs),
                           Text(
-                            'Compact admin form with validation, loading, and production-safe updates.',
+                            context.l10n.byValue('Compact admin form with validation, loading, and production-safe updates.'),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
@@ -166,16 +170,16 @@ class _DepartmentFormSheetState extends State<DepartmentFormSheet> {
                         TextFormField(
                           controller: _nameController,
                           textInputAction: TextInputAction.next,
-                          decoration: const InputDecoration(
-                            labelText: 'Department name',
-                            hintText: 'Computer Science',
+                          decoration: InputDecoration(
+                            labelText: context.l10n.byValue('Department name'),
+                            hintText: context.l10n.byValue('Computer Science'),
                           ),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Department name is required.';
+                              return context.l10n.byValue('Department name is required.');
                             }
                             if (value.trim().length < 3) {
-                              return 'Use at least 3 characters.';
+                              return context.l10n.byValue('Use at least 3 characters.');
                             }
                             return null;
                           },
@@ -185,23 +189,23 @@ class _DepartmentFormSheetState extends State<DepartmentFormSheet> {
                           controller: _codeController,
                           textCapitalization: TextCapitalization.characters,
                           textInputAction: TextInputAction.next,
-                          decoration: const InputDecoration(
-                            labelText: 'Department code',
-                            hintText: 'CS',
+                          decoration: InputDecoration(
+                            labelText: context.l10n.byValue('Department code'),
+                            hintText: context.l10n.byValue('CS'),
                           ),
                           validator: (value) {
                             final code = value?.trim().toUpperCase() ?? '';
                             if (code.isEmpty) {
-                              return 'Department code is required.';
+                              return context.l10n.byValue('Department code is required.');
                             }
                             if (code.length < 2) {
-                              return 'Use at least 2 characters.';
+                              return context.l10n.byValue('Use at least 2 characters.');
                             }
                             final exists = vm.existingCodes.any(
                               (existing) => existing == code,
                             );
                             if (exists) {
-                              return 'This code is already in use.';
+                              return context.l10n.byValue('This code is already in use.');
                             }
                             return null;
                           },
@@ -212,14 +216,14 @@ class _DepartmentFormSheetState extends State<DepartmentFormSheet> {
                           onChanged: vm.isSaving
                               ? null
                               : (value) => setState(() => _faculty = value),
-                          decoration: const InputDecoration(
-                            labelText: 'Faculty',
+                          decoration: InputDecoration(
+                            labelText: context.l10n.byValue('Faculty'),
                           ),
                           items: [
                             for (final faculty in widget.faculties)
                               DropdownMenuItem(
                                 value: faculty,
-                                child: Text(faculty),
+                                child: Text(context.l10n.byValue(faculty)),
                               ),
                           ],
                         ),
@@ -228,17 +232,17 @@ class _DepartmentFormSheetState extends State<DepartmentFormSheet> {
                           controller: _descriptionController,
                           maxLines: 4,
                           textInputAction: TextInputAction.newline,
-                          decoration: const InputDecoration(
-                            labelText: 'Description',
-                            hintText:
-                                'Research focus, academic structure, and operational notes.',
+                          decoration: InputDecoration(
+                            labelText: context.l10n.byValue('Description'),
+                            hintText: context.l10n.byValue(
+                                'Research focus, academic structure, and operational notes.'),
                           ),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Description is required.';
+                              return context.l10n.byValue('Description is required.');
                             }
                             if (value.trim().length < 16) {
-                              return 'Provide a slightly richer description.';
+                              return context.l10n.byValue('Provide a slightly richer description.');
                             }
                             return null;
                           },
@@ -259,7 +263,7 @@ class _DepartmentFormSheetState extends State<DepartmentFormSheet> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Department status',
+                                      context.l10n.byValue('Department status'),
                                       style: Theme.of(
                                         context,
                                       ).textTheme.titleSmall,
@@ -267,8 +271,8 @@ class _DepartmentFormSheetState extends State<DepartmentFormSheet> {
                                     const SizedBox(height: 2),
                                     Text(
                                       _isActive
-                                          ? 'Department is visible and operational.'
-                                          : 'Department is disabled but kept in the system.',
+                                          ? context.l10n.byValue('Department is visible and operational.')
+                                          : context.l10n.byValue('Department is disabled but kept in the system.'),
                                       style: Theme.of(
                                         context,
                                       ).textTheme.bodySmall,
@@ -314,7 +318,7 @@ class _DepartmentFormSheetState extends State<DepartmentFormSheet> {
                   children: [
                     Expanded(
                       child: PremiumButton(
-                        label: 'Cancel',
+                        label: context.l10n.byValue('Cancel'),
                         icon: Icons.close_rounded,
                         isSecondary: true,
                         onPressed: vm.isSaving
@@ -326,10 +330,10 @@ class _DepartmentFormSheetState extends State<DepartmentFormSheet> {
                     Expanded(
                       child: PremiumButton(
                         label: vm.isSaving
-                            ? 'Saving...'
+                            ? context.l10n.byValue('Saving...')
                             : isEditing
-                            ? 'Save changes'
-                            : 'Create department',
+                            ? context.l10n.byValue('Save changes')
+                            : context.l10n.byValue('Create department'),
                         icon: isEditing
                             ? Icons.check_circle_outline_rounded
                             : Icons.apartment_rounded,

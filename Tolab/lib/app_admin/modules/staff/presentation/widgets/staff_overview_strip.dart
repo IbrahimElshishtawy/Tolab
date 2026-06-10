@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/animations/app_motion.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/spacing/app_spacing.dart';
@@ -33,100 +34,141 @@ class StaffOverviewStrip extends StatelessWidget {
               ) /
               records.length;
 
+    final isAr = context.l10n.locale.languageCode == 'ar';
+
+    final totalStaffSubtitle = isAr
+        ? '$activeCount حساباً نشطاً بين الأطباء والمعيدين.'
+        : '$activeCount active accounts across doctors and assistants.';
+
+    final doctorSplitSubtitle = isAr
+        ? '$internalDoctors داخلي و $delegatedDoctors منتدب.'
+        : '$internalDoctors internal and $delegatedDoctors delegated doctors.';
+
+    final assistantsSubtitle = isAr
+        ? '${assistants.where((item) => item.status == 'Active').length} معيداً نشطاً في السكاشن والمعامل.'
+        : '${assistants.where((item) => item.status == 'Active').length} assistants are active in sections and labs.';
+
+    final healthSubtitle = isAr
+        ? '$needsAttention ملفات بحاجة لمتابعة الحضور أو الصلاحيات أو النشاط.'
+        : '$needsAttention profiles currently need attendance, access, or activity follow-up.';
+
+    final cards = [
+      _OverviewMetricCard(
+        index: 0,
+        title: context.l10n.byValue('Total staff accounts'),
+        value: records.length.toString(),
+        subtitle: totalStaffSubtitle,
+        accent: StaffManagementPalette.doctor,
+        icon: Icons.groups_2_rounded,
+        footer: Wrap(
+          spacing: AppSpacing.xs,
+          runSpacing: AppSpacing.xs,
+          children: [
+            StaffStatusBadge(context.l10n.byValue('University staff')),
+            StaffStatusBadge(context.l10n.byValue('Provisioned')),
+          ],
+        ),
+      ),
+      _OverviewMetricCard(
+        index: 1,
+        title: context.l10n.byValue('Doctor split'),
+        value: doctors.length.toString(),
+        subtitle: doctorSplitSubtitle,
+        accent: StaffManagementPalette.internal,
+        icon: Icons.local_hospital_rounded,
+        footer: Wrap(
+          spacing: AppSpacing.xs,
+          runSpacing: AppSpacing.xs,
+          children: [
+            StaffStatusBadge('$internalDoctors ${context.l10n.byValue('internal')}'),
+            StaffStatusBadge('$delegatedDoctors ${context.l10n.byValue('delegated')}'),
+          ],
+        ),
+      ),
+      _OverviewMetricCard(
+        index: 2,
+        title: context.l10n.byValue('Teaching assistants'),
+        value: assistants.length.toString(),
+        subtitle: assistantsSubtitle,
+        accent: StaffManagementPalette.assistant,
+        icon: Icons.badge_rounded,
+        progress: assistants.isEmpty
+            ? 0
+            : assistants
+                      .where((item) => item.engagementRate >= 80)
+                      .length /
+                  assistants.length,
+        progressLabel: context.l10n.byValue('High-engagement assistants'),
+        footer: StaffStatusBadge(context.l10n.byValue('Section and lab support')),
+      ),
+      _OverviewMetricCard(
+        index: 3,
+        title: context.l10n.byValue('Control health'),
+        value: '${permissionAverage.round()}%',
+        subtitle: healthSubtitle,
+        accent: StaffManagementPalette.engagement,
+        icon: Icons.shield_rounded,
+        progress: permissionAverage / 100,
+        progressLabel: context.l10n.byValue('Average permissions coverage'),
+        footer: Wrap(
+          spacing: AppSpacing.xs,
+          runSpacing: AppSpacing.xs,
+          children: [
+            StaffStatusBadge('$needsAttention ${context.l10n.byValue('needs attention')}'),
+            StaffStatusBadge(context.l10n.byValue('Monitoring active')),
+          ],
+        ),
+      ),
+    ];
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        final compact = constraints.maxWidth < 940;
-        final width = compact
-            ? constraints.maxWidth
-            : (constraints.maxWidth - (AppSpacing.md * 3)) / 4;
-        return Wrap(
-          spacing: AppSpacing.md,
-          runSpacing: AppSpacing.md,
-          children: [
-            SizedBox(
-              width: width,
-              child: _OverviewMetricCard(
-                index: 0,
-                title: 'Total staff accounts',
-                value: records.length.toString(),
-                subtitle:
-                    '$activeCount active accounts across doctors and assistants.',
-                accent: StaffManagementPalette.doctor,
-                icon: Icons.groups_2_rounded,
-                footer: Wrap(
-                  spacing: AppSpacing.xs,
-                  runSpacing: AppSpacing.xs,
-                  children: const [
-                    StaffStatusBadge('University staff'),
-                    StaffStatusBadge('Provisioned'),
-                  ],
-                ),
+        final maxWidth = constraints.maxWidth;
+        if (maxWidth >= 900) {
+          return Row(
+            children: [
+              Expanded(child: cards[0]),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(child: cards[1]),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(child: cards[2]),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(child: cards[3]),
+            ],
+          );
+        } else if (maxWidth >= 480) {
+          return Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(child: cards[0]),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(child: cards[1]),
+                ],
               ),
-            ),
-            SizedBox(
-              width: width,
-              child: _OverviewMetricCard(
-                index: 1,
-                title: 'Doctor split',
-                value: doctors.length.toString(),
-                subtitle:
-                    '$internalDoctors internal and $delegatedDoctors delegated doctors.',
-                accent: StaffManagementPalette.internal,
-                icon: Icons.local_hospital_rounded,
-                footer: Wrap(
-                  spacing: AppSpacing.xs,
-                  runSpacing: AppSpacing.xs,
-                  children: [
-                    StaffStatusBadge('$internalDoctors internal'),
-                    StaffStatusBadge('$delegatedDoctors delegated'),
-                  ],
-                ),
+              const SizedBox(height: AppSpacing.md),
+              Row(
+                children: [
+                  Expanded(child: cards[2]),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(child: cards[3]),
+                ],
               ),
-            ),
-            SizedBox(
-              width: width,
-              child: _OverviewMetricCard(
-                index: 2,
-                title: 'Teaching assistants',
-                value: assistants.length.toString(),
-                subtitle:
-                    '${assistants.where((item) => item.status == 'Active').length} assistants are active in sections and labs.',
-                accent: StaffManagementPalette.assistant,
-                icon: Icons.badge_rounded,
-                progress: assistants.isEmpty
-                    ? 0
-                    : assistants
-                              .where((item) => item.engagementRate >= 80)
-                              .length /
-                          assistants.length,
-                progressLabel: 'High-engagement assistants',
-                footer: const StaffStatusBadge('Section and lab support'),
-              ),
-            ),
-            SizedBox(
-              width: width,
-              child: _OverviewMetricCard(
-                index: 3,
-                title: 'Control health',
-                value: '${permissionAverage.round()}%',
-                subtitle:
-                    '$needsAttention profiles currently need attendance, access, or activity follow-up.',
-                accent: StaffManagementPalette.engagement,
-                icon: Icons.shield_rounded,
-                progress: permissionAverage / 100,
-                progressLabel: 'Average permissions coverage',
-                footer: Wrap(
-                  spacing: AppSpacing.xs,
-                  runSpacing: AppSpacing.xs,
-                  children: [
-                    StaffStatusBadge('$needsAttention needs attention'),
-                    const StaffStatusBadge('Monitoring active'),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        );
+            ],
+          );
+        } else {
+          return Column(
+            children: [
+              cards[0],
+              const SizedBox(height: AppSpacing.md),
+              cards[1],
+              const SizedBox(height: AppSpacing.md),
+              cards[2],
+              const SizedBox(height: AppSpacing.md),
+              cards[3],
+            ],
+          );
+        }
       },
     );
   }

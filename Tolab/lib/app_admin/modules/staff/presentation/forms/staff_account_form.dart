@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../shared/widgets/premium_button.dart';
@@ -73,8 +74,10 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
   @override
   Widget build(BuildContext context) {
     final title = widget.record == null
-        ? 'Create ${_isDoctor ? 'doctor' : 'assistant'} account'
-        : 'Edit staff account';
+        ? (_isDoctor
+            ? context.l10n.byValue('Create doctor account')
+            : context.l10n.byValue('Create assistant account'))
+        : context.l10n.byValue('Edit staff account');
     final width = MediaQuery.sizeOf(context).width;
     final useSideSummary = width >= 1100;
 
@@ -110,7 +113,8 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Configure identity, role type, permissions, and academic assignments in one compact workflow.',
+                            context.l10n.byValue(
+                                'Configure identity, role type, permissions, and academic assignments in one compact workflow.'),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
@@ -127,11 +131,13 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
                   spacing: AppSpacing.sm,
                   runSpacing: AppSpacing.sm,
                   children: [
-                    StaffStatusBadge(_role),
+                    StaffStatusBadge(context.l10n.byValue(_role)),
                     StaffStatusBadge(
-                      _isDoctor ? _doctorType : 'Teaching assistant',
+                      _isDoctor
+                          ? context.l10n.byValue(_doctorType)
+                          : context.l10n.byValue('Teaching assistant'),
                     ),
-                    StaffStatusBadge(_status),
+                    StaffStatusBadge(context.l10n.byValue(_status)),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.lg),
@@ -201,7 +207,7 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
                         const SizedBox(width: AppSpacing.lg),
                         Expanded(
                           child: _FormSection(
-                            title: 'Account blueprint',
+                            title: context.l10n.byValue('Account blueprint'),
                             child: ListenableBuilder(
                               listenable: Listenable.merge([
                                 _nameController,
@@ -210,15 +216,15 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
                               ]),
                               builder: (context, _) {
                                 final previewName = _nameController.text.isEmpty
-                                    ? 'Staff profile preview'
+                                    ? context.l10n.byValue('Staff profile preview')
                                     : _nameController.text;
                                 final previewEmail =
                                     _emailController.text.isEmpty
-                                    ? 'Account email preview'
+                                    ? context.l10n.byValue('Account email preview')
                                     : _emailController.text;
                                 final assignmentSummary =
                                     _assignmentController.text.isEmpty
-                                    ? 'No assignments entered yet.'
+                                    ? context.l10n.byValue('No assignments entered yet.')
                                     : _assignmentController.text;
 
                                 return Column(
@@ -261,28 +267,28 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
                                       spacing: AppSpacing.sm,
                                       runSpacing: AppSpacing.sm,
                                       children: [
-                                        StaffStatusBadge(_role),
+                                        StaffStatusBadge(context.l10n.byValue(_role)),
                                         StaffStatusBadge(
                                           _isDoctor
-                                              ? _doctorType
-                                              : 'Teaching assistant',
+                                              ? context.l10n.byValue(_doctorType)
+                                              : context.l10n.byValue('Teaching assistant'),
                                         ),
-                                        StaffStatusBadge(_status),
+                                        StaffStatusBadge(context.l10n.byValue(_status)),
                                       ],
                                     ),
                                     const SizedBox(height: AppSpacing.md),
                                     StaffMetricMeter(
                                       value: _permissionCoverage,
                                       primary:
-                                          '${(_permissionCoverage * 100).round()}% permissions configured',
+                                          '${(_permissionCoverage * 100).round()}% ${context.l10n.byValue('permissions configured')}',
                                       secondary:
-                                          '$_enabledPermissionsCount enabled academic actions ready at onboarding',
+                                          '$_enabledPermissionsCount ${context.l10n.byValue('enabled academic actions ready at onboarding')}',
                                       color: StaffManagementPalette.doctor,
                                       compact: true,
                                     ),
                                     const SizedBox(height: AppSpacing.md),
                                     StaffInfoTile(
-                                      label: 'Academic assignment summary',
+                                      label: context.l10n.byValue('Academic assignment summary'),
                                       value: assignmentSummary,
                                       icon: Icons.library_books_outlined,
                                     ),
@@ -298,7 +304,7 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 _FormSection(
-                  title: 'Initial permissions',
+                  title: context.l10n.byValue('Initial permissions'),
                   child: StaffPermissionsPanel(
                     groups: _groups,
                     editable: true,
@@ -319,7 +325,8 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
                           const SizedBox(width: AppSpacing.sm),
                           Expanded(
                             child: Text(
-                              'Define what this account can upload, schedule, moderate, and expose to students academically.',
+                              context.l10n.byValue(
+                                  'Define what this account can upload, schedule, moderate, and expose to students academically.'),
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ),
@@ -330,14 +337,14 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 _FormSection(
-                  title: 'Admin notes',
+                  title: context.l10n.byValue('Admin notes'),
                   child: TextField(
                     controller: _notesController,
                     maxLines: 4,
-                    decoration: const InputDecoration(
-                      labelText: 'Onboarding notes',
-                      hintText:
-                          'Account review notes, allocation context, or internal remarks',
+                    decoration: InputDecoration(
+                      labelText: context.l10n.byValue('Onboarding notes'),
+                      hintText: context.l10n.byValue(
+                          'Account review notes, allocation context, or internal remarks'),
                     ),
                   ),
                 ),
@@ -346,7 +353,7 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
                   children: [
                     Expanded(
                       child: PremiumButton(
-                        label: 'Cancel',
+                        label: context.l10n.byValue('Cancel'),
                         icon: Icons.close_rounded,
                         isSecondary: true,
                         onPressed: () => Navigator.of(context).pop(),
@@ -356,8 +363,8 @@ class _StaffAccountFormSheetState extends State<StaffAccountFormSheet> {
                     Expanded(
                       child: PremiumButton(
                         label: widget.record == null
-                            ? 'Create account'
-                            : 'Save changes',
+                            ? context.l10n.byValue('Create account')
+                            : context.l10n.byValue('Save changes'),
                         icon: Icons.check_circle_outline_rounded,
                         onPressed: () => Navigator.of(context).pop(),
                       ),
@@ -533,10 +540,13 @@ class _DropdownField extends StatelessWidget {
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
       initialValue: value,
-      decoration: InputDecoration(labelText: label),
+      decoration: InputDecoration(labelText: context.l10n.byValue(label)),
       items: [
         for (final item in items)
-          DropdownMenuItem<String>(value: item, child: Text(item)),
+          DropdownMenuItem<String>(
+            value: item,
+            child: Text(context.l10n.byValue(item)),
+          ),
       ],
       onChanged: (next) {
         if (next != null) onChanged(next);
@@ -563,7 +573,7 @@ class _IdentitySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _FormSection(
-      title: 'Identity',
+      title: context.l10n.byValue('Identity'),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final compact = constraints.maxWidth < 820;
@@ -575,9 +585,9 @@ class _IdentitySection extends StatelessWidget {
                 width: compact ? constraints.maxWidth : 320,
                 child: TextField(
                   controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Full name',
-                    prefixIcon: Icon(Icons.person_outline_rounded),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.byValue('Full name'),
+                    prefixIcon: const Icon(Icons.person_outline_rounded),
                   ),
                 ),
               ),
@@ -585,9 +595,9 @@ class _IdentitySection extends StatelessWidget {
                 width: compact ? constraints.maxWidth : 320,
                 child: TextField(
                   controller: emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.alternate_email_rounded),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.byValue('Email'),
+                    prefixIcon: const Icon(Icons.alternate_email_rounded),
                   ),
                 ),
               ),
@@ -595,9 +605,9 @@ class _IdentitySection extends StatelessWidget {
                 width: compact ? constraints.maxWidth : 220,
                 child: TextField(
                   controller: idController,
-                  decoration: const InputDecoration(
-                    labelText: 'Staff ID',
-                    prefixIcon: Icon(Icons.badge_outlined),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.byValue('Staff ID'),
+                    prefixIcon: const Icon(Icons.badge_outlined),
                   ),
                 ),
               ),
@@ -646,7 +656,7 @@ class _RoleSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _FormSection(
-      title: 'Role and access',
+      title: context.l10n.byValue('Role and access'),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final compact = constraints.maxWidth < 820;
@@ -690,9 +700,9 @@ class _RoleSection extends StatelessWidget {
                 child: TextField(
                   controller: assignmentController,
                   maxLines: 2,
-                  decoration: const InputDecoration(
-                    labelText: 'Academic assignments',
-                    hintText: 'Subjects, sections, labs, or teaching load',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.byValue('Academic assignments'),
+                    hintText: context.l10n.byValue('Subjects, sections, labs, or teaching load'),
                   ),
                 ),
               ),

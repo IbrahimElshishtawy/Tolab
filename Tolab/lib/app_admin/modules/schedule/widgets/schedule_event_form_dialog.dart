@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 
 import '../../../core/animations/app_motion.dart';
 import '../../../core/colors/app_colors.dart';
@@ -160,16 +161,16 @@ class _ScheduleEventFormDialogState extends State<ScheduleEventFormDialog> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  _isEditing
+                                  context.l10n.byValue(_isEditing
                                       ? 'Edit schedule event'
-                                      : 'Create schedule event',
+                                      : 'Create schedule event'),
                                   style: Theme.of(
                                     context,
                                   ).textTheme.headlineSmall,
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  'Configure academic event details, participants, status, and repeat behavior.',
+                                  context.l10n.byValue('Configure academic event details, participants, status, and repeat behavior.'),
                                   style: Theme.of(context).textTheme.bodyMedium,
                                 ),
                               ],
@@ -197,9 +198,9 @@ class _ScheduleEventFormDialogState extends State<ScheduleEventFormDialog> {
                               const SizedBox(height: AppSpacing.lg),
                               AppTextField(
                                 controller: _noteController,
-                                label: 'Notes',
+                                label: context.l10n.byValue('Notes'),
                                 hint:
-                                    'Add invigilation notes, room setup, or delivery instructions.',
+                                    context.l10n.byValue('Add invigilation notes, room setup, or delivery instructions.'),
                                 maxLines: 4,
                               ),
                             ],
@@ -214,7 +215,7 @@ class _ScheduleEventFormDialogState extends State<ScheduleEventFormDialog> {
                         children: [
                           if (_isEditing && widget.onDelete != null)
                             PremiumButton(
-                              label: 'Delete',
+                              label: context.l10n.byValue('Delete'),
                               icon: Icons.delete_outline_rounded,
                               isDestructive: true,
                               onPressed: _handleDelete,
@@ -224,13 +225,13 @@ class _ScheduleEventFormDialogState extends State<ScheduleEventFormDialog> {
                             children: [
                               TextButton(
                                 onPressed: () => Navigator.of(context).pop(),
-                                child: const Text('Cancel'),
+                                child: Text(context.l10n.byValue('Cancel')),
                               ),
                               const SizedBox(width: AppSpacing.sm),
                               PremiumButton(
-                                label: _isEditing
+                                label: context.l10n.byValue(_isEditing
                                     ? 'Save changes'
-                                    : 'Create event',
+                                    : 'Create event'),
                                 icon: _isEditing
                                     ? Icons.check_circle_outline_rounded
                                     : Icons.add_rounded,
@@ -260,7 +261,7 @@ class _ScheduleEventFormDialogState extends State<ScheduleEventFormDialog> {
           width: 340,
           child: AppTextField(
             controller: _titleController,
-            label: 'Title',
+            label: context.l10n.byValue('Title'),
             hint: 'Lecture 08, Quiz Window, Midterm Review',
           ),
         ),
@@ -268,21 +269,21 @@ class _ScheduleEventFormDialogState extends State<ScheduleEventFormDialog> {
           width: 260,
           child: AppTextField(
             controller: _locationController,
-            label: 'Location',
+            label: context.l10n.byValue('Location'),
             hint: 'Hall A3, Lab C2, Online room',
           ),
         ),
         SizedBox(
           width: 220,
           child: AppDropdownField<ScheduleEventType>(
-            label: 'Event type',
+            label: context.l10n.byValue('Event type'),
             value: _type,
             onChanged: (value) => setState(() => _type = value ?? _type),
             items: ScheduleEventType.values
                 .map(
                   (type) => AppDropdownItem<ScheduleEventType>(
                     value: type,
-                    label: type.label,
+                    label: context.l10n.byValue(type.label),
                     icon: type.icon,
                   ),
                 )
@@ -292,14 +293,14 @@ class _ScheduleEventFormDialogState extends State<ScheduleEventFormDialog> {
         SizedBox(
           width: 220,
           child: AppDropdownField<ScheduleEventStatus>(
-            label: 'Status',
+            label: context.l10n.byValue('Status'),
             value: _status,
             onChanged: (value) => setState(() => _status = value ?? _status),
             items: ScheduleEventStatus.values
                 .map(
                   (status) => AppDropdownItem<ScheduleEventStatus>(
                     value: status,
-                    label: status.label,
+                    label: context.l10n.byValue(status.label),
                   ),
                 )
                 .toList(growable: false),
@@ -316,7 +317,7 @@ class _ScheduleEventFormDialogState extends State<ScheduleEventFormDialog> {
       children: [
         _PickerTile(
           label: 'Date',
-          value: DateFormat('EEEE, d MMM yyyy').format(_date),
+          value: DateFormat('EEEE, d MMM yyyy', context.l10n.locale.languageCode).format(_date),
           icon: Icons.calendar_today_rounded,
           onPressed: _pickDate,
         ),
@@ -335,7 +336,7 @@ class _ScheduleEventFormDialogState extends State<ScheduleEventFormDialog> {
         SizedBox(
           width: 220,
           child: AppDropdownField<ScheduleRepeatRule>(
-            label: 'Repeat',
+            label: context.l10n.byValue('Repeat'),
             value: _repeatRule,
             onChanged: (value) =>
                 setState(() => _repeatRule = value ?? _repeatRule),
@@ -343,7 +344,7 @@ class _ScheduleEventFormDialogState extends State<ScheduleEventFormDialog> {
                 .map(
                   (rule) => AppDropdownItem<ScheduleRepeatRule>(
                     value: rule,
-                    label: rule.shortLabel,
+                    label: context.l10n.byValue(rule.shortLabel),
                   ),
                 )
                 .toList(growable: false),
@@ -411,10 +412,10 @@ class _ScheduleEventFormDialogState extends State<ScheduleEventFormDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Assigned staff', style: Theme.of(context).textTheme.titleSmall),
+        Text(context.l10n.byValue('Assigned staff'), style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: AppSpacing.xs),
         Text(
-          'Choose the instructor and any additional staff supporting the event.',
+          context.l10n.byValue('Choose the instructor and any additional staff supporting the event.'),
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -427,7 +428,7 @@ class _ScheduleEventFormDialogState extends State<ScheduleEventFormDialog> {
                 return FilterChip(
                   selected: selected,
                   showCheckmark: false,
-                  label: Text(member.label),
+                  label: Text(context.l10n.byValue(member.label)),
                   onSelected: (_) {
                     setState(() {
                       if (selected) {
@@ -474,8 +475,8 @@ class _ScheduleEventFormDialogState extends State<ScheduleEventFormDialog> {
   Future<void> _handleDelete() async {
     final confirmed = await AppConfirmDialog.show(
       context,
-      title: 'Delete event',
-      message: 'This schedule event will be removed from the calendar.',
+      title: context.l10n.byValue('Delete event'),
+      message: context.l10n.byValue('This schedule event will be removed from the calendar.'),
     );
     if (!confirmed) return;
     widget.onDelete?.call();
@@ -559,7 +560,7 @@ class _ScheduleEventFormDialogState extends State<ScheduleEventFormDialog> {
   void _showError(String message) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ).showSnackBar(SnackBar(content: Text(context.l10n.byValue(message))));
   }
 
   String _labelOf(
@@ -595,7 +596,7 @@ class _LookupDropdown extends StatelessWidget {
     return SizedBox(
       width: width,
       child: AppDropdownField<String>(
-        label: label,
+        label: context.l10n.byValue(label),
         value: value,
         onChanged: onChanged,
         items: items
@@ -603,8 +604,8 @@ class _LookupDropdown extends StatelessWidget {
               (item) => AppDropdownItem<String>(
                 value: item.id,
                 label: item.subtitle == null
-                    ? item.label
-                    : '${item.label} • ${item.subtitle}',
+                    ? context.l10n.byValue(item.label)
+                    : '${context.l10n.byValue(item.label)} • ${context.l10n.byValue(item.subtitle!)}',
               ),
             )
             .toList(growable: false),
@@ -655,9 +656,9 @@ class _PickerTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: Theme.of(context).textTheme.bodySmall),
+                  Text(context.l10n.byValue(label), style: Theme.of(context).textTheme.bodySmall),
                   const SizedBox(height: 2),
-                  Text(value, style: Theme.of(context).textTheme.titleSmall),
+                  Text(context.l10n.byValue(value), style: Theme.of(context).textTheme.titleSmall),
                 ],
               ),
             ),

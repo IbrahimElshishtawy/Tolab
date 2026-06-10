@@ -17,13 +17,19 @@ class OfferingForm {
     BuildContext context, {
     CourseOfferingModel? initialOffering,
   }) async {
+    final store = StoreProvider.of<AppState>(context);
+    final child = StoreProvider<AppState>(
+      store: store,
+      child: _OfferingFormBody(initialOffering: initialOffering),
+    );
+
     if (AppBreakpoints.isDesktop(context)) {
       await showDialog<void>(
         context: context,
         builder: (context) => Dialog(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 760),
-            child: _OfferingFormBody(initialOffering: initialOffering),
+            child: child,
           ),
         ),
       );
@@ -37,7 +43,7 @@ class OfferingForm {
         padding: EdgeInsets.only(
           bottom: MediaQuery.viewInsetsOf(context).bottom,
         ),
-        child: _OfferingFormBody(initialOffering: initialOffering),
+        child: child,
       ),
     );
   }

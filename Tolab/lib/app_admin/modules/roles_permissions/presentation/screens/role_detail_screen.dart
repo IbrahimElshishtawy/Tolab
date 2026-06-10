@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 
 import '../../../../core/colors/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -49,7 +50,7 @@ class RoleDetailScreen extends StatelessWidget {
       return AppCard(
         child: Center(
           child: Text(
-            'Select a role to inspect its members, permission coverage, and access matrix.',
+            context.l10n.byValue('Select a role to inspect its members, permission coverage, and access matrix.'),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
@@ -107,27 +108,27 @@ class RoleDetailScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          role!.name,
+                          context.l10n.byValue(role!.name),
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          role!.description,
+                          context.l10n.byValue(role!.description),
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ],
                     ),
                   ),
                   StatusBadge(
-                    role!.membersLabel,
+                    context.l10n.byValue(role!.membersLabel),
                     icon: Icons.people_alt_rounded,
                   ),
                   StatusBadge(
-                    '${role!.permissionIds.length} permissions',
+                    '${role!.permissionIds.length} ${context.l10n.byValue(role!.permissionIds.length == 1 ? 'permission' : 'permissions')}',
                     icon: Icons.grid_view_rounded,
                   ),
                   if (role!.isSystem)
-                    const StatusBadge('Protected', icon: Icons.lock_rounded),
+                    StatusBadge(context.l10n.byValue('Protected'), icon: Icons.lock_rounded),
                 ],
               ),
               const SizedBox(height: AppSpacing.lg),
@@ -136,18 +137,18 @@ class RoleDetailScreen extends StatelessWidget {
                 runSpacing: AppSpacing.sm,
                 children: [
                   PremiumButton(
-                    label: 'Edit role',
+                    label: context.l10n.byValue('Edit role'),
                     icon: Icons.edit_rounded,
                     isSecondary: true,
                     onPressed: onEditRole,
                   ),
                   PremiumButton(
-                    label: isUsersBusy ? 'Updating users...' : 'Assign users',
+                    label: isUsersBusy ? context.l10n.byValue('Updating users...') : context.l10n.byValue('Assign users'),
                     icon: Icons.person_add_alt_1_rounded,
                     onPressed: isUsersBusy ? null : onAssignUsers,
                   ),
                   PremiumButton(
-                    label: 'Delete',
+                    label: context.l10n.byValue('Delete'),
                     icon: Icons.delete_outline_rounded,
                     isSecondary: true,
                     isDestructive: true,
@@ -251,14 +252,14 @@ class _AssignedUsersCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Assigned Users',
+                          context.l10n.byValue('Assigned Users'),
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         TextButton.icon(
                           onPressed: onAssignUsers,
                           icon: const Icon(Icons.edit_rounded, size: 18),
-                          label: const Text('Manage'),
+                          label: Text(context.l10n.byValue('Manage')),
                         ),
                       ],
                     )
@@ -266,14 +267,14 @@ class _AssignedUsersCard extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            'Assigned Users',
+                            context.l10n.byValue('Assigned Users'),
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ),
                         TextButton.icon(
                           onPressed: onAssignUsers,
                           icon: const Icon(Icons.edit_rounded, size: 18),
-                          label: const Text('Manage'),
+                          label: Text(context.l10n.byValue('Manage')),
                         ),
                       ],
                     );
@@ -282,7 +283,7 @@ class _AssignedUsersCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           if (selectedUsers.isEmpty)
             Text(
-              'This role is not assigned to any users yet.',
+              context.l10n.byValue('This role is not assigned to any users yet.'),
               style: Theme.of(context).textTheme.bodySmall,
             )
           else
@@ -330,7 +331,7 @@ class _AssignedUserTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                user.name,
+                context.l10n.byValue(user.name),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.titleSmall,
@@ -344,7 +345,7 @@ class _AssignedUserTile extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                user.department,
+                context.l10n.byValue(user.department),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodySmall,
@@ -391,17 +392,17 @@ class _PermissionsCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Role Permissions',
+                          context.l10n.byValue('Role Permissions'),
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Grant or revoke module access using grouped, animated checkboxes.',
+                          context.l10n.byValue('Grant or revoke module access using grouped, animated checkboxes.'),
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         const SizedBox(height: AppSpacing.md),
                         PremiumButton(
-                          label: 'Add permission',
+                          label: context.l10n.byValue('Add permission'),
                           icon: Icons.add_rounded,
                           onPressed: onCreatePermission,
                         ),
@@ -414,19 +415,19 @@ class _PermissionsCard extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Role Permissions',
+                                context.l10n.byValue('Role Permissions'),
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Grant or revoke module access using grouped, animated checkboxes.',
+                                context.l10n.byValue('Grant or revoke module access using grouped, animated checkboxes.'),
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                             ],
                           ),
                         ),
                         PremiumButton(
-                          label: 'Add permission',
+                          label: context.l10n.byValue('Add permission'),
                           icon: Icons.add_rounded,
                           onPressed: onCreatePermission,
                         ),
@@ -474,33 +475,33 @@ class _RoleInsightStrip extends StatelessWidget {
       runSpacing: AppSpacing.md,
       children: [
         _RoleInsightCard(
-          title: 'Members',
+          title: context.l10n.byValue('Members'),
           value: '${role.membersCount}',
-          caption: '$activeMembers active in this role',
+          caption: '$activeMembers ${context.l10n.byValue('active in this role')}',
           icon: Icons.people_alt_rounded,
           color: AppColors.primary,
         ),
         _RoleInsightCard(
-          title: 'Permissions',
+          title: context.l10n.byValue('Permissions'),
           value: '${permissions.length}',
           caption:
-              '${permissions.where((item) => item.isCore).length} core rules',
+              '${permissions.where((item) => item.isCore).length} ${context.l10n.byValue('core rules')}',
           icon: Icons.verified_user_rounded,
           color: AppColors.info,
         ),
         _RoleInsightCard(
-          title: 'Academic Scope',
+          title: context.l10n.byValue('Academic Scope'),
           value: '${modules.length}',
           caption: modules.isEmpty
-              ? 'No modules linked yet'
-              : modules.take(2).join(' • '),
+              ? context.l10n.byValue('No modules linked yet')
+              : modules.take(2).map((m) => context.l10n.byValue(m)).join(' • '),
           icon: Icons.school_rounded,
           color: AppColors.secondary,
         ),
         _RoleInsightCard(
-          title: 'Updated',
-          value: DateFormat('d MMM yyyy').format(role.updatedAt.toLocal()),
-          caption: role.isSystem ? 'Protected role template' : 'Editable role',
+          title: context.l10n.byValue('Updated'),
+          value: DateFormat('d MMM yyyy', context.l10n.locale.languageCode).format(role.updatedAt.toLocal()),
+          caption: role.isSystem ? context.l10n.byValue('Protected role template') : context.l10n.byValue('Editable role'),
           icon: Icons.sync_rounded,
           color: AppColors.warning,
         ),

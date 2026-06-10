@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../app/localization/app_localizations.dart';
 import '../../../../core/models/dashboard_models.dart';
 import '../theme/app_spacing.dart';
 import '../theme/dashboard_theme_tokens.dart';
@@ -49,13 +50,13 @@ class SubjectsOverviewSection extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                subject.name,
+                                context.l10n.byValue(subject.name),
                                 style: Theme.of(context).textTheme.titleMedium
                                     ?.copyWith(color: tokens.textPrimary),
                               ),
                               const SizedBox(height: DashboardAppSpacing.xs),
                               Text(
-                                '${subject.code} • ${subject.department} • ${subject.batch}',
+                                '${subject.code} • ${context.l10n.byValue(subject.department)} • ${subject.batch}',
                                 style: Theme.of(context).textTheme.bodyMedium
                                     ?.copyWith(color: tokens.textSecondary),
                               ),
@@ -96,7 +97,7 @@ class SubjectsOverviewSection extends StatelessWidget {
                           .map(
                             (action) => OutlinedButton(
                               onPressed: () => onOpenRoute(action.route),
-                              child: Text(action.label),
+                              child: Text(context.l10n.byValue(action.label)),
                             ),
                           )
                           .toList(),

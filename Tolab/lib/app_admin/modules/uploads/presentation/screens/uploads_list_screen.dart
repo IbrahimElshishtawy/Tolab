@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:redux/redux.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 
 import '../../../../core/animations/app_motion.dart';
 import '../../../../core/colors/app_colors.dart';
@@ -82,18 +83,22 @@ class _UploadsListScreenState extends State<UploadsListScreen> {
           padding: const EdgeInsets.only(bottom: AppSpacing.md),
           children: [
             PageHeader(
-              title: 'Uploads',
-              subtitle:
-                  'A premium file operations workspace for materials, sections, permissions, previews, and large upload queues.',
-              breadcrumbs: const ['Admin', 'Content', 'Uploads'],
+              title: context.l10n.byValue('Uploads'),
+              subtitle: context.l10n.byValue(
+                  'A premium file operations workspace for materials, sections, permissions, previews, and large upload queues.'),
+              breadcrumbs: [
+                context.l10n.byValue('Admin'),
+                context.l10n.byValue('Content'),
+                context.l10n.byValue('Uploads'),
+              ],
               actions: [
                 PremiumButton(
-                  label: 'Select Files',
+                  label: context.l10n.byValue('Select Files'),
                   icon: Icons.attach_file_rounded,
                   onPressed: () => _pickFiles(store),
                 ),
                 PremiumButton(
-                  label: 'Refresh',
+                  label: context.l10n.byValue('Refresh'),
                   icon: Icons.refresh_rounded,
                   isSecondary: true,
                   onPressed: () => store.dispatch(const FetchUploadsAction()),
@@ -261,7 +266,7 @@ class _UploadsListScreenState extends State<UploadsListScreen> {
       ),
       _StatData(
         label: 'Storage footprint',
-        value: _formatFileSize(vm.metrics.totalStorageBytes),
+        value: _formatFileSize(context, vm.metrics.totalStorageBytes),
         subtitle: 'Protected content volume',
         color: AppColors.secondary,
         icon: Icons.sd_storage_rounded,
@@ -304,10 +309,10 @@ class _UploadsListScreenState extends State<UploadsListScreen> {
           children: [
             const Icon(Icons.error_outline_rounded, size: 42),
             const SizedBox(height: AppSpacing.md),
-            Text(vm.errorMessage ?? 'Unable to load uploads.'),
+            Text(context.l10n.byValue(vm.errorMessage ?? 'Unable to load uploads.')),
             const SizedBox(height: AppSpacing.md),
             PremiumButton(
-              label: 'Retry',
+              label: context.l10n.byValue('Retry'),
               icon: Icons.refresh_rounded,
               onPressed: () => StoreProvider.of<AppState>(
                 context,
@@ -327,12 +332,12 @@ class _UploadsListScreenState extends State<UploadsListScreen> {
             const Icon(Icons.inbox_outlined, size: 42),
             const SizedBox(height: AppSpacing.md),
             Text(
-              'No uploads match the current filters.',
+              context.l10n.byValue('No uploads match the current filters.'),
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              'Adjust the search, change the filters, or add fresh files to the queue.',
+              context.l10n.byValue('Adjust the search, change the filters, or add fresh files to the queue.'),
               style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
@@ -439,9 +444,10 @@ class _UploadsListScreenState extends State<UploadsListScreen> {
   Future<void> _confirmDelete(Set<String> ids) async {
     final confirmed = await AppConfirmDialog.show(
       context,
-      title: 'Delete upload${ids.length == 1 ? '' : 's'}?',
-      message:
-          'This removes ${ids.length == 1 ? 'the selected file' : '${ids.length} selected files'} from the uploads workspace.',
+      title: context.l10n.byValue(ids.length == 1 ? 'Delete upload?' : 'Delete uploads?'),
+      message: ids.length == 1
+          ? context.l10n.byValue('This removes the selected file from the uploads workspace.')
+          : '${context.l10n.byValue('This removes')} ${ids.length} ${context.l10n.byValue('selected files from the uploads workspace.')}',
     );
     if (!mounted) return;
     if (!confirmed) return;
@@ -575,24 +581,24 @@ class _FiltersPanel extends StatelessWidget {
                 child: TextField(
                   controller: searchController,
                   onChanged: onSearchChanged,
-                  decoration: const InputDecoration(
-                    hintText: 'Search by name, material, section, or uploader',
-                    prefixIcon: Icon(Icons.search_rounded),
+                  decoration: InputDecoration(
+                    hintText: context.l10n.byValue('Search by name, material, section, or uploader'),
+                    prefixIcon: const Icon(Icons.search_rounded),
                   ),
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
               SegmentedButton<UploadViewMode>(
-                segments: const [
+                segments: [
                   ButtonSegment(
                     value: UploadViewMode.table,
-                    label: Text('Table'),
-                    icon: Icon(Icons.table_rows_rounded),
+                    label: Text(context.l10n.byValue('Table')),
+                    icon: const Icon(Icons.table_rows_rounded),
                   ),
                   ButtonSegment(
                     value: UploadViewMode.grid,
-                    label: Text('Grid'),
-                    icon: Icon(Icons.grid_view_rounded),
+                    label: Text(context.l10n.byValue('Grid')),
+                    icon: const Icon(Icons.grid_view_rounded),
                   ),
                 ],
                 selected: {viewMode},
@@ -606,104 +612,102 @@ class _FiltersPanel extends StatelessWidget {
             runSpacing: AppSpacing.sm,
             children: [
               _DropdownBox<UploadFileType?>(
-                label: 'Type',
+                label: context.l10n.byValue('Type'),
                 value: filters.type,
                 width: 180,
                 items: [
-                  const DropdownMenuItem<UploadFileType?>(
+                  DropdownMenuItem<UploadFileType?>(
                     value: null,
-                    child: Text('All types'),
+                    child: Text(context.l10n.byValue('All types')),
                   ),
                   ...UploadFileType.values.map(
                     (type) => DropdownMenuItem<UploadFileType?>(
                       value: type,
-                      child: Text(type.label),
+                      child: Text(context.l10n.byValue(type.label)),
                     ),
                   ),
                 ],
                 onChanged: onTypeChanged,
               ),
               _DropdownBox<String?>(
-                label: 'Material',
+                label: context.l10n.byValue('Material'),
                 value: filters.materialId,
                 width: 200,
                 items: [
-                  const DropdownMenuItem<String?>(
+                  DropdownMenuItem<String?>(
                     value: null,
-                    child: Text('All materials'),
+                    child: Text(context.l10n.byValue('All materials')),
                   ),
                   ...lookups.materials.map(
                     (item) => DropdownMenuItem<String?>(
                       value: item.id,
-                      child: Text(item.label),
+                      child: Text(context.l10n.byValue(item.label)),
                     ),
                   ),
                 ],
                 onChanged: onMaterialChanged,
               ),
               _DropdownBox<String?>(
-                label: 'Section',
+                label: context.l10n.byValue('Section'),
                 value: filters.sectionId,
                 width: 170,
                 items: [
-                  const DropdownMenuItem<String?>(
+                  DropdownMenuItem<String?>(
                     value: null,
-                    child: Text('All sections'),
+                    child: Text(context.l10n.byValue('All sections')),
                   ),
                   ...lookups.sections.map(
                     (item) => DropdownMenuItem<String?>(
                       value: item.id,
-                      child: Text(item.label),
+                      child: Text(context.l10n.byValue(item.label)),
                     ),
                   ),
                 ],
                 onChanged: onSectionChanged,
               ),
               _DropdownBox<String?>(
-                label: 'Year',
+                label: context.l10n.byValue('Year'),
                 value: filters.year,
                 width: 150,
                 items: [
-                  const DropdownMenuItem<String?>(
+                  DropdownMenuItem<String?>(
                     value: null,
-                    child: Text('All years'),
+                    child: Text(context.l10n.byValue('All years')),
                   ),
                   ...lookups.years.map(
-                    (item) => DropdownMenuItem<String?>(
-                      value: item,
-                      child: Text(item),
-                    ),
+                    (item) =>
+                        DropdownMenuItem<String?>(value: item, child: Text(item)),
                   ),
                 ],
                 onChanged: onYearChanged,
               ),
               _DropdownBox<UploadStatus?>(
-                label: 'Status',
+                label: context.l10n.byValue('Status'),
                 value: filters.status,
                 width: 160,
                 items: [
-                  const DropdownMenuItem<UploadStatus?>(
+                  DropdownMenuItem<UploadStatus?>(
                     value: null,
-                    child: Text('All statuses'),
+                    child: Text(context.l10n.byValue('All statuses')),
                   ),
                   ...UploadStatus.values.map(
                     (status) => DropdownMenuItem<UploadStatus?>(
                       value: status,
-                      child: Text(status.label),
+                      child: Text(context.l10n.byValue(status.label)),
                     ),
                   ),
                 ],
                 onChanged: onStatusChanged,
               ),
               _DropdownBox<UploadSortField>(
-                label: 'Sort',
+                label: context.l10n.byValue('Sort'),
                 value: sort.field,
                 width: 170,
                 items: UploadSortField.values
                     .map(
                       (field) => DropdownMenuItem<UploadSortField>(
                         value: field,
-                        child: Text(_sortLabel(field)),
+                        child: Text(context.l10n.byValue(_sortLabel(field))),
                       ),
                     )
                     .toList(growable: false),
@@ -713,7 +717,7 @@ class _FiltersPanel extends StatelessWidget {
                 },
               ),
               PremiumButton(
-                label: sort.ascending ? 'Ascending' : 'Descending',
+                label: context.l10n.byValue(sort.ascending ? 'Ascending' : 'Descending'),
                 icon: sort.ascending
                     ? Icons.arrow_upward_rounded
                     : Icons.arrow_downward_rounded,
@@ -753,7 +757,7 @@ class _DropdownBox<T> extends StatelessWidget {
         isExpanded: true,
         items: items,
         onChanged: onChanged,
-        decoration: InputDecoration(labelText: label),
+        decoration: InputDecoration(labelText: context.l10n.byValue(label)),
       ),
     );
   }
@@ -782,7 +786,7 @@ class _BulkActionsBar extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              '$selectedCount upload${selectedCount == 1 ? '' : 's'} selected',
+              '$selectedCount ${context.l10n.byValue(selectedCount == 1 ? 'upload selected' : 'uploads selected')}',
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
@@ -791,26 +795,26 @@ class _BulkActionsBar extends StatelessWidget {
             runSpacing: AppSpacing.sm,
             children: [
               PremiumButton(
-                label: 'Assign',
+                label: context.l10n.byValue('Assign'),
                 icon: Icons.rule_folder_rounded,
                 isSecondary: true,
                 onPressed: onAssign,
               ),
               PremiumButton(
-                label: 'Download',
+                label: context.l10n.byValue('Download'),
                 icon: Icons.download_rounded,
                 isSecondary: true,
                 onPressed: onDownload,
               ),
               PremiumButton(
-                label: 'Delete',
+                label: context.l10n.byValue('Delete'),
                 icon: Icons.delete_outline_rounded,
                 isSecondary: true,
                 isDestructive: true,
                 onPressed: onDelete,
               ),
               PremiumButton(
-                label: 'Clear',
+                label: context.l10n.byValue('Clear'),
                 icon: Icons.close_rounded,
                 isSecondary: true,
                 onPressed: onClear,
@@ -834,10 +838,10 @@ class _QueuePanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Live Queue', style: Theme.of(context).textTheme.titleLarge),
+          Text(context.l10n.byValue('Live Queue'), style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'Uploading and failed jobs stay visible for quick retry and cancellation.',
+            context.l10n.byValue('Uploading and failed jobs stay visible for quick retry and cancellation.'),
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -854,7 +858,7 @@ class _QueuePanel extends StatelessWidget {
                   const Icon(Icons.check_circle_outline_rounded),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
-                    'Queue is clear',
+                    context.l10n.byValue('Queue is clear'),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ],
@@ -878,7 +882,7 @@ class _QueuePanel extends StatelessWidget {
                             ),
                             const SizedBox(height: AppSpacing.xs),
                             Text(
-                              '${item.assignment.materialLabel} | ${DateFormat('dd MMM, HH:mm').format(item.uploadedAt)}',
+                              '${context.l10n.byValue(item.assignment.materialLabel)} | ${DateFormat('dd MMM, HH:mm', context.l10n.locale.languageCode).format(item.uploadedAt)}',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
@@ -921,7 +925,7 @@ class _PaginationBar extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            'Page ${pagination.page} of ${pagination.totalPages} | ${pagination.totalItems} total uploads',
+            '${context.l10n.byValue('Page')} ${pagination.page} ${context.l10n.byValue('of')} ${pagination.totalPages} | ${pagination.totalItems} ${context.l10n.byValue('total uploads')}',
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ),
@@ -992,7 +996,7 @@ class _OfflineBanner extends StatelessWidget {
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
-              'Offline mode is active. Upload history stays available, but new transfers may fail until connectivity returns.',
+              context.l10n.byValue('Offline mode is active. Upload history stays available, but new transfers may fail until connectivity returns.'),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
@@ -1043,21 +1047,21 @@ class _StatCard extends StatelessWidget {
                 child: Icon(data.icon, color: data.color),
               ),
               const Spacer(),
-              StatusBadge(data.label),
+              StatusBadge(context.l10n.byValue(data.label)),
             ],
           ),
           const Spacer(),
           Text(data.value, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            data.label,
+            context.l10n.byValue(data.label),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            data.subtitle,
+            context.l10n.byValue(data.subtitle),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.bodySmall,
@@ -1102,12 +1106,12 @@ class _AssignmentSheetState extends State<_AssignmentSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Assign uploads',
+              context.l10n.byValue('Assign uploads'),
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              'Apply material, section, year, and access rules to ${widget.selectedCount} selected upload${widget.selectedCount == 1 ? '' : 's'}.',
+              '${context.l10n.byValue('Apply material, section, year, and access rules to')} ${widget.selectedCount} ${context.l10n.byValue(widget.selectedCount == 1 ? 'selected upload' : 'selected uploads')}.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -1115,14 +1119,14 @@ class _AssignmentSheetState extends State<_AssignmentSheet> {
               label: 'Course',
               value: _courseId,
               items: [
-                const DropdownMenuItem<String?>(
+                DropdownMenuItem<String?>(
                   value: null,
-                  child: Text('Optional'),
+                  child: Text(context.l10n.byValue('Optional')),
                 ),
                 ...widget.lookups.courses.map(
                   (item) => DropdownMenuItem<String?>(
                     value: item.id,
-                    child: Text(item.label),
+                    child: Text(context.l10n.byValue(item.label)),
                   ),
                 ),
               ],
@@ -1133,14 +1137,14 @@ class _AssignmentSheetState extends State<_AssignmentSheet> {
               label: 'Section',
               value: _sectionId,
               items: [
-                const DropdownMenuItem<String?>(
+                DropdownMenuItem<String?>(
                   value: null,
-                  child: Text('Optional'),
+                  child: Text(context.l10n.byValue('Optional')),
                 ),
                 ...widget.lookups.sections.map(
                   (item) => DropdownMenuItem<String?>(
                     value: item.id,
-                    child: Text(item.label),
+                    child: Text(context.l10n.byValue(item.label)),
                   ),
                 ),
               ],
@@ -1151,14 +1155,14 @@ class _AssignmentSheetState extends State<_AssignmentSheet> {
               label: 'Subject / Material',
               value: _subjectId,
               items: [
-                const DropdownMenuItem<String?>(
+                DropdownMenuItem<String?>(
                   value: null,
-                  child: Text('Optional'),
+                  child: Text(context.l10n.byValue('Optional')),
                 ),
                 ...widget.lookups.subjects.map(
                   (item) => DropdownMenuItem<String?>(
                     value: item.id,
-                    child: Text(item.label),
+                    child: Text(context.l10n.byValue(item.label)),
                   ),
                 ),
               ],
@@ -1169,9 +1173,9 @@ class _AssignmentSheetState extends State<_AssignmentSheet> {
               label: 'Academic year',
               value: _year,
               items: [
-                const DropdownMenuItem<String?>(
+                DropdownMenuItem<String?>(
                   value: null,
-                  child: Text('Optional'),
+                  child: Text(context.l10n.byValue('Optional')),
                 ),
                 ...widget.lookups.years.map(
                   (item) =>
@@ -1188,7 +1192,7 @@ class _AssignmentSheetState extends State<_AssignmentSheet> {
                   .map(
                     (item) => DropdownMenuItem<UploadAccessLevel>(
                       value: item,
-                      child: Text(item.label),
+                      child: Text(context.l10n.byValue(item.label)),
                     ),
                   )
                   .toList(growable: false),
@@ -1200,19 +1204,19 @@ class _AssignmentSheetState extends State<_AssignmentSheet> {
             SwitchListTile.adaptive(
               value: _canDownload,
               onChanged: (value) => setState(() => _canDownload = value),
-              title: const Text('Allow download'),
+              title: Text(context.l10n.byValue('Allow download')),
             ),
             SwitchListTile.adaptive(
               value: _allowPublicLink,
               onChanged: (value) => setState(() => _allowPublicLink = value),
-              title: const Text('Allow secure public link'),
+              title: Text(context.l10n.byValue('Allow secure public link')),
             ),
             const SizedBox(height: AppSpacing.lg),
             Row(
               children: [
                 Expanded(
                   child: PremiumButton(
-                    label: 'Cancel',
+                    label: context.l10n.byValue('Cancel'),
                     icon: Icons.close_rounded,
                     isSecondary: true,
                     onPressed: () => Navigator.of(context).pop(),
@@ -1221,7 +1225,7 @@ class _AssignmentSheetState extends State<_AssignmentSheet> {
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: PremiumButton(
-                    label: 'Apply Assignment',
+                    label: context.l10n.byValue('Apply Assignment'),
                     icon: Icons.check_rounded,
                     onPressed: () {
                       Navigator.of(context).pop(
@@ -1268,12 +1272,12 @@ class _BottomSheetDropdown<T> extends StatelessWidget {
       initialValue: value,
       items: items,
       onChanged: onChanged,
-      decoration: InputDecoration(labelText: label),
+      decoration: InputDecoration(labelText: context.l10n.byValue(label)),
     );
   }
 }
 
-String _formatFileSize(int bytes) {
+String _formatFileSize(BuildContext context, int bytes) {
   const units = ['B', 'KB', 'MB', 'GB'];
   var size = bytes.toDouble();
   var unitIndex = 0;
@@ -1281,7 +1285,7 @@ String _formatFileSize(int bytes) {
     size /= 1024;
     unitIndex++;
   }
-  return '${size.toStringAsFixed(unitIndex == 0 ? 0 : 1)} ${units[unitIndex]}';
+  return '${size.toStringAsFixed(unitIndex == 0 ? 0 : 1)} ${context.l10n.byValue(units[unitIndex])}';
 }
 
 String _sortLabel(UploadSortField field) => switch (field) {

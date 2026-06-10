@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:go_router/go_router.dart';
 import 'package:redux/redux.dart';
+ 
+import '../../../../app/localization/app_localizations.dart';
 
 import '../../../core/models/content_models.dart';
 import '../../../core/models/session_user.dart';
@@ -54,12 +56,12 @@ class TasksScreen extends StatelessWidget {
               FilledButton.tonalIcon(
                 onPressed: vm.reload,
                 icon: const Icon(Icons.refresh_rounded, size: 18),
-                label: const Text('Refresh'),
+                label: Text(context.l10n.byValue('Refresh')),
               ),
               FilledButton.tonalIcon(
                 onPressed: () => context.go(AppRoutes.results),
                 icon: const Icon(Icons.fact_check_rounded, size: 18),
-                label: const Text('Review Results'),
+                label: Text(context.l10n.byValue('Review Results')),
               ),
             ],
             child: TasksWorkspacePage(

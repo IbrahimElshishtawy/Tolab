@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+ 
+import '../../../../../app/localization/app_localizations.dart';
 
 import '../../../dashboard/presentation/widgets/dashboard_section_primitives.dart';
 import '../../../../core/design/app_spacing.dart';
@@ -95,9 +97,9 @@ class _QuizzesWorkspacePageState extends State<QuizzesWorkspacePage> {
             _QuickActionsSection(actions: widget.workspaceData.quickActions),
             const SizedBox(height: AppSpacing.lg),
             QuickStatsSection(
-              title: 'Quiz Quick Stats',
-              subtitle:
-                  'A fast summary of the publishing queue, live windows, completion, and pass trend.',
+              title: context.l10n.byValue('Quiz Quick Stats'),
+              subtitle: context.l10n.byValue(
+                  'A fast summary of the publishing queue, live windows, completion, and pass trend.'),
               metrics: widget.workspaceData.metrics,
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -174,7 +176,7 @@ class _QuizzesWorkspacePageState extends State<QuizzesWorkspacePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _formKey.currentState?.prefillFromQuiz(quiz);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Loaded ${quiz.title} into the quiz builder.')),
+        SnackBar(content: Text(context.l10n.byValue('Loaded ${quiz.title} into the quiz builder.'))),
       );
     });
   }
@@ -184,12 +186,12 @@ class _QuizzesWorkspacePageState extends State<QuizzesWorkspacePage> {
       widget.onCloseQuiz(quiz.id);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('${quiz.title} has been closed.')));
+      ).showSnackBar(SnackBar(content: Text(context.l10n.byValue('${quiz.title} has been closed.'))));
       return;
     }
     widget.onPublishQuiz(quiz.id);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${quiz.title} is ready for students.')),
+      SnackBar(content: Text(context.l10n.byValue('${quiz.title} is ready for students.'))),
     );
   }
 
@@ -197,7 +199,7 @@ class _QuizzesWorkspacePageState extends State<QuizzesWorkspacePage> {
     widget.onDuplicateQuiz(quiz.id);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${quiz.title} was duplicated into a draft copy.'),
+        content: Text(context.l10n.byValue('${quiz.title} was duplicated into a draft copy.')),
       ),
     );
   }

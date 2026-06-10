@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 
 import '../../../../core/animations/app_motion.dart';
 import '../../../../core/colors/app_colors.dart';
@@ -49,7 +50,7 @@ class UploadsProgressIndicator extends StatelessWidget {
             ),
             if (!compact) ...[
               const SizedBox(width: AppSpacing.sm),
-              StatusBadge(status.label),
+              StatusBadge(context.l10n.byValue(status.label)),
             ],
           ],
         ),
@@ -59,12 +60,12 @@ class UploadsProgressIndicator extends StatelessWidget {
             duration: AppMotion.fast,
             child: Text(
               status == UploadStatus.uploaded
-                  ? '100% completed'
+                  ? context.l10n.byValue('100% completed')
                   : status == UploadStatus.failed
-                  ? 'Upload interrupted'
+                  ? context.l10n.byValue('Upload interrupted')
                   : status == UploadStatus.cancelled
-                  ? 'Cancelled'
-                  : '${(value * 100).round()}% uploading',
+                  ? context.l10n.byValue('Cancelled')
+                  : '${(value * 100).round()}% ${context.l10n.byValue('uploading')}',
               key: ValueKey('${status.name}-$value'),
               style: Theme.of(context).textTheme.bodySmall,
             ),

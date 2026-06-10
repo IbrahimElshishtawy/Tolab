@@ -4,6 +4,8 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:go_router/go_router.dart';
 import 'package:redux/redux.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
+
 import '../../../core/colors/app_colors.dart';
 import '../../../core/responsive/app_breakpoints.dart';
 import '../../../core/routing/route_paths.dart';
@@ -59,7 +61,7 @@ class DepartmentDetailsScreen extends StatelessWidget {
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
-                    'Department details',
+                    context.l10n.byValue('Department details'),
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                 ),
@@ -75,9 +77,9 @@ class DepartmentDetailsScreen extends StatelessWidget {
                 ).dispatch(const LoadDepartmentsAction()),
                 isEmpty:
                     vm.department == null && vm.status == LoadStatus.success,
-                emptyTitle: 'Department not found',
-                emptySubtitle:
-                    'The requested department could not be resolved from the current workspace snapshot.',
+                emptyTitle: context.l10n.byValue('Department not found'),
+                emptySubtitle: context.l10n.byValue(
+                    'The requested department could not be resolved from the current workspace snapshot.'),
                 child: vm.department == null
                     ? const SizedBox.shrink()
                     : _DepartmentDetailsBody(
@@ -177,7 +179,7 @@ class _DepartmentDetailsBody extends StatelessWidget {
                         ),
                         const SizedBox(height: AppSpacing.xs),
                         Text(
-                          '${department.code} • Led by ${department.headName}',
+                          '${department.code} • ${context.l10n.byValue('Led by')} ${department.headName}',
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(
                                 color: Colors.white.withValues(alpha: 0.86),
@@ -203,7 +205,7 @@ class _DepartmentDetailsBody extends StatelessWidget {
                       runSpacing: AppSpacing.sm,
                       children: [
                         PremiumButton(
-                          label: 'Edit department',
+                          label: context.l10n.byValue('Edit department'),
                           icon: Icons.edit_outlined,
                           onPressed:
                               department.permissions.allows('edit_department')
@@ -211,13 +213,11 @@ class _DepartmentDetailsBody extends StatelessWidget {
                                   context,
                                   initialDepartment: department,
                                   faculties: faculties,
-                                )
+                                  )
                               : null,
                         ),
                         PremiumButton(
-                          label: department.isActive
-                              ? 'Deactivate'
-                              : 'Activate',
+                          label: context.l10n.byValue(department.isActive ? 'Deactivate' : 'Activate'),
                           icon: department.isActive
                               ? Icons.pause_circle_outline_rounded
                               : Icons.play_circle_outline_rounded,
@@ -231,7 +231,7 @@ class _DepartmentDetailsBody extends StatelessWidget {
                               ),
                         ),
                         PremiumButton(
-                          label: 'Archive',
+                          label: context.l10n.byValue('Archive'),
                           icon: Icons.archive_outlined,
                           isSecondary: true,
                           onPressed:
@@ -253,7 +253,7 @@ class _DepartmentDetailsBody extends StatelessWidget {
                       children: [
                         for (final tab in DepartmentDetailTab.values)
                           DepartmentChip(
-                            label: _tabLabel(tab),
+                            label: _tabLabel(context, tab),
                             selected: activeTab == tab,
                             onTap: () => StoreProvider.of<AppState>(
                               context,
@@ -293,12 +293,12 @@ class _DepartmentDetailsBody extends StatelessWidget {
     );
   }
 
-  String _tabLabel(DepartmentDetailTab tab) => switch (tab) {
-    DepartmentDetailTab.overview => 'Overview',
-    DepartmentDetailTab.students => 'Students',
-    DepartmentDetailTab.staff => 'Staff',
-    DepartmentDetailTab.subjects => 'Subjects',
-    DepartmentDetailTab.schedule => 'Schedule',
+  String _tabLabel(BuildContext context, DepartmentDetailTab tab) => switch (tab) {
+    DepartmentDetailTab.overview => context.l10n.byValue('Overview'),
+    DepartmentDetailTab.students => context.l10n.byValue('Students'),
+    DepartmentDetailTab.staff => context.l10n.byValue('Staff'),
+    DepartmentDetailTab.subjects => context.l10n.byValue('Subjects'),
+    DepartmentDetailTab.schedule => context.l10n.byValue('Schedule'),
   };
 }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../app/localization/app_localizations.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../shared/widgets/premium_button.dart';
@@ -68,29 +69,29 @@ class _OfferingFiltersState extends State<OfferingFilters> {
           final compact = constraints.maxWidth < 980;
           final controls = <Widget>[
             _DropdownField<String>(
-              label: 'Semester',
+              label: context.l10n.byValue('Semester'),
               value: widget.filters.semester,
               items: widget.semesterOptions,
-              itemLabel: (value) => value,
+              itemLabel: (value) => context.l10n.byValue(value),
               onChanged: widget.onSemesterChanged,
             ),
             _DropdownField<String>(
-              label: 'Department',
+              label: context.l10n.byValue('Department'),
               value: widget.filters.departmentId,
               items: widget.departments.map((item) => item.id).toList(),
               itemLabel: (value) {
                 final option = widget.departments.firstWhere(
                   (item) => item.id == value,
                 );
-                return option.label;
+                return context.l10n.byValue(option.label);
               },
               onChanged: widget.onDepartmentChanged,
             ),
             _DropdownField<CourseOfferingStatus>(
-              label: 'Status',
+              label: context.l10n.byValue('Status'),
               value: widget.filters.status,
               items: CourseOfferingStatus.values,
-              itemLabel: (value) => value.label,
+              itemLabel: (value) => context.l10n.byValue(value.label),
               onChanged: widget.onStatusChanged,
             ),
           ];
@@ -101,7 +102,7 @@ class _OfferingFiltersState extends State<OfferingFilters> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _searchField(),
+                    _searchField(context),
                     const SizedBox(height: AppSpacing.md),
                     Wrap(
                       spacing: AppSpacing.md,
@@ -111,14 +112,14 @@ class _OfferingFiltersState extends State<OfferingFilters> {
                           .toList(growable: false),
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    _actions(),
+                    _actions(context),
                   ],
                 )
               else
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(flex: 2, child: _searchField()),
+                    Expanded(flex: 2, child: _searchField(context)),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
                       flex: 3,
@@ -132,7 +133,7 @@ class _OfferingFiltersState extends State<OfferingFilters> {
                       ),
                     ),
                     const SizedBox(width: AppSpacing.md),
-                    _actions(),
+                    _actions(context),
                   ],
                 ),
             ],
@@ -142,31 +143,33 @@ class _OfferingFiltersState extends State<OfferingFilters> {
     );
   }
 
-  Widget _searchField() {
+  Widget _searchField(BuildContext context) {
     return TextField(
       controller: _searchController,
       onChanged: widget.onSearchChanged,
-      decoration: const InputDecoration(
-        labelText: 'Search offerings',
-        hintText: 'Subject, code, section, doctor',
-        prefixIcon: Icon(Icons.search_rounded),
+      decoration: InputDecoration(
+        labelText: context.l10n.byValue('Search offerings'),
+        hintText: context.l10n.byValue('Subject, code, section, doctor'),
+        prefixIcon: const Icon(Icons.search_rounded),
       ),
     );
   }
 
-  Widget _actions() {
+  Widget _actions(BuildContext context) {
     return Wrap(
       spacing: AppSpacing.sm,
       runSpacing: AppSpacing.sm,
       children: [
         PremiumButton(
-          label: 'Reset',
+          label: context.l10n.byValue('Reset'),
           icon: Icons.refresh_rounded,
           isSecondary: true,
           onPressed: widget.onReset,
         ),
         PremiumButton(
-          label: widget.isMutating ? 'Saving...' : 'New offering',
+          label: widget.isMutating
+              ? context.l10n.byValue('Saving...')
+              : context.l10n.byValue('New offering'),
           icon: Icons.add_rounded,
           onPressed: widget.isMutating ? null : widget.onCreate,
         ),
@@ -198,7 +201,10 @@ class _DropdownField<T> extends StatelessWidget {
       onChanged: onChanged,
       decoration: InputDecoration(labelText: label),
       items: [
-        DropdownMenuItem<T?>(value: null, child: const Text('All')),
+        DropdownMenuItem<T?>(
+          value: null,
+          child: Text(context.l10n.byValue('All')),
+        ),
         ...items.map(
           (item) =>
               DropdownMenuItem<T?>(value: item, child: Text(itemLabel(item))),

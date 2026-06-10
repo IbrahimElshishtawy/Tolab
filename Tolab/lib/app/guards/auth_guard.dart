@@ -83,6 +83,12 @@ class AuthGuard {
           : UnifiedAppRoutes.homeForRole(user.role);
     }
 
+    if (_isStudentRoute(location)) {
+      return user.role == AuthRole.student
+          ? null
+          : UnifiedAppRoutes.homeForRole(user.role);
+    }
+
     return null;
   }
 
@@ -98,5 +104,9 @@ class AuthGuard {
 
   static bool _isDoctorAssistantRoute(String location) {
     return location.startsWith('/workspace');
+  }
+
+  static bool _isStudentRoute(String location) {
+    return location.startsWith('/student');
   }
 }

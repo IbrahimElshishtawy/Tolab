@@ -4,9 +4,13 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/design/app_spacing.dart';
 import '../../../../core/navigation/app_routes.dart';
 import '../../../../models/doctor_assistant_models.dart';
-import '../../../dashboard/presentation/theme/dashboard_theme_tokens.dart';
 import '../../../dashboard/presentation/widgets/dashboard_section_primitives.dart';
 import '../models/tasks_workspace_models.dart';
+import 'task_builder/task_builder_attachments_panel.dart';
+import 'task_builder/task_builder_hero.dart';
+import 'task_builder/task_builder_picker_field.dart';
+import 'task_builder/task_builder_section_title.dart';
+import 'task_builder/task_builder_toggle_tile.dart';
 
 class TaskBuilderForm extends StatefulWidget {
   const TaskBuilderForm({
@@ -38,7 +42,7 @@ class TaskBuilderFormState extends State<TaskBuilderForm> {
   bool _addToSchedule = true;
   bool _publishImmediately = false;
   bool _saveAsDraft = true;
-  final List<_AttachmentDraft> _attachments = [];
+  final List<TaskAttachmentDraft> _attachments = [];
 
   @override
   void initState() {
@@ -109,7 +113,7 @@ class TaskBuilderFormState extends State<TaskBuilderForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _BuilderHero(
+            TaskBuilderHero(
               subjectLabel: _selectedSubject == null
                   ? 'Select a subject'
                   : '${_selectedSubject!.code} - ${_selectedSubject!.name}',
@@ -120,7 +124,7 @@ class TaskBuilderFormState extends State<TaskBuilderForm> {
                   : 'Draft mode',
             ),
             const SizedBox(height: AppSpacing.xl),
-            const _SectionTitle(
+            const TaskBuilderSectionTitle(
               title: 'Task Setup',
               subtitle:
                   'Define the teaching context and student-facing instructions.',
@@ -208,7 +212,7 @@ class TaskBuilderFormState extends State<TaskBuilderForm> {
               },
             ),
             const SizedBox(height: AppSpacing.xl),
-            const _SectionTitle(
+            const TaskBuilderSectionTitle(
               title: 'Schedule and Scope',
               subtitle:
                   'Control the release window, target audience, and grading envelope.',
@@ -217,7 +221,7 @@ class TaskBuilderFormState extends State<TaskBuilderForm> {
             _buildResponsiveRow(
               context,
               children: [
-                _PickerField(
+                TaskBuilderPickerField(
                   label: 'Deadline Date',
                   value: _selectedDate == null
                       ? 'Select date'
@@ -225,7 +229,7 @@ class TaskBuilderFormState extends State<TaskBuilderForm> {
                   icon: Icons.calendar_month_rounded,
                   onTap: _pickDate,
                 ),
-                _PickerField(
+                TaskBuilderPickerField(
                   label: 'Deadline Time',
                   value: _selectedTime == null
                       ? 'Select time'
@@ -280,13 +284,13 @@ class TaskBuilderFormState extends State<TaskBuilderForm> {
               ],
             ),
             const SizedBox(height: AppSpacing.xl),
-            const _SectionTitle(
+            const TaskBuilderSectionTitle(
               title: 'Attachments and Notes',
               subtitle:
                   'Keep the task pack complete before releasing it to students.',
             ),
             const SizedBox(height: AppSpacing.md),
-            _AttachmentsComposer(
+            TaskBuilderAttachmentsPanel(
               attachments: _attachments,
               onAddAttachment: _addAttachment,
               onRemoveAttachment: (attachment) {
@@ -304,7 +308,7 @@ class TaskBuilderFormState extends State<TaskBuilderForm> {
               ),
             ),
             const SizedBox(height: AppSpacing.xl),
-            const _SectionTitle(
+            const TaskBuilderSectionTitle(
               title: 'Publishing Controls',
               subtitle:
                   'Decide how the task should reach students and the academic calendar.',
@@ -313,7 +317,7 @@ class TaskBuilderFormState extends State<TaskBuilderForm> {
             _buildResponsiveRow(
               context,
               children: [
-                _ToggleTile(
+                TaskBuilderToggleTile(
                   title: 'Send notification to students',
                   subtitle: 'Push the task alert to the notification feed.',
                   value: _sendNotification,
@@ -321,7 +325,7 @@ class TaskBuilderFormState extends State<TaskBuilderForm> {
                   onChanged: (value) =>
                       setState(() => _sendNotification = value),
                 ),
-                _ToggleTile(
+                TaskBuilderToggleTile(
                   title: 'Add to schedule',
                   subtitle:
                       'Place the deadline in the academic schedule timeline.',
@@ -335,7 +339,7 @@ class TaskBuilderFormState extends State<TaskBuilderForm> {
             _buildResponsiveRow(
               context,
               children: [
-                _ToggleTile(
+                TaskBuilderToggleTile(
                   title: 'Publish immediately',
                   subtitle: 'Make the task visible as soon as it is saved.',
                   value: _publishImmediately,
@@ -349,7 +353,7 @@ class TaskBuilderFormState extends State<TaskBuilderForm> {
                     });
                   },
                 ),
-                _ToggleTile(
+                TaskBuilderToggleTile(
                   title: 'Save as draft',
                   subtitle: 'Keep the task private until the pack is ready.',
                   value: _saveAsDraft,
@@ -423,7 +427,7 @@ class TaskBuilderFormState extends State<TaskBuilderForm> {
   Future<void> _addAttachment() async {
     final fileNameController = TextEditingController();
     String selectedType = 'PDF';
-    final added = await showDialog<_AttachmentDraft>(
+    final added = await showDialog<TaskAttachmentDraft>(
       context: context,
       builder: (context) {
         return StatefulBuilder(
@@ -472,7 +476,7 @@ class TaskBuilderFormState extends State<TaskBuilderForm> {
                       return;
                     }
                     Navigator.of(context).pop(
-                      _AttachmentDraft(
+                      TaskAttachmentDraft(
                         fileName: fileName,
                         fileType: selectedType,
                       ),
@@ -602,299 +606,7 @@ class TaskBuilderFormState extends State<TaskBuilderForm> {
   }
 }
 
-class _BuilderHero extends StatelessWidget {
-  const _BuilderHero({
-    required this.subjectLabel,
-    required this.taskType,
-    required this.deadlineLabel,
-    required this.publishState,
-  });
 
-  final String subjectLabel;
-  final String taskType;
-  final String deadlineLabel;
-  final String publishState;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = DashboardThemeTokens.of(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.xl),
-      decoration: BoxDecoration(
-        color: tokens.surface.withValues(alpha: 0.72),
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-        border: Border.all(color: tokens.border),
-      ),
-      child: Wrap(
-        spacing: AppSpacing.sm,
-        runSpacing: AppSpacing.sm,
-        children: [
-          _HeroChip(icon: Icons.menu_book_rounded, label: subjectLabel),
-          _HeroChip(icon: Icons.category_rounded, label: taskType),
-          _HeroChip(icon: Icons.schedule_rounded, label: deadlineLabel),
-          _HeroChip(icon: Icons.verified_rounded, label: publishState),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeroChip extends StatelessWidget {
-  const _HeroChip({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = DashboardThemeTokens.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        color: tokens.primary.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: tokens.primary),
-          const SizedBox(width: AppSpacing.sm),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: tokens.primary,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({required this.title, required this.subtitle});
-
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = DashboardThemeTokens.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: tokens.textPrimary,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          subtitle,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: tokens.textSecondary),
-        ),
-      ],
-    );
-  }
-}
-
-class _PickerField extends StatelessWidget {
-  const _PickerField({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.onTap,
-  });
-
-  final String label;
-  final String value;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = DashboardThemeTokens.of(context);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          suffixIcon: Icon(icon, color: tokens.primary),
-        ),
-        child: Text(
-          value,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyLarge?.copyWith(color: tokens.textPrimary),
-        ),
-      ),
-    );
-  }
-}
-
-class _ToggleTile extends StatelessWidget {
-  const _ToggleTile({
-    required this.title,
-    required this.subtitle,
-    required this.value,
-    required this.icon,
-    required this.onChanged,
-  });
-
-  final String title;
-  final String subtitle;
-  final bool value;
-  final IconData icon;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = DashboardThemeTokens.of(context);
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: tokens.surfaceAlt,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-        border: Border.all(color: tokens.border),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 40,
-            width: 40,
-            decoration: BoxDecoration(
-              color: tokens.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(icon, color: tokens.primary),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: tokens.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  subtitle,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: tokens.textSecondary),
-                ),
-              ],
-            ),
-          ),
-          Switch.adaptive(value: value, onChanged: onChanged),
-        ],
-      ),
-    );
-  }
-}
-
-class _AttachmentsComposer extends StatelessWidget {
-  const _AttachmentsComposer({
-    required this.attachments,
-    required this.onAddAttachment,
-    required this.onRemoveAttachment,
-  });
-
-  final List<_AttachmentDraft> attachments;
-  final VoidCallback onAddAttachment;
-  final ValueChanged<_AttachmentDraft> onRemoveAttachment;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = DashboardThemeTokens.of(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: tokens.surfaceAlt,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-        border: Border.all(color: tokens.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Attachments upload',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: tokens.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              FilledButton.tonalIcon(
-                onPressed: onAddAttachment,
-                icon: const Icon(Icons.upload_file_rounded),
-                label: const Text('Upload attachment'),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            attachments.isEmpty
-                ? 'No files attached yet. Add task briefs, rubrics, templates, or datasets.'
-                : 'Attached files',
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: tokens.textSecondary),
-          ),
-          if (attachments.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.md),
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
-              children: attachments
-                  .map((attachment) {
-                    return InputChip(
-                      avatar: const Icon(Icons.attach_file_rounded, size: 18),
-                      label: Text(
-                        '${attachment.fileName} - ${attachment.fileType}',
-                      ),
-                      onDeleted: () => onRemoveAttachment(attachment),
-                    );
-                  })
-                  .toList(growable: false),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _AttachmentDraft {
-  const _AttachmentDraft({required this.fileName, required this.fileType});
-
-  final String fileName;
-  final String fileType;
-
-  Map<String, dynamic> toJson() => {
-    'file_name': fileName,
-    'file_type': fileType,
-  };
-}
 
 String _formatDate(DateTime value) {
   return '${_weekday(value.weekday)}, ${value.day} ${_month(value.month)} ${value.year}';

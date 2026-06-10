@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 
 import '../../../app/core/app_scope.dart';
+import '../../modules/settings/state/settings_actions.dart';
+import '../../state/app_state.dart';
 import '../../core/models/session_user.dart';
 import '../../core/navigation/app_routes.dart';
 import '../../core/navigation/navigation_items.dart';
@@ -37,7 +40,12 @@ class DoctorAssistantShell extends StatelessWidget {
       notificationRoute: AppRoutes.notifications,
       onToggleTheme: AppScope.theme(context).toggle,
       languageCode: localeController.languageCode,
-      onLanguageSelected: localeController.setLanguage,
+      onLanguageSelected: (language) {
+        localeController.setLanguage(language);
+        StoreProvider.of<DoctorAssistantAppState>(context).dispatch(
+          UpdateSettingsAction({'language': language}),
+        );
+      },
       onLogout: AppScope.auth(context).logout,
       child: child,
     );

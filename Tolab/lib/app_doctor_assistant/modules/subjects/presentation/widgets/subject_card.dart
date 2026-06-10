@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../app/localization/app_localizations.dart';
 import '../../../../../app_admin/core/colors/app_colors.dart';
 import '../../../../../app_admin/core/spacing/app_spacing.dart';
 import '../../../../../app_admin/core/widgets/app_card.dart';
@@ -50,14 +51,14 @@ class SubjectCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
-            subject.name,
+            context.l10n.byValue(subject.name),
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            subject.departmentName,
+            context.l10n.byValue(subject.departmentName),
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -67,15 +68,15 @@ class SubjectCard extends StatelessWidget {
             children: [
               _MetricPill(
                 icon: Icons.groups_rounded,
-                label: '${subject.studentCount} students',
+                label: context.l10n.byValue('${subject.studentCount} students'),
               ),
               _MetricPill(
                 icon: Icons.widgets_rounded,
-                label: '${subject.sectionsCount} sections',
+                label: context.l10n.byValue('${subject.sectionsCount} sections'),
               ),
               _MetricPill(
                 icon: Icons.quiz_rounded,
-                label: '${subject.quizzesCount} quizzes',
+                label: context.l10n.byValue('${subject.quizzesCount} quizzes'),
               ),
             ],
           ),
@@ -94,12 +95,12 @@ class SubjectCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  '${(subject.progress * 100).round()}% course delivery progress',
+                  context.l10n.byValue('${(subject.progress * 100).round()}% course delivery progress'),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
               Text(
-                subject.lastActivityLabel,
+                context.l10n.byValue(subject.lastActivityLabel),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppColors.secondary,
                 ),
@@ -114,12 +115,12 @@ class SubjectCard extends StatelessWidget {
               if ((subject.doctorName ?? '').isNotEmpty)
                 _NamedLine(
                   icon: Icons.person_rounded,
-                  text: subject.doctorName!,
+                  text: context.l10n.byValue(subject.doctorName!),
                 ),
               if ((subject.assistantName ?? '').isNotEmpty)
                 _NamedLine(
                   icon: Icons.support_agent_rounded,
-                  text: subject.assistantName!,
+                  text: context.l10n.byValue(subject.assistantName!),
                 ),
             ],
           ),
@@ -128,7 +129,7 @@ class SubjectCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Avg ${subject.averageScore.toStringAsFixed(1)}% · ${subject.pendingGradesCount} pending review',
+                  context.l10n.byValue('Avg ${subject.averageScore.toStringAsFixed(1)}% · ${subject.pendingGradesCount} pending review'),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),

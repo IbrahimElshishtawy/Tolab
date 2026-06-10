@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+ 
+import '../../../../../app/localization/app_localizations.dart';
 
 import '../../../../core/design/app_spacing.dart';
 import '../../../../core/navigation/app_routes.dart';
@@ -126,7 +128,7 @@ class _TasksWorkspacePageState extends State<TasksWorkspacePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _formKey.currentState?.prefillFromTask(task);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Loaded ${task.title} into the builder.')),
+        SnackBar(content: Text(context.l10n.byValue('Loaded ${task.title} into the builder.'))),
       );
     });
   }
@@ -135,7 +137,7 @@ class _TasksWorkspacePageState extends State<TasksWorkspacePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Reminder prepared for ${task.pendingStudentsCount} pending students in ${task.title}.',
+          context.l10n.byValue('Reminder prepared for ${task.pendingStudentsCount} pending students in ${task.title}.'),
         ),
       ),
     );

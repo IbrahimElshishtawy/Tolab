@@ -8,6 +8,10 @@ import '../../../../core/design/app_spacing.dart';
 import '../../../../core/navigation/app_routes.dart';
 import '../../../../models/doctor_assistant_models.dart';
 import '../models/sections_workspace_models.dart';
+import 'section_builder/section_builder_attachment_panel.dart';
+import 'section_builder/section_builder_hero.dart';
+import 'section_builder/section_builder_picker_field.dart';
+import 'section_builder/section_builder_toggle_tile.dart';
 
 class SectionBuilderForm extends StatefulWidget {
   const SectionBuilderForm({
@@ -134,7 +138,7 @@ class SectionBuilderFormState extends State<SectionBuilderForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _BuilderHero(
+            SectionBuilderHero(
               subjectLabel: _selectedSubject == null
                   ? 'Select a subject'
                   : '${_selectedSubject!.code} - ${_selectedSubject!.name}',
@@ -246,7 +250,7 @@ class SectionBuilderFormState extends State<SectionBuilderForm> {
             _responsiveRow(
               context,
               children: [
-                _PickerField(
+                SectionBuilderPickerField(
                   label: 'Date',
                   value: _selectedDate == null
                       ? 'Select date'
@@ -254,7 +258,7 @@ class SectionBuilderFormState extends State<SectionBuilderForm> {
                   icon: Icons.calendar_month_rounded,
                   onTap: _pickDate,
                 ),
-                _PickerField(
+                SectionBuilderPickerField(
                   label: 'Time',
                   value: _selectedTime == null
                       ? 'Select time'
@@ -348,7 +352,7 @@ class SectionBuilderFormState extends State<SectionBuilderForm> {
                   'Keep operational notes and supporting files visible for the teaching team.',
             ),
             const SizedBox(height: AppSpacing.md),
-            _AttachmentPanel(
+            SectionBuilderAttachmentPanel(
               attachments: _attachments,
               onAddAttachment: _pickAttachment,
               onRemoveAttachment: (item) {
@@ -375,7 +379,7 @@ class SectionBuilderFormState extends State<SectionBuilderForm> {
             _responsiveRow(
               context,
               children: [
-                _ToggleTile(
+                SectionBuilderToggleTile(
                   title: 'Publish now',
                   subtitle: 'Make the section visible immediately when saved.',
                   value: _publishNow,
@@ -389,7 +393,7 @@ class SectionBuilderFormState extends State<SectionBuilderForm> {
                     });
                   },
                 ),
-                _ToggleTile(
+                SectionBuilderToggleTile(
                   title: 'Save as draft',
                   subtitle: 'Keep editing before students can see it.',
                   value: _saveAsDraft,
@@ -409,7 +413,7 @@ class SectionBuilderFormState extends State<SectionBuilderForm> {
             _responsiveRow(
               context,
               children: [
-                _ToggleTile(
+                SectionBuilderToggleTile(
                   title: 'Send notification to students',
                   subtitle: 'Push a reminder to the student notification feed.',
                   value: _sendNotification,
@@ -417,7 +421,7 @@ class SectionBuilderFormState extends State<SectionBuilderForm> {
                   onChanged: (value) =>
                       setState(() => _sendNotification = value),
                 ),
-                _ToggleTile(
+                SectionBuilderToggleTile(
                   title: 'Add to schedule',
                   subtitle: 'Place the section inside the academic calendar.',
                   value: _addToSchedule,
@@ -651,80 +655,6 @@ class SectionBuilderFormState extends State<SectionBuilderForm> {
   }
 }
 
-class _BuilderHero extends StatelessWidget {
-  const _BuilderHero({
-    required this.subjectLabel,
-    required this.sectionType,
-    required this.scheduleLabel,
-    required this.publishState,
-  });
-
-  final String subjectLabel;
-  final String sectionType;
-  final String scheduleLabel;
-  final String publishState;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = DashboardThemeTokens.of(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.xl),
-      decoration: BoxDecoration(
-        color: tokens.surface.withValues(alpha: 0.72),
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-        border: Border.all(color: tokens.border),
-      ),
-      child: Wrap(
-        spacing: AppSpacing.sm,
-        runSpacing: AppSpacing.sm,
-        children: [
-          _HeroChip(icon: Icons.menu_book_rounded, label: subjectLabel),
-          _HeroChip(icon: Icons.widgets_rounded, label: sectionType),
-          _HeroChip(icon: Icons.schedule_rounded, label: scheduleLabel),
-          _HeroChip(icon: Icons.verified_rounded, label: publishState),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeroChip extends StatelessWidget {
-  const _HeroChip({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = DashboardThemeTokens.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        color: tokens.primary.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: tokens.primary),
-          const SizedBox(width: AppSpacing.sm),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: tokens.primary,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader({required this.title, required this.subtitle});
 
@@ -752,184 +682,6 @@ class _SectionHeader extends StatelessWidget {
           ).textTheme.bodyMedium?.copyWith(color: tokens.textSecondary),
         ),
       ],
-    );
-  }
-}
-
-class _PickerField extends StatelessWidget {
-  const _PickerField({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.onTap,
-  });
-
-  final String label;
-  final String value;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = DashboardThemeTokens.of(context);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          suffixIcon: Icon(icon, color: tokens.primary),
-        ),
-        child: Text(
-          value,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyLarge?.copyWith(color: tokens.textPrimary),
-        ),
-      ),
-    );
-  }
-}
-
-class _ToggleTile extends StatelessWidget {
-  const _ToggleTile({
-    required this.title,
-    required this.subtitle,
-    required this.value,
-    required this.icon,
-    required this.onChanged,
-  });
-
-  final String title;
-  final String subtitle;
-  final bool value;
-  final IconData icon;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = DashboardThemeTokens.of(context);
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: tokens.surfaceAlt,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-        border: Border.all(color: tokens.border),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 40,
-            width: 40,
-            decoration: BoxDecoration(
-              color: tokens.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(icon, color: tokens.primary),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: tokens.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  subtitle,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: tokens.textSecondary),
-                ),
-              ],
-            ),
-          ),
-          Switch.adaptive(value: value, onChanged: onChanged),
-        ],
-      ),
-    );
-  }
-}
-
-class _AttachmentPanel extends StatelessWidget {
-  const _AttachmentPanel({
-    required this.attachments,
-    required this.onAddAttachment,
-    required this.onRemoveAttachment,
-  });
-
-  final List<String> attachments;
-  final VoidCallback onAddAttachment;
-  final ValueChanged<String> onRemoveAttachment;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = DashboardThemeTokens.of(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: tokens.surfaceAlt,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-        border: Border.all(color: tokens.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Attachments',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: tokens.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              FilledButton.tonalIcon(
-                onPressed: onAddAttachment,
-                icon: const Icon(Icons.attach_file_rounded),
-                label: const Text('Add file'),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            attachments.isEmpty
-                ? 'No attachment selected yet. Add room guides, worksheets, or instructions if needed.'
-                : 'Attached files',
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: tokens.textSecondary),
-          ),
-          if (attachments.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.md),
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
-              children: attachments
-                  .map(
-                    (item) => InputChip(
-                      avatar: const Icon(
-                        Icons.insert_drive_file_rounded,
-                        size: 18,
-                      ),
-                      label: Text(item),
-                      onDeleted: () => onRemoveAttachment(item),
-                    ),
-                  )
-                  .toList(growable: false),
-            ),
-          ],
-        ],
-      ),
     );
   }
 }

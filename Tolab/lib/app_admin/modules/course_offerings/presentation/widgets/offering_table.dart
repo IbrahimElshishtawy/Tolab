@@ -2,6 +2,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../app/localization/app_localizations.dart';
 import '../../../../core/colors/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/spacing/app_spacing.dart';
@@ -33,14 +34,35 @@ class OfferingTable extends StatelessWidget {
         horizontalMargin: 18,
         headingRowHeight: 56,
         dataRowHeight: 84,
-        columns: const [
-          DataColumn2(label: Text('Subject'), size: ColumnSize.L),
-          DataColumn2(label: Text('Code'), size: ColumnSize.S),
-          DataColumn2(label: Text('Doctor'), size: ColumnSize.M),
-          DataColumn2(label: Text('Semester'), size: ColumnSize.S),
-          DataColumn2(label: Text('Capacity'), size: ColumnSize.L),
-          DataColumn2(label: Text('Status'), size: ColumnSize.S),
-          DataColumn2(label: Text('Actions'), size: ColumnSize.M),
+        columns: [
+          DataColumn2(
+            label: Text(context.l10n.byValue('Subject')),
+            size: ColumnSize.L,
+          ),
+          DataColumn2(
+            label: Text(context.l10n.byValue('Code')),
+            size: ColumnSize.S,
+          ),
+          DataColumn2(
+            label: Text(context.l10n.byValue('Doctor')),
+            size: ColumnSize.M,
+          ),
+          DataColumn2(
+            label: Text(context.l10n.byValue('Semester')),
+            size: ColumnSize.S,
+          ),
+          DataColumn2(
+            label: Text(context.l10n.byValue('Capacity')),
+            size: ColumnSize.L,
+          ),
+          DataColumn2(
+            label: Text(context.l10n.byValue('Status')),
+            size: ColumnSize.S,
+          ),
+          DataColumn2(
+            label: Text(context.l10n.byValue('Actions')),
+            size: ColumnSize.M,
+          ),
         ],
         rows: [
           for (var index = 0; index < offerings.length; index++)
@@ -59,12 +81,12 @@ class OfferingTable extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        offerings[index].subjectName,
+                        context.l10n.byValue(offerings[index].subjectName),
                         style: Theme.of(context).textTheme.titleSmall,
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        offerings[index].sectionName,
+                        context.l10n.byValue(offerings[index].sectionName),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -74,7 +96,7 @@ class OfferingTable extends StatelessWidget {
                 DataCell(Text(offerings[index].doctor.name)),
                 DataCell(
                   Text(
-                    '${offerings[index].semester}\n${offerings[index].academicYear}',
+                    '${context.l10n.byValue(offerings[index].semester)}\n${offerings[index].academicYear}',
                   ),
                 ),
                 DataCell(_CapacityCell(offering: offerings[index])),
@@ -122,7 +144,7 @@ class _CapacityCell extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          '${offering.enrolledCount}/${offering.capacity} enrolled',
+          '${offering.enrolledCount}/${offering.capacity} ${context.l10n.byValue('enrolled')}',
           style: Theme.of(context).textTheme.labelLarge,
         ),
         const SizedBox(height: AppSpacing.xs),
@@ -137,7 +159,7 @@ class _CapacityCell extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          '${offering.seatsRemaining} seats left - ${DateFormat('d MMM').format(offering.startDate)}',
+          '${offering.seatsRemaining} ${context.l10n.byValue('seats left')} - ${DateFormat('d MMM', context.l10n.locale.languageCode).format(offering.startDate)}',
           style: Theme.of(context).textTheme.bodySmall,
         ),
       ],

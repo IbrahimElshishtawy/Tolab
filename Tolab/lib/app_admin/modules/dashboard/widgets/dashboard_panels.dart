@@ -1,6 +1,7 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../app/localization/app_localizations.dart';
 import '../../../core/colors/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/spacing/app_spacing.dart';
@@ -40,14 +41,14 @@ class DashboardSearchResultsPanel extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      heading,
+                      context.l10n.byValue(heading),
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      query.trim().isEmpty
+                      context.l10n.byValue(query.trim().isEmpty
                           ? 'Students, doctors, and assistants most relevant to current operations.'
-                          : 'Results update instantly from the local index while Laravel search refines them in the background.',
+                          : 'Results update instantly from the local index while Laravel search refines them in the background.'),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
@@ -71,7 +72,7 @@ class DashboardSearchResultsPanel extends StatelessWidget {
                 border: Border.all(color: Theme.of(context).dividerColor),
               ),
               child: Text(
-                'No matching student, doctor, or assistant was found for this query.',
+                context.l10n.byValue('No matching student, doctor, or assistant was found for this query.'),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             )
@@ -113,10 +114,10 @@ class QuickActionsPanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Quick actions', style: Theme.of(context).textTheme.titleLarge),
+          Text(context.l10n.byValue('Quick actions'), style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'High-priority shortcuts for daily academy admin work.',
+            context.l10n.byValue('High-priority shortcuts for daily academy admin work.'),
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -145,10 +146,10 @@ class DashboardAlertsPanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Live alerts', style: Theme.of(context).textTheme.titleLarge),
+          Text(context.l10n.byValue('Live alerts'), style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'Queues that should stay visible while notifications continue in the top shell.',
+            context.l10n.byValue('Queues that should stay visible while notifications continue in the top shell.'),
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -204,12 +205,12 @@ class _RecentActivityTableCardState extends State<RecentActivityTableCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Recent registrations, uploads, and review queue',
+            context.l10n.byValue('Recent registrations, uploads, and review queue'),
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'Sortable, searchable, sticky-headed operations table with pagination for large queues.',
+            context.l10n.byValue('Sortable, searchable, sticky-headed operations table with pagination for large queues.'),
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -223,16 +224,16 @@ class _RecentActivityTableCardState extends State<RecentActivityTableCard> {
                 child: TextField(
                   controller: _queryController,
                   onChanged: (_) => setState(() {}),
-                  decoration: const InputDecoration(
-                    hintText: 'Search activity table',
-                    prefixIcon: Icon(Icons.search_rounded),
+                  decoration: InputDecoration(
+                    hintText: context.l10n.byValue('Search activity table'),
+                    prefixIcon: const Icon(Icons.search_rounded),
                   ),
                 ),
               ),
               for (final category in DashboardActivityCategory.values)
                 ChoiceChip(
                   selected: _category == category,
-                  label: Text(category.label),
+                  label: Text(context.l10n.byValue(category.label)),
                   onSelected: (_) => setState(() => _category = category),
                 ),
             ],
@@ -259,7 +260,7 @@ class _RecentActivityTableCardState extends State<RecentActivityTableCard> {
               sortAscending: _sortAscending,
               columns: [
                 DataColumn2(
-                  label: const Text('Category'),
+                  label: Text(context.l10n.byValue('Category')),
                   size: ColumnSize.S,
                   onSort: (columnIndex, ascending) => _sort<String>(
                     columnIndex,
@@ -269,7 +270,7 @@ class _RecentActivityTableCardState extends State<RecentActivityTableCard> {
                   ),
                 ),
                 DataColumn2(
-                  label: const Text('Title'),
+                  label: Text(context.l10n.byValue('Title')),
                   size: ColumnSize.L,
                   onSort: (columnIndex, ascending) => _sort<String>(
                     columnIndex,
@@ -279,7 +280,7 @@ class _RecentActivityTableCardState extends State<RecentActivityTableCard> {
                   ),
                 ),
                 DataColumn2(
-                  label: const Text('Actor'),
+                  label: Text(context.l10n.byValue('Actor')),
                   size: ColumnSize.M,
                   onSort: (columnIndex, ascending) => _sort<String>(
                     columnIndex,
@@ -289,7 +290,7 @@ class _RecentActivityTableCardState extends State<RecentActivityTableCard> {
                   ),
                 ),
                 DataColumn2(
-                  label: const Text('Department'),
+                  label: Text(context.l10n.byValue('Department')),
                   size: ColumnSize.M,
                   onSort: (columnIndex, ascending) => _sort<String>(
                     columnIndex,
@@ -299,7 +300,7 @@ class _RecentActivityTableCardState extends State<RecentActivityTableCard> {
                   ),
                 ),
                 DataColumn2(
-                  label: const Text('Created'),
+                  label: Text(context.l10n.byValue('Created')),
                   size: ColumnSize.S,
                   onSort: (columnIndex, ascending) => _sort<DateTime>(
                     columnIndex,
@@ -308,7 +309,7 @@ class _RecentActivityTableCardState extends State<RecentActivityTableCard> {
                     (row) => row.createdAt,
                   ),
                 ),
-                const DataColumn2(label: Text('Status'), size: ColumnSize.S),
+                DataColumn2(label: Text(context.l10n.byValue('Status')), size: ColumnSize.S),
               ],
               source: source,
             ),
@@ -430,12 +431,12 @@ class _DirectoryCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
-            entry.statusLabel,
+            context.l10n.byValue(entry.statusLabel),
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'Last seen ${entry.lastSeenLabel}',
+            '${context.l10n.byValue('Last seen')} ${entry.lastSeenLabel}',
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
@@ -493,14 +494,14 @@ class _QuickActionButton extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    action.label,
+                    context.l10n.byValue(action.label),
                     style: Theme.of(
                       context,
                     ).textTheme.titleMedium?.copyWith(color: Colors.white),
                   ),
                   const SizedBox(height: AppSpacing.xxs),
                   Text(
-                    action.subtitle,
+                    context.l10n.byValue(action.subtitle),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Colors.white.withValues(alpha: 0.86),
                     ),
@@ -549,12 +550,12 @@ class _AlertTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  alert.title,
+                  context.l10n.byValue(alert.title),
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: AppSpacing.xxs),
                 Text(
-                  alert.subtitle,
+                  context.l10n.byValue(alert.subtitle),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -586,7 +587,7 @@ class _MiniChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
-        label,
+        context.l10n.byValue(label),
         style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color),
       ),
     );
@@ -609,18 +610,18 @@ class _ActivityDataSource extends DataTableSource {
     final row = _rows[index];
     return DataRow(
       cells: [
-        DataCell(_MiniChip(label: row.type.label, color: _toneColor(row.tone))),
+        DataCell(_MiniChip(label: _context.l10n.byValue(row.type.label), color: _toneColor(row.tone))),
         DataCell(
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(row.title, style: Theme.of(_context).textTheme.titleSmall),
+              Text(_context.l10n.byValue(row.title), style: Theme.of(_context).textTheme.titleSmall),
               const SizedBox(height: 4),
               SizedBox(
                 width: 240,
                 child: Text(
-                  row.subtitle,
+                  _context.l10n.byValue(row.subtitle),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(_context).textTheme.bodySmall,
@@ -629,11 +630,11 @@ class _ActivityDataSource extends DataTableSource {
             ],
           ),
         ),
-        DataCell(Text(row.actor)),
-        DataCell(Text(row.department)),
-        DataCell(Text(row.createdAtLabel)),
+        DataCell(Text(_context.l10n.byValue(row.actor))),
+        DataCell(Text(_context.l10n.byValue(row.department))),
+        DataCell(Text(_context.l10n.byValue(row.createdAtLabel))),
         DataCell(
-          _MiniChip(label: row.statusLabel, color: _toneColor(row.tone)),
+          _MiniChip(label: _context.l10n.byValue(row.statusLabel), color: _toneColor(row.tone)),
         ),
       ],
     );

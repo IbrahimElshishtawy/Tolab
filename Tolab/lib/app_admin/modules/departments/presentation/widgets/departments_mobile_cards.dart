@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../models/department_models.dart';
@@ -106,12 +107,12 @@ class DepartmentsMobileCards extends StatelessWidget {
                   OutlinedButton.icon(
                     onPressed: () => onOpenDepartment(department),
                     icon: const Icon(Icons.open_in_new_rounded, size: 18),
-                    label: const Text('Details'),
+                    label: Text(context.l10n.byValue('Details')),
                   ),
                   OutlinedButton.icon(
                     onPressed: () => onEditDepartment(department),
                     icon: const Icon(Icons.edit_outlined, size: 18),
-                    label: const Text('Edit'),
+                    label: Text(context.l10n.byValue('Edit')),
                   ),
                   OutlinedButton.icon(
                     onPressed: () =>
@@ -123,13 +124,13 @@ class DepartmentsMobileCards extends StatelessWidget {
                       size: 18,
                     ),
                     label: Text(
-                      department.isActive ? 'Deactivate' : 'Activate',
+                      context.l10n.byValue(department.isActive ? 'Deactivate' : 'Activate'),
                     ),
                   ),
                   OutlinedButton.icon(
                     onPressed: () => onArchiveDepartment(department),
                     icon: const Icon(Icons.archive_outlined, size: 18),
-                    label: const Text('Archive'),
+                    label: Text(context.l10n.byValue('Archive')),
                   ),
                 ],
               ),
@@ -159,7 +160,7 @@ class _MetricPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
-        '$label: $value',
+        '${context.l10n.byValue(label)}: $value',
         style: Theme.of(context).textTheme.labelMedium,
       ),
     );

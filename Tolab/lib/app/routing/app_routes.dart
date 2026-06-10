@@ -12,11 +12,13 @@ class UnifiedAppRoutes {
   static const forgotPassword = '/forgot-password';
   static const inactive = '/inactive';
   static const unauthorized = '/unauthorized';
+  static const studentDashboard = '/student/dashboard';
 
   static String homeForRole(AuthRole role) {
     return switch (role) {
       AuthRole.admin => admin_routes.RoutePaths.dashboard,
       AuthRole.doctor || AuthRole.assistant => staff_routes.AppRoutes.dashboard,
+      AuthRole.student => studentDashboard,
       AuthRole.unknown => unauthorized,
     };
   }

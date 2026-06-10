@@ -51,25 +51,28 @@ class SmartTimelineSection extends StatelessWidget {
                     DashboardToneBadge(label: group.label, tone: 'secondary'),
                     const SizedBox(height: DashboardAppSpacing.sm),
                     ...group.items.map(
-                      (item) => ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: Icon(
-                          dashboardIconForTimelineType(item.type),
-                          color: dashboardToneColor(tokens, item.status),
+                      (item) => Material(
+                        color: Colors.transparent,
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: Icon(
+                            dashboardIconForTimelineType(item.type),
+                            color: dashboardToneColor(tokens, item.status),
+                          ),
+                          title: Text(
+                            item.title,
+                            style: TextStyle(color: tokens.textPrimary),
+                          ),
+                          subtitle: Text(
+                            '${item.subjectName} • ${item.whenLabel}',
+                            style: TextStyle(color: tokens.textSecondary),
+                          ),
+                          trailing: DashboardToneBadge(
+                            label: item.status,
+                            tone: item.status,
+                          ),
+                          onTap: () => onOpenRoute(item.route),
                         ),
-                        title: Text(
-                          item.title,
-                          style: TextStyle(color: tokens.textPrimary),
-                        ),
-                        subtitle: Text(
-                          '${item.subjectName} • ${item.whenLabel}',
-                          style: TextStyle(color: tokens.textSecondary),
-                        ),
-                        trailing: DashboardToneBadge(
-                          label: item.status,
-                          tone: item.status,
-                        ),
-                        onTap: () => onOpenRoute(item.route),
                       ),
                     ),
                   ],

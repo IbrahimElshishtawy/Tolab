@@ -73,16 +73,19 @@ class StudentSectionCard extends StatelessWidget {
     required this.subtitle,
     required this.child,
     this.trailing,
+    this.height,
   });
 
   final String title;
   final String subtitle;
   final Widget child;
   final Widget? trailing;
+  final double? height;
 
   @override
   Widget build(BuildContext context) {
     return AppCard(
+      height: height,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -109,7 +112,14 @@ class StudentSectionCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          child,
+          if (height != null)
+            Expanded(
+              child: SingleChildScrollView(
+                child: child,
+              ),
+            )
+          else
+            child,
         ],
       ),
     );

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+ 
+import '../../../../../app/localization/app_localizations.dart';
 
 import '../../../../core/models/dashboard_models.dart';
 import '../theme/app_spacing.dart';
@@ -49,7 +51,7 @@ class SmartHeaderSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      header.user.greeting,
+                      context.l10n.byValue(header.user.greeting),
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             color: tokens.textPrimary,
@@ -58,7 +60,7 @@ class SmartHeaderSection extends StatelessWidget {
                     ),
                     const SizedBox(height: DashboardAppSpacing.xs),
                     Text(
-                      header.user.subtitle,
+                      context.l10n.byValue(header.user.subtitle),
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: tokens.textSecondary,
                       ),
@@ -67,7 +69,7 @@ class SmartHeaderSection extends StatelessWidget {
                 ),
               ),
               DashboardToneBadge(
-                label: '${header.notificationBadge} alerts',
+                label: context.l10n.byValue('${header.notificationBadge} alerts'),
                 tone: header.notificationBadge > 0 ? 'danger' : 'success',
               ),
             ],
@@ -77,11 +79,11 @@ class SmartHeaderSection extends StatelessWidget {
             spacing: DashboardAppSpacing.sm,
             runSpacing: DashboardAppSpacing.sm,
             children: [
-              DashboardToneBadge(label: header.user.role, tone: 'secondary'),
+              DashboardToneBadge(label: context.l10n.byValue(header.user.role), tone: 'secondary'),
               for (final item in header.user.departments)
-                DashboardToneBadge(label: item, tone: 'primary'),
+                DashboardToneBadge(label: context.l10n.byValue(item), tone: 'primary'),
               for (final item in header.user.academicYears)
-                DashboardToneBadge(label: item, tone: 'success'),
+                DashboardToneBadge(label: context.l10n.byValue(item), tone: 'success'),
             ],
           ),
           const SizedBox(height: DashboardAppSpacing.lg),
@@ -90,13 +92,13 @@ class SmartHeaderSection extends StatelessWidget {
               FilledButton.icon(
                 onPressed: onRefresh,
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Refresh'),
+                label: Text(context.l10n.byValue('Refresh')),
               ),
               const SizedBox(width: DashboardAppSpacing.sm),
               FilledButton.tonalIcon(
                 onPressed: onToggleStyle,
                 icon: const Icon(Icons.palette_outlined),
-                label: Text(tokens.styleName),
+                label: Text(context.l10n.byValue(tokens.styleName)),
               ),
             ],
           ),

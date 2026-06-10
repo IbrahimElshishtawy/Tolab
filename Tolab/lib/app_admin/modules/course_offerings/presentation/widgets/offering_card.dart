@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../app/localization/app_localizations.dart';
 import '../../../../core/colors/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/spacing/app_spacing.dart';
@@ -25,7 +26,7 @@ class OfferingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final fillColor = _capacityColor(offering);
     final rangeLabel =
-        '${DateFormat('d MMM').format(offering.startDate)} - ${DateFormat('d MMM yyyy').format(offering.endDate)}';
+        '${DateFormat('d MMM', context.l10n.locale.languageCode).format(offering.startDate)} - ${DateFormat('d MMM yyyy', context.l10n.locale.languageCode).format(offering.endDate)}';
 
     return AppCard(
       interactive: true,
@@ -45,7 +46,7 @@ class OfferingCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  offering.subjectName,
+                  context.l10n.byValue(offering.subjectName),
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: AppSpacing.sm),
@@ -65,7 +66,7 @@ class OfferingCard extends StatelessWidget {
                           ),
                           const SizedBox(height: AppSpacing.xs),
                           Text(
-                            offering.subjectName,
+                            context.l10n.byValue(offering.subjectName),
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ],
@@ -83,7 +84,7 @@ class OfferingCard extends StatelessWidget {
               const SizedBox(height: AppSpacing.sm),
               _InfoRow(
                 icon: Icons.grid_view_rounded,
-                label: '${offering.sectionName} - ${offering.semester}',
+                label: '${context.l10n.byValue(offering.sectionName)} - ${context.l10n.byValue(offering.semester)}',
               ),
               const SizedBox(height: AppSpacing.sm),
               _InfoRow(icon: Icons.event_outlined, label: rangeLabel),
@@ -95,7 +96,7 @@ class OfferingCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Capacity',
+                          context.l10n.byValue('Capacity'),
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         const SizedBox(height: AppSpacing.xs),
@@ -131,7 +132,7 @@ class OfferingCard extends StatelessWidget {
                   TextButton.icon(
                     onPressed: onView,
                     icon: const Icon(Icons.visibility_outlined, size: 18),
-                    label: const Text('View'),
+                    label: Text(context.l10n.byValue('View')),
                   ),
                   Row(
                     mainAxisSize: MainAxisSize.min,
@@ -184,7 +185,7 @@ class OfferingStatusBadge extends StatelessWidget {
         border: Border.all(color: color.withValues(alpha: 0.18)),
       ),
       child: Text(
-        status.label,
+        context.l10n.byValue(status.label),
         style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color),
       ),
     );

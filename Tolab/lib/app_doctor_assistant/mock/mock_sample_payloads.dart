@@ -133,6 +133,25 @@ class MockSamplePayloads {
         'analytics.view',
       ],
     },
+    {
+      'id': 4,
+      'full_name': 'Menna Adel',
+      'university_email': 'student@tolab.edu',
+      'password': '123456',
+      'role_type': 'student',
+      'is_active': true,
+      'notification_enabled': true,
+      'language': 'ar',
+      'phone': '+20 100 200 3004',
+      'department': 'Computer Science',
+      'office_hours': '',
+      'location_label': '',
+      'focus_areas': [],
+      'permissions': [
+        'results.view',
+        'announcements.view',
+      ],
+    },
   ];
 
   static const teachingSubjects = <Map<String, dynamic>>[

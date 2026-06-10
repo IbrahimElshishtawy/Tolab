@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../presentation/widgets/doctor_assistant_widgets.dart';
+import '../../../../../app/localization/app_localizations.dart';
 
 class NotificationSettingsPanel extends StatelessWidget {
   const NotificationSettingsPanel({
@@ -31,39 +32,39 @@ class NotificationSettingsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DoctorAssistantPanel(
-      title: 'Notification settings',
-      subtitle:
-          'Control push, email, reminder, quiz, and lecture alerts that drive the teaching workflow.',
+      title: context.l10n.byValue('Notification settings'),
+      subtitle: context.l10n.byValue(
+          'Control push, email, reminder, quiz, and lecture alerts that drive the teaching workflow.'),
       child: Column(
         children: [
           SwitchListTile.adaptive(
             contentPadding: EdgeInsets.zero,
             value: pushEnabled,
-            title: const Text('Push notifications'),
+            title: Text(context.l10n.byValue('Push notifications')),
             onChanged: onPushChanged,
           ),
           SwitchListTile.adaptive(
             contentPadding: EdgeInsets.zero,
             value: emailEnabled,
-            title: const Text('Email notifications'),
+            title: Text(context.l10n.byValue('Email notifications')),
             onChanged: onEmailChanged,
           ),
           SwitchListTile.adaptive(
             contentPadding: EdgeInsets.zero,
             value: remindersEnabled,
-            title: const Text('Deadline reminders'),
+            title: Text(context.l10n.byValue('Deadline reminders')),
             onChanged: onRemindersChanged,
           ),
           SwitchListTile.adaptive(
             contentPadding: EdgeInsets.zero,
             value: quizAlertsEnabled,
-            title: const Text('Quiz alerts'),
+            title: Text(context.l10n.byValue('Quiz alerts')),
             onChanged: onQuizAlertsChanged,
           ),
           SwitchListTile.adaptive(
             contentPadding: EdgeInsets.zero,
             value: lectureAlertsEnabled,
-            title: const Text('Lecture alerts'),
+            title: Text(context.l10n.byValue('Lecture alerts')),
             onChanged: onLectureAlertsChanged,
           ),
         ],

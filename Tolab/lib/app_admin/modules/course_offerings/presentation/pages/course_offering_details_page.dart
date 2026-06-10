@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:go_router/go_router.dart';
@@ -9,13 +8,13 @@ import '../../../../core/spacing/app_spacing.dart';
 import '../../../../shared/dialogs/app_confirm_dialog.dart';
 import '../../../../shared/enums/load_status.dart';
 import '../../../../shared/widgets/async_state_view.dart';
-import '../../../../shared/widgets/premium_button.dart';
 import '../../../../state/app_state.dart';
 import '../../models/course_offering_model.dart';
 import '../../state/course_offerings_actions.dart';
-import '../../state/course_offerings_selectors.dart';
+import '../models/course_offering_details_view_model.dart';
 import '../widgets/offering_form.dart';
 import '../widgets/offering_tabs.dart';
+import '../widgets/course_offering_details_header.dart';
 
 class CourseOfferingDetailsPage extends StatefulWidget {
   const CourseOfferingDetailsPage({super.key, required this.offeringId});
@@ -38,96 +37,29 @@ class _CourseOfferingDetailsPageState extends State<CourseOfferingDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<AppState, _CourseOfferingDetailsViewModel>(
+    return StoreConnector<AppState, CourseOfferingDetailsViewModel>(
       onInit: (store) {
         store.dispatch(const FetchCourseOfferingsAction(silent: true));
         store.dispatch(FetchCourseOfferingDetailsAction(widget.offeringId));
       },
       converter: (store) =>
-          _CourseOfferingDetailsViewModel.fromStore(store, widget.offeringId),
+          CourseOfferingDetailsViewModel.fromStore(store, widget.offeringId),
       distinct: true,
       builder: (context, vm) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final compact = constraints.maxWidth < 760;
-                final titleBlock = Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      vm.offering?.subjectName ?? 'Offering details',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      vm.offering == null
-                          ? 'Loading course offering details.'
-                          : '${vm.offering!.code} - ${vm.offering!.sectionName} - ${vm.offering!.semester} ${vm.offering!.academicYear}',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                );
-                final actions = vm.offering == null
-                    ? const <Widget>[]
-                    : [
-                        PremiumButton(
-                          label: 'Edit',
-                          icon: Icons.edit_outlined,
-                          isSecondary: true,
-                          onPressed: () => OfferingForm.show(
-                            context,
-                            initialOffering: vm.offering,
-                          ),
-                        ),
-                        PremiumButton(
-                          label: 'Delete',
-                          icon: Icons.delete_outline_rounded,
-                          isSecondary: true,
-                          onPressed: () =>
-                              _delete(context, vm.store, vm.offering!),
-                        ),
-                      ];
-
-                return compact
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          IconButton(
-                            onPressed: () => _closeDetails(context),
-                            icon: const Icon(Icons.arrow_back_rounded),
-                          ),
-                          titleBlock,
-                          if (actions.isNotEmpty) ...[
-                            const SizedBox(height: AppSpacing.md),
-                            Wrap(
-                              spacing: AppSpacing.sm,
-                              runSpacing: AppSpacing.sm,
-                              children: actions,
-                            ),
-                          ],
-                        ],
-                      )
-                    : Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          IconButton(
-                            onPressed: () => _closeDetails(context),
-                            icon: const Icon(Icons.arrow_back_rounded),
-                          ),
-                          const SizedBox(width: AppSpacing.sm),
-                          Expanded(child: titleBlock),
-                          if (actions.isNotEmpty) ...[
-                            const SizedBox(width: AppSpacing.md),
-                            Wrap(
-                              spacing: AppSpacing.sm,
-                              runSpacing: AppSpacing.sm,
-                              children: actions,
-                            ),
-                          ],
-                        ],
-                      );
+            CourseOfferingDetailsHeader(
+              offering: vm.offering,
+              onClose: () => _closeDetails(context),
+              onEdit: () => OfferingForm.show(
+                context,
+                initialOffering: vm.offering,
+              ),
+              onDelete: () {
+                if (vm.offering != null) {
+                  _delete(context, vm.store, vm.offering!);
+                }
               },
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -213,61 +145,4 @@ class _CourseOfferingDetailsPageState extends State<CourseOfferingDetailsPage> {
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
   }
-}
-
-class _CourseOfferingDetailsViewModel {
-  const _CourseOfferingDetailsViewModel({
-    required this.store,
-    required this.status,
-    required this.activeTab,
-    this.offering,
-    this.errorMessage,
-  });
-
-  final Store<AppState> store;
-  final LoadStatus status;
-  final CourseOfferingDetailsTab activeTab;
-  final CourseOfferingModel? offering;
-  final String? errorMessage;
-
-  factory _CourseOfferingDetailsViewModel.fromStore(
-    Store<AppState> store,
-    String offeringId,
-  ) {
-    final state = store.state.courseOfferingsState;
-    return _CourseOfferingDetailsViewModel(
-      store: store,
-      status: state.detailsStatus == LoadStatus.initial
-          ? state.status
-          : state.detailsStatus,
-      activeTab: state.activeTab,
-      offering: selectOfferingById(state, offeringId),
-      errorMessage: state.errorMessage,
-    );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is _CourseOfferingDetailsViewModel &&
-        other.status == status &&
-        other.activeTab == activeTab &&
-        other.errorMessage == errorMessage &&
-        other.offering?.id == offering?.id &&
-        other.offering?.status == offering?.status &&
-        other.offering?.enrolledCount == offering?.enrolledCount &&
-        listEquals(
-          other.offering?.students.map((item) => item.id).toList() ?? const [],
-          offering?.students.map((item) => item.id).toList() ?? const [],
-        );
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    status,
-    activeTab,
-    errorMessage,
-    offering?.id,
-    offering?.status,
-    offering?.enrolledCount,
-  );
 }

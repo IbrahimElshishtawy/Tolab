@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
+import 'package:file_picker/file_picker.dart';
 
+import '../../../../app/localization/app_localizations.dart';
 import '../../../../app_admin/core/spacing/app_spacing.dart';
 import '../../../../app_admin/shared/widgets/premium_button.dart';
 import '../../../core/state/async_state.dart';
@@ -62,10 +64,12 @@ class _GradeEntryPageState extends State<GradeEntryPage> {
           activeRoute: '/workspace/results',
           unreadNotifications: 0,
           child: DoctorAssistantPageScaffold(
-            title: 'Grade Entry',
-            subtitle:
-                'Fast entry, draft save, validation, and publish review flow for role-allowed grading categories.',
-            breadcrumbs: const ['Workspace', 'Results', 'Grade Entry'],
+            title: context.l10n.byValue('Grade Entry'),
+            subtitle: context.l10n.byValue(
+                'Fast entry, draft save, validation, and publish review flow for role-allowed grading categories.'),
+            breadcrumbs: ['Workspace', 'Results', 'Grade Entry']
+                .map((s) => context.l10n.byValue(s))
+                .toList(),
             child: _buildBody(context, vm),
           ),
         );
@@ -80,24 +84,24 @@ class _GradeEntryPageState extends State<GradeEntryPage> {
     }
     if (vm.state.status == ViewStatus.failure && result == null) {
       return ErrorStateView(
-        message: vm.state.error ?? 'Unable to load grade entry view.',
+        message: context.l10n.byValue(vm.state.error ?? 'Unable to load grade entry view.'),
         onRetry: vm.reload,
       );
     }
     if (result == null) {
-      return const EmptyStateView(
-        title: 'No gradebook available',
-        message: 'Grade rows will appear here once the selected subject is loaded.',
+      return EmptyStateView(
+        title: context.l10n.byValue('No gradebook available'),
+        message: context.l10n.byValue('Grade rows will appear here once the selected subject is loaded.'),
       );
     }
 
     final editableCategories =
         result.categories.where((category) => category.isEditable).toList();
     if (editableCategories.isEmpty) {
-      return const EmptyStateView(
-        title: 'View only',
-        message:
-            'This role can review the gradebook, but there are no editable categories in the current workflow.',
+      return EmptyStateView(
+        title: context.l10n.byValue('View only'),
+        message: context.l10n.byValue(
+            'This role can review the gradebook, but there are no editable categories in the current workflow.'),
       );
     }
     final selectedCategory = editableCategories.firstWhere(
@@ -126,12 +130,12 @@ class _GradeEntryPageState extends State<GradeEntryPage> {
               width: 260,
               child: DropdownButtonFormField<String>(
                 initialValue: selectedCategory.key,
-                decoration: const InputDecoration(labelText: 'Category'),
+                decoration: InputDecoration(labelText: context.l10n.byValue('Category')),
                 items: editableCategories
                     .map(
                       (category) => DropdownMenuItem<String>(
                         value: category.key,
-                        child: Text(category.label),
+                        child: Text(context.l10n.byValue(category.label)),
                       ),
                     )
                     .toList(growable: false),
@@ -148,9 +152,9 @@ class _GradeEntryPageState extends State<GradeEntryPage> {
               child: TextField(
                 controller: _searchController,
                 onChanged: (_) => setState(() {}),
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.search_rounded),
-                  hintText: 'Search student by name or code',
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  hintText: context.l10n.byValue('Search student by name or code'),
                 ),
               ),
             ),
@@ -168,20 +172,86 @@ class _GradeEntryPageState extends State<GradeEntryPage> {
           runSpacing: AppSpacing.sm,
           children: [
             PremiumButton(
-              label: 'Save draft',
+              label: context.l10n.byValue('Save draft'),
               icon: Icons.save_outlined,
               isSecondary: true,
               onPressed: () => _submit(vm.store, selectedCategory, publish: false),
             ),
             PremiumButton(
-              label: 'Publish grades',
+              label: context.l10n.byValue('Publish grades'),
               icon: Icons.publish_rounded,
               onPressed: () => _submit(vm.store, selectedCategory, publish: true),
+            ),
+            PremiumButton(
+              label: context.l10n.byValue('Import from CSV'),
+              icon: Icons.file_upload_outlined,
+              isSecondary: true,
+              onPressed: () => _importCSV(selectedCategory),
             ),
           ],
         ),
       ],
     );
+  }
+
+  Future<void> _importCSV(GradeCategoryModel category) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+        withData: true,
+      );
+
+      if (result == null || result.files.isEmpty) return;
+
+      final file = result.files.first;
+      final bytes = file.bytes;
+      if (bytes == null) return;
+
+      final content = String.fromCharCodes(bytes);
+      final lines = content.split('\n');
+      int updatedCount = 0;
+
+      for (final line in lines) {
+        final parts = line.split(',');
+        if (parts.length >= 2) {
+          final code = parts[0].trim();
+          final scoreStr = parts[1].trim();
+          final score = double.tryParse(scoreStr);
+          if (code.isNotEmpty && score != null) {
+            final controller = _controllers[code];
+            if (controller != null) {
+              controller.text = score.toStringAsFixed(1);
+              updatedCount++;
+            } else {
+              _controllers[code] = TextEditingController(text: score.toStringAsFixed(1));
+              updatedCount++;
+            }
+          }
+        }
+      }
+
+      setState(() {});
+
+      if (mounted) {
+        final successMsg = context.l10n
+            .byValue('Imported {count} grades from {file}. Click "Save draft" or "Publish grades" to save.')
+            .replaceAll('{count}', updatedCount.toString())
+            .replaceAll('{file}', file.name);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(successMsg),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        final errMsg = '${context.l10n.byValue('Failed to import CSV')}: $e';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errMsg)),
+        );
+      }
+    }
   }
 
   void _submit(
@@ -215,11 +285,13 @@ class _GradeEntryPageState extends State<GradeEntryPage> {
             },
           );
     store.dispatch(action);
+    
+    final snackMessage = publish
+        ? '${context.l10n.byValue('Grades published for')} ${context.l10n.byValue(category.label)}.'
+        : '${context.l10n.byValue('Draft saved for')} ${context.l10n.byValue(category.label)}.';
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          publish ? 'Grades published for ${category.label}.' : 'Draft saved for ${category.label}.',
-        ),
+        content: Text(snackMessage),
       ),
     );
   }

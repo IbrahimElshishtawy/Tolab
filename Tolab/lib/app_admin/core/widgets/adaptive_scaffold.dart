@@ -90,7 +90,7 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
     final screenType = AppBreakpoints.resolve(context);
     final selectedIndex = _selectedIndex();
     final selected = widget.destinations[selectedIndex];
-    final selectedLabel = context.l10n.t(selected.label);
+    final selectedLabel = context.l10n.byValue(selected.label);
     final isMobile = screenType == DeviceScreenType.mobile;
     final sidebarWidth = _isSidebarCollapsed
         ? AppConstants.collapsedSidebarWidth
@@ -229,25 +229,25 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
 
   String _subtitleFor(BuildContext context, String titleKey) =>
       switch (titleKey) {
-        'layout.admin.nav.dashboard' => context.l10n.t(
+        'Dashboard' => context.l10n.t(
           'layout.admin.subtitle.dashboard',
         ),
-        'layout.admin.nav.students' => context.l10n.t(
+        'Students' => context.l10n.t(
           'layout.admin.subtitle.students',
         ),
-        'layout.admin.nav.staff' => context.l10n.t(
+        'Staff' => context.l10n.t(
           'layout.admin.subtitle.staff',
         ),
-        'layout.admin.nav.departments' => context.l10n.t(
+        'Departments' => context.l10n.t(
           'layout.admin.subtitle.departments',
         ),
-        'layout.admin.nav.schedule' => context.l10n.t(
+        'Schedule' => context.l10n.t(
           'layout.admin.subtitle.schedule',
         ),
-        'layout.admin.nav.moderation' => context.l10n.t(
+        'Moderation' => context.l10n.t(
           'layout.admin.subtitle.moderation',
         ),
-        'layout.admin.nav.settings' => context.l10n.t(
+        'Settings' => context.l10n.t(
           'layout.admin.subtitle.settings',
         ),
         _ => context.l10n.t('layout.admin.subtitle.default'),
@@ -350,10 +350,10 @@ class _Sidebar extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const StatusBadge('Live', icon: Icons.bolt_rounded),
+                      StatusBadge(context.l10n.byValue('Live'), icon: Icons.bolt_rounded),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        notificationStatus,
+                        context.l10n.byValue(notificationStatus),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.labelMedium,
@@ -465,7 +465,6 @@ class _SidebarNavTileState extends State<_SidebarNavTile> {
         duration: AppMotion.fast,
         curve: AppMotion.emphasized,
         decoration: BoxDecoration(
-          color: backgroundColor,
           borderRadius: BorderRadius.circular(AppConstants.smallRadius),
           border: Border.all(
             color: isSelected
@@ -482,40 +481,48 @@ class _SidebarNavTileState extends State<_SidebarNavTile> {
             if (!showExpandedTile) {
               return _CompactSidebarNavTile(
                 icon: widget.item.icon,
-                label: context.l10n.t(widget.item.label),
+                label: context.l10n.byValue(widget.item.label),
                 isSelected: isSelected,
                 badgeCount: widget.badgeCount,
                 onTap: widget.onTap,
+                backgroundColor: backgroundColor,
               );
             }
 
-            return ListTile(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 2,
-              ),
-              onTap: widget.onTap,
-              leading: Icon(
-                widget.item.icon,
-                color: isSelected
-                    ? AppColors.primary
-                    : Theme.of(context).iconTheme.color,
-              ),
-              title: Text(context.l10n.t(widget.item.label)),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (widget.badgeCount > 0)
-                    _NotificationCountBadge(count: widget.badgeCount),
-                  const SizedBox(width: AppSpacing.xs),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    size: 18,
-                    color: isSelected
-                        ? AppColors.primary
-                        : Theme.of(context).textTheme.bodySmall?.color,
-                  ),
-                ],
+            return Material(
+              color: Colors.transparent,
+              child: ListTile(
+                tileColor: backgroundColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppConstants.smallRadius),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 2,
+                ),
+                onTap: widget.onTap,
+                leading: Icon(
+                  widget.item.icon,
+                  color: isSelected
+                      ? AppColors.primary
+                      : Theme.of(context).iconTheme.color,
+                ),
+                title: Text(context.l10n.byValue(widget.item.label)),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.badgeCount > 0)
+                      _NotificationCountBadge(count: widget.badgeCount),
+                    const SizedBox(width: AppSpacing.xs),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 18,
+                      color: isSelected
+                          ? AppColors.primary
+                          : Theme.of(context).textTheme.bodySmall?.color,
+                    ),
+                  ],
+                ),
               ),
             );
           },
@@ -532,6 +539,7 @@ class _CompactSidebarNavTile extends StatelessWidget {
     required this.isSelected,
     required this.badgeCount,
     required this.onTap,
+    required this.backgroundColor,
   });
 
   final IconData icon;
@@ -539,6 +547,7 @@ class _CompactSidebarNavTile extends StatelessWidget {
   final bool isSelected;
   final int badgeCount;
   final VoidCallback onTap;
+  final Color backgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -553,27 +562,33 @@ class _CompactSidebarNavTile extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(AppConstants.smallRadius),
           onTap: onTap,
-          child: SizedBox(
-            height: 48,
-            child: Center(
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Icon(icon, color: iconColor),
-                  if (badgeCount > 0)
-                    Positioned(
-                      top: -3,
-                      right: -4,
-                      child: Container(
-                        width: 9,
-                        height: 9,
-                        decoration: BoxDecoration(
-                          color: AppColors.danger,
-                          borderRadius: BorderRadius.circular(999),
+          child: Ink(
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(AppConstants.smallRadius),
+            ),
+            child: SizedBox(
+              height: 48,
+              child: Center(
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Icon(icon, color: iconColor),
+                    if (badgeCount > 0)
+                      Positioned(
+                        top: -3,
+                        right: -4,
+                        child: Container(
+                          width: 9,
+                          height: 9,
+                          decoration: BoxDecoration(
+                            color: AppColors.danger,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -731,7 +746,7 @@ class _TopBar extends StatelessWidget {
                         children: [
                           if (showStatusBadge)
                             StatusBadge(
-                              notificationStatus,
+                              context.l10n.byValue(notificationStatus),
                               icon: Icons.radio_button_checked,
                             ),
                           LanguageToggleButton(
@@ -892,7 +907,7 @@ class _TopBar extends StatelessWidget {
                           const Icon(Icons.schedule_rounded, size: 16),
                           const SizedBox(width: AppSpacing.xs),
                           Text(
-                            notificationStatus,
+                            context.l10n.byValue(notificationStatus),
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                         ],

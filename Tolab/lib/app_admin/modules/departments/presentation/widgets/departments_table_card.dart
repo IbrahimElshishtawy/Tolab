@@ -1,6 +1,8 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
+
 import '../../../../core/colors/app_colors.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -54,7 +56,7 @@ class DepartmentsTableCard extends StatelessWidget {
             subtitle:
                 'Compact operations grid with sticky headers, role-aware actions, and instant density insight.',
             trailing: Text(
-              '${departments.length} visible',
+              '${departments.length} ${context.l10n.byValue('visible')}',
               style: Theme.of(context).textTheme.labelMedium,
             ),
           ),
@@ -77,13 +79,13 @@ class DepartmentsTableCard extends StatelessWidget {
                     onChanged: (value) => onToggleSelectAll(value ?? false),
                   ),
                 ),
-                const DataColumn2(label: Text('Name'), size: ColumnSize.L),
-                const DataColumn2(label: Text('Code'), size: ColumnSize.S),
-                const DataColumn2(label: Text('Students'), size: ColumnSize.S),
-                const DataColumn2(label: Text('Staff'), size: ColumnSize.S),
-                const DataColumn2(label: Text('Subjects'), size: ColumnSize.S),
-                const DataColumn2(label: Text('Status'), size: ColumnSize.M),
-                const DataColumn2(label: Text('Actions'), size: ColumnSize.M),
+                DataColumn2(label: Text(context.l10n.byValue('Name')), size: ColumnSize.L),
+                DataColumn2(label: Text(context.l10n.byValue('Code')), size: ColumnSize.S),
+                DataColumn2(label: Text(context.l10n.byValue('Students')), size: ColumnSize.S),
+                DataColumn2(label: Text(context.l10n.byValue('Staff')), size: ColumnSize.S),
+                DataColumn2(label: Text(context.l10n.byValue('Subjects')), size: ColumnSize.S),
+                DataColumn2(label: Text(context.l10n.byValue('Status')), size: ColumnSize.M),
+                DataColumn2(label: Text(context.l10n.byValue('Actions')), size: ColumnSize.M),
               ],
               rows: [
                 for (final department in departments)
@@ -184,23 +186,23 @@ class DepartmentsTableCard extends StatelessWidget {
                             }
                           },
                           itemBuilder: (context) => [
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'open',
-                              child: Text('Open details'),
+                              child: Text(context.l10n.byValue('Open details')),
                             ),
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'edit',
-                              child: Text('Edit department'),
+                              child: Text(context.l10n.byValue('Edit department')),
                             ),
                             PopupMenuItem(
                               value: 'toggle',
                               child: Text(
-                                department.isActive ? 'Deactivate' : 'Activate',
+                                context.l10n.byValue(department.isActive ? 'Deactivate' : 'Activate'),
                               ),
                             ),
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'archive',
-                              child: Text('Archive'),
+                              child: Text(context.l10n.byValue('Archive')),
                             ),
                           ],
                           child: const Icon(Icons.more_horiz_rounded),
@@ -215,7 +217,7 @@ class DepartmentsTableCard extends StatelessWidget {
           Row(
             children: [
               Text(
-                'Rows per page',
+                context.l10n.byValue('Rows per page'),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -240,7 +242,7 @@ class DepartmentsTableCard extends StatelessWidget {
                 icon: const Icon(Icons.chevron_left_rounded),
               ),
               Text(
-                'Page $currentPage of $totalPages',
+                '${context.l10n.byValue('Page')} $currentPage ${context.l10n.byValue('of')} $totalPages',
                 style: Theme.of(context).textTheme.labelMedium,
               ),
               IconButton(

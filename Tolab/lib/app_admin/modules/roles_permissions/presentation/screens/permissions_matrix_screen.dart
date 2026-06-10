@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 
 import '../../../../core/responsive/app_breakpoints.dart';
 import '../../../../core/spacing/app_spacing.dart';
@@ -50,27 +51,27 @@ class PermissionsMatrixScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Permission Matrix',
+                        context.l10n.byValue('Permission Matrix'),
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Toggle granular access across every role with smooth matrix updates.',
+                        context.l10n.byValue('Toggle granular access across every role with smooth matrix updates.'),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
                   ),
                   StatusBadge(
-                    '${roles.length} roles',
+                    '${roles.length} ${context.l10n.byValue(roles.length == 1 ? 'role' : 'roles')}',
                     icon: Icons.admin_panel_settings_rounded,
                   ),
                   StatusBadge(
-                    '${permissions.length} permissions',
+                    '${permissions.length} ${context.l10n.byValue(permissions.length == 1 ? 'permission' : 'permissions')}',
                     icon: Icons.grid_view_rounded,
                   ),
                   if (isCompact)
-                    const StatusBadge(
-                      'Stacked mobile layout',
+                    StatusBadge(
+                      context.l10n.byValue('Stacked mobile layout'),
                       icon: Icons.phone_iphone_rounded,
                     ),
                 ],

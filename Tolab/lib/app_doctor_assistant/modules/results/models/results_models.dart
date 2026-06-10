@@ -1,3 +1,5 @@
+import '../../../core/models/notification_models.dart';
+
 class ResultsOverviewModel {
   const ResultsOverviewModel({
     required this.subjects,
@@ -89,6 +91,7 @@ class SubjectResultsModel {
     required this.recentActivity,
     required this.analytics,
     required this.allowedCategoryKeys,
+    required this.uploadedSheets,
     this.averageScore = 0,
     this.pendingReviewCount = 0,
     this.publishedResultsCount = 0,
@@ -103,6 +106,7 @@ class SubjectResultsModel {
   final List<GradingActivityItem> recentActivity;
   final GradeAnalyticsModel analytics;
   final List<String> allowedCategoryKeys;
+  final List<UploadModel> uploadedSheets;
   final double averageScore;
   final int pendingReviewCount;
   final int publishedResultsCount;
@@ -130,6 +134,10 @@ class SubjectResultsModel {
       ),
       allowedCategoryKeys: (json['allowed_category_keys'] as List? ?? const [])
           .map((item) => item.toString())
+          .toList(growable: false),
+      uploadedSheets: (json['uploaded_sheets'] as List? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(UploadModel.fromJson)
           .toList(growable: false),
       averageScore: (json['average_score'] as num?)?.toDouble() ?? 0,
       pendingReviewCount:

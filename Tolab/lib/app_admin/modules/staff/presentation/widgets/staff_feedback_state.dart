@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../shared/widgets/premium_button.dart';
 import '../design/staff_management_tokens.dart';
@@ -56,8 +57,8 @@ class StaffFeedbackState extends StatelessWidget {
                 action!,
               ] else ...[
                 const SizedBox(height: AppSpacing.lg),
-                const PremiumButton(
-                  label: 'Reload module',
+                PremiumButton(
+                  label: context.l10n.byValue('Reload module'),
                   icon: Icons.refresh_rounded,
                   isSecondary: true,
                 ),

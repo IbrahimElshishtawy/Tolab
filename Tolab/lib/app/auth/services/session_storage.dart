@@ -26,5 +26,9 @@ class SessionStorage {
     );
   }
 
-  Future<void> clear() => _storage.delete(key: _sessionKey);
+  Future<void> clear() async {
+    try {
+      await _storage.delete(key: _sessionKey);
+    } catch (_) {}
+  }
 }

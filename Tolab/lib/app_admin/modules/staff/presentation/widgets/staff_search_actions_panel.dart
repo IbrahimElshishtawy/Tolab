@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/colors/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/spacing/app_spacing.dart';
@@ -64,9 +65,9 @@ class StaffSearchActionsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StaffSectionCard(
-      title: 'Search, filters, and actions',
-      subtitle:
-          'Search by full name, email, staff ID, role, or department while keeping account actions within immediate reach.',
+      title: context.l10n.byValue('Search, filters, and actions'),
+      subtitle: context.l10n.byValue(
+          'Search by full name, email, staff ID, role, or department while keeping account actions within immediate reach.'),
       accent: StaffManagementPalette.doctor,
       trailing: Wrap(
         spacing: AppSpacing.sm,
@@ -74,24 +75,24 @@ class StaffSearchActionsPanel extends StatelessWidget {
         alignment: WrapAlignment.end,
         children: [
           PremiumButton(
-            label: 'Add doctor',
+            label: context.l10n.byValue('Add doctor'),
             icon: Icons.person_add_alt_1_rounded,
             onPressed: onAddDoctor,
           ),
           PremiumButton(
-            label: 'Add assistant',
+            label: context.l10n.byValue('Add assistant'),
             icon: Icons.group_add_rounded,
             isSecondary: true,
             onPressed: onAddAssistant,
           ),
           PremiumButton(
-            label: 'Manage permissions',
+            label: context.l10n.byValue('Manage permissions'),
             icon: Icons.admin_panel_settings_outlined,
             isSecondary: true,
             onPressed: onManagePermissions,
           ),
           PremiumButton(
-            label: 'Export',
+            label: context.l10n.byValue('Export'),
             icon: Icons.download_rounded,
             isSecondary: true,
             onPressed: onExport,
@@ -105,17 +106,17 @@ class StaffSearchActionsPanel extends StatelessWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
-              StaffStatusBadge('$resultsCount results'),
+              StaffStatusBadge('$resultsCount ${context.l10n.byValue('results')}'),
               StaffStatusBadge(
                 activeFilterCount == 0
-                    ? 'No active filters'
-                    : '$activeFilterCount active filters',
+                    ? context.l10n.byValue('No active filters')
+                    : '$activeFilterCount ${context.l10n.byValue('active filters')}',
               ),
-              StaffStatusBadge(roleFilter),
+              StaffStatusBadge(context.l10n.byValue(roleFilter)),
               if (departmentFilter != 'All departments')
-                StaffStatusBadge(departmentFilter),
+                StaffStatusBadge(context.l10n.byValue(departmentFilter)),
               if (statusFilter != 'All statuses')
-                StaffStatusBadge(statusFilter),
+                StaffStatusBadge(context.l10n.byValue(statusFilter)),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
@@ -134,11 +135,11 @@ class StaffSearchActionsPanel extends StatelessWidget {
                     child: TextField(
                       controller: searchController,
                       onChanged: onQueryChanged,
-                      decoration: const InputDecoration(
-                        hintText:
-                            'Search by full name, email, staff ID, role type, department',
-                        prefixIcon: Icon(Icons.search_rounded),
-                        suffixIcon: Icon(Icons.manage_search_rounded),
+                      decoration: InputDecoration(
+                        hintText: context.l10n.byValue(
+                            'Search by full name, email, staff ID, role type, department'),
+                        prefixIcon: const Icon(Icons.search_rounded),
+                        suffixIcon: const Icon(Icons.manage_search_rounded),
                       ),
                     ),
                   ),
@@ -195,19 +196,19 @@ class StaffSearchActionsPanel extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Control pulse',
+                              context.l10n.byValue('Control pulse'),
                               style: Theme.of(context).textTheme.labelMedium,
                             ),
                             const SizedBox(height: 4),
                             Text(
                               activeFilterCount == 0
-                                  ? 'All staff in view'
-                                  : 'Focused monitoring mode',
+                                  ? context.l10n.byValue('All staff in view')
+                                  : context.l10n.byValue('Focused monitoring mode'),
                               style: Theme.of(context).textTheme.titleSmall,
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              '$resultsCount profiles currently visible in the filtered directory.',
+                              '$resultsCount ${context.l10n.byValue('profiles currently visible in the filtered directory.')}',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
@@ -246,7 +247,11 @@ class StaffSearchActionsPanel extends StatelessWidget {
                       : Icons.tune_rounded,
                   size: 18,
                 ),
-                label: Text(advancedOpen ? 'Hide advanced' : 'Advanced filter'),
+                label: Text(
+                  advancedOpen
+                      ? context.l10n.byValue('Hide advanced')
+                      : context.l10n.byValue('Advanced filter'),
+                ),
               ),
               OutlinedButton.icon(
                 onPressed: onClear,
@@ -255,7 +260,7 @@ class StaffSearchActionsPanel extends StatelessWidget {
                   tint: StaffManagementPalette.neutral,
                 ),
                 icon: const Icon(Icons.restart_alt_rounded, size: 18),
-                label: const Text('Clear filters'),
+                label: Text(context.l10n.byValue('Clear filters')),
               ),
             ],
           ),
@@ -308,10 +313,13 @@ class _FilterDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
       initialValue: value,
-      decoration: InputDecoration(labelText: label),
+      decoration: InputDecoration(labelText: context.l10n.byValue(label)),
       items: [
         for (final item in items)
-          DropdownMenuItem<String>(value: item, child: Text(item)),
+          DropdownMenuItem<String>(
+            value: item,
+            child: Text(context.l10n.byValue(item)),
+          ),
       ],
       onChanged: (next) {
         if (next != null) onChanged(next);
@@ -337,7 +345,10 @@ class _AdvancedChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppConstants.smallRadius),
         border: Border.all(color: StaffManagementPalette.border(context)),
       ),
-      child: Text(label, style: Theme.of(context).textTheme.labelMedium),
+      child: Text(
+        context.l10n.byValue(label),
+        style: Theme.of(context).textTheme.labelMedium,
+      ),
     );
   }
 }

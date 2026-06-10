@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:go_router/go_router.dart';
 import 'package:redux/redux.dart';
-
+ 
+import '../../../../app/localization/app_localizations.dart';
 import '../../../../app_admin/core/spacing/app_spacing.dart';
 import '../../../../app_admin/core/widgets/app_card.dart';
 import '../../../../app_admin/shared/widgets/premium_button.dart';
@@ -54,14 +55,14 @@ class ResultsScreen extends StatelessWidget {
     }
     if (vm.state.status == ViewStatus.failure && overview == null) {
       return ErrorStateView(
-        message: vm.state.error ?? 'Failed to load results overview.',
+        message: context.l10n.byValue(vm.state.error ?? 'Failed to load results overview.'),
         onRetry: vm.reload,
       );
     }
     if (overview == null) {
-      return const EmptyStateView(
-        title: 'No grading data yet',
-        message: 'Results will appear here once the first grading cycle starts.',
+      return EmptyStateView(
+        title: context.l10n.byValue('No grading data yet'),
+        message: context.l10n.byValue('Results will appear here once the first grading cycle starts.'),
       );
     }
 
@@ -92,7 +93,7 @@ class ResultsScreen extends StatelessWidget {
                                   runSpacing: AppSpacing.sm,
                                   children: [
                                     Text(
-                                      '${subject.subjectCode} · ${subject.subjectName}',
+                                      '${subject.subjectCode} · ${context.l10n.byValue(subject.subjectName)}',
                                       style: Theme.of(context).textTheme.titleMedium,
                                     ),
                                     StatusBadge(subject.statusLabel),
@@ -100,11 +101,11 @@ class ResultsScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(height: AppSpacing.sm),
                                 Text(
-                                  'Average ${subject.averageScore.toStringAsFixed(1)}% · ${subject.pendingReviewCount} pending review · ${subject.publishedResultsCount} published',
+                                  context.l10n.byValue('Average ${subject.averageScore.toStringAsFixed(1)}% · ${subject.pendingReviewCount} pending review · ${subject.publishedResultsCount} published'),
                                 ),
                                 const SizedBox(height: AppSpacing.xs),
                                 Text(
-                                  subject.latestActivityLabel,
+                                  context.l10n.byValue(subject.latestActivityLabel),
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ],

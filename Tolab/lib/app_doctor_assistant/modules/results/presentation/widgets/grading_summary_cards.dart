@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+ 
+import '../../../../../app/localization/app_localizations.dart';
 import '../../../../../app_admin/core/spacing/app_spacing.dart';
 import '../../../../../app_admin/core/widgets/app_card.dart';
 import '../../models/results_models.dart';
@@ -64,7 +65,7 @@ class _SummaryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: Theme.of(context).textTheme.bodySmall),
+            Text(context.l10n.byValue(title), style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: AppSpacing.sm),
             Text(
               value,

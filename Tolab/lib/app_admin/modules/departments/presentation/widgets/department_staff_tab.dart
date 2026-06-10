@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/colors/app_colors.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -42,7 +43,7 @@ class DepartmentStaffTab extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${member.role} • ${member.activeSubjects} active subjects',
+                          '${context.l10n.byValue(member.role)} • ${member.activeSubjects} ${context.l10n.byValue('active subjects')}',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
@@ -56,12 +57,12 @@ class DepartmentStaffTab extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      'Utilization ${formatPercent(member.utilization)}',
+                      '${context.l10n.byValue('Utilization')} ${formatPercent(member.utilization)}',
                       style: Theme.of(context).textTheme.labelMedium,
                     ),
                   ),
                   Text(
-                    member.role,
+                    context.l10n.byValue(member.role),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],

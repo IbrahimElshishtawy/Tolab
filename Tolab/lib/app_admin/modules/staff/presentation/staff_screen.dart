@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../core/responsive/app_breakpoints.dart';
 import '../../../core/spacing/app_spacing.dart';
 import '../../../core/widgets/page_header.dart';
@@ -80,18 +81,22 @@ class _StaffScreenState extends State<StaffScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             PageHeader(
-              title: 'Staff Management',
-              subtitle:
-                  'Create doctor and teaching assistant accounts, control permissions, monitor attendance, and inspect subject engagement from one premium university operations hub.',
-              breadcrumbs: const ['Admin', 'University', 'Staff Management'],
+              title: context.l10n.byValue('Staff Management'),
+              subtitle: context.l10n.byValue(
+                  'Create doctor and teaching assistant accounts, control permissions, monitor attendance, and inspect subject engagement from one premium university operations hub.'),
+              breadcrumbs: [
+                context.l10n.byValue('Admin'),
+                context.l10n.byValue('University'),
+                context.l10n.byValue('Staff Management'),
+              ],
               actions: [
                 PremiumButton(
-                  label: 'Add doctor',
+                  label: context.l10n.byValue('Add doctor'),
                   icon: Icons.person_add_alt_1_rounded,
                   onPressed: () => _openAccountForm(rolePreset: 'Doctor'),
                 ),
                 PremiumButton(
-                  label: 'Add assistant',
+                  label: context.l10n.byValue('Add assistant'),
                   icon: Icons.group_add_rounded,
                   isSecondary: true,
                   onPressed: () => _openAccountForm(rolePreset: 'Assistant'),
@@ -131,11 +136,11 @@ class _StaffScreenState extends State<StaffScreen> {
 
     if (state.status == LoadStatus.failure) {
       return StaffFeedbackState(
-        title: 'Could not load staff module',
-        subtitle: state.errorMessage ?? 'Try refreshing the staff dashboard.',
+        title: context.l10n.byValue('Could not load staff module'),
+        subtitle: state.errorMessage ?? context.l10n.byValue('Try refreshing the staff dashboard.'),
         icon: Icons.error_outline_rounded,
         action: PremiumButton(
-          label: 'Retry',
+          label: context.l10n.byValue('Retry'),
           icon: Icons.refresh_rounded,
           onPressed: () =>
               StoreProvider.of<AppState>(context).dispatch(LoadStaffAction()),
@@ -202,12 +207,12 @@ class _StaffScreenState extends State<StaffScreen> {
         const SizedBox(height: AppSpacing.lg),
         if (filtered.isEmpty)
           StaffFeedbackState(
-            title: 'No staff match these filters',
-            subtitle:
-                'Adjust the search terms, role type, department, or monitoring scope to bring records back into view.',
+            title: context.l10n.byValue('No staff match these filters'),
+            subtitle: context.l10n.byValue(
+                'Adjust the search terms, role type, department, or monitoring scope to bring records back into view.'),
             icon: Icons.manage_search_rounded,
             action: PremiumButton(
-              label: 'Clear filters',
+              label: context.l10n.byValue('Clear filters'),
               icon: Icons.restart_alt_rounded,
               onPressed: _clearFilters,
             ),
@@ -471,12 +476,12 @@ class _StaffScreenState extends State<StaffScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Permissions management',
+                  context.l10n.byValue('Permissions management'),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${resolvedRecord.fullName} - ${resolvedRecord.role} - ${resolvedRecord.department}',
+                  '${resolvedRecord.fullName} - ${context.l10n.byValue(resolvedRecord.role)} - ${context.l10n.byValue(resolvedRecord.department)}',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: AppSpacing.lg),

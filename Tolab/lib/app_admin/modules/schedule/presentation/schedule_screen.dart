@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:intl/intl.dart';
 import 'package:redux/redux.dart';
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 
 import '../../../core/colors/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
@@ -74,20 +75,24 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     PageHeader(
-                      title: 'Academic Schedule',
-                      subtitle:
-                          'Manage lectures, quizzes, examinations, and academic operations from one coordinated timetable workspace for university administration.',
-                      breadcrumbs: const ['Admin', 'Academic', 'Schedule'],
+                      title: context.l10n.byValue('Academic Schedule'),
+                      subtitle: context.l10n.byValue(
+                          'Manage lectures, quizzes, examinations, and academic operations from one coordinated timetable workspace for university administration.'),
+                      breadcrumbs: [
+                        context.l10n.byValue('Admin'),
+                        context.l10n.byValue('Academic'),
+                        context.l10n.byValue('Schedule'),
+                      ],
                       actions: [
                         PremiumButton(
-                          label: 'Refresh',
+                          label: context.l10n.byValue('Refresh'),
                           icon: Icons.sync_rounded,
                           isSecondary: true,
                           onPressed: () =>
                               store.dispatch(const FetchScheduleAction()),
                         ),
                         PremiumButton(
-                          label: 'Add event',
+                          label: context.l10n.byValue('Add event'),
                           icon: Icons.add_rounded,
                           onPressed: () => _openCreateDialog(
                             context,
@@ -113,9 +118,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           return SizedBox(
                             height: heroCalendarHeight,
                             child: ScheduleErrorState(
-                              message:
+                              message: context.l10n.byValue(
                                   vm.errorMessage ??
-                                  'Unable to load schedule data.',
+                                  'Unable to load schedule data.'),
                               onRetry: () =>
                                   store.dispatch(const FetchScheduleAction()),
                             ),
@@ -498,19 +503,19 @@ class _AcademicOverviewPanel extends StatelessWidget {
             children: [
               _InfoPill(
                 icon: Icons.school_rounded,
-                label: 'Academic timetable',
+                label: context.l10n.byValue('Academic timetable'),
                 accent: AppColors.primary,
               ),
               _InfoPill(
                 icon: view.icon,
-                label: '${view.label} view',
+                label: '${context.l10n.byValue(view.label)} ${context.l10n.byValue('view')}',
                 accent: AppColors.info,
               ),
               _InfoPill(
                 icon: Icons.tune_rounded,
                 label: activeFiltersCount == 0
-                    ? 'All filters open'
-                    : '$activeFiltersCount active filters',
+                    ? context.l10n.byValue('All filters open')
+                    : '$activeFiltersCount ${context.l10n.byValue(activeFiltersCount == 1 ? 'active filter' : 'active filters')}',
                 accent: activeFiltersCount == 0
                     ? AppColors.secondary
                     : AppColors.warning,
@@ -519,12 +524,12 @@ class _AcademicOverviewPanel extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
-            'Academic coordination overview',
+            context.l10n.byValue('Academic coordination overview'),
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Track daily delivery, weekly load, and timetable risks while keeping departments, sections, and instructors aligned.',
+            context.l10n.byValue('Track daily delivery, weekly load, and timetable risks while keeping departments, sections, and instructors aligned.'),
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -533,19 +538,19 @@ class _AcademicOverviewPanel extends StatelessWidget {
             runSpacing: AppSpacing.sm,
             children: [
               _LegendChip(
-                label: '${lookups.departments.length} departments',
+                label: '${lookups.departments.length} ${context.l10n.byValue('departments')}',
                 valueColor: AppColors.primary,
               ),
               _LegendChip(
-                label: '${lookups.sections.length} sections',
+                label: '${lookups.sections.length} ${context.l10n.byValue('sections')}',
                 valueColor: AppColors.info,
               ),
               _LegendChip(
-                label: '${lookups.instructors.length} instructors',
+                label: '${lookups.instructors.length} ${context.l10n.byValue('instructors')}',
                 valueColor: AppColors.secondary,
               ),
               _LegendChip(
-                label: '${metrics.completedCount} completed',
+                label: '${metrics.completedCount} ${context.l10n.byValue('completed')}',
                 valueColor: AppColors.secondary,
               ),
             ],
@@ -565,19 +570,19 @@ class _AcademicOverviewPanel extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Selected academic day',
+                  context.l10n.byValue('Selected academic day'),
                   style: Theme.of(context).textTheme.labelLarge,
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  DateFormat('EEEE, d MMMM yyyy').format(selectedDay),
+                  DateFormat('EEEE, d MMMM yyyy', context.l10n.locale.languageCode).format(selectedDay),
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   nextUpcomingEvent == null
-                      ? 'No upcoming item is visible in the current scope.'
-                      : 'Next item: ${nextUpcomingEvent!.title} at ${DateFormat.jm().format(nextUpcomingEvent!.startAt)}',
+                      ? context.l10n.byValue('No upcoming item is visible in the current scope.')
+                      : '${context.l10n.byValue('Next item')}: ${nextUpcomingEvent!.title} ${context.l10n.byValue('at')} ${DateFormat.jm(context.l10n.locale.languageCode).format(nextUpcomingEvent!.startAt)}',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -633,7 +638,7 @@ class _MetricTile extends StatelessWidget {
             child: Icon(icon, color: accent, size: 18),
           ),
           const SizedBox(height: AppSpacing.md),
-          Text(label, style: Theme.of(context).textTheme.bodySmall),
+          Text(context.l10n.byValue(label), style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: AppSpacing.sm),
           Text(value, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: AppSpacing.sm),
@@ -646,7 +651,7 @@ class _MetricTile extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
-          Text(detail, style: Theme.of(context).textTheme.bodySmall),
+          Text(context.l10n.byValue(detail), style: Theme.of(context).textTheme.bodySmall),
         ],
       ),
     );
@@ -672,12 +677,12 @@ class _ScheduleMetricsPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Schedule signals',
+            context.l10n.byValue('Schedule signals'),
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'Key counters stay under the calendar so the planning surface remains the first focus area.',
+            context.l10n.byValue('Key counters stay under the calendar so the planning surface remains the first focus area.'),
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -829,25 +834,25 @@ class _ScheduleSidePanel extends StatelessWidget {
                 children: [
                   _InfoPill(
                     icon: Icons.event_note_rounded,
-                    label: 'Academic day brief',
+                    label: context.l10n.byValue('Academic day brief'),
                     accent: AppColors.primary,
                   ),
                   if (conflictEvents.isNotEmpty)
                     _InfoPill(
                       icon: Icons.priority_high_rounded,
-                      label: '${conflictEvents.length} alerts',
+                      label: '${conflictEvents.length} ${context.l10n.byValue(conflictEvents.length == 1 ? 'alert' : 'alerts')}',
                       accent: AppColors.danger,
                     ),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
               Text(
-                DateFormat('EEEE, d MMMM').format(selectedDay),
+                DateFormat('EEEE, d MMMM', context.l10n.locale.languageCode).format(selectedDay),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                '${selectedEvents.length} scheduled items are mapped to this day.',
+                '${selectedEvents.length} ${context.l10n.byValue(selectedEvents.length == 1 ? 'scheduled item is mapped to this day' : 'scheduled items are mapped to this day')}.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: AppSpacing.md),
@@ -856,14 +861,14 @@ class _ScheduleSidePanel extends StatelessWidget {
                 runSpacing: AppSpacing.sm,
                 children: [
                   _DayStatChip(
-                    label: 'Lectures',
+                    label: context.l10n.byValue('Lectures'),
                     value: lectureCount.toString(),
                   ),
                   _DayStatChip(
-                    label: 'Assessments',
+                    label: context.l10n.byValue('Assessments'),
                     value: assessmentCount.toString(),
                   ),
-                  _DayStatChip(label: 'Tasks', value: taskCount.toString()),
+                  _DayStatChip(label: context.l10n.byValue('Tasks'), value: taskCount.toString()),
                 ],
               ),
             ],
@@ -874,12 +879,12 @@ class _ScheduleSidePanel extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                'Day agenda',
+                context.l10n.byValue('Day agenda'),
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
             Text(
-              '${selectedEvents.length} item${selectedEvents.length == 1 ? '' : 's'}',
+              '${selectedEvents.length} ${context.l10n.byValue(selectedEvents.length == 1 ? 'item' : 'items')}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
@@ -898,7 +903,7 @@ class _ScheduleSidePanel extends StatelessWidget {
                     border: Border.all(color: Theme.of(context).dividerColor),
                   ),
                   child: Text(
-                    'No academic items are scheduled for the selected day. Choose another date or add a new timetable entry.',
+                    context.l10n.byValue('No academic items are scheduled for the selected day. Choose another date or add a new timetable entry.'),
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 )
@@ -941,7 +946,9 @@ class _ScheduleSidePanel extends StatelessWidget {
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
-                    '${conflictEvents.length} timetable conflict item${conflictEvents.length == 1 ? '' : 's'} require review for this day.',
+                    '${conflictEvents.length} ${context.l10n.byValue(conflictEvents.length == 1
+                            ? 'timetable conflict item requires review'
+                            : 'timetable conflict items require review')} ${context.l10n.byValue('for this day.')}',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.danger,
                       fontWeight: FontWeight.w700,

@@ -54,5 +54,20 @@ List<Middleware<DoctorAssistantAppState>> createResultsMiddleware(
       store.dispatch(LoadSubjectResultsAction(action.subjectId));
       store.dispatch(LoadResultsOverviewAction());
     }).call,
+    TypedMiddleware<DoctorAssistantAppState, UploadGradesFileAction>((
+      store,
+      action,
+      next,
+    ) async {
+      next(action);
+      await repository.uploadGradesFile(
+        action.subjectId,
+        action.categoryKey,
+        fileName: action.fileName,
+        fileBytes: action.fileBytes,
+      );
+      store.dispatch(LoadSubjectResultsAction(action.subjectId));
+      store.dispatch(LoadResultsOverviewAction());
+    }).call,
   ];
 }

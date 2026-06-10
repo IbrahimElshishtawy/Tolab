@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../app_admin/core/spacing/app_spacing.dart';
 import '../../../../presentation/widgets/doctor_assistant_widgets.dart';
+import '../../../../../app/localization/app_localizations.dart';
 
 class AcademicControlsSection extends StatelessWidget {
   const AcademicControlsSection({
@@ -34,10 +35,14 @@ class AcademicControlsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DoctorAssistantPanel(
-      title: 'Academic controls',
-      subtitle:
-          'Distribute grade weights and publication controls with an explicit validation target of 100%.',
-      trailing: Chip(label: Text('Total ${totalWeight.round()}%')),
+      title: context.l10n.byValue('Academic controls'),
+      subtitle: context.l10n.byValue(
+          'Distribute grade weights and publication controls with an explicit validation target of 100%.'),
+      trailing: Chip(
+        label: Text(
+          '${context.l10n.byValue('Total')} ${totalWeight.round()}%',
+        ),
+      ),
       child: Column(
         children: [
           _WeightSlider(
@@ -91,7 +96,7 @@ class _WeightSlider extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Text(label)),
+              Expanded(child: Text(context.l10n.byValue(label))),
               Text('${value.round()}%'),
             ],
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/localization/app_localizations.dart';
 import '../../../core/animations/app_motion.dart';
 import '../../../core/colors/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
@@ -120,14 +121,14 @@ class _AcademyShellState extends State<AcademyShell> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    widget.role.shellTitle,
+                                    context.l10n.byValue(widget.role.shellTitle),
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleLarge,
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    widget.user.department ?? widget.role.label,
+                                    context.l10n.byValue(widget.user.department ?? widget.role.label),
                                     style: Theme.of(
                                       context,
                                     ).textTheme.bodySmall,
@@ -147,7 +148,7 @@ class _AcademyShellState extends State<AcademyShell> {
                                   ),
                                   borderRadius: BorderRadius.circular(999),
                                 ),
-                                child: Text('Unread: ${widget.unreadCount}'),
+                                child: Text('${context.l10n.byValue('Unread')}: ${widget.unreadCount}'),
                               ),
                             const SizedBox(width: AppSpacing.sm),
                             IconButton(
@@ -157,14 +158,14 @@ class _AcademyShellState extends State<AcademyShell> {
                             const SizedBox(width: AppSpacing.xs),
                             PopupMenuButton<String>(
                               onSelected: (value) {
-                                if (value == 'logout') {
-                                  widget.onLogout();
-                                }
+                                  if (value == 'logout') {
+                                    widget.onLogout();
+                                  }
                               },
-                              itemBuilder: (context) => const [
+                              itemBuilder: (context) => [
                                 PopupMenuItem(
                                   value: 'logout',
-                                  child: Text('Logout'),
+                                  child: Text(context.l10n.byValue('Logout')),
                                 ),
                               ],
                               child: Container(
@@ -200,7 +201,7 @@ class _AcademyShellState extends State<AcademyShell> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(widget.user.name),
-                                          Text(widget.role.label),
+                                          Text(context.l10n.byValue(widget.role.label)),
                                         ],
                                       ),
                                     ],
@@ -272,16 +273,16 @@ class _Sidebar extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        role.label,
+                        context.l10n.byValue(role.label),
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       Text(switch (role) {
                         AcademyRole.admin =>
-                          'Operations, governance, and delivery',
+                          context.l10n.byValue('Operations, governance, and delivery'),
                         AcademyRole.student =>
-                          'Learning, planning, and progress',
+                          context.l10n.byValue('Learning, planning, and progress'),
                         AcademyRole.doctor =>
-                          'Teaching, publishing, and feedback',
+                          context.l10n.byValue('Teaching, publishing, and feedback'),
                       }, style: Theme.of(context).textTheme.bodySmall),
                     ],
                   ),
@@ -307,32 +308,37 @@ class _Sidebar extends StatelessWidget {
                       AppConstants.smallRadius,
                     ),
                   ),
-                  child: ListTile(
-                    leading: Icon(
-                      item.icon,
-                      color: selected ? AppColors.primary : null,
+                  child: Material(
+                    color: Colors.transparent,
+                    clipBehavior: Clip.antiAlias,
+                    borderRadius: BorderRadius.circular(AppConstants.smallRadius),
+                    child: ListTile(
+                      leading: Icon(
+                        item.icon,
+                        color: selected ? AppColors.primary : null,
+                      ),
+                      title: collapsed ? null : Text(context.l10n.byValue(item.title)),
+                      subtitle: collapsed ? null : Text(context.l10n.byValue(item.description)),
+                      trailing: collapsed
+                          ? null
+                          : (item.key == 'notifications' && unreadCount > 0)
+                          ? Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.sm,
+                                vertical: AppSpacing.xs,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.danger,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                '$unreadCount',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            )
+                          : const Icon(Icons.chevron_right_rounded),
+                      onTap: () => context.go(item.route),
                     ),
-                    title: collapsed ? null : Text(item.title),
-                    subtitle: collapsed ? null : Text(item.description),
-                    trailing: collapsed
-                        ? null
-                        : (item.key == 'notifications' && unreadCount > 0)
-                        ? Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.sm,
-                              vertical: AppSpacing.xs,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.danger,
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Text(
-                              '$unreadCount',
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          )
-                        : const Icon(Icons.chevron_right_rounded),
-                    onTap: () => context.go(item.route),
                   ),
                 );
               },

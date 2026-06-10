@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 
 import '../../../../core/animations/app_motion.dart';
 import '../../../../core/colors/app_colors.dart';
@@ -31,7 +32,7 @@ class MatrixGrid extends StatelessWidget {
       return AppCard(
         child: Center(
           child: Text(
-            'Roles and permissions need data before the matrix can render.',
+            context.l10n.byValue('Roles and permissions need data before the matrix can render.'),
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
@@ -104,13 +105,13 @@ class _MatrixHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const SizedBox(
+          SizedBox(
             width: 360,
             child: Padding(
-              padding: EdgeInsets.all(AppSpacing.lg),
+              padding: const EdgeInsets.all(AppSpacing.lg),
               child: Text(
-                'Permission',
-                style: TextStyle(fontWeight: FontWeight.w700),
+                context.l10n.byValue('Permission'),
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
             ),
           ),
@@ -123,12 +124,12 @@ class _MatrixHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      role.name,
+                      context.l10n.byValue(role.name),
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      role.membersLabel,
+                      context.l10n.byValue(role.membersLabel),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -197,16 +198,16 @@ class _MatrixRowState extends State<_MatrixRow> {
                       children: [
                         Expanded(
                           child: Text(
-                            widget.permission.name,
+                            context.l10n.byValue(widget.permission.name),
                             style: Theme.of(context).textTheme.titleSmall,
                           ),
                         ),
-                        StatusBadge(widget.permission.action.label),
+                        StatusBadge(context.l10n.byValue(widget.permission.action.label)),
                       ],
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      widget.permission.description,
+                      context.l10n.byValue(widget.permission.description),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -317,16 +318,16 @@ class _MobilePermissionCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  permission.name,
+                  context.l10n.byValue(permission.name),
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
-              StatusBadge(permission.action.label),
+              StatusBadge(context.l10n.byValue(permission.action.label)),
             ],
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            permission.description,
+            context.l10n.byValue(permission.description),
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -392,7 +393,7 @@ class _MobilePermissionCard extends StatelessWidget {
                               ),
                         const SizedBox(width: 6),
                         Text(
-                          role.name,
+                          context.l10n.byValue(role.name),
                           style: Theme.of(context).textTheme.labelMedium,
                         ),
                       ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/responsive/app_breakpoints.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -48,9 +49,9 @@ class DepartmentsToolbar extends StatelessWidget {
         child: TextField(
           controller: searchController,
           onChanged: onSearchChanged,
-          decoration: const InputDecoration(
-            hintText: 'Search name, code, head, or description',
-            prefixIcon: Icon(Icons.search_rounded),
+          decoration: InputDecoration(
+            hintText: context.l10n.byValue('Search name, code, head, or description'),
+            prefixIcon: const Icon(Icons.search_rounded),
           ),
         ),
       ),
@@ -60,10 +61,10 @@ class DepartmentsToolbar extends StatelessWidget {
           initialValue: filters.faculty,
           isExpanded: true,
           onChanged: onFacultyChanged,
-          decoration: const InputDecoration(labelText: 'Faculty'),
+          decoration: InputDecoration(labelText: context.l10n.byValue('Faculty')),
           selectedItemBuilder: (context) => [
-            _compactDropdownLabel('All faculties'),
-            for (final faculty in faculties) _compactDropdownLabel(faculty),
+            _compactDropdownLabel(context, 'All faculties'),
+            for (final faculty in faculties) _compactDropdownLabel(context, faculty),
           ],
           items: [
             const DropdownMenuItem<String?>(
@@ -88,7 +89,7 @@ class DepartmentsToolbar extends StatelessWidget {
               onDensityChanged(value);
             }
           },
-          decoration: const InputDecoration(labelText: 'Student density'),
+          decoration: InputDecoration(labelText: context.l10n.byValue('Student density')),
           selectedItemBuilder: (context) => const [
             _CompactDropdownText('All densities'),
             _CompactDropdownText('Light'),
@@ -125,7 +126,7 @@ class DepartmentsToolbar extends StatelessWidget {
               onSortFieldChanged(value);
             }
           },
-          decoration: const InputDecoration(labelText: 'Sort by'),
+          decoration: InputDecoration(labelText: context.l10n.byValue('Sort by')),
           selectedItemBuilder: (context) => const [
             _CompactDropdownText('Name'),
             _CompactDropdownText('Students'),
@@ -182,7 +183,7 @@ class DepartmentsToolbar extends StatelessWidget {
               ),
               const SizedBox(width: AppSpacing.sm),
               PremiumButton(
-                label: sort.ascending ? 'Ascending' : 'Descending',
+                label: context.l10n.byValue(sort.ascending ? 'Ascending' : 'Descending'),
                 icon: sort.ascending
                     ? Icons.south_rounded
                     : Icons.north_rounded,
@@ -190,13 +191,13 @@ class DepartmentsToolbar extends StatelessWidget {
                 onPressed: () => onSortDirectionChanged(!sort.ascending),
               ),
               PremiumButton(
-                label: 'Clear filters',
+                label: context.l10n.byValue('Clear filters'),
                 icon: Icons.restart_alt_rounded,
                 isSecondary: true,
                 onPressed: onClearFilters,
               ),
               PremiumButton(
-                label: 'New department',
+                label: context.l10n.byValue('New department'),
                 icon: Icons.add_rounded,
                 onPressed: canCreateDepartment ? onCreateDepartment : null,
               ),
@@ -208,11 +209,10 @@ class DepartmentsToolbar extends StatelessWidget {
   }
 }
 
-Widget _compactDropdownLabel(String text) => Align(
-  alignment: Alignment.centerLeft,
-  child: Text(text, maxLines: 1, overflow: TextOverflow.ellipsis),
+Widget _compactDropdownLabel(BuildContext context, String text) => Align(
+  alignment: AlignmentDirectional.centerStart,
+  child: Text(context.l10n.byValue(text), maxLines: 1, overflow: TextOverflow.ellipsis),
 );
-
 class _CompactDropdownText extends StatelessWidget {
   const _CompactDropdownText(this.text);
 
@@ -220,6 +220,6 @@ class _CompactDropdownText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(text, maxLines: 1, overflow: TextOverflow.ellipsis);
+    return Text(context.l10n.byValue(text), maxLines: 1, overflow: TextOverflow.ellipsis);
   }
 }

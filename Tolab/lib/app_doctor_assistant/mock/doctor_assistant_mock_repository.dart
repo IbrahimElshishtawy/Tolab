@@ -39,6 +39,7 @@ class DoctorAssistantMockRepository {
   final List<DepartmentModel> _departments = [];
   final Map<int, List<GroupPostModel>> _subjectPosts = {};
   final Map<int, Map<String, Map<String, _StoredGrade>>> _gradesBySubject = {};
+  final Map<int, List<UploadModel>> _uploadedSheetsBySubject = {};
 
   int _nextUploadId = 10;
   int _nextLectureId = 3000;
@@ -1240,6 +1241,7 @@ class DoctorAssistantMockRepository {
         lowPerformerLabel: rows.isEmpty ? '' : rows.last.studentName,
       ),
       allowedCategoryKeys: _allowedCategoryKeys(user),
+      uploadedSheets: _uploadedSheetsBySubject[subjectId] ?? const <UploadModel>[],
       averageScore: averageScore,
       pendingReviewCount: pendingReviewCount,
       publishedResultsCount: publishedResultsCount,
@@ -1278,6 +1280,58 @@ class DoctorAssistantMockRepository {
         note: rawEntry['note']?.toString(),
         statusLabel: publish ? 'Published' : 'Draft',
       );
+    }
+  }
+
+  void uploadGradesFile(
+    int subjectId,
+    String categoryKey,
+    String fileName,
+    List<int> fileBytes,
+    SessionUser user,
+  ) {
+    _ensureGradebookSeeded();
+    
+    final sizeLabel = '${(fileBytes.length / 1024).toStringAsFixed(1)} KB';
+    final mimeType = fileName.split('.').last.toUpperCase();
+    final newUpload = UploadModel(
+      id: _nextUploadId++,
+      name: fileName,
+      mimeType: mimeType,
+      sizeLabel: sizeLabel,
+      url: 'mock://uploads/$fileName',
+    );
+    _uploadedSheetsBySubject.putIfAbsent(subjectId, () => []).add(newUpload);
+
+    if (fileName.toLowerCase().endsWith('.csv')) {
+      try {
+        final content = String.fromCharCodes(fileBytes);
+        final lines = content.split('\n');
+        final List<Map<String, dynamic>> parsedEntries = [];
+        
+        for (final line in lines) {
+          final parts = line.split(',');
+          if (parts.length >= 2) {
+            final code = parts[0].trim();
+            final scoreVal = double.tryParse(parts[1].trim());
+            if (code.isNotEmpty && scoreVal != null) {
+              parsedEntries.add({
+                'student_code': code,
+                'score': scoreVal,
+              });
+            }
+          }
+        }
+
+        if (parsedEntries.isNotEmpty) {
+          saveGrades(subjectId, {
+            'category_key': categoryKey,
+            'entries': parsedEntries,
+          }, user, publish: true);
+        }
+      } catch (_) {
+        // Suppress parsing errors for robustness
+      }
     }
   }
 
@@ -2214,6 +2268,15 @@ class DoctorAssistantMockRepository {
         subjectGrades[blueprint.key] = entries;
       }
       _gradesBySubject[subject.id] = subjectGrades;
+      _uploadedSheetsBySubject[subject.id] = [
+        UploadModel(
+          id: subject.id * 10 + 1,
+          name: '${subject.code}_Midterm_Grades_Official.pdf',
+          mimeType: 'PDF',
+          sizeLabel: '1.2 MB',
+          url: 'mock://uploads/${subject.code}_midterm_grades.pdf',
+        ),
+      ];
     }
   }
 

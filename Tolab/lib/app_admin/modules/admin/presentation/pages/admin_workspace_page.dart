@@ -9,6 +9,7 @@ import '../../../academy_panel/widgets/role_page_view.dart';
 import '../../models/admin_models.dart';
 import '../../state/admin_actions.dart';
 import '../../widgets/admin_widgets.dart';
+import '../models/admin_workspace_view_model.dart';
 
 class AdminWorkspacePage extends StatelessWidget {
   const AdminWorkspacePage({super.key, required this.pageKey});
@@ -17,10 +18,10 @@ class AdminWorkspacePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<AcademyAppState, _AdminViewModel>(
+    return StoreConnector<AcademyAppState, AdminWorkspaceViewModel>(
       converter: (store) {
         final state = store.state.adminState;
-        return _AdminViewModel(
+        return AdminWorkspaceViewModel(
           user: store.state.session.user!,
           status: state.status,
           errorMessage: state.errorMessage,
@@ -128,20 +129,4 @@ class AdminWorkspacePage extends StatelessWidget {
         row['student']?.toString() ??
         'record';
   }
-}
-
-class _AdminViewModel {
-  const _AdminViewModel({
-    required this.user,
-    required this.page,
-    required this.status,
-    required this.unreadCount,
-    this.errorMessage,
-  });
-
-  final AcademyUser user;
-  final RolePageData page;
-  final PanelLoadStatus status;
-  final int unreadCount;
-  final String? errorMessage;
 }

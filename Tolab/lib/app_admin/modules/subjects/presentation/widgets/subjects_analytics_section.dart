@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../../../../app/localization/app_localizations.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../models/subject_management_models.dart';
@@ -89,7 +90,7 @@ class SubjectsAnalyticsSection extends StatelessWidget {
                 SizedBox(
                   width: compact
                       ? constraints.maxWidth
-                      : math.max(440, constraints.maxWidth * 0.34),
+                      : math.max(360, constraints.maxWidth * 0.28),
                   child: _AnalyticsHeroCard(
                     subjectsCount: subjects.length,
                     totalEnrollment: totalEnrollment,
@@ -102,9 +103,9 @@ class SubjectsAnalyticsSection extends StatelessWidget {
                       ? constraints.maxWidth
                       : math.max(280, constraints.maxWidth * 0.19),
                   child: SubjectMetricTile(
-                    label: 'Assigned doctors',
+                    label: context.l10n.byValue('Assigned doctors'),
                     value: '${doctors.length}',
-                    caption: 'Across all created subjects',
+                    caption: context.l10n.byValue('Across all created subjects'),
                     icon: Icons.badge_rounded,
                     color: SubjectsManagementPalette.accent,
                   ),
@@ -114,9 +115,9 @@ class SubjectsAnalyticsSection extends StatelessWidget {
                       ? constraints.maxWidth
                       : math.max(280, constraints.maxWidth * 0.19),
                   child: SubjectMetricTile(
-                    label: 'Assigned assistants',
+                    label: context.l10n.byValue('Assigned assistants'),
                     value: '${assistants.length}',
-                    caption: 'Teaching support linked',
+                    caption: context.l10n.byValue('Teaching support linked'),
                     icon: Icons.support_agent_rounded,
                     color: SubjectsManagementPalette.teal,
                   ),
@@ -126,9 +127,9 @@ class SubjectsAnalyticsSection extends StatelessWidget {
                       ? constraints.maxWidth
                       : math.max(280, constraints.maxWidth * 0.19),
                   child: SubjectMetricTile(
-                    label: 'Active groups',
+                    label: context.l10n.byValue('Active groups'),
                     value: '$groups',
-                    caption: '$posts posts and $summaries summaries live',
+                    caption: '$posts ${context.l10n.byValue('posts')} ${context.l10n.byValue('and')} $summaries ${context.l10n.byValue('summaries live')}',
                     icon: Icons.forum_rounded,
                     color: SubjectsManagementPalette.violet,
                   ),
@@ -151,13 +152,13 @@ class SubjectsAnalyticsSection extends StatelessWidget {
                 SizedBox(
                   width: chartWidth,
                   child: _ChartCard(
-                    title: 'Subjects by department',
-                    subtitle: 'Distribution of created subjects',
+                    title: context.l10n.byValue('Subjects by department'),
+                    subtitle: context.l10n.byValue('Distribution of created subjects'),
                     child: SubjectsDepartmentDonutChart(
                       items: [
                         for (var i = 0; i < departmentItems.length; i++)
                           DepartmentDistributionItem(
-                            label: departmentItems[i].key,
+                            label: context.l10n.byValue(departmentItems[i].key),
                             value: departmentItems[i].value,
                             color:
                                 distributionColors[i %
@@ -170,13 +171,13 @@ class SubjectsAnalyticsSection extends StatelessWidget {
                 SizedBox(
                   width: chartWidth,
                   child: _ChartCard(
-                    title: 'Subjects by academic year',
-                    subtitle: 'Cleaner scan for planning density',
+                    title: context.l10n.byValue('Subjects by academic year'),
+                    subtitle: context.l10n.byValue('Cleaner scan for planning density'),
                     child: SubjectsYearBarsChart(
                       items: [
                         for (var i = 0; i < yearItems.length; i++)
                           YearBarItem(
-                            label: yearItems[i].key.replaceFirst('Year ', 'Y'),
+                            label: context.l10n.byValue(yearItems[i].key),
                             value: yearItems[i].value,
                             color: distributionColors.reversed
                                 .toList()[i % distributionColors.length],
@@ -188,8 +189,8 @@ class SubjectsAnalyticsSection extends StatelessWidget {
                 SizedBox(
                   width: chartWidth,
                   child: _ChartCard(
-                    title: 'Activity level',
-                    subtitle: 'Posts, summaries, and engagement signal',
+                    title: context.l10n.byValue('Activity level'),
+                    subtitle: context.l10n.byValue('Posts, summaries, and engagement signal'),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -198,12 +199,12 @@ class SubjectsAnalyticsSection extends StatelessWidget {
                           runSpacing: AppSpacing.sm,
                           children: [
                             SubjectInfoPill(
-                              label: 'Total subjects',
+                              label: context.l10n.byValue('Total subjects'),
                               value: '${subjects.length}',
                               tint: SubjectsManagementPalette.accent,
                             ),
                             SubjectInfoPill(
-                              label: 'Enrolled',
+                              label: context.l10n.byValue('Enrolled'),
                               value: '$totalEnrollment',
                               tint: SubjectsManagementPalette.coral,
                             ),
@@ -213,6 +214,7 @@ class SubjectsAnalyticsSection extends StatelessWidget {
                         SubjectsActivityLineChart(
                           values: activityTrend,
                           color: SubjectsManagementPalette.coral,
+                          height: 72,
                         ),
                       ],
                     ),
@@ -243,7 +245,7 @@ class _AnalyticsHeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.xl),
+      padding: EdgeInsets.zero,
       interactive: true,
       backgroundColor: Theme.of(context).cardColor.withValues(alpha: 0.96),
       child: DecoratedBox(
@@ -252,47 +254,49 @@ class _AnalyticsHeroCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const SubjectToneBadge('Premium control center'),
-              const SizedBox(height: AppSpacing.lg),
+              SubjectToneBadge(context.l10n.byValue('Premium control center')),
+              const SizedBox(height: AppSpacing.sm),
               Text(
-                'Subjects / Course Management',
-                style: Theme.of(context).textTheme.headlineSmall,
+                context.l10n.byValue('Subjects / Course Management'),
+                style: Theme.of(context).textTheme.titleLarge,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               Text(
-                'Compact operational view for staff assignment, private enrollment visibility, community control, access links, and content activity.',
-                style: Theme.of(context).textTheme.bodyMedium,
+                context.l10n.byValue('Compact setup for staff assignment, student privacy, access entry, and subject activity controls.'),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
-              const SizedBox(height: AppSpacing.xl),
+              const SizedBox(height: AppSpacing.md),
               Wrap(
-                spacing: AppSpacing.sm,
-                runSpacing: AppSpacing.sm,
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
                 children: [
                   SubjectInfoPill(
-                    label: 'Subjects created',
+                    label: context.l10n.byValue('Subjects created'),
                     value: '$subjectsCount',
                     tint: SubjectsManagementPalette.accent,
                   ),
                   SubjectInfoPill(
-                    label: 'Student enrollment',
+                    label: context.l10n.byValue('Student enrollment'),
                     value: '$totalEnrollment',
                     tint: SubjectsManagementPalette.teal,
                   ),
                   SubjectInfoPill(
-                    label: 'Activity score',
+                    label: context.l10n.byValue('Activity score'),
                     value: averageActivity.toStringAsFixed(0),
                     tint: SubjectsManagementPalette.violet,
                   ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: AppSpacing.md),
               SubjectsActivityLineChart(
                 values: activityTrend,
                 color: SubjectsManagementPalette.accent,
+                height: 48,
               ),
             ],
           ),

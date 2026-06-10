@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../models/department_models.dart';
@@ -24,9 +25,9 @@ class DepartmentScheduleTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const DepartmentPanelHeader(
-                title: 'Course offerings',
-                subtitle: 'Live delivery capacity and enrollment pressure.',
+              DepartmentPanelHeader(
+                title: context.l10n.byValue('Course offerings'),
+                subtitle: context.l10n.byValue('Live delivery capacity and enrollment pressure.'),
               ),
               const SizedBox(height: AppSpacing.lg),
               for (var index = 0; index < offerings.length; index++) ...[
@@ -37,12 +38,12 @@ class DepartmentScheduleTab extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${offerings[index].subjectCode} • ${offerings[index].sectionLabel}',
+                            '${offerings[index].subjectCode} • ${context.l10n.byValue(offerings[index].sectionLabel)}',
                             style: Theme.of(context).textTheme.titleSmall,
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '${offerings[index].instructor} • ${offerings[index].scheduleLabel}',
+                            '${context.l10n.byValue(offerings[index].instructor)} • ${context.l10n.byValue(offerings[index].scheduleLabel)}',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
@@ -76,9 +77,9 @@ class DepartmentScheduleTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const DepartmentPanelHeader(
-                title: 'Schedule preview',
-                subtitle: 'Snapshot of the next representative events.',
+              DepartmentPanelHeader(
+                title: context.l10n.byValue('Schedule preview'),
+                subtitle: context.l10n.byValue('Snapshot of the next representative events.'),
               ),
               const SizedBox(height: AppSpacing.lg),
               for (var index = 0; index < schedulePreview.length; index++) ...[
@@ -88,7 +89,7 @@ class DepartmentScheduleTab extends StatelessWidget {
                     SizedBox(
                       width: 90,
                       child: Text(
-                        schedulePreview[index].dayLabel,
+                        context.l10n.byValue(schedulePreview[index].dayLabel),
                         style: Theme.of(context).textTheme.titleSmall,
                       ),
                     ),
@@ -97,17 +98,17 @@ class DepartmentScheduleTab extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            schedulePreview[index].title,
+                            context.l10n.byValue(schedulePreview[index].title),
                             style: Theme.of(context).textTheme.titleSmall,
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '${schedulePreview[index].slotLabel} • ${schedulePreview[index].location}',
+                            '${context.l10n.byValue(schedulePreview[index].slotLabel)} • ${context.l10n.byValue(schedulePreview[index].location)}',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '${schedulePreview[index].type} • ${schedulePreview[index].staffName}',
+                            '${context.l10n.byValue(schedulePreview[index].type)} • ${context.l10n.byValue(schedulePreview[index].staffName)}',
                             style: Theme.of(context).textTheme.labelMedium,
                           ),
                         ],

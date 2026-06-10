@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../app_admin/core/spacing/app_spacing.dart';
 import '../../../../presentation/widgets/doctor_assistant_widgets.dart';
+import '../../../../../app/localization/app_localizations.dart';
 
 class AppearanceSettingsSection extends StatelessWidget {
   const AppearanceSettingsSection({
@@ -28,17 +29,17 @@ class AppearanceSettingsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DoctorAssistantPanel(
-      title: 'Appearance',
-      subtitle:
-          'Adjust theme, language, contact fallback, and density without leaving the faculty control panel.',
+      title: context.l10n.byValue('Appearance'),
+      subtitle: context.l10n.byValue(
+          'Adjust theme, language, contact fallback, and density without leaving the faculty control panel.'),
       child: Column(
         children: [
           DropdownButtonFormField<String>(
             initialValue: languageCode,
-            decoration: const InputDecoration(labelText: 'Language'),
-            items: const [
-              DropdownMenuItem(value: 'en', child: Text('English')),
-              DropdownMenuItem(value: 'ar', child: Text('Arabic')),
+            decoration: InputDecoration(labelText: context.l10n.byValue('Language')),
+            items: [
+              DropdownMenuItem(value: 'en', child: Text(context.l10n.byValue('English'))),
+              DropdownMenuItem(value: 'ar', child: Text(context.l10n.byValue('Arabic'))),
             ],
             onChanged: (value) {
               if (value != null) {
@@ -49,11 +50,11 @@ class AppearanceSettingsSection extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           DropdownButtonFormField<String>(
             initialValue: themeMode,
-            decoration: const InputDecoration(labelText: 'Theme'),
-            items: const [
-              DropdownMenuItem(value: 'system', child: Text('System')),
-              DropdownMenuItem(value: 'light', child: Text('Light')),
-              DropdownMenuItem(value: 'dark', child: Text('Dark')),
+            decoration: InputDecoration(labelText: context.l10n.byValue('Theme')),
+            items: [
+              DropdownMenuItem(value: 'system', child: Text(context.l10n.byValue('System'))),
+              DropdownMenuItem(value: 'light', child: Text(context.l10n.byValue('Light'))),
+              DropdownMenuItem(value: 'dark', child: Text(context.l10n.byValue('Dark'))),
             ],
             onChanged: (value) {
               if (value != null) {
@@ -64,15 +65,15 @@ class AppearanceSettingsSection extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           TextFormField(
             initialValue: phone,
-            decoration: const InputDecoration(labelText: 'Contact phone'),
+            decoration: InputDecoration(labelText: context.l10n.byValue('Contact phone')),
             onChanged: onPhoneChanged,
           ),
           const SizedBox(height: AppSpacing.md),
           SwitchListTile.adaptive(
             contentPadding: EdgeInsets.zero,
             value: compactMode,
-            title: const Text('Compact density mode'),
-            subtitle: const Text('Increase information density for staff-heavy operational work.'),
+            title: Text(context.l10n.byValue('Compact density mode')),
+            subtitle: Text(context.l10n.byValue('Increase information density for staff-heavy operational work.')),
             onChanged: onCompactModeChanged,
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../shared/widgets/premium_button.dart';
@@ -69,7 +70,7 @@ class _StaffDetailsPanelState extends State<StaffDetailsPanel> {
             children: [
               Expanded(
                 child: Text(
-                  'Staff control center',
+                  context.l10n.byValue('Staff control center'),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
@@ -168,7 +169,7 @@ class _ProfileHero extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${record.role} • ${record.department} • ${record.employeeId}',
+                  '${context.l10n.byValue(record.role)} • ${context.l10n.byValue(record.department)} • ${record.employeeId}',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: AppSpacing.sm),
@@ -176,10 +177,10 @@ class _ProfileHero extends StatelessWidget {
                   spacing: AppSpacing.sm,
                   runSpacing: AppSpacing.sm,
                   children: [
-                    StaffStatusBadge(record.status),
-                    StaffStatusBadge(record.roleTypeLabel),
-                    StaffStatusBadge('Last active ${record.lastActiveLabel}'),
-                    StaffStatusBadge(record.accountHealthBand),
+                    StaffStatusBadge(context.l10n.byValue(record.status)),
+                    StaffStatusBadge(context.l10n.byValue(record.roleTypeLabel)),
+                    StaffStatusBadge('${context.l10n.byValue('Last active')} ${record.lastActiveLabel}'),
+                    StaffStatusBadge(context.l10n.byValue(record.accountHealthBand)),
                   ],
                 ),
               ],
@@ -187,7 +188,7 @@ class _ProfileHero extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.md),
           _CompletionRing(
-            label: 'Attendance',
+            label: context.l10n.byValue('Attendance'),
             value: record.attendanceRate / 100,
             center: '${record.attendanceRate.round()}%',
           ),
@@ -213,37 +214,37 @@ class _OverviewTab extends StatelessWidget {
           runSpacing: AppSpacing.sm,
           children: [
             StaffInfoTile(
-              label: 'Email',
+              label: context.l10n.byValue('Email'),
               value: record.email,
               icon: Icons.alternate_email_rounded,
               width: 190,
             ),
             StaffInfoTile(
-              label: 'Role',
-              value: record.role,
+              label: context.l10n.byValue('Role'),
+              value: context.l10n.byValue(record.role),
               icon: Icons.work_outline_rounded,
               width: 160,
             ),
             StaffInfoTile(
-              label: 'Doctor type',
-              value: record.roleTypeLabel,
+              label: context.l10n.byValue('Doctor type'),
+              value: context.l10n.byValue(record.roleTypeLabel),
               icon: Icons.badge_outlined,
               width: 190,
             ),
             StaffInfoTile(
-              label: 'Department',
-              value: record.department,
+              label: context.l10n.byValue('Department'),
+              value: context.l10n.byValue(record.department),
               icon: Icons.apartment_rounded,
               width: 180,
             ),
             StaffInfoTile(
-              label: 'Account status',
-              value: record.accountCreationStatus,
+              label: context.l10n.byValue('Account status'),
+              value: context.l10n.byValue(record.accountCreationStatus),
               icon: Icons.verified_user_outlined,
               width: 180,
             ),
             StaffInfoTile(
-              label: 'Created',
+              label: context.l10n.byValue('Created'),
               value: record.createdAtLabel,
               icon: Icons.event_available_outlined,
               width: 180,
@@ -252,24 +253,33 @@ class _OverviewTab extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
         _CardBlock(
-          title: 'Quick metrics',
+          title: context.l10n.byValue('Quick metrics'),
           child: Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
               _MetricTile(
-                label: 'Subjects',
+                label: context.l10n.byValue('Subjects'),
                 value: '${record.subjectsAssigned}',
               ),
               _MetricTile(
-                label: 'Lectures',
+                label: context.l10n.byValue('Lectures'),
                 value: '${record.lecturesUploaded}',
               ),
-              _MetricTile(label: 'Tasks', value: '${record.tasksCreated}'),
-              _MetricTile(label: 'Posts', value: '${record.postsCreated}'),
-              _MetricTile(label: 'Uploads', value: '${record.uploadsCount}'),
               _MetricTile(
-                label: 'Permission coverage',
+                label: context.l10n.byValue('Tasks'),
+                value: '${record.tasksCreated}',
+              ),
+              _MetricTile(
+                label: context.l10n.byValue('Posts'),
+                value: '${record.postsCreated}',
+              ),
+              _MetricTile(
+                label: context.l10n.byValue('Uploads'),
+                value: '${record.uploadsCount}',
+              ),
+              _MetricTile(
+                label: context.l10n.byValue('Permission coverage'),
                 value: '${record.permissionCoverage.round()}%',
               ),
             ],
@@ -277,7 +287,7 @@ class _OverviewTab extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
         _CardBlock(
-          title: 'Monitoring pulse',
+          title: context.l10n.byValue('Monitoring pulse'),
           child: Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
@@ -286,8 +296,8 @@ class _OverviewTab extends StatelessWidget {
                 width: 180,
                 child: StaffMetricMeter(
                   value: record.attendanceRate / 100,
-                  primary: record.attendanceSummary,
-                  secondary: record.attendanceBand,
+                  primary: context.l10n.byValue(record.attendanceSummary),
+                  secondary: context.l10n.byValue(record.attendanceBand),
                   color: StaffManagementPalette.attendance,
                   compact: true,
                 ),
@@ -296,8 +306,8 @@ class _OverviewTab extends StatelessWidget {
                 width: 180,
                 child: StaffMetricMeter(
                   value: record.engagementRate / 100,
-                  primary: record.engagementSummary,
-                  secondary: record.engagementBand,
+                  primary: context.l10n.byValue(record.engagementSummary),
+                  secondary: context.l10n.byValue(record.engagementBand),
                   color: StaffManagementPalette.engagement,
                   compact: true,
                 ),
@@ -305,8 +315,8 @@ class _OverviewTab extends StatelessWidget {
               SizedBox(
                 width: 180,
                 child: StaffInfoTile(
-                  label: 'Monitoring summary',
-                  value: record.monitoringSummary,
+                  label: context.l10n.byValue('Monitoring summary'),
+                  value: context.l10n.byValue(record.monitoringSummary),
                   icon: Icons.monitor_heart_outlined,
                 ),
               ),
@@ -315,26 +325,28 @@ class _OverviewTab extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
         _CardBlock(
-          title: 'Action center',
+          title: context.l10n.byValue('Action center'),
           child: Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
               PremiumButton(
-                label: 'Edit account',
+                label: context.l10n.byValue('Edit account'),
                 icon: Icons.edit_outlined,
                 onPressed: () => onEdit(record),
               ),
               PremiumButton(
-                label: record.status == 'Active' ? 'Deactivate' : 'Reactivate',
+                label: record.status == 'Active'
+                    ? context.l10n.byValue('Deactivate')
+                    : context.l10n.byValue('Reactivate'),
                 icon: record.status == 'Active'
                     ? Icons.pause_circle_outline_rounded
                     : Icons.restart_alt_rounded,
                 isSecondary: true,
                 onPressed: () {},
               ),
-              const PremiumButton(
-                label: 'Review performance',
+              PremiumButton(
+                label: context.l10n.byValue('Review performance'),
                 icon: Icons.analytics_outlined,
                 isSecondary: true,
               ),
@@ -367,14 +379,14 @@ class _PermissionsTab extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                'Permissions overview',
+                context.l10n.byValue('Permissions overview'),
                 style: Theme.of(context).textTheme.titleSmall,
               ),
             ),
             TextButton.icon(
               onPressed: () => onManagePermissions(record),
               icon: const Icon(Icons.edit_outlined, size: 18),
-              label: const Text('Open full permissions'),
+              label: Text(context.l10n.byValue('Open full permissions')),
             ),
           ],
         ),
@@ -400,7 +412,7 @@ class _ActivityTab extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _CardBlock(
-          title: 'Attendance and engagement trends',
+          title: context.l10n.byValue('Attendance and engagement trends'),
           child: Column(
             children: [
               SizedBox(
@@ -423,7 +435,7 @@ class _ActivityTab extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
         _CardBlock(
-          title: 'Subject interaction tracking',
+          title: context.l10n.byValue('Subject interaction tracking'),
           child: Column(
             children: [
               for (final subject in record.subjects)
@@ -457,34 +469,37 @@ class _MonitoringTab extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _CardBlock(
-          title: 'Monitoring snapshot',
+          title: context.l10n.byValue('Monitoring snapshot'),
           child: Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
               _MetricTile(
-                label: 'Permission coverage',
+                label: context.l10n.byValue('Permission coverage'),
                 value: '${record.permissionCoverage.round()}%',
               ),
               _MetricTile(
-                label: 'Schedule updates',
+                label: context.l10n.byValue('Schedule updates'),
                 value: '${record.scheduleUpdates}',
               ),
-              _MetricTile(label: 'Uploads', value: '${record.uploadsCount}'),
               _MetricTile(
-                label: 'Recent activity',
-                value: record.recentActivity,
+                label: context.l10n.byValue('Uploads'),
+                value: '${record.uploadsCount}',
               ),
               _MetricTile(
-                label: 'Usage summary',
-                value: record.activitySummary,
+                label: context.l10n.byValue('Recent activity'),
+                value: context.l10n.byValue(record.recentActivity),
+              ),
+              _MetricTile(
+                label: context.l10n.byValue('Usage summary'),
+                value: context.l10n.byValue(record.activitySummary),
               ),
             ],
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
         _CardBlock(
-          title: 'Activity timeline',
+          title: context.l10n.byValue('Activity timeline'),
           child: Column(
             children: [
               for (final event in record.timeline)
@@ -497,24 +512,24 @@ class _MonitoringTab extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
         _CardBlock(
-          title: 'Admin controls',
+          title: context.l10n.byValue('Admin controls'),
           child: Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
               PremiumButton(
-                label: 'Edit account',
+                label: context.l10n.byValue('Edit account'),
                 icon: Icons.edit_outlined,
                 onPressed: () => onEdit(record),
               ),
               PremiumButton(
-                label: 'Change permissions',
+                label: context.l10n.byValue('Change permissions'),
                 icon: Icons.admin_panel_settings_outlined,
                 isSecondary: true,
                 onPressed: () => onManagePermissions(record),
               ),
-              const PremiumButton(
-                label: 'Inspect activity',
+              PremiumButton(
+                label: context.l10n.byValue('Inspect activity'),
                 icon: Icons.timeline_rounded,
                 isSecondary: true,
               ),

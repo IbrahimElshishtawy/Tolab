@@ -21,5 +21,9 @@ class TokenStorage {
     return Map<String, dynamic>.from(jsonDecode(raw) as Map);
   }
 
-  Future<void> clear() => _storage.delete(key: _key);
+  Future<void> clear() async {
+    try {
+      await _storage.delete(key: _key);
+    } catch (_) {}
+  }
 }

@@ -9,6 +9,7 @@ import '../../../academy_panel/widgets/role_page_view.dart';
 import '../../models/doctor_models.dart';
 import '../../state/doctor_actions.dart';
 import '../../widgets/doctor_widgets.dart';
+import '../models/doctor_workspace_view_model.dart';
 
 class DoctorWorkspacePage extends StatelessWidget {
   const DoctorWorkspacePage({super.key, required this.pageKey});
@@ -17,10 +18,10 @@ class DoctorWorkspacePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<AcademyAppState, _DoctorViewModel>(
+    return StoreConnector<AcademyAppState, DoctorWorkspaceViewModel>(
       converter: (store) {
         final state = store.state.doctorState;
-        return _DoctorViewModel(
+        return DoctorWorkspaceViewModel(
           user: store.state.session.user!,
           status: state.status,
           errorMessage: state.errorMessage,
@@ -111,20 +112,4 @@ class DoctorWorkspacePage extends StatelessWidget {
     }
     return null;
   }
-}
-
-class _DoctorViewModel {
-  const _DoctorViewModel({
-    required this.user,
-    required this.page,
-    required this.status,
-    required this.unreadCount,
-    this.errorMessage,
-  });
-
-  final AcademyUser user;
-  final RolePageData page;
-  final PanelLoadStatus status;
-  final int unreadCount;
-  final String? errorMessage;
 }

@@ -148,29 +148,50 @@ class StaffManagementBadges {
         normalized.contains('strong') ||
         normalized.contains('excellent') ||
         normalized.contains('stable') ||
-        normalized.contains('enabled')) {
+        normalized.contains('enabled') ||
+        normalized.contains('نشط') ||
+        normalized.contains('مزامنة') ||
+        normalized.contains('صحي') ||
+        normalized.contains('مستقر') ||
+        normalized.contains('مفعل') ||
+        normalized.contains('ممتاز')) {
       foreground = StaffManagementPalette.attendance;
-    } else if (normalized.contains('doctor')) {
+    } else if (normalized.contains('doctor') ||
+        normalized.contains('دكتور') ||
+        normalized.contains('أطباء')) {
       foreground = StaffManagementPalette.doctor;
-    } else if (normalized.contains('assistant')) {
+    } else if (normalized.contains('assistant') ||
+        normalized.contains('معيد') ||
+        normalized.contains('معيدون')) {
       foreground = StaffManagementPalette.assistant;
-    } else if (normalized.contains('internal')) {
+    } else if (normalized.contains('internal') ||
+        normalized.contains('داخلي')) {
       foreground = StaffManagementPalette.internal;
     } else if (normalized.contains('delegated') ||
         normalized.contains('external') ||
         normalized.contains('pending') ||
         normalized.contains('watch') ||
-        normalized.contains('moderate')) {
+        normalized.contains('moderate') ||
+        normalized.contains('منتدب') ||
+        normalized.contains('خارجي') ||
+        normalized.contains('انتظار') ||
+        normalized.contains('متابعة')) {
       foreground = StaffManagementPalette.delegated;
     } else if (normalized.contains('inactive') ||
         normalized.contains('disabled') ||
         normalized.contains('critical') ||
         normalized.contains('suspended') ||
-        normalized.contains('risk')) {
+        normalized.contains('risk') ||
+        normalized.contains('غير نشط') ||
+        normalized.contains('معطل') ||
+        normalized.contains('حرجة') ||
+        normalized.contains('موقوف')) {
       foreground = StaffManagementPalette.risk;
     } else if (normalized.contains('monitor') ||
         normalized.contains('review') ||
-        normalized.contains('activity')) {
+        normalized.contains('activity') ||
+        normalized.contains('مراقبة') ||
+        normalized.contains('نشاط')) {
       foreground = StaffManagementPalette.engagement;
     }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/localization/app_localizations.dart';
 import '../../../core/colors/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/spacing/app_spacing.dart';
@@ -56,7 +57,7 @@ class DashboardKpiCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      metric.deltaLabel,
+                      context.l10n.byValue(metric.deltaLabel),
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: isPositive ? AppColors.secondary : AppColors.danger,
                       ),
@@ -67,7 +68,7 @@ class DashboardKpiCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          Text(metric.label, style: Theme.of(context).textTheme.titleMedium),
+          Text(context.l10n.byValue(metric.label), style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: AppSpacing.xs),
           Text(
             metric.value,
@@ -94,7 +95,7 @@ class DashboardKpiCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.md),
-          Text(metric.caption, style: Theme.of(context).textTheme.bodyMedium),
+          Text(context.l10n.byValue(metric.caption), style: Theme.of(context).textTheme.bodyMedium),
         ],
       ),
     );

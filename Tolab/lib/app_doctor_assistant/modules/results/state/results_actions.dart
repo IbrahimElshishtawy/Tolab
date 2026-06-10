@@ -51,3 +51,17 @@ class PublishGradesAction {
   final int subjectId;
   final Map<String, dynamic> payload;
 }
+
+class UploadGradesFileAction {
+  UploadGradesFileAction({
+    required this.subjectId,
+    required this.categoryKey,
+    required this.fileName,
+    required this.fileBytes,
+  });
+
+  final int subjectId;
+  final String categoryKey;
+  final String fileName;
+  final List<int> fileBytes;
+}

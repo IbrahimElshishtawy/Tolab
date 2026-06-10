@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../models/department_models.dart';
@@ -37,7 +38,7 @@ class DepartmentStudentsTab extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${student.id} • ${student.yearLabel} • ${student.sectionLabel}',
+                      '${student.id} • ${context.l10n.byValue(student.yearLabel)} • ${context.l10n.byValue(student.sectionLabel)}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -49,7 +50,7 @@ class DepartmentStudentsTab extends StatelessWidget {
                   DepartmentStatusPill(label: student.status),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    'GPA ${student.gpa.toStringAsFixed(2)}',
+                    '${context.l10n.byValue('GPA')} ${student.gpa.toStringAsFixed(2)}',
                     style: Theme.of(context).textTheme.labelMedium,
                   ),
                 ],

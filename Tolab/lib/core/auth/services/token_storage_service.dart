@@ -59,12 +59,19 @@ class TokenStorageService {
 
   /// Clear all authentication data
   Future<void> clearSession() async {
-    await Future.wait([
-      _secureStorage.delete(key: _accessTokenKey),
-      _secureStorage.delete(key: _refreshTokenKey),
-      _sharedPreferences?.remove(_userIdKey) ?? Future.value(),
-      _sharedPreferences?.remove(_userEmailKey) ?? Future.value(),
-    ]);
+    try {
+      await Future.wait([
+        _secureStorage.delete(key: _accessTokenKey),
+        _secureStorage.delete(key: _refreshTokenKey),
+        _sharedPreferences?.remove(_userIdKey) ?? Future.value(),
+        _sharedPreferences?.remove(_userEmailKey) ?? Future.value(),
+      ]);
+    } catch (_) {
+      try {
+        await _sharedPreferences?.remove(_userIdKey);
+        await _sharedPreferences?.remove(_userEmailKey);
+      } catch (_) {}
+    }
   }
 
   /// Check if tokens exist

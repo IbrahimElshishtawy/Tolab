@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 
 import '../../../core/animations/app_motion.dart';
 import '../../../core/colors/app_colors.dart';
@@ -85,12 +86,15 @@ class _ScheduleCalendarBoardState extends State<ScheduleCalendarBoard> {
         final title = switch (widget.view) {
           ScheduleCalendarView.month => DateFormat(
             'MMMM yyyy',
+            context.l10n.locale.languageCode,
           ).format(widget.focusedDay),
           ScheduleCalendarView.week => _weekRangeLabel(
+            context,
             _startOfWeek(widget.focusedDay),
           ),
           ScheduleCalendarView.day => DateFormat(
             'EEEE, d MMMM yyyy',
+            context.l10n.locale.languageCode,
           ).format(widget.selectedDay),
         };
         final hasBoundedHeight = constraints.maxHeight.isFinite;
@@ -243,11 +247,11 @@ class _CalendarLegend extends StatelessWidget {
   Widget build(BuildContext context) {
     final hint = switch (view) {
       ScheduleCalendarView.month =>
-        'Use the month view to inspect teaching density and daily load.',
+        context.l10n.byValue('Use the month view to inspect teaching density and daily load.'),
       ScheduleCalendarView.week =>
-        'Drag sessions between slots to rebalance the academic week.',
+        context.l10n.byValue('Drag sessions between slots to rebalance the academic week.'),
       ScheduleCalendarView.day =>
-        'Double tap an empty slot to add a new item for the selected day.',
+        context.l10n.byValue('Double tap an empty slot to add a new item for the selected day.'),
     };
 
     return Wrap(
@@ -257,8 +261,8 @@ class _CalendarLegend extends StatelessWidget {
       children: [
         for (final type in ScheduleEventType.values)
           _LegendToken(label: type.label, color: type.color, icon: type.icon),
-        const _LegendToken(
-          label: 'Conflict',
+        _LegendToken(
+          label: context.l10n.byValue('Conflict'),
           color: AppColors.danger,
           icon: Icons.warning_amber_rounded,
         ),
@@ -307,7 +311,7 @@ class _LegendToken extends StatelessWidget {
           Icon(icon, size: 15, color: color),
           const SizedBox(width: AppSpacing.xs),
           Text(
-            label,
+            context.l10n.byValue(label),
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
               color: color,
               fontWeight: FontWeight.w700,
@@ -358,14 +362,14 @@ class _CalendarToolbar extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              tooltip: 'Previous',
+              tooltip: context.l10n.byValue('Previous'),
               style: iconButtonStyle,
               onPressed: () => onNavigate(-1),
               icon: const Icon(Icons.chevron_left_rounded),
             ),
             const SizedBox(width: AppSpacing.xs),
             IconButton(
-              tooltip: 'Next',
+              tooltip: context.l10n.byValue('Next'),
               style: iconButtonStyle,
               onPressed: () => onNavigate(1),
               icon: const Icon(Icons.chevron_right_rounded),
@@ -380,7 +384,7 @@ class _CalendarToolbar extends StatelessWidget {
                 ),
               ),
               onPressed: onTodayPressed,
-              child: const Text('Today'),
+              child: Text(context.l10n.byValue('Today')),
             ),
             const SizedBox(width: AppSpacing.md),
             Text(title, style: titleStyle),
@@ -404,7 +408,7 @@ class _CalendarToolbar extends StatelessWidget {
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     visualDensity: VisualDensity.compact,
                     avatar: Icon(calendarView.icon, size: compact ? 14 : 16),
-                    label: Text(calendarView.label),
+                    label: Text(context.l10n.byValue(calendarView.label)),
                     onSelected: (_) => onViewChanged(calendarView),
                   );
                 })
@@ -636,7 +640,7 @@ class _TimelineCalendarView extends StatelessWidget {
                           child: Column(
                             children: [
                               Text(
-                                DateFormat('EEE').format(day),
+                                DateFormat('EEE', context.l10n.locale.languageCode).format(day),
                                 style: Theme.of(context).textTheme.labelLarge,
                               ),
                               const SizedBox(height: 4),
@@ -717,7 +721,7 @@ class _TimelineCalendarView extends StatelessWidget {
                                               top: compact ? 2 : 4,
                                             ),
                                             child: Text(
-                                              DateFormat.j().format(
+                                              DateFormat.j(context.l10n.locale.languageCode).format(
                                                 DateTime(2026, 1, 1, hour),
                                               ),
                                               style: Theme.of(
@@ -1033,12 +1037,13 @@ double _eventHeight(Duration duration, double slotHeight) {
   return math.max(slotHeight * (duration.inMinutes / 60), 40);
 }
 
-String _weekRangeLabel(DateTime weekStart) {
+String _weekRangeLabel(BuildContext context, DateTime weekStart) {
+  final locale = context.l10n.locale.languageCode;
   final weekEnd = weekStart.add(const Duration(days: 6));
   if (weekStart.month == weekEnd.month) {
-    return '${DateFormat('d').format(weekStart)} - ${DateFormat('d MMMM yyyy').format(weekEnd)}';
+    return '${DateFormat('d', locale).format(weekStart)} - ${DateFormat('d MMMM yyyy', locale).format(weekEnd)}';
   }
-  return '${DateFormat('d MMM').format(weekStart)} - ${DateFormat('d MMM yyyy').format(weekEnd)}';
+  return '${DateFormat('d MMM', locale).format(weekStart)} - ${DateFormat('d MMM yyyy', locale).format(weekEnd)}';
 }
 
 DateTime _startOfWeek(DateTime value) {

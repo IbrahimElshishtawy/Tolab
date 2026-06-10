@@ -79,19 +79,24 @@ class SettingsSectionButton extends StatelessWidget {
           color: selected ? color.withValues(alpha: 0.24) : Colors.transparent,
         ),
       ),
-      child: ListTile(
-        onTap: onTap,
-        leading: Icon(section.icon, color: selected ? color : null),
-        title: Text(
-          context.l10n.byValue(section.label),
-          style: Theme.of(
-            context,
-          ).textTheme.titleSmall?.copyWith(color: selected ? color : null),
-        ),
-        subtitle: Text(
-          context.l10n.byValue(section.subtitle),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+      child: Material(
+        color: Colors.transparent,
+        clipBehavior: Clip.antiAlias,
+        borderRadius: BorderRadius.circular(AppConstants.mediumRadius),
+        child: ListTile(
+          onTap: onTap,
+          leading: Icon(section.icon, color: selected ? color : null),
+          title: Text(
+            context.l10n.byValue(section.label),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(color: selected ? color : null),
+          ),
+          subtitle: Text(
+            context.l10n.byValue(section.subtitle),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ),
     );

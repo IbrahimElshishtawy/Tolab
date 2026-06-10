@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../shared/widgets/premium_button.dart';
@@ -33,29 +34,29 @@ class DepartmentBulkActionBar extends StatelessWidget {
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Text(
-            '$count selected',
+            '$count ${context.l10n.byValue('selected')}',
             style: Theme.of(context).textTheme.titleSmall,
           ),
           PremiumButton(
-            label: 'Activate',
+            label: context.l10n.byValue('Activate'),
             icon: Icons.check_circle_outline_rounded,
             isSecondary: true,
             onPressed: onActivate,
           ),
           PremiumButton(
-            label: 'Deactivate',
+            label: context.l10n.byValue('Deactivate'),
             icon: Icons.pause_circle_outline_rounded,
             isSecondary: true,
             onPressed: onDeactivate,
           ),
           PremiumButton(
-            label: 'Archive',
+            label: context.l10n.byValue('Archive'),
             icon: Icons.archive_outlined,
             isSecondary: true,
             onPressed: onArchive,
           ),
           PremiumButton(
-            label: 'Clear',
+            label: context.l10n.byValue('Clear'),
             icon: Icons.close_rounded,
             isSecondary: true,
             onPressed: onClear,

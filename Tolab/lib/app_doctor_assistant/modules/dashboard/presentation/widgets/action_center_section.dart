@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+ 
+import '../../../../../app/localization/app_localizations.dart';
 
 import '../../../../core/models/dashboard_models.dart';
 import '../theme/app_spacing.dart';
@@ -66,20 +68,20 @@ class ActionCenterSection extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: Text(
-                                  item.title,
+                                  context.l10n.byValue(item.title),
                                   style: Theme.of(context).textTheme.titleMedium
                                       ?.copyWith(color: tokens.textPrimary),
                                 ),
                               ),
                               DashboardToneBadge(
-                                label: item.priority,
+                                label: context.l10n.byValue(item.priority),
                                 tone: item.priority,
                               ),
                             ],
                           ),
                           const SizedBox(height: DashboardAppSpacing.xs),
                           Text(
-                            item.explanation,
+                            context.l10n.byValue(item.explanation),
                             style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(color: tokens.textSecondary),
                           ),
@@ -87,7 +89,7 @@ class ActionCenterSection extends StatelessWidget {
                           Align(
                             alignment: Alignment.centerLeft,
                             child: DashboardInlineAction(
-                              label: item.ctaLabel,
+                              label: context.l10n.byValue(item.ctaLabel),
                               onTap: () => onOpenRoute(item.route),
                             ),
                           ),

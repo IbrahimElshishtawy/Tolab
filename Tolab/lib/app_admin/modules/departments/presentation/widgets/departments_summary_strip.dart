@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/colors/app_colors.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../state/departments_selectors.dart';
@@ -23,7 +24,7 @@ class DepartmentsSummaryStrip extends StatelessWidget {
             value: metrics.departmentsCount.toString(),
             icon: Icons.apartment_rounded,
             color: AppColors.primary,
-            footer: '${metrics.activeDepartmentsCount} active now',
+            footer: '${metrics.activeDepartmentsCount} ${context.l10n.byValue('active now')}',
           ),
         ),
         SizedBox(
@@ -43,7 +44,7 @@ class DepartmentsSummaryStrip extends StatelessWidget {
             value: formatCompactNumber(metrics.staffCount),
             icon: Icons.groups_rounded,
             color: AppColors.secondary,
-            footer: '${metrics.activeCoursesCount} active course offerings',
+            footer: '${metrics.activeCoursesCount} ${context.l10n.byValue('active course offerings')}',
           ),
         ),
         SizedBox(

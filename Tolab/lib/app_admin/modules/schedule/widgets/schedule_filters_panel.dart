@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 
 import '../../../core/colors/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
@@ -26,7 +27,7 @@ class ScheduleFiltersPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isNarrow = MediaQuery.sizeOf(context).width < 860;
-    final activeFilters = _activeFilterLabels(filters, lookups);
+    final activeFilters = _activeFilterLabels(context, filters, lookups);
     final dropdowns = <Widget>[
       _FilterDropdown(
         label: 'Department',
@@ -103,12 +104,12 @@ class ScheduleFiltersPanel extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Academic scope filters',
+                            context.l10n.byValue('Academic scope filters'),
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Refine the timetable by department, year, subject, instructor, section, event category, and delivery status.',
+                            context.l10n.byValue('Refine the timetable by department, year, subject, instructor, section, event category, and delivery status.'),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
@@ -118,7 +119,7 @@ class ScheduleFiltersPanel extends StatelessWidget {
                 ),
               ),
               PremiumButton(
-                label: 'Reset',
+                label: context.l10n.byValue('Reset'),
                 icon: Icons.restart_alt_rounded,
                 isSecondary: true,
                 onPressed: onReset,
@@ -131,26 +132,26 @@ class ScheduleFiltersPanel extends StatelessWidget {
             runSpacing: AppSpacing.sm,
             children: [
               _QuickCountChip(
-                label: '${lookups.departments.length} departments',
+                label: '${lookups.departments.length} ${context.l10n.byValue('departments')}',
                 accent: AppColors.primary,
               ),
               _QuickCountChip(
-                label: '${lookups.subjects.length} subjects',
+                label: '${lookups.subjects.length} ${context.l10n.byValue('subjects')}',
                 accent: AppColors.info,
               ),
               _QuickCountChip(
-                label: '${lookups.sections.length} sections',
+                label: '${lookups.sections.length} ${context.l10n.byValue('sections')}',
                 accent: AppColors.secondary,
               ),
               _QuickCountChip(
-                label: '${lookups.instructors.length} instructors',
+                label: '${lookups.instructors.length} ${context.l10n.byValue('instructors')}',
                 accent: AppColors.warning,
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
           Text(
-            'Current academic scope',
+            context.l10n.byValue('Current academic scope'),
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -164,7 +165,7 @@ class ScheduleFiltersPanel extends StatelessWidget {
                 border: Border.all(color: Theme.of(context).dividerColor),
               ),
               child: Text(
-                'All departments, years, subjects, instructors, and sections are currently visible.',
+                context.l10n.byValue('All departments, years, subjects, instructors, and sections are currently visible.'),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             )
@@ -178,7 +179,7 @@ class ScheduleFiltersPanel extends StatelessWidget {
             ),
           const SizedBox(height: AppSpacing.lg),
           Text(
-            'Academic hierarchy',
+            context.l10n.byValue('Academic hierarchy'),
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -201,7 +202,7 @@ class ScheduleFiltersPanel extends StatelessWidget {
             ),
           const SizedBox(height: AppSpacing.lg),
           Text(
-            'Event categories',
+            context.l10n.byValue('Event categories'),
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -213,7 +214,7 @@ class ScheduleFiltersPanel extends StatelessWidget {
                   final selected = filters.eventTypes.contains(type);
                   return FilterChip(
                     selected: selected,
-                    label: Text(type.label),
+                    label: Text(context.l10n.byValue(type.label)),
                     avatar: Icon(type.icon, size: 16, color: type.color),
                     onSelected: (_) {
                       final next = <ScheduleEventType>{...filters.eventTypes};
@@ -230,7 +231,7 @@ class ScheduleFiltersPanel extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           Text(
-            'Delivery status and conflict review',
+            context.l10n.byValue('Delivery status and conflict review'),
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -239,8 +240,8 @@ class ScheduleFiltersPanel extends StatelessWidget {
             runSpacing: AppSpacing.md,
             children: [
               _ToggleTile(
-                title: 'Planned',
-                subtitle: 'Future and active items',
+                title: context.l10n.byValue('Planned'),
+                subtitle: context.l10n.byValue('Future and active items'),
                 icon: Icons.pending_actions_rounded,
                 value: filters.showPlanned,
                 accent: AppColors.primary,
@@ -248,8 +249,8 @@ class ScheduleFiltersPanel extends StatelessWidget {
                     onChanged(filters.copyWith(showPlanned: value)),
               ),
               _ToggleTile(
-                title: 'Completed',
-                subtitle: 'Finished sessions',
+                title: context.l10n.byValue('Completed'),
+                subtitle: context.l10n.byValue('Finished sessions'),
                 icon: Icons.task_alt_rounded,
                 value: filters.showCompleted,
                 accent: AppColors.secondary,
@@ -257,8 +258,8 @@ class ScheduleFiltersPanel extends StatelessWidget {
                     onChanged(filters.copyWith(showCompleted: value)),
               ),
               _ToggleTile(
-                title: 'Conflicts only',
-                subtitle: 'Show clashes first',
+                title: context.l10n.byValue('Conflicts only'),
+                subtitle: context.l10n.byValue('Show clashes first'),
                 icon: Icons.warning_amber_rounded,
                 value: filters.conflictsOnly,
                 accent: AppColors.danger,
@@ -289,7 +290,7 @@ class _FilterDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppDropdownField<String>(
-      label: label,
+      label: context.l10n.byValue(label),
       value: value,
       onChanged: onChanged,
       items: items
@@ -297,8 +298,8 @@ class _FilterDropdown extends StatelessWidget {
             (item) => AppDropdownItem<String>(
               value: item.id,
               label: item.subtitle == null
-                  ? item.label
-                  : '${item.label} • ${item.subtitle}',
+                  ? context.l10n.byValue(item.label)
+                  : '${context.l10n.byValue(item.label)} • ${context.l10n.byValue(item.subtitle!)}',
             ),
           )
           .toList(growable: false),
@@ -353,9 +354,9 @@ class _ToggleTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: Theme.of(context).textTheme.titleSmall),
+                Text(context.l10n.byValue(title), style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(height: 4),
-                Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+                Text(context.l10n.byValue(subtitle), style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
           ),
@@ -384,7 +385,7 @@ class _QuickCountChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppConstants.pillRadius),
       ),
       child: Text(
-        label,
+        context.l10n.byValue(label),
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
           color: accent,
           fontWeight: FontWeight.w700,
@@ -411,47 +412,52 @@ class _ActiveFilterChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppConstants.pillRadius),
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
-      child: Text(label, style: Theme.of(context).textTheme.labelMedium),
+      child: Text(context.l10n.byValue(label), style: Theme.of(context).textTheme.labelMedium),
     );
   }
 }
 
 List<String> _activeFilterLabels(
+  BuildContext context,
   ScheduleFilters filters,
   ScheduleLookupBundle lookups,
 ) {
+  final l10n = context.l10n;
   final labels = <String>[];
   _addLookupLabel(
+    l10n,
     labels,
     'Department',
     filters.departmentId,
     lookups.departments,
   );
-  _addLookupLabel(labels, 'Year', filters.yearId, lookups.years);
-  _addLookupLabel(labels, 'Subject', filters.subjectId, lookups.subjects);
+  _addLookupLabel(l10n, labels, 'Year', filters.yearId, lookups.years);
+  _addLookupLabel(l10n, labels, 'Subject', filters.subjectId, lookups.subjects);
   _addLookupLabel(
+    l10n,
     labels,
     'Instructor',
     filters.instructorId,
     lookups.instructors,
   );
-  _addLookupLabel(labels, 'Section', filters.sectionId, lookups.sections);
+  _addLookupLabel(l10n, labels, 'Section', filters.sectionId, lookups.sections);
   if (filters.conflictsOnly) {
-    labels.add('Conflicts only');
+    labels.add(l10n.byValue('Conflicts only'));
   }
   if (!filters.showPlanned) {
-    labels.add('Completed only');
+    labels.add(l10n.byValue('Completed only'));
   }
   if (!filters.showCompleted) {
-    labels.add('Planned only');
+    labels.add(l10n.byValue('Planned only'));
   }
   if (filters.eventTypes.length != ScheduleEventType.values.length) {
-    labels.add(filters.eventTypes.map((type) => type.label).join(' / '));
+    labels.add(filters.eventTypes.map((type) => l10n.byValue(type.label)).join(' / '));
   }
   return labels;
 }
 
 void _addLookupLabel(
+  AppLocalizations l10n,
   List<String> labels,
   String prefix,
   String? value,
@@ -465,5 +471,5 @@ void _addLookupLabel(
       break;
     }
   }
-  labels.add('$prefix: ${match?.label ?? value}');
+  labels.add('${l10n.byValue(prefix)}: ${l10n.byValue(match?.label ?? value)}');
 }

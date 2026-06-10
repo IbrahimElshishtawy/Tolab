@@ -55,6 +55,7 @@ import '../../app_doctor_assistant/modules/announcements/presentation/announceme
 import '../../app_doctor_assistant/modules/analytics/presentation/analytics_screen.dart';
 import '../../features/admin/presentation/admin_shell.dart';
 import '../../features/doctor_assistant/presentation/doctor_assistant_scope.dart';
+import '../../features/student/presentation/pages/student_dashboard_screen.dart';
 import '../auth/presentation/forgot_password_screen.dart';
 import '../auth/presentation/inactive_account_screen.dart';
 import '../auth/presentation/launch_screen.dart';
@@ -99,6 +100,13 @@ class UnifiedAppRouter {
       GoRoute(
         path: UnifiedAppRoutes.unauthorized,
         builder: (context, state) => const UnauthorizedScreen(),
+      ),
+      GoRoute(
+        path: UnifiedAppRoutes.studentDashboard,
+        pageBuilder: (context, state) => _noTransition(
+          state,
+          const StudentDashboardScreen(),
+        ),
       ),
       ShellRoute(
         builder: (context, state, child) =>

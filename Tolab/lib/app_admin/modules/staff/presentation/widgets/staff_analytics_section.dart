@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/animations/app_motion.dart';
 import '../../../../core/colors/app_colors.dart';
 import '../../../../core/spacing/app_spacing.dart';
@@ -75,9 +76,9 @@ class StaffAnalyticsSection extends StatelessWidget {
               child: _AnimatedAnalyticsCard(
                 index: 2,
                 child: _AttendanceCard(
-                  title: 'Doctors attendance analytics',
-                  subtitle:
-                      'Monitor presence reliability, status distribution, and recent trend for doctors.',
+                  title: context.l10n.byValue('Doctors attendance analytics'),
+                  subtitle: context.l10n.byValue(
+                      'Monitor presence reliability, status distribution, and recent trend for doctors.'),
                   records: doctors,
                   mode: doctorAttendanceMode,
                   onModeChanged: onDoctorAttendanceModeChanged,
@@ -89,9 +90,9 @@ class StaffAnalyticsSection extends StatelessWidget {
               child: _AnimatedAnalyticsCard(
                 index: 3,
                 child: _EngagementCard(
-                  title: 'Doctors subject interaction',
-                  subtitle:
-                      'Track lectures, tasks, posts, and academic activity produced by doctors.',
+                  title: context.l10n.byValue('Doctors subject interaction'),
+                  subtitle: context.l10n.byValue(
+                      'Track lectures, tasks, posts, and academic activity produced by doctors.'),
                   records: doctors,
                   mode: doctorEngagementMode,
                   onModeChanged: onDoctorEngagementModeChanged,
@@ -104,9 +105,9 @@ class StaffAnalyticsSection extends StatelessWidget {
               child: _AnimatedAnalyticsCard(
                 index: 4,
                 child: _AttendanceCard(
-                  title: 'Assistants attendance analytics',
-                  subtitle:
-                      'Keep assistant attendance visible with health bands and a rolling weekly pulse.',
+                  title: context.l10n.byValue('Assistants attendance analytics'),
+                  subtitle: context.l10n.byValue(
+                      'Keep assistant attendance visible with health bands and a rolling weekly pulse.'),
                   records: assistants,
                   mode: assistantAttendanceMode,
                   onModeChanged: onAssistantAttendanceModeChanged,
@@ -118,9 +119,9 @@ class StaffAnalyticsSection extends StatelessWidget {
               child: _AnimatedAnalyticsCard(
                 index: 5,
                 child: _EngagementCard(
-                  title: 'Assistants subject interaction',
-                  subtitle:
-                      'Measure section support, uploads, academic follow-up, and classroom engagement.',
+                  title: context.l10n.byValue('Assistants subject interaction'),
+                  subtitle: context.l10n.byValue(
+                      'Measure section support, uploads, academic follow-up, and classroom engagement.'),
                   records: assistants,
                   mode: assistantEngagementMode,
                   onModeChanged: onAssistantEngagementModeChanged,
@@ -135,9 +136,9 @@ class StaffAnalyticsSection extends StatelessWidget {
   }
 
   double _cardWidth(double availableWidth, double minWidth) {
-    if (availableWidth >= 1500) return (availableWidth - (AppSpacing.md * 2)) / 3;
-    if (availableWidth >= 980) return (availableWidth - AppSpacing.md) / 2;
-    return availableWidth > minWidth ? availableWidth : minWidth;
+    if (availableWidth >= 1200) return (availableWidth - (AppSpacing.md * 2)) / 3;
+    if (availableWidth >= 480) return (availableWidth - AppSpacing.md) / 2;
+    return availableWidth;
   }
 }
 
@@ -151,15 +152,19 @@ class _DoctorBreakdownCard extends StatelessWidget {
     final internal = doctors.where((item) => item.isInternalDoctor).length;
     final delegated = doctors.length - internal;
     final active = doctors.where((item) => item.status == 'Active').length;
+    final isAr = context.l10n.locale.languageCode == 'ar';
+    final footerText = isAr
+        ? '$active حسابات أطباء نشطة ويتم مراقبتها داخل مركز التحكم.'
+        : '$active doctor accounts are active and monitored inside the university control center.';
+
     return StaffSectionCard(
-      title: 'Doctor accounts created',
-      subtitle:
-          'Separate internal faculty accounts from delegated teaching doctors with clear totals.',
+      title: context.l10n.byValue('Doctor accounts created'),
+      subtitle: context.l10n.byValue(
+          'Separate internal faculty accounts from delegated teaching doctors with clear totals.'),
       accent: StaffManagementPalette.doctor,
       footer: _AnalyticsFooter(
         accent: StaffManagementPalette.doctor,
-        text:
-            '$active doctor accounts are active and monitored inside the university control center.',
+        text: footerText,
       ),
       child: Column(
         children: [
@@ -168,29 +173,29 @@ class _DoctorBreakdownCard extends StatelessWidget {
             child: StaffDonutChart(
               slices: [
                 StaffChartSlice(
-                  label: 'Internal faculty',
+                  label: context.l10n.byValue('Internal faculty'),
                   value: internal.toDouble(),
                   color: StaffManagementPalette.internal,
                 ),
                 StaffChartSlice(
-                  label: 'Delegated / external',
+                  label: context.l10n.byValue('Delegated / external'),
                   value: delegated.toDouble(),
                   color: StaffManagementPalette.delegated,
                 ),
               ],
               centerTitle: doctors.length.toString(),
-              centerSubtitle: 'Total doctors',
+              centerSubtitle: context.l10n.byValue('Total doctors'),
             ),
           ),
           const SizedBox(height: AppSpacing.md),
           Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
-            children: const [
-              StaffStatusBadge('Internal faculty doctor'),
-              StaffStatusBadge('Delegated / external doctor'),
+            children: [
+              StaffStatusBadge(context.l10n.byValue('Internal faculty doctor')),
+              StaffStatusBadge(context.l10n.byValue('Delegated / external doctor')),
               StaffStatusBadge(
-                'Active',
+                context.l10n.byValue('Active'),
                 icon: Icons.check_circle_outline_rounded,
               ),
             ],
@@ -222,10 +227,15 @@ class _AssistantsCard extends StatelessWidget {
         ? assistants
         : assistants.where((item) => item.department == departmentFilter).toList();
 
+    final isAr = context.l10n.locale.languageCode == 'ar';
+    final footerText = isAr
+        ? '${assistants.where((item) => item.status == 'Active').length} معيداً نشطاً حالياً في العملية الأكاديمية.'
+        : '${assistants.where((item) => item.status == 'Active').length} assistants are currently active in live academic delivery.';
+
     return StaffSectionCard(
-      title: 'Teaching assistants accounts',
-      subtitle:
-          'Review assistant coverage across departments and keep staffing load balanced.',
+      title: context.l10n.byValue('Teaching assistants accounts'),
+      subtitle: context.l10n.byValue(
+          'Review assistant coverage across departments and keep staffing load balanced.'),
       accent: StaffManagementPalette.assistant,
       trailing: _CompactDropdown(
         value: departmentFilter,
@@ -234,8 +244,7 @@ class _AssistantsCard extends StatelessWidget {
       ),
       footer: _AnalyticsFooter(
         accent: StaffManagementPalette.assistant,
-        text:
-            '${assistants.where((item) => item.status == 'Active').length} assistants are currently active in live academic delivery.',
+        text: footerText,
       ),
       child: SizedBox(
         height: 190,
@@ -247,7 +256,7 @@ class _AssistantsCard extends StatelessWidget {
             : StaffDonutChart(
                 slices: [
                   StaffChartSlice(
-                    label: 'Active',
+                    label: context.l10n.byValue('Active'),
                     value: filtered
                         .where((item) => item.status == 'Active')
                         .length
@@ -255,7 +264,7 @@ class _AssistantsCard extends StatelessWidget {
                     color: StaffManagementPalette.attendance,
                   ),
                   StaffChartSlice(
-                    label: 'Inactive',
+                    label: context.l10n.byValue('Inactive'),
                     value: filtered
                         .where((item) => item.status != 'Active')
                         .length
@@ -264,7 +273,7 @@ class _AssistantsCard extends StatelessWidget {
                   ),
                 ],
                 centerTitle: filtered.length.toString(),
-                centerSubtitle: 'Assistants',
+                centerSubtitle: context.l10n.byValue('Assistants'),
               ),
       ),
     );
@@ -314,19 +323,23 @@ class _AttendanceCard extends StatelessWidget {
         ? 0
         : records.fold<double>(0, (sum, item) => sum + item.attendanceRate) /
               records.length;
+    final isAr = context.l10n.locale.languageCode == 'ar';
+    final footerText = isAr
+        ? '${records.where((item) => item.attendanceRate < 75).length} ملفات شخصية تحت خط الحضور المقبول.'
+        : '${records.where((item) => item.attendanceRate < 75).length} profiles are below the attendance comfort line.';
+
     return StaffSectionCard(
-      title: title,
-      subtitle: subtitle,
+      title: context.l10n.byValue(title),
+      subtitle: context.l10n.byValue(subtitle),
       accent: StaffManagementPalette.attendance,
       trailing: StaffSegmentedControl(
-        options: const ['Bands', 'Trend'],
+        options: [context.l10n.byValue('Bands'), context.l10n.byValue('Trend')],
         value: mode,
         onChanged: onModeChanged,
       ),
       footer: _AnalyticsFooter(
         accent: StaffManagementPalette.attendance,
-        text:
-            '${records.where((item) => item.attendanceRate < 75).length} profiles are below the attendance comfort line.',
+        text: footerText,
       ),
       child: AnimatedSwitcher(
         duration: AppMotion.medium,
@@ -337,7 +350,7 @@ class _AttendanceCard extends StatelessWidget {
               ? StaffDonutChart(
                   slices: [
                     StaffChartSlice(
-                      label: 'Excellent',
+                      label: context.l10n.byValue('Excellent'),
                       value: records
                           .where((item) => item.attendanceRate >= 90)
                           .length
@@ -345,7 +358,7 @@ class _AttendanceCard extends StatelessWidget {
                       color: StaffManagementPalette.attendance,
                     ),
                     StaffChartSlice(
-                      label: 'Stable',
+                      label: context.l10n.byValue('Stable'),
                       value: records
                           .where(
                             (item) =>
@@ -357,7 +370,7 @@ class _AttendanceCard extends StatelessWidget {
                       color: StaffManagementPalette.internal,
                     ),
                     StaffChartSlice(
-                      label: 'Watch',
+                      label: context.l10n.byValue('Watch'),
                       value: records
                           .where(
                             (item) =>
@@ -369,7 +382,7 @@ class _AttendanceCard extends StatelessWidget {
                       color: StaffManagementPalette.delegated,
                     ),
                     StaffChartSlice(
-                      label: 'Critical',
+                      label: context.l10n.byValue('Critical'),
                       value: records
                           .where((item) => item.attendanceRate < 70)
                           .length
@@ -378,7 +391,7 @@ class _AttendanceCard extends StatelessWidget {
                     ),
                   ],
                   centerTitle: '${average.round()}%',
-                  centerSubtitle: 'Avg attendance',
+                  centerSubtitle: context.l10n.byValue('Avg attendance'),
                 )
               : StaffTrendChart(
                   points: _averageTrend(records, attendance: true),
@@ -409,19 +422,23 @@ class _EngagementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isAr = context.l10n.locale.languageCode == 'ar';
+    final footerText = isAr
+        ? '${records.where((item) => item.engagementRate >= 80).length} ملفات تعمل بنشاط أكاديمي قوي.'
+        : '${records.where((item) => item.engagementRate >= 80).length} profiles are operating with strong academic activity.';
+
     return StaffSectionCard(
-      title: title,
-      subtitle: subtitle,
+      title: context.l10n.byValue(title),
+      subtitle: context.l10n.byValue(subtitle),
       accent: accent,
       trailing: StaffSegmentedControl(
-        options: const ['Levels', 'Output'],
+        options: [context.l10n.byValue('Levels'), context.l10n.byValue('Output')],
         value: mode,
         onChanged: onModeChanged,
       ),
       footer: _AnalyticsFooter(
         accent: accent,
-        text:
-            '${records.where((item) => item.engagementRate >= 80).length} profiles are operating with strong academic activity.',
+        text: footerText,
       ),
       child: AnimatedSwitcher(
         duration: AppMotion.medium,
@@ -436,22 +453,22 @@ class _EngagementCard extends StatelessWidget {
               : StaffBarChart(
                   slices: [
                     StaffChartSlice(
-                      label: 'Lectures',
+                      label: context.l10n.byValue('Lectures'),
                       value: _averageCount(records, (item) => item.lecturesUploaded),
                       color: accent,
                     ),
                     StaffChartSlice(
-                      label: 'Tasks',
+                      label: context.l10n.byValue('Tasks'),
                       value: _averageCount(records, (item) => item.tasksCreated),
                       color: StaffManagementPalette.delegated,
                     ),
                     StaffChartSlice(
-                      label: 'Posts',
+                      label: context.l10n.byValue('Posts'),
                       value: _averageCount(records, (item) => item.postsCreated),
                       color: AppColors.info,
                     ),
                     StaffChartSlice(
-                      label: 'Uploads',
+                      label: context.l10n.byValue('Uploads'),
                       value: _averageCount(records, (item) => item.uploadsCount),
                       color: StaffManagementPalette.internal,
                     ),
@@ -560,7 +577,7 @@ class _CompactDropdown extends StatelessWidget {
               DropdownMenuItem<String>(
                 value: item,
                 child: Text(
-                  item,
+                  context.l10n.byValue(item),
                   style: Theme.of(context).textTheme.labelMedium,
                 ),
               ),

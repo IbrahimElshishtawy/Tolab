@@ -3,6 +3,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../core/colors/app_colors.dart';
 import '../models/student_management_models.dart';
 
@@ -47,7 +48,7 @@ class StudentLineTrendChart extends StatelessWidget {
                 }
                 return Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child: Text(points[index].label),
+                  child: Text(context.l10n.byValue(points[index].label)),
                 );
               },
             ),
@@ -139,7 +140,7 @@ class StudentDepartmentBarChart extends StatelessWidget {
                 }
                 return Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child: Text(entries[index].key.split(' ').first),
+                  child: Text(context.l10n.byValue(entries[index].key.split(' ').first)),
                 );
               },
             ),
@@ -218,7 +219,7 @@ class StudentDonutChart extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('$total', style: Theme.of(context).textTheme.headlineSmall),
-            Text('students', style: Theme.of(context).textTheme.bodySmall),
+            Text(context.l10n.byValue('students'), style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
       ],

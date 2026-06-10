@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../app/localization/app_localizations.dart';
 import '../theme/app_shadows.dart';
 import '../theme/app_spacing.dart';
 import '../theme/dashboard_theme_tokens.dart';
@@ -45,7 +46,7 @@ class DashboardSectionCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        title,
+                        context.l10n.byValue(title),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: tokens.textPrimary,
                         ),
@@ -53,7 +54,7 @@ class DashboardSectionCard extends StatelessWidget {
                       if (subtitle != null && subtitle!.isNotEmpty) ...[
                         const SizedBox(height: DashboardAppSpacing.xs),
                         Text(
-                          subtitle!,
+                          context.l10n.byValue(subtitle!),
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(color: tokens.textSecondary),
                         ),
@@ -65,7 +66,10 @@ class DashboardSectionCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: DashboardAppSpacing.md),
-            child,
+            Material(
+              color: Colors.transparent,
+              child: child,
+            ),
           ],
         ),
       ),
@@ -98,7 +102,7 @@ class DashboardToneBadge extends StatelessWidget {
         border: Border.all(color: color.withValues(alpha: .18)),
       ),
       child: Text(
-        label,
+        context.l10n.byValue(label),
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
           color: color,
           fontWeight: FontWeight.w700,
@@ -125,7 +129,7 @@ class DashboardSectionEmpty extends StatelessWidget {
         border: Border.all(color: tokens.border),
       ),
       child: Text(
-        message,
+        context.l10n.byValue(message),
         style: Theme.of(
           context,
         ).textTheme.bodyMedium?.copyWith(color: tokens.textSecondary),
@@ -187,7 +191,7 @@ class DashboardMiniMetricCard extends StatelessWidget {
           ),
           const SizedBox(height: DashboardAppSpacing.xs),
           Text(
-            label,
+            context.l10n.byValue(label),
             style: Theme.of(
               context,
             ).textTheme.labelLarge?.copyWith(color: color),
@@ -195,7 +199,7 @@ class DashboardMiniMetricCard extends StatelessWidget {
           if (caption != null && caption!.isNotEmpty) ...[
             const SizedBox(height: DashboardAppSpacing.xs),
             Text(
-              caption!,
+              context.l10n.byValue(caption!),
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: tokens.textSecondary),
@@ -227,7 +231,7 @@ class DashboardInlineAction extends StatelessWidget {
         padding: EdgeInsets.zero,
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
-      child: Text(label),
+      child: Text(context.l10n.byValue(label)),
     );
   }
 }

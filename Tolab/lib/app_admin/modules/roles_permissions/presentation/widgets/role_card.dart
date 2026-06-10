@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 
 import '../../../../core/animations/app_motion.dart';
 import '../../../../core/colors/app_colors.dart';
@@ -92,24 +93,24 @@ class _RoleCardState extends State<RoleCard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.role.name,
+                          context.l10n.byValue(widget.role.name),
                           style: theme.textTheme.titleMedium,
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          widget.role.slug,
+                          context.l10n.byValue(widget.role.slug),
                           style: theme.textTheme.bodySmall,
                         ),
                       ],
                     ),
                   ),
                   if (widget.role.isSystem)
-                    const StatusBadge('System', icon: Icons.lock_rounded),
+                    StatusBadge(context.l10n.byValue('System'), icon: Icons.lock_rounded),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
               Text(
-                widget.role.description,
+                context.l10n.byValue(widget.role.description),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodyMedium,
@@ -121,11 +122,11 @@ class _RoleCardState extends State<RoleCard> {
                 children: [
                   _MetricPill(
                     icon: Icons.people_alt_rounded,
-                    label: widget.role.membersLabel,
+                    label: context.l10n.byValue(widget.role.membersLabel),
                   ),
                   _MetricPill(
                     icon: Icons.grid_view_rounded,
-                    label: '${widget.permissionCount} permissions',
+                    label: '${widget.permissionCount} ${context.l10n.byValue(widget.permissionCount == 1 ? 'permission' : 'permissions')}',
                   ),
                 ],
               ),
@@ -170,7 +171,7 @@ class _MetricPill extends StatelessWidget {
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Icon(icon, size: 14, color: AppColors.primary),
-          Text(label, style: Theme.of(context).textTheme.labelMedium),
+          Text(context.l10n.byValue(label), style: Theme.of(context).textTheme.labelMedium),
         ],
       ),
     );

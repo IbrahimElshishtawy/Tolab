@@ -2,6 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
+
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -59,10 +61,10 @@ class DepartmentStatTile extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           Text(value, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: AppSpacing.xs),
-          Text(label, style: Theme.of(context).textTheme.bodySmall),
+          Text(context.l10n.byValue(label), style: Theme.of(context).textTheme.bodySmall),
           if (footer != null) ...[
             const SizedBox(height: AppSpacing.md),
-            Text(footer!, style: Theme.of(context).textTheme.labelMedium),
+            Text(context.l10n.byValue(footer!), style: Theme.of(context).textTheme.labelMedium),
           ],
         ],
       ),
@@ -143,9 +145,9 @@ class DepartmentPanelHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: Theme.of(context).textTheme.titleMedium),
+              Text(context.l10n.byValue(title), style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: AppSpacing.xs),
-              Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+              Text(context.l10n.byValue(subtitle), style: Theme.of(context).textTheme.bodySmall),
             ],
           ),
         ),
@@ -255,7 +257,7 @@ class DepartmentChip extends StatelessWidget {
           ),
         ),
         child: Text(
-          label,
+          context.l10n.byValue(label),
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
             color: selected ? Colors.white : null,
           ),

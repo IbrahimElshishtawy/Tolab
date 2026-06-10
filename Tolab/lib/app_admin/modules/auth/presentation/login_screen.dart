@@ -224,21 +224,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColors.strokeLight),
                 ),
-                child: CheckboxListTile(
-                  value: _rememberSession,
-                  onChanged: isLoading
-                      ? null
-                      : (value) {
-                          setState(() => _rememberSession = value ?? true);
-                        },
-                  title: const Text('Keep this secure session remembered'),
-                  subtitle: const Text(
-                    'Recommended for your local admin workspace.',
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: CheckboxListTile(
+                    value: _rememberSession,
+                    onChanged: isLoading
+                        ? null
+                        : (value) {
+                            setState(() => _rememberSession = value ?? true);
+                          },
+                    title: const Text('Keep this secure session remembered'),
+                    subtitle: const Text(
+                      'Recommended for your local admin workspace.',
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                    ),
+                    controlAffinity: ListTileControlAffinity.leading,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                  ),
-                  controlAffinity: ListTileControlAffinity.leading,
                 ),
               ),
               if (authState.errorMessage != null) ...[

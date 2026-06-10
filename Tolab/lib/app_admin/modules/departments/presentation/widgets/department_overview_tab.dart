@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/colors/app_colors.dart';
 import '../../../../core/responsive/app_breakpoints.dart';
 import '../../../../core/spacing/app_spacing.dart';
@@ -29,7 +30,7 @@ class DepartmentOverviewTab extends StatelessWidget {
                 value: formatCompactNumber(department.studentsCount),
                 icon: Icons.school_rounded,
                 color: AppColors.primary,
-                footer: '${department.sectionsCount} sections active',
+                footer: '${department.sectionsCount} ${context.l10n.byValue('sections active')}',
               ),
             ),
             SizedBox(
@@ -39,7 +40,7 @@ class DepartmentOverviewTab extends StatelessWidget {
                 value: formatCompactNumber(department.staffCount),
                 icon: Icons.groups_rounded,
                 color: AppColors.secondary,
-                footer: '${department.activeCoursesCount} live courses',
+                footer: '${department.activeCoursesCount} ${context.l10n.byValue('live courses')}',
               ),
             ),
             SizedBox(
@@ -49,7 +50,7 @@ class DepartmentOverviewTab extends StatelessWidget {
                 value: formatCompactNumber(department.subjectsCount),
                 icon: Icons.auto_stories_rounded,
                 color: AppColors.info,
-                footer: '${department.years.length} academic years',
+                footer: '${department.years.length} ${context.l10n.byValue('academic years')}',
               ),
             ),
             SizedBox(
@@ -60,7 +61,7 @@ class DepartmentOverviewTab extends StatelessWidget {
                 icon: Icons.trending_up_rounded,
                 color: AppColors.warning,
                 footer:
-                    'Updated ${department.updatedAt.day}/${department.updatedAt.month}',
+                    '${context.l10n.byValue('Updated')} ${department.updatedAt.day}/${department.updatedAt.month}',
               ),
             ),
           ],
@@ -72,16 +73,16 @@ class DepartmentOverviewTab extends StatelessWidget {
             children: [
               Expanded(
                 child: DepartmentBarChartCard(
-                  title: 'Students distribution',
-                  subtitle: 'Headcount split across academic years.',
+                  title: context.l10n.byValue('Students distribution'),
+                  subtitle: context.l10n.byValue('Headcount split across academic years.'),
                   points: department.studentDistribution,
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: DepartmentBarChartCard(
-                  title: 'Subject load',
-                  subtitle: 'Current pressure index by cluster.',
+                  title: context.l10n.byValue('Subject load'),
+                  subtitle: context.l10n.byValue('Current pressure index by cluster.'),
                   points: department.subjectLoad,
                   color: AppColors.warning,
                 ),
@@ -90,14 +91,14 @@ class DepartmentOverviewTab extends StatelessWidget {
           )
         else ...[
           DepartmentBarChartCard(
-            title: 'Students distribution',
-            subtitle: 'Headcount split across academic years.',
+            title: context.l10n.byValue('Students distribution'),
+            subtitle: context.l10n.byValue('Headcount split across academic years.'),
             points: department.studentDistribution,
           ),
           const SizedBox(height: AppSpacing.md),
           DepartmentBarChartCard(
-            title: 'Subject load',
-            subtitle: 'Current pressure index by cluster.',
+            title: context.l10n.byValue('Subject load'),
+            subtitle: context.l10n.byValue('Current pressure index by cluster.'),
             points: department.subjectLoad,
             color: AppColors.warning,
           ),
@@ -109,17 +110,17 @@ class DepartmentOverviewTab extends StatelessWidget {
             children: [
               Expanded(
                 child: DepartmentLineChartCard(
-                  title: 'Performance trend',
+                  title: context.l10n.byValue('Performance trend'),
                   subtitle:
-                      'Department success trend through the current cycle.',
+                      context.l10n.byValue('Department success trend through the current cycle.'),
                   points: department.successTrend,
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: DepartmentDonutChartCard(
-                  title: 'Staff utilization',
-                  subtitle: 'Current teaching allocation by group.',
+                  title: context.l10n.byValue('Staff utilization'),
+                  subtitle: context.l10n.byValue('Current teaching allocation by group.'),
                   points: department.staffUtilization,
                 ),
               ),
@@ -127,14 +128,14 @@ class DepartmentOverviewTab extends StatelessWidget {
           )
         else ...[
           DepartmentLineChartCard(
-            title: 'Performance trend',
-            subtitle: 'Department success trend through the current cycle.',
+            title: context.l10n.byValue('Performance trend'),
+            subtitle: context.l10n.byValue('Department success trend through the current cycle.'),
             points: department.successTrend,
           ),
           const SizedBox(height: AppSpacing.md),
           DepartmentDonutChartCard(
-            title: 'Staff utilization',
-            subtitle: 'Current teaching allocation by group.',
+            title: context.l10n.byValue('Staff utilization'),
+            subtitle: context.l10n.byValue('Current teaching allocation by group.'),
             points: department.staffUtilization,
           ),
         ],
@@ -144,10 +145,10 @@ class DepartmentOverviewTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const DepartmentPanelHeader(
-                title: 'Performance metrics',
+              DepartmentPanelHeader(
+                title: context.l10n.byValue('Performance metrics'),
                 subtitle:
-                    'High-signal KPIs for operational and academic review.',
+                    context.l10n.byValue('High-signal KPIs for operational and academic review.'),
               ),
               const SizedBox(height: AppSpacing.lg),
               Wrap(
@@ -166,17 +167,17 @@ class DepartmentOverviewTab extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              metric.label,
+                              context.l10n.byValue(metric.label),
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                             const SizedBox(height: AppSpacing.sm),
                             Text(
-                              metric.valueLabel,
+                              context.l10n.byValue(metric.valueLabel),
                               style: Theme.of(context).textTheme.headlineSmall,
                             ),
                             const SizedBox(height: AppSpacing.xs),
                             Text(
-                              metric.deltaLabel,
+                              context.l10n.byValue(metric.deltaLabel),
                               style: Theme.of(context).textTheme.labelMedium
                                   ?.copyWith(
                                     color: departmentToneColor(metric.tone),
@@ -240,9 +241,9 @@ class _YearsPlanCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const DepartmentPanelHeader(
-            title: 'Academic structure',
-            subtitle: 'Years, sections, and assigned subject plans.',
+          DepartmentPanelHeader(
+            title: context.l10n.byValue('Academic structure'),
+            subtitle: context.l10n.byValue('Years, sections, and assigned subject plans.'),
           ),
           const SizedBox(height: AppSpacing.lg),
           for (var index = 0; index < years.length; index++) ...[
@@ -261,19 +262,19 @@ class _YearsPlanCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          years[index].yearLabel,
+                          context.l10n.byValue(years[index].yearLabel),
                           style: Theme.of(context).textTheme.titleSmall,
                         ),
                       ),
                       Text(
-                        '${years[index].sectionsCount} sections',
+                        '${years[index].sectionsCount} ${context.l10n.byValue('sections')}',
                         style: Theme.of(context).textTheme.labelMedium,
                       ),
                     ],
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    '${formatCompactNumber(years[index].studentsCount)} students',
+                    '${formatCompactNumber(years[index].studentsCount)} ${context.l10n.byValue('students')}',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: AppSpacing.sm),
@@ -316,10 +317,10 @@ class _PermissionsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const DepartmentPanelHeader(
-            title: 'Role permissions',
+          DepartmentPanelHeader(
+            title: context.l10n.byValue('Role permissions'),
             subtitle:
-                'Granular department access available to the active role.',
+                context.l10n.byValue('Granular department access available to the active role.'),
           ),
           const SizedBox(height: AppSpacing.lg),
           for (var index = 0; index < permissions.length; index++) ...[
@@ -340,12 +341,12 @@ class _PermissionsCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        permissions[index].title,
+                        context.l10n.byValue(permissions[index].title),
                         style: Theme.of(context).textTheme.titleSmall,
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        permissions[index].description,
+                        context.l10n.byValue(permissions[index].description),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -377,9 +378,9 @@ class _ActivityCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const DepartmentPanelHeader(
-            title: 'Activity feed',
-            subtitle: 'Recent department-side operational movement.',
+          DepartmentPanelHeader(
+            title: context.l10n.byValue('Activity feed'),
+            subtitle: context.l10n.byValue('Recent department-side operational movement.'),
           ),
           const SizedBox(height: AppSpacing.lg),
           DepartmentActivityTimeline(
@@ -406,10 +407,10 @@ class _ScheduleCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const DepartmentPanelHeader(
-            title: 'Schedule preview',
+          DepartmentPanelHeader(
+            title: context.l10n.byValue('Schedule preview'),
             subtitle:
-                'Upcoming representative slots for the active department.',
+                context.l10n.byValue('Upcoming representative slots for the active department.'),
           ),
           const SizedBox(height: AppSpacing.lg),
           for (
@@ -426,12 +427,12 @@ class _ScheduleCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        department.schedulePreview[index].dayLabel,
+                        context.l10n.byValue(department.schedulePreview[index].dayLabel),
                         style: Theme.of(context).textTheme.titleSmall,
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        department.schedulePreview[index].slotLabel,
+                        context.l10n.byValue(department.schedulePreview[index].slotLabel),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -443,17 +444,17 @@ class _ScheduleCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        department.schedulePreview[index].title,
+                        context.l10n.byValue(department.schedulePreview[index].title),
                         style: Theme.of(context).textTheme.titleSmall,
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${department.schedulePreview[index].type} • ${department.schedulePreview[index].location}',
+                        '${context.l10n.byValue(department.schedulePreview[index].type)} • ${context.l10n.byValue(department.schedulePreview[index].location)}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        department.schedulePreview[index].staffName,
+                        context.l10n.byValue(department.schedulePreview[index].staffName),
                         style: Theme.of(context).textTheme.labelMedium,
                       ),
                     ],

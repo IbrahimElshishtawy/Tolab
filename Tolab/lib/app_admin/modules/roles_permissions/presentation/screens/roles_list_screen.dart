@@ -4,6 +4,7 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:intl/intl.dart';
 import 'package:redux/redux.dart';
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 
 import '../../../../core/animations/app_motion.dart';
 import '../../../../core/colors/app_colors.dart';
@@ -74,18 +75,18 @@ class _RolesListScreenState extends State<RolesListScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     PageHeader(
-                      title: 'Roles & Permissions',
-                      subtitle:
-                          'Manage university security with role CRUD, permission governance, membership assignment, and a responsive access matrix.',
-                      breadcrumbs: const ['Admin', 'Security', 'Roles'],
+                      title: context.l10n.byValue('Roles & Permissions'),
+                      subtitle: context.l10n.byValue(
+                          'Manage university security with role CRUD, permission governance, membership assignment, and a responsive access matrix.'),
+                      breadcrumbs: ['Admin', 'Security', 'Roles'].map((s) => context.l10n.byValue(s)).toList(),
                       actions: [
                         PremiumButton(
-                          label: 'New role',
+                          label: context.l10n.byValue('New role'),
                           icon: Icons.add_moderator_rounded,
                           onPressed: () => _openRoleDialog(context, vm),
                         ),
                         PremiumButton(
-                          label: 'New permission',
+                          label: context.l10n.byValue('New permission'),
                           icon: Icons.shield_moon_rounded,
                           isSecondary: true,
                           onPressed: () => _openPermissionDialog(context, vm),
@@ -96,8 +97,8 @@ class _RolesListScreenState extends State<RolesListScreen> {
                     _OverviewMetricsStrip(vm: vm),
                     const SizedBox(height: AppSpacing.md),
                     FilterBar(
-                      searchHint:
-                          'Search roles, permissions, users, or modules',
+                      searchHint: context.l10n.byValue(
+                          'Search roles, permissions, users, or modules'),
                       onSearchChanged: (value) => vm.updateFilters(
                         vm.filters.copyWith(searchQuery: value),
                       ),
@@ -127,7 +128,7 @@ class _RolesListScreenState extends State<RolesListScreen> {
                       trailing: [
                         FilterChip(
                           selected: vm.filters.showSystemRoles,
-                          label: const Text('System roles'),
+                          label: Text(context.l10n.byValue('System roles')),
                           onSelected: (value) => vm.updateFilters(
                             vm.filters.copyWith(showSystemRoles: value),
                           ),
@@ -157,7 +158,7 @@ class _RolesListScreenState extends State<RolesListScreen> {
                               const SizedBox(width: AppSpacing.sm),
                               Expanded(
                                 child: Text(
-                                  'Live security data is unavailable, so the module is working from cached or bundled fallback records.',
+                                  context.l10n.byValue('Live security data is unavailable, so the module is working from cached or bundled fallback records.'),
                                   style: Theme.of(context).textTheme.bodyMedium,
                                 ),
                               ),
@@ -175,9 +176,9 @@ class _RolesListScreenState extends State<RolesListScreen> {
                             vm.status == LoadStatus.success &&
                             vm.roles.isEmpty &&
                             vm.permissions.isEmpty,
-                        emptyTitle: 'No roles or permissions found',
-                        emptySubtitle:
-                            'Create a role or connect the Laravel API to begin managing access.',
+                        emptyTitle: context.l10n.byValue('No roles or permissions found'),
+                        emptySubtitle: context.l10n.byValue(
+                            'Create a role or connect the Laravel API to begin managing access.'),
                         child: AnimatedSwitcher(
                           duration: AppMotion.medium,
                           switchInCurve: AppMotion.entrance,
@@ -324,9 +325,9 @@ class _RolesListScreenState extends State<RolesListScreen> {
   ) async {
     final confirmed = await AppConfirmDialog.show(
       context,
-      title: 'Delete ${role.name}?',
-      message:
-          'This removes the role and its assignments. Existing users will lose that access immediately.',
+      title: '${context.l10n.byValue('Delete')} ${role.name}?',
+      message: context.l10n.byValue(
+          'This removes the role and its assignments. Existing users will lose that access immediately.'),
     );
     if (!confirmed) return;
     vm.deleteRole(role.id);
@@ -339,9 +340,9 @@ class _RolesListScreenState extends State<RolesListScreen> {
   ) async {
     final confirmed = await AppConfirmDialog.show(
       context,
-      title: 'Delete ${permission.name}?',
-      message:
-          'This permission will be removed from every role that currently grants it.',
+      title: '${context.l10n.byValue('Delete')} ${permission.name}?',
+      message: context.l10n.byValue(
+          'This permission will be removed from every role that currently grants it.'),
     );
     if (!confirmed) return;
     vm.deletePermission(permission.id);
@@ -497,19 +498,19 @@ class _RolesListPane extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Roles',
+                          context.l10n.byValue('Roles'),
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Compact role cards with member and coverage signals.',
+                          context.l10n.byValue('Compact role cards with member and coverage signals.'),
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         TextButton.icon(
                           onPressed: onCreateRole,
                           icon: const Icon(Icons.add_rounded, size: 18),
-                          label: const Text('Create'),
+                          label: Text(context.l10n.byValue('Create')),
                         ),
                       ],
                     )
@@ -520,12 +521,12 @@ class _RolesListPane extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Roles',
+                                context.l10n.byValue('Roles'),
                                 style: Theme.of(context).textTheme.titleLarge,
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Compact role cards with member and coverage signals.',
+                                context.l10n.byValue('Compact role cards with member and coverage signals.'),
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                             ],
@@ -534,7 +535,7 @@ class _RolesListPane extends StatelessWidget {
                         TextButton.icon(
                           onPressed: onCreateRole,
                           icon: const Icon(Icons.add_rounded, size: 18),
-                          label: const Text('Create'),
+                          label: Text(context.l10n.byValue('Create')),
                         ),
                       ],
                     );
@@ -546,7 +547,7 @@ class _RolesListPane extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
               child: Center(
                 child: Text(
-                  'No roles match the current filters.',
+                  context.l10n.byValue('No roles match the current filters.'),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
@@ -595,11 +596,18 @@ class _OverviewMetricsStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final metrics = vm.metrics;
+    final lastSynced = vm.lastSyncedAt == null
+        ? context.l10n.byValue('Pending')
+        : DateFormat(
+            'dd MMM, HH:mm',
+            context.l10n.locale.languageCode,
+          ).format(vm.lastSyncedAt!.toLocal());
+
     final items = [
       _SummaryMetric(
         title: 'Roles',
         value: '${metrics.totalRoles}',
-        caption: '${metrics.systemRoles} protected system roles',
+        caption: '${metrics.systemRoles} ${context.l10n.byValue('protected system roles')}',
         color: AppColors.primary,
         icon: Icons.admin_panel_settings_rounded,
       ),
@@ -607,7 +615,7 @@ class _OverviewMetricsStrip extends StatelessWidget {
         title: 'Permissions',
         value: '${metrics.totalPermissions}',
         caption:
-            '${metrics.averagePermissionsPerRole.toStringAsFixed(1)} average per role',
+            '${metrics.averagePermissionsPerRole.toStringAsFixed(1)} ${context.l10n.byValue('average per role')}',
         color: AppColors.info,
         icon: Icons.verified_user_rounded,
       ),
@@ -620,7 +628,7 @@ class _OverviewMetricsStrip extends StatelessWidget {
       ),
       _SummaryMetric(
         title: 'Last Sync',
-        value: vm.lastSyncedLabel,
+        value: lastSynced,
         caption: 'Latest dashboard refresh timestamp',
         color: AppColors.warning,
         icon: Icons.sync_rounded,
@@ -653,17 +661,17 @@ class _OverviewMetricsStrip extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   Text(
-                    item.title,
+                    context.l10n.byValue(item.title),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    item.value,
+                    context.l10n.byValue(item.value),
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    item.caption,
+                    context.l10n.byValue(item.caption),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
@@ -707,13 +715,13 @@ class _ModuleMenu extends StatelessWidget {
     return PopupMenuButton<String?>(
       onSelected: onSelected,
       itemBuilder: (context) => [
-        const PopupMenuItem<String?>(value: null, child: Text('All modules')),
+        PopupMenuItem<String?>(value: null, child: Text(context.l10n.byValue('All modules'))),
         for (final module in modules)
-          PopupMenuItem<String?>(value: module, child: Text(module)),
+          PopupMenuItem<String?>(value: module, child: Text(context.l10n.byValue(module))),
       ],
       child: _ToolbarChip(
         icon: Icons.category_rounded,
-        label: selectedModule ?? 'All modules',
+        label: context.l10n.byValue(selectedModule ?? 'All modules'),
       ),
     );
   }
@@ -733,10 +741,10 @@ class _SortMenu extends StatelessWidget {
         for (final option in RolesSortOption.values)
           PopupMenuItem<RolesSortOption>(
             value: option,
-            child: Text(option.label),
+            child: Text(context.l10n.byValue(option.label)),
           ),
       ],
-      child: _ToolbarChip(icon: Icons.sort_rounded, label: value.label),
+      child: _ToolbarChip(icon: Icons.sort_rounded, label: context.l10n.byValue(value.label)),
     );
   }
 }
@@ -764,7 +772,7 @@ class _ToolbarChip extends StatelessWidget {
         children: [
           Icon(icon, size: 16),
           const SizedBox(width: 6),
-          Text(label, style: Theme.of(context).textTheme.labelMedium),
+          Text(context.l10n.byValue(label), style: Theme.of(context).textTheme.labelMedium),
         ],
       ),
     );
@@ -782,16 +790,16 @@ class _ViewToggle extends StatelessWidget {
     return SegmentedButton<RolesDashboardView>(
       selected: <RolesDashboardView>{value},
       showSelectedIcon: false,
-      segments: const [
+      segments: [
         ButtonSegment<RolesDashboardView>(
           value: RolesDashboardView.roles,
-          icon: Icon(Icons.view_list_rounded),
-          label: Text('Roles'),
+          icon: const Icon(Icons.view_list_rounded),
+          label: Text(context.l10n.byValue('Roles')),
         ),
         ButtonSegment<RolesDashboardView>(
           value: RolesDashboardView.matrix,
-          icon: Icon(Icons.grid_on_rounded),
-          label: Text('Matrix'),
+          icon: const Icon(Icons.grid_on_rounded),
+          label: Text(context.l10n.byValue('Matrix')),
         ),
       ],
       onSelectionChanged: (selection) {
@@ -852,8 +860,8 @@ class _RoleFormDialogState extends State<_RoleFormDialog> {
   Widget build(BuildContext context) {
     final isEdit = widget.initialRole != null;
     return _DialogFrame(
-      title: isEdit ? 'Edit role' : 'Create role',
-      subtitle: 'Define the role profile, tone, and API-ready metadata.',
+      title: isEdit ? context.l10n.byValue('Edit role') : context.l10n.byValue('Create role'),
+      subtitle: context.l10n.byValue('Define the role profile, tone, and API-ready metadata.'),
       child: Form(
         key: _formKey,
         child: Column(
@@ -862,27 +870,27 @@ class _RoleFormDialogState extends State<_RoleFormDialog> {
           children: [
             AppTextField(
               controller: _nameController,
-              label: 'Role name',
-              hint: 'Registrar Lead',
-              validator: _requiredValidator,
+              label: context.l10n.byValue('Role name'),
+              hint: context.l10n.byValue('Registrar Lead'),
+              validator: (val) => val == null || val.trim().isEmpty ? context.l10n.byValue('This field is required.') : null,
             ),
             const SizedBox(height: AppSpacing.md),
             AppTextField(
               controller: _slugController,
-              label: 'Slug',
-              hint: 'registrar-lead',
+              label: context.l10n.byValue('Slug'),
+              hint: context.l10n.byValue('registrar-lead'),
             ),
             const SizedBox(height: AppSpacing.md),
             AppTextField(
               controller: _descriptionController,
-              label: 'Description',
+              label: context.l10n.byValue('Description'),
               hint:
-                  'Describe what this role can own across the university workspace.',
+                  context.l10n.byValue('Describe what this role can own across the university workspace.'),
               maxLines: 4,
-              validator: _requiredValidator,
+              validator: (val) => val == null || val.trim().isEmpty ? context.l10n.byValue('This field is required.') : null,
             ),
             const SizedBox(height: AppSpacing.md),
-            Text('Accent color', style: Theme.of(context).textTheme.titleSmall),
+            Text(context.l10n.byValue('Accent color'), style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: AppSpacing.sm),
             Wrap(
               spacing: AppSpacing.sm,
@@ -920,7 +928,7 @@ class _RoleFormDialogState extends State<_RoleFormDialog> {
             Align(
               alignment: Alignment.centerRight,
               child: PremiumButton(
-                label: isEdit ? 'Save role' : 'Create role',
+                label: isEdit ? context.l10n.byValue('Save role') : context.l10n.byValue('Create role'),
                 icon: isEdit ? Icons.save_rounded : Icons.add_rounded,
                 onPressed: _submit,
               ),
@@ -990,9 +998,9 @@ class _PermissionFormDialogState extends State<_PermissionFormDialog> {
   Widget build(BuildContext context) {
     final isEdit = widget.initialPermission != null;
     return _DialogFrame(
-      title: isEdit ? 'Edit permission' : 'Create permission',
+      title: isEdit ? context.l10n.byValue('Edit permission') : context.l10n.byValue('Create permission'),
       subtitle:
-          'Add a permission that maps cleanly to your Laravel authorization layer.',
+          context.l10n.byValue('Add a permission that maps cleanly to your Laravel authorization layer.'),
       child: Form(
         key: _formKey,
         child: Column(
@@ -1001,22 +1009,22 @@ class _PermissionFormDialogState extends State<_PermissionFormDialog> {
           children: [
             AppTextField(
               controller: _nameController,
-              label: 'Permission name',
-              hint: 'Approve enrollments',
-              validator: _requiredValidator,
+              label: context.l10n.byValue('Permission name'),
+              hint: context.l10n.byValue('Approve enrollments'),
+              validator: (val) => val == null || val.trim().isEmpty ? context.l10n.byValue('This field is required.') : null,
             ),
             const SizedBox(height: AppSpacing.md),
             AppTextField(
               controller: _keyController,
-              label: 'Permission key',
-              hint: 'enrollments_approve',
+              label: context.l10n.byValue('Permission key'),
+              hint: context.l10n.byValue('enrollments_approve'),
             ),
             const SizedBox(height: AppSpacing.md),
             AppTextField(
               controller: _moduleController,
-              label: 'Module',
-              hint: 'Enrollments',
-              validator: _requiredValidator,
+              label: context.l10n.byValue('Module'),
+              hint: context.l10n.byValue('Enrollments'),
+              validator: (val) => val == null || val.trim().isEmpty ? context.l10n.byValue('This field is required.') : null,
             ),
             const SizedBox(height: AppSpacing.md),
             DropdownButtonFormField<PermissionActionKind>(
@@ -1027,7 +1035,7 @@ class _PermissionFormDialogState extends State<_PermissionFormDialog> {
                 ))
                   DropdownMenuItem<PermissionActionKind>(
                     value: action,
-                    child: Text(action.label),
+                    child: Text(context.l10n.byValue(action.label)),
                   ),
               ],
               onChanged: (value) {
@@ -1035,21 +1043,21 @@ class _PermissionFormDialogState extends State<_PermissionFormDialog> {
                   setState(() => _action = value);
                 }
               },
-              decoration: const InputDecoration(labelText: 'Action'),
+              decoration: InputDecoration(labelText: context.l10n.byValue('Action')),
             ),
             const SizedBox(height: AppSpacing.md),
             AppTextField(
               controller: _descriptionController,
-              label: 'Description',
-              hint: 'Describe the exact access this permission should grant.',
+              label: context.l10n.byValue('Description'),
+              hint: context.l10n.byValue('Describe the exact access this permission should grant.'),
               maxLines: 4,
-              validator: _requiredValidator,
+              validator: (val) => val == null || val.trim().isEmpty ? context.l10n.byValue('This field is required.') : null,
             ),
             const SizedBox(height: AppSpacing.xl),
             Align(
               alignment: Alignment.centerRight,
               child: PremiumButton(
-                label: isEdit ? 'Save permission' : 'Create permission',
+                label: isEdit ? context.l10n.byValue('Save permission') : context.l10n.byValue('Create permission'),
                 icon: isEdit ? Icons.save_rounded : Icons.add_rounded,
                 onPressed: _submit,
               ),
@@ -1110,16 +1118,16 @@ class _AssignUsersDialogState extends State<_AssignUsersDialog> {
         .toList(growable: false);
 
     return _DialogFrame(
-      title: 'Assign users',
+      title: context.l10n.byValue('Assign users'),
       subtitle:
-          'Select the people who should inherit ${widget.role.name} access.',
+          '${context.l10n.byValue('Select the people who should inherit')} ${widget.role.name} ${context.l10n.byValue('access')}.',
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppTextField(
-            label: 'Search users',
-            hint: 'Search by name, email, or department',
+            label: context.l10n.byValue('Search users'),
+            hint: context.l10n.byValue('Search by name, email, or department'),
             onChanged: (value) => setState(() => _query = value),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -1142,8 +1150,8 @@ class _AssignUsersDialogState extends State<_AssignUsersDialog> {
                       }
                     });
                   },
-                  title: Text(user.name),
-                  subtitle: Text('${user.email} - ${user.department}'),
+                  title: Text(context.l10n.byValue(user.name)),
+                  subtitle: Text('${user.email} - ${context.l10n.byValue(user.department)}'),
                   dense: true,
                   contentPadding: EdgeInsets.zero,
                 );
@@ -1154,7 +1162,7 @@ class _AssignUsersDialogState extends State<_AssignUsersDialog> {
           Align(
             alignment: Alignment.centerRight,
             child: PremiumButton(
-              label: 'Apply users',
+              label: context.l10n.byValue('Apply users'),
               icon: Icons.check_rounded,
               onPressed: () => Navigator.of(
                 context,
@@ -1199,12 +1207,12 @@ class _DialogFrame extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              title,
+                              context.l10n.byValue(title),
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              subtitle,
+                              context.l10n.byValue(subtitle),
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
@@ -1258,13 +1266,6 @@ Future<T?> _showAdaptiveDialog<T>(
   );
 }
 
-String? _requiredValidator(String? value) {
-  if (value == null || value.trim().isEmpty) {
-    return 'This field is required.';
-  }
-  return null;
-}
-
 Color _colorFromHex(String hex) {
   final value = hex.replaceAll('#', '');
   final normalized = value.length == 6 ? 'FF$value' : value;
@@ -1289,7 +1290,7 @@ class _RolesPageViewModel {
     required this.isFallback,
     required this.errorMessage,
     required this.feedbackMessage,
-    required this.lastSyncedLabel,
+    required this.lastSyncedAt,
     required this.reload,
     required this.updateFilters,
     required this.changeView,
@@ -1345,11 +1346,7 @@ class _RolesPageViewModel {
       isFallback: rolesState.isUsingFallbackData,
       errorMessage: rolesState.errorMessage,
       feedbackMessage: rolesState.feedbackMessage,
-      lastSyncedLabel: rolesState.lastSyncedAt == null
-          ? 'Pending'
-          : DateFormat(
-              'dd MMM, HH:mm',
-            ).format(rolesState.lastSyncedAt!.toLocal()),
+      lastSyncedAt: rolesState.lastSyncedAt,
       reload: () => store.dispatch(const RolesDashboardRequestedAction()),
       updateFilters: (filters) =>
           store.dispatch(RolesFiltersChangedAction(filters)),
@@ -1418,7 +1415,7 @@ class _RolesPageViewModel {
   final bool isFallback;
   final String? errorMessage;
   final String? feedbackMessage;
-  final String lastSyncedLabel;
+  final DateTime? lastSyncedAt;
   final VoidCallback reload;
   final ValueChanged<RolesFilters> updateFilters;
   final ValueChanged<RolesDashboardView> changeView;
@@ -1454,7 +1451,7 @@ class _RolesPageViewModel {
         other.isFallback == isFallback &&
         other.errorMessage == errorMessage &&
         other.feedbackMessage == feedbackMessage &&
-        other.lastSyncedLabel == lastSyncedLabel &&
+        other.lastSyncedAt == lastSyncedAt &&
         _listEquality.equals(other._roleSignatures, _roleSignatures) &&
         _listEquality.equals(
           other._permissionSignatures,
@@ -1482,7 +1479,7 @@ class _RolesPageViewModel {
     isFallback,
     errorMessage,
     feedbackMessage,
-    lastSyncedLabel,
+    lastSyncedAt,
     Object.hashAll(_roleSignatures),
     Object.hashAll(_permissionSignatures),
     Object.hashAll(_userSignatures),

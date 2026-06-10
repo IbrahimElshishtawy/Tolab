@@ -3,6 +3,7 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:go_router/go_router.dart';
 import 'package:redux/redux.dart';
 
+import '../../../../app/localization/app_localizations.dart';
 import '../../../../app_admin/core/spacing/app_spacing.dart';
 import '../../../core/models/academic_models.dart';
 import '../../../core/models/session_user.dart';
@@ -80,9 +81,9 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
                       child: TextField(
                         controller: _searchController,
                         onChanged: (_) => setState(() {}),
-                        decoration: const InputDecoration(
-                          prefixIcon: Icon(Icons.search_rounded),
-                          hintText: 'Search by subject name or code',
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.search_rounded),
+                          hintText: context.l10n.byValue('Search by subject name or code'),
                         ),
                       ),
                     ),
@@ -90,14 +91,14 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
                       width: 220,
                       child: DropdownButtonFormField<String>(
                         initialValue: _statusFilter,
-                        decoration: const InputDecoration(
-                          labelText: 'Status',
+                        decoration: InputDecoration(
+                          labelText: context.l10n.byValue('Status'),
                         ),
-                        items: const ['All', 'Healthy', 'Watch', 'Needs review']
+                        items: ['All', 'Healthy', 'Watch', 'Needs review']
                             .map(
                               (value) => DropdownMenuItem<String>(
                                 value: value,
-                                child: Text(value),
+                                child: Text(context.l10n.byValue(value)),
                               ),
                             )
                             .toList(growable: false),
@@ -117,14 +118,14 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
                 else if (vm.state.status == ViewStatus.failure &&
                     (vm.state.data?.isEmpty ?? true))
                   ErrorStateView(
-                    message: vm.state.error ?? 'Failed to load subjects.',
+                    message: context.l10n.byValue(vm.state.error ?? 'Failed to load subjects.'),
                     onRetry: vm.reload,
                   )
                 else if (subjects.isEmpty)
-                  const EmptyStateView(
-                    title: 'No assigned subjects',
-                    message:
-                        'Assigned teaching subjects will appear here with their progress, activity, and grading signals.',
+                  EmptyStateView(
+                    title: context.l10n.byValue('No assigned subjects'),
+                    message: context.l10n.byValue(
+                        'Assigned teaching subjects will appear here with their progress, activity, and grading signals.'),
                   )
                 else
                   LayoutBuilder(

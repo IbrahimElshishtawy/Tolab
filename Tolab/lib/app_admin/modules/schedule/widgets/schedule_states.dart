@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 
 import '../../../core/animations/app_motion.dart';
 import '../../../core/colors/app_colors.dart';
@@ -52,19 +53,19 @@ class ScheduleEmptyState extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
-              'No schedule events match the current view.',
+              context.l10n.byValue('No schedule events match the current view.'),
               style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Clear filters or add a new lecture, quiz, exam, or task to populate the calendar.',
+              context.l10n.byValue('Clear filters or add a new lecture, quiz, exam, or task to populate the calendar.'),
               style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.lg),
             PremiumButton(
-              label: 'Create event',
+              label: context.l10n.byValue('Create event'),
               icon: Icons.add_rounded,
               onPressed: onCreatePressed,
             ),
@@ -108,7 +109,7 @@ class ScheduleErrorState extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
-              'Schedule sync needs attention.',
+              context.l10n.byValue('Schedule sync needs attention.'),
               style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
@@ -120,7 +121,7 @@ class ScheduleErrorState extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
             PremiumButton(
-              label: 'Retry',
+              label: context.l10n.byValue('Retry'),
               icon: Icons.refresh_rounded,
               onPressed: onRetry,
             ),

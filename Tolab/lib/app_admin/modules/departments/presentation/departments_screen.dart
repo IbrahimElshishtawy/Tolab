@@ -4,6 +4,8 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:go_router/go_router.dart';
 import 'package:redux/redux.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
+
 import '../../../core/responsive/app_breakpoints.dart';
 import '../../../core/routing/route_paths.dart';
 import '../../../core/spacing/app_spacing.dart';
@@ -78,11 +80,15 @@ class _DepartmentsScreenState extends State<DepartmentsScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const PageHeader(
-              title: 'Departments',
-              subtitle:
-                  'Premium academic administration for structure, staffing, student distribution, and schedule-led performance.',
-              breadcrumbs: ['Admin', 'Academic', 'Departments'],
+            PageHeader(
+              title: context.l10n.byValue('Departments'),
+              subtitle: context.l10n.byValue(
+                  'Premium academic administration for structure, staffing, student distribution, and schedule-led performance.'),
+              breadcrumbs: [
+                context.l10n.byValue('Admin'),
+                context.l10n.byValue('Academic'),
+                context.l10n.byValue('Departments'),
+              ],
             ),
             const SizedBox(height: AppSpacing.xl),
             if (vm.status == LoadStatus.loading && vm.items.isEmpty)
@@ -96,9 +102,9 @@ class _DepartmentsScreenState extends State<DepartmentsScreen> {
                     context,
                   ).dispatch(const LoadDepartmentsAction()),
                   isEmpty: vm.filteredDepartments.isEmpty,
-                  emptyTitle: 'No departments match these filters',
-                  emptySubtitle:
-                      'Clear one or more filters to restore the management surface.',
+                  emptyTitle: context.l10n.byValue('No departments match these filters'),
+                  emptySubtitle: context.l10n.byValue(
+                      'Clear one or more filters to restore the management surface.'),
                   child: ListView(
                     children: [
                       DepartmentsSummaryStrip(metrics: vm.summary),
@@ -414,19 +420,19 @@ class _InsightCard extends StatelessWidget {
         runSpacing: AppSpacing.md,
         children: [
           _InsightItem(
-            title: 'Operational signal',
+            title: context.l10n.byValue('Operational signal'),
             body:
-                '${summary.activeDepartmentsCount}/${summary.departmentsCount} departments are currently active.',
+                '${summary.activeDepartmentsCount}/${summary.departmentsCount} ${context.l10n.byValue('departments are currently active.')}',
           ),
           _InsightItem(
-            title: 'Student density',
+            title: context.l10n.byValue('Student density'),
             body:
-                '${formatCompactNumber(summary.studentsCount)} students are currently distributed across the department surface.',
+                '${formatCompactNumber(summary.studentsCount)} ${context.l10n.byValue('students are currently distributed across the department surface.')}',
           ),
           _InsightItem(
-            title: 'Course load',
+            title: context.l10n.byValue('Course load'),
             body:
-                '${summary.activeCoursesCount} live offerings are linked to active departments right now.',
+                '${summary.activeCoursesCount} ${context.l10n.byValue('live offerings are linked to active departments right now.')}',
           ),
         ],
       ),

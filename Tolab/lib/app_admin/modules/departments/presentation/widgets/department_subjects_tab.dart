@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/colors/app_colors.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -57,19 +58,19 @@ class DepartmentSubjectsTab extends StatelessWidget {
                 spacing: AppSpacing.sm,
                 runSpacing: AppSpacing.sm,
                 children: [
-                  _InfoPill(label: subject.yearLabel),
-                  _InfoPill(label: subject.semesterLabel),
+                  _InfoPill(label: context.l10n.byValue(subject.yearLabel)),
+                  _InfoPill(label: context.l10n.byValue(subject.semesterLabel)),
                   _InfoPill(
                     label:
-                        '${formatCompactNumber(subject.enrolledStudents)} students',
+                        '${formatCompactNumber(subject.enrolledStudents)} ${context.l10n.byValue('students')}',
                   ),
-                  _InfoPill(label: '${subject.weeklyHours}h weekly'),
+                  _InfoPill(label: '${subject.weeklyHours}h ${context.l10n.byValue('weekly')}'),
                 ],
               ),
               if (subject.overloaded) ...[
                 const SizedBox(height: AppSpacing.md),
                 Text(
-                  'This subject is currently above the preferred delivery load.',
+                  context.l10n.byValue('This subject is currently above the preferred delivery load.'),
                   style: Theme.of(
                     context,
                   ).textTheme.bodySmall?.copyWith(color: AppColors.warning),

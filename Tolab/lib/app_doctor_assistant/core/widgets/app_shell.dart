@@ -148,23 +148,26 @@ class AppShell extends StatelessWidget {
                   for (final item in items)
                     Padding(
                       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                      child: ListTile(
-                        selected: item.path == activePath,
-                        selectedTileColor: AppColors.white.withValues(
-                          alpha: .12,
-                        ),
-                        leading: Icon(item.icon, color: AppColors.white),
-                        title: Text(
-                          l10n.t(item.label),
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(color: AppColors.white),
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            AppSpacing.radiusMd,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: ListTile(
+                          selected: item.path == activePath,
+                          selectedTileColor: AppColors.white.withValues(
+                            alpha: .12,
                           ),
+                          leading: Icon(item.icon, color: AppColors.white),
+                          title: Text(
+                            l10n.t(item.label),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(color: AppColors.white),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppSpacing.radiusMd,
+                            ),
+                          ),
+                          onTap: () => context.go(item.path),
                         ),
-                        onTap: () => context.go(item.path),
                       ),
                     ),
                 ],

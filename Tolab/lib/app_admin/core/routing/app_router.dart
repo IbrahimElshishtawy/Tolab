@@ -213,7 +213,20 @@ class AppRouter {
             context,
           ).dispatch(ToggleThemeModeAction()),
           languageCode: localeController.languageCode,
-          onLanguageSelected: localeController.setLanguage,
+          onLanguageSelected: (language) {
+            localeController.setLanguage(language);
+            final currentBundle = _store.state.settingsState.bundle;
+            if (currentBundle.general.languageCode != language) {
+              _store.dispatch(
+                UpdateSettingsBundleAction(
+                  currentBundle.copyWith(
+                    general: currentBundle.general.copyWith(languageCode: language),
+                  ),
+                ),
+              );
+              _store.dispatch(const SaveSettingsRequestedAction());
+            }
+          },
           onLogout: () => StoreProvider.of<AppState>(
             context,
           ).dispatch(LogoutRequestedAction()),

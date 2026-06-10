@@ -9,6 +9,13 @@ import 'package:tolab_fci/app_admin/state/app_state.dart';
 
 void main() {
   testWidgets('login screen renders seeded admin hint', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
     final store = Store<AppState>(appReducer, initialState: AppState.initial());
 
     await tester.pumpWidget(

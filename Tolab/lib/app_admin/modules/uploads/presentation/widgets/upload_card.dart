@@ -7,6 +7,7 @@ import '../../../../core/spacing/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../shared/widgets/premium_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../models/upload_model.dart';
 import 'progress_indicator.dart';
 
@@ -73,7 +74,7 @@ class UploadCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '${item.type.label} | ${_formatFileSize(item.sizeBytes)}',
+                            '${context.l10n.byValue(item.type.label)} | ${_formatFileSize(context, item.sizeBytes)}',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
@@ -82,7 +83,7 @@ class UploadCard extends StatelessWidget {
                   ],
                 ),
               ),
-              StatusBadge(item.status.label),
+              StatusBadge(context.l10n.byValue(item.status.label)),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
@@ -101,7 +102,7 @@ class UploadCard extends StatelessWidget {
               _InfoPill(icon: Icons.person_rounded, label: item.uploadedBy),
               _InfoPill(
                 icon: Icons.event_rounded,
-                label: DateFormat('dd MMM yyyy').format(item.uploadedAt),
+                label: DateFormat('dd MMM yyyy', context.l10n.locale.languageCode).format(item.uploadedAt),
               ),
             ],
           ),
@@ -125,32 +126,32 @@ class UploadCard extends StatelessWidget {
             runSpacing: AppSpacing.sm,
             children: [
               PremiumButton(
-                label: 'Preview',
+                label: context.l10n.byValue('Preview'),
                 icon: Icons.visibility_rounded,
                 isSecondary: true,
                 onPressed: onPreview,
               ),
               PremiumButton(
-                label: 'Assign',
+                label: context.l10n.byValue('Assign'),
                 icon: Icons.rule_folder_rounded,
                 isSecondary: true,
                 onPressed: onAssign,
               ),
               if (item.isFailed)
                 PremiumButton(
-                  label: 'Retry',
+                  label: context.l10n.byValue('Retry'),
                   icon: Icons.refresh_rounded,
                   onPressed: onRetry,
                 ),
               if (item.isUploading)
                 PremiumButton(
-                  label: 'Cancel',
+                  label: context.l10n.byValue('Cancel'),
                   icon: Icons.close_rounded,
                   isSecondary: true,
                   onPressed: onCancel,
                 ),
               PremiumButton(
-                label: 'Delete',
+                label: context.l10n.byValue('Delete'),
                 icon: Icons.delete_outline_rounded,
                 isSecondary: true,
                 isDestructive: item.isFailed && !item.isUploading,
@@ -193,7 +194,7 @@ class _InfoPill extends StatelessWidget {
   }
 }
 
-String _formatFileSize(int bytes) {
+String _formatFileSize(BuildContext context, int bytes) {
   const units = ['B', 'KB', 'MB', 'GB'];
   var size = bytes.toDouble();
   var unitIndex = 0;
@@ -201,5 +202,5 @@ String _formatFileSize(int bytes) {
     size /= 1024;
     unitIndex++;
   }
-  return '${size.toStringAsFixed(unitIndex == 0 ? 0 : 1)} ${units[unitIndex]}';
+  return '${size.toStringAsFixed(unitIndex == 0 ? 0 : 1)} ${context.l10n.byValue(units[unitIndex])}';
 }

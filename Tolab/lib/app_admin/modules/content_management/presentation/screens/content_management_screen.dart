@@ -5,10 +5,8 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 
 import '../../../../core/animations/app_motion.dart';
-import '../../../../core/colors/app_colors.dart';
 import '../../../../core/responsive/app_breakpoints.dart';
 import '../../../../core/spacing/app_spacing.dart';
-import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/page_header.dart';
 import '../../../../shared/enums/load_status.dart';
 import '../../../../shared/widgets/premium_button.dart';
@@ -22,8 +20,10 @@ import '../widgets/content_responsive_layout.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/filter_bar.dart';
 import '../widgets/loading_skeleton.dart';
-import '../widgets/status_badge.dart';
 import '../widgets/upload_widget.dart';
+import '../widgets/content_sections/content_metrics_strip.dart';
+import '../widgets/content_sections/content_quick_actions.dart';
+import '../widgets/content_sections/content_details_panel.dart';
 
 class ContentManagementScreen extends StatefulWidget {
   const ContentManagementScreen({super.key});
@@ -50,9 +50,9 @@ class _ContentManagementScreenState extends State<ContentManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<AppState, _ContentViewModel>(
+    return StoreConnector<AppState, ContentViewModel>(
       onInit: (store) => store.dispatch(const LoadContentRequestedAction()),
-      converter: (store) => _ContentViewModel.fromStore(store),
+      converter: (store) => ContentViewModel.fromStore(store),
       distinct: true,
       onDidChange: (previous, current) {
         if (_searchController.text != current.filters.searchQuery) {
@@ -118,9 +118,9 @@ class _ContentManagementScreenState extends State<ContentManagementScreen> {
                     : ListView(
                         key: ValueKey(vm.items.length),
                         children: [
-                          _MetricsStrip(metrics: vm.metrics),
+                          ContentMetricsStrip(metrics: vm.metrics),
                           const SizedBox(height: AppSpacing.lg),
-                          _QuickActionsRow(
+                          ContentQuickActionsRow(
                             onCreate: vm.canCreate
                                 ? () => _openEditor(context, vm, null)
                                 : null,
@@ -270,7 +270,7 @@ class _ContentManagementScreenState extends State<ContentManagementScreen> {
                                       DeleteContentRequestedAction({item.id}),
                                     ),
                               ),
-                              secondary: _DetailsPanel(
+                              secondary: ContentDetailsPanel(
                                 vm: vm,
                                 onEdit: _openEditor,
                               ),
@@ -293,7 +293,7 @@ class _ContentManagementScreenState extends State<ContentManagementScreen> {
 
   Future<void> _openEditor(
     BuildContext context,
-    _ContentViewModel vm,
+    ContentViewModel vm,
     ContentRecord? record,
   ) async {
     final store = StoreProvider.of<AppState>(context);
@@ -319,8 +319,8 @@ class _ContentManagementScreenState extends State<ContentManagementScreen> {
   }
 }
 
-class _ContentViewModel {
-  const _ContentViewModel({
+class ContentViewModel {
+  const ContentViewModel({
     required this.status,
     required this.items,
     required this.filteredItems,
@@ -370,10 +370,10 @@ class _ContentViewModel {
   final String? errorMessage;
   final String? mutationMessage;
 
-  factory _ContentViewModel.fromStore(Store<AppState> store) {
+  factory ContentViewModel.fromStore(Store<AppState> store) {
     final state = store.state.contentState;
     final activeContent = selectActiveContent(state);
-    return _ContentViewModel(
+    return ContentViewModel(
       status: state.status,
       items: selectAllContent(state),
       filteredItems: selectFilteredContent(state),
@@ -402,7 +402,7 @@ class _ContentViewModel {
 
   @override
   bool operator ==(Object other) {
-    return other is _ContentViewModel &&
+    return other is ContentViewModel &&
         other.status == status &&
         listEquals(other.items, items) &&
         listEquals(other.filteredItems, filteredItems) &&
@@ -466,600 +466,11 @@ class _ContentViewModel {
   ]);
 }
 
-class _MetricsStrip extends StatelessWidget {
-  const _MetricsStrip({required this.metrics});
-
-  final ContentDashboardMetrics metrics;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: AppSpacing.md,
-      runSpacing: AppSpacing.md,
-      children: [
-        _MetricCard(
-          label: 'Total content',
-          value: '${metrics.totalContent}',
-          detail: 'Live and scheduled assets',
-          icon: Icons.dashboard_customize_rounded,
-          color: AppColors.primary,
-        ),
-        _MetricCard(
-          label: 'Assessments',
-          value: '${metrics.totalAssessments}',
-          detail: 'Quizzes, tasks, and exams',
-          icon: Icons.fact_check_rounded,
-          color: AppColors.info,
-        ),
-        _MetricCard(
-          label: 'Pending submissions',
-          value: '${metrics.pendingSubmissions}',
-          detail: 'Need grading or student action',
-          icon: Icons.pending_actions_rounded,
-          color: AppColors.warning,
-        ),
-        _MetricCard(
-          label: 'Avg engagement',
-          value: '${(metrics.averageEngagementRate * 100).toStringAsFixed(0)}%',
-          detail: 'Based on views and completion',
-          icon: Icons.trending_up_rounded,
-          color: AppColors.secondary,
-        ),
-      ],
-    );
-  }
-}
-
-class _MetricCard extends StatelessWidget {
-  const _MetricCard({
-    required this.label,
-    required this.value,
-    required this.detail,
-    required this.icon,
-    required this.color,
-  });
-
-  final String label;
-  final String value;
-  final String detail;
-  final IconData icon;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 280,
-      child: AppCard(
-        interactive: true,
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 50,
-              width: 50,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Icon(icon, color: color),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Text(label, style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: AppSpacing.xs),
-            Text(value, style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: AppSpacing.xs),
-            Text(detail, style: Theme.of(context).textTheme.bodySmall),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _QuickActionsRow extends StatelessWidget {
-  const _QuickActionsRow({
-    required this.onCreate,
-    required this.onPublishSelected,
-    required this.onArchiveSelected,
-    required this.onDeleteSelected,
-  });
-
-  final VoidCallback? onCreate;
-  final VoidCallback? onPublishSelected;
-  final VoidCallback? onArchiveSelected;
-  final VoidCallback? onDeleteSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      child: Wrap(
-        spacing: AppSpacing.sm,
-        runSpacing: AppSpacing.sm,
-        children: [
-          PremiumButton(
-            label: 'Create lecture',
-            icon: Icons.slideshow_rounded,
-            onPressed: onCreate,
-          ),
-          PremiumButton(
-            label: 'Publish selected',
-            icon: Icons.publish_rounded,
-            isSecondary: true,
-            onPressed: onPublishSelected,
-          ),
-          PremiumButton(
-            label: 'Archive selected',
-            icon: Icons.archive_rounded,
-            isSecondary: true,
-            onPressed: onArchiveSelected,
-          ),
-          PremiumButton(
-            label: 'Delete selected',
-            icon: Icons.delete_outline_rounded,
-            isDestructive: true,
-            onPressed: onDeleteSelected,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DetailsPanel extends StatelessWidget {
-  const _DetailsPanel({required this.vm, required this.onEdit});
-
-  final _ContentViewModel vm;
-  final Future<void> Function(
-    BuildContext context,
-    _ContentViewModel vm,
-    ContentRecord? record,
-  )
-  onEdit;
-
-  @override
-  Widget build(BuildContext context) {
-    final record = vm.activeContent;
-    if (record == null) {
-      return const EmptyState(
-        title: 'Select a content item',
-        subtitle:
-            'Preview attachments, students, submissions, and grading details here.',
-        icon: Icons.touch_app_rounded,
-      );
-    }
-
-    return Column(
-      children: [
-        AppCard(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      record.title,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ),
-                  StatusBadge(status: record.status),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                record.description,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Wrap(
-                spacing: AppSpacing.sm,
-                runSpacing: AppSpacing.sm,
-                children: [
-                  _Pill(label: record.subject.displayLabel),
-                  _Pill(label: record.section.title),
-                  _Pill(label: record.instructor.name),
-                  _Pill(label: record.visibility.label),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Wrap(
-                spacing: AppSpacing.sm,
-                runSpacing: AppSpacing.sm,
-                children: [
-                  PremiumButton(
-                    label: 'Edit',
-                    icon: Icons.edit_rounded,
-                    isSecondary: true,
-                    onPressed: record.permissions.canEdit
-                        ? () => onEdit(context, vm, record)
-                        : null,
-                  ),
-                  PremiumButton(
-                    label: 'Publish',
-                    icon: Icons.publish_rounded,
-                    onPressed: record.permissions.canPublish
-                        ? () => StoreProvider.of<AppState>(
-                            context,
-                          ).dispatch(PublishContentRequestedAction({record.id}))
-                        : null,
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              _TabStrip(
-                activeTab: vm.activeDetailsTab,
-                onChanged: (tab) => StoreProvider.of<AppState>(
-                  context,
-                ).dispatch(ContentDetailsTabChangedAction(tab)),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              AnimatedSwitcher(
-                duration: AppMotion.medium,
-                child: switch (vm.activeDetailsTab) {
-                  ContentDetailsTab.overview => _OverviewTab(record: record),
-                  ContentDetailsTab.attachments => _AttachmentsTab(
-                    record: record,
-                  ),
-                  ContentDetailsTab.submissions => _SubmissionsTab(
-                    record: record,
-                  ),
-                  ContentDetailsTab.grades => _GradesTab(record: record),
-                },
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        AppCard(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Recent activity',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              for (final item in vm.recentActivity)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 36,
-                        width: 36,
-                        decoration: BoxDecoration(
-                          color: item.tone.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(item.icon, size: 18, color: item.tone),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item.title,
-                              style: Theme.of(context).textTheme.titleSmall,
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              item.subtitle,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _OverviewTab extends StatelessWidget {
-  const _OverviewTab({required this.record});
-
-  final ContentRecord record;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      key: const ValueKey('overview'),
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.sm,
-          children: [
-            _StatCard(label: 'Enrolled', value: '${record.enrollmentCount}'),
-            _StatCard(label: 'Submitted', value: '${record.submittedCount}'),
-            _StatCard(label: 'Views', value: '${record.viewCount}'),
-            _StatCard(label: 'Completion', value: record.completionLabel),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        Text('Students', style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: AppSpacing.sm),
-        for (final student in record.students.take(5))
-          Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-            child: Container(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              decoration: BoxDecoration(
-                color: Theme.of(context).inputDecorationTheme.fillColor,
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          student.name,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '${student.sectionLabel} • ${student.engagementLabel}',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    student.submissionStatus.label,
-                    style: Theme.of(context).textTheme.labelMedium,
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _AttachmentsTab extends StatelessWidget {
-  const _AttachmentsTab({required this.record});
-
-  final ContentRecord record;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      key: const ValueKey('attachments'),
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (final attachment in record.attachments)
-          Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-            child: Container(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              decoration: BoxDecoration(
-                color: Theme.of(context).inputDecorationTheme.fillColor,
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    height: 44,
-                    width: 44,
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Center(child: Text(attachment.extensionLabel)),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(attachment.name),
-                        const SizedBox(height: 2),
-                        Text(
-                          '${attachment.sizeLabel} • uploaded by ${attachment.uploadedBy}',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.download_rounded, size: 18),
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _SubmissionsTab extends StatelessWidget {
-  const _SubmissionsTab({required this.record});
-
-  final ContentRecord record;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      key: const ValueKey('submissions'),
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (record.submissions.isEmpty)
-          Text(
-            'No submissions yet.',
-            style: Theme.of(context).textTheme.bodySmall,
-          )
-        else
-          for (final submission in record.submissions)
-            Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-              child: Container(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).inputDecorationTheme.fillColor,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(submission.studentName),
-                          const SizedBox(height: 2),
-                          Text(
-                            '${submission.status.label} • ${submission.attempts} attempt(s)',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text(submission.gradeLabel),
-                    const SizedBox(width: AppSpacing.sm),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.download_rounded, size: 18),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-      ],
-    );
-  }
-}
-
-class _GradesTab extends StatelessWidget {
-  const _GradesTab({required this.record});
-
-  final ContentRecord record;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      key: const ValueKey('grades'),
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (final band in record.gradeBands)
-          Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(child: Text(band.label)),
-                    Text('${band.count} students'),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                LinearProgressIndicator(
-                  value: record.enrollmentCount == 0
-                      ? 0
-                      : band.count / record.enrollmentCount,
-                  color: band.color,
-                ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _TabStrip extends StatelessWidget {
-  const _TabStrip({required this.activeTab, required this.onChanged});
-
-  final ContentDetailsTab activeTab;
-  final ValueChanged<ContentDetailsTab> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: AppSpacing.xs,
-      runSpacing: AppSpacing.xs,
-      children: [
-        for (final tab in ContentDetailsTab.values)
-          ChoiceChip(
-            label: Text(switch (tab) {
-              ContentDetailsTab.overview => 'Overview',
-              ContentDetailsTab.attachments => 'Attachments',
-              ContentDetailsTab.submissions => 'Submissions',
-              ContentDetailsTab.grades => 'Grades',
-            }),
-            selected: activeTab == tab,
-            onSelected: (_) => onChanged(tab),
-          ),
-      ],
-    );
-  }
-}
-
-class _Pill extends StatelessWidget {
-  const _Pill({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).inputDecorationTheme.fillColor,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(label, style: Theme.of(context).textTheme.labelMedium),
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  const _StatCard({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 150,
-      child: AppCard(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: AppSpacing.xs),
-            Text(value, style: Theme.of(context).textTheme.titleLarge),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _ContentEditorSheet extends StatefulWidget {
   const _ContentEditorSheet({required this.record, required this.vm});
 
   final ContentRecord? record;
-  final _ContentViewModel vm;
+  final ContentViewModel vm;
 
   @override
   State<_ContentEditorSheet> createState() => _ContentEditorSheetState();

@@ -10,6 +10,11 @@ import '../../../../models/doctor_assistant_models.dart';
 import '../models/quiz_builder_models.dart';
 import '../models/quizzes_workspace_models.dart';
 import 'quiz_question_card.dart';
+import 'quiz_builder/quiz_builder_attachments_panel.dart';
+import 'quiz_builder/quiz_builder_hero.dart';
+import 'quiz_builder/quiz_builder_picker_field.dart';
+import 'quiz_builder/quiz_builder_preview_dialog.dart';
+import 'quiz_builder/quiz_builder_stat_row.dart';
 
 class QuizBuilderForm extends StatefulWidget {
   const QuizBuilderForm({
@@ -138,7 +143,7 @@ class QuizBuilderFormState extends State<QuizBuilderForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _BuilderHero(
+            QuizBuilderHero(
               subjectLabel: _selectedSubject == null
                   ? 'Select a subject'
                   : '${_selectedSubject!.code} - ${_selectedSubject!.name}',
@@ -241,7 +246,7 @@ class QuizBuilderFormState extends State<QuizBuilderForm> {
             _responsiveRow(
               context,
               children: [
-                _PickerField(
+                QuizBuilderPickerField(
                   label: 'Start date',
                   value: _startDate == null
                       ? 'Select date'
@@ -249,7 +254,7 @@ class QuizBuilderFormState extends State<QuizBuilderForm> {
                   icon: Icons.calendar_month_rounded,
                   onTap: () => _pickDate(isStart: true),
                 ),
-                _PickerField(
+                QuizBuilderPickerField(
                   label: 'Start time',
                   value: _startTime == null
                       ? 'Select time'
@@ -263,7 +268,7 @@ class QuizBuilderFormState extends State<QuizBuilderForm> {
             _responsiveRow(
               context,
               children: [
-                _PickerField(
+                QuizBuilderPickerField(
                   label: 'End date',
                   value: _endDate == null
                       ? 'Select date'
@@ -271,7 +276,7 @@ class QuizBuilderFormState extends State<QuizBuilderForm> {
                   icon: Icons.event_available_rounded,
                   onTap: () => _pickDate(isStart: false),
                 ),
-                _PickerField(
+                QuizBuilderPickerField(
                   label: 'End time',
                   value: _endTime == null
                       ? 'Select time'
@@ -316,14 +321,14 @@ class QuizBuilderFormState extends State<QuizBuilderForm> {
               ],
             ),
             const SizedBox(height: AppSpacing.md),
-            _BuilderStatRow(
+            QuizBuilderStatRow(
               leftLabel: 'Status',
               leftValue: _isPublishable ? 'Publishable' : 'Draft',
               rightLabel: 'Total marks',
               rightValue: '$_totalMarks',
             ),
             const SizedBox(height: AppSpacing.md),
-            _AttachmentsPanel(
+            QuizBuilderAttachmentsPanel(
               attachments: _attachments,
               onAddAttachment: _pickAttachment,
               onRemoveAttachment: (item) {
@@ -369,7 +374,7 @@ class QuizBuilderFormState extends State<QuizBuilderForm> {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _questions.length,
               buildDefaultDragHandles: false,
-              onReorder: _reorderQuestions,
+              onReorderItem: _reorderQuestions,
               itemBuilder: (context, index) {
                 final question = _questions[index];
                 return Padding(
@@ -516,9 +521,6 @@ class QuizBuilderFormState extends State<QuizBuilderForm> {
   void _reorderQuestions(int oldIndex, int newIndex) {
     setState(() {
       final next = List<QuizBuilderQuestionDraft>.from(_questions);
-      if (newIndex > oldIndex) {
-        newIndex -= 1;
-      }
       final item = next.removeAt(oldIndex);
       next.insert(newIndex, item);
       _questions = next;
@@ -537,32 +539,10 @@ class QuizBuilderFormState extends State<QuizBuilderForm> {
     showDialog<void>(
       context: context,
       builder: (context) {
-        return Dialog(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 760, maxHeight: 720),
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.xl),
-              child: ListView(
-                children: [
-                  Text(
-                    _titleController.text.trim(),
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    _descriptionController.text.trim(),
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  for (var index = 0; index < _questions.length; index++) ...[
-                    _PreviewQuestion(index: index, question: _questions[index]),
-                    if (index != _questions.length - 1)
-                      const SizedBox(height: AppSpacing.md),
-                  ],
-                ],
-              ),
-            ),
-          ),
+        return QuizBuilderPreviewDialog(
+          title: _titleController.text.trim(),
+          description: _descriptionController.text.trim(),
+          questions: _questions,
         );
       },
     );
@@ -689,80 +669,6 @@ class QuizBuilderFormState extends State<QuizBuilderForm> {
   }
 }
 
-class _BuilderHero extends StatelessWidget {
-  const _BuilderHero({
-    required this.subjectLabel,
-    required this.scheduleLabel,
-    required this.statusLabel,
-    required this.totalSummary,
-  });
-
-  final String subjectLabel;
-  final String scheduleLabel;
-  final String statusLabel;
-  final String totalSummary;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = DashboardThemeTokens.of(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.xl),
-      decoration: BoxDecoration(
-        color: tokens.surface.withValues(alpha: 0.72),
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-        border: Border.all(color: tokens.border),
-      ),
-      child: Wrap(
-        spacing: AppSpacing.sm,
-        runSpacing: AppSpacing.sm,
-        children: [
-          _HeroChip(icon: Icons.menu_book_rounded, label: subjectLabel),
-          _HeroChip(icon: Icons.schedule_rounded, label: scheduleLabel),
-          _HeroChip(icon: Icons.rule_folder_rounded, label: totalSummary),
-          _HeroChip(icon: Icons.verified_rounded, label: statusLabel),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeroChip extends StatelessWidget {
-  const _HeroChip({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = DashboardThemeTokens.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        color: tokens.primary.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: tokens.primary),
-          const SizedBox(width: AppSpacing.sm),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: tokens.primary,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader({required this.title, required this.subtitle});
 
@@ -790,245 +696,6 @@ class _SectionHeader extends StatelessWidget {
           ).textTheme.bodyMedium?.copyWith(color: tokens.textSecondary),
         ),
       ],
-    );
-  }
-}
-
-class _PickerField extends StatelessWidget {
-  const _PickerField({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.onTap,
-  });
-
-  final String label;
-  final String value;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = DashboardThemeTokens.of(context);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          suffixIcon: Icon(icon, color: tokens.primary),
-        ),
-        child: Text(
-          value,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyLarge?.copyWith(color: tokens.textPrimary),
-        ),
-      ),
-    );
-  }
-}
-
-class _BuilderStatRow extends StatelessWidget {
-  const _BuilderStatRow({
-    required this.leftLabel,
-    required this.leftValue,
-    required this.rightLabel,
-    required this.rightValue,
-  });
-
-  final String leftLabel;
-  final String leftValue;
-  final String rightLabel;
-  final String rightValue;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = DashboardThemeTokens.of(context);
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              color: tokens.surfaceAlt,
-              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-              border: Border.all(color: tokens.border),
-            ),
-            child: _StatText(label: leftLabel, value: leftValue),
-          ),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              color: tokens.surfaceAlt,
-              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-              border: Border.all(color: tokens.border),
-            ),
-            child: _StatText(label: rightLabel, value: rightValue),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _StatText extends StatelessWidget {
-  const _StatText({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = DashboardThemeTokens.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: Theme.of(
-            context,
-          ).textTheme.labelLarge?.copyWith(color: tokens.textSecondary),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: tokens.textPrimary,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _AttachmentsPanel extends StatelessWidget {
-  const _AttachmentsPanel({
-    required this.attachments,
-    required this.onAddAttachment,
-    required this.onRemoveAttachment,
-  });
-
-  final List<String> attachments;
-  final VoidCallback onAddAttachment;
-  final ValueChanged<String> onRemoveAttachment;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = DashboardThemeTokens.of(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: tokens.surfaceAlt,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-        border: Border.all(color: tokens.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Attachment',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: tokens.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              FilledButton.tonalIcon(
-                onPressed: onAddAttachment,
-                icon: const Icon(Icons.attach_file_rounded),
-                label: const Text('Add file'),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            attachments.isEmpty ? 'No attachment yet.' : 'Attached file set',
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: tokens.textSecondary),
-          ),
-          if (attachments.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.md),
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
-              children: attachments
-                  .map(
-                    (item) => InputChip(
-                      label: Text(item),
-                      avatar: const Icon(
-                        Icons.insert_drive_file_rounded,
-                        size: 18,
-                      ),
-                      onDeleted: () => onRemoveAttachment(item),
-                    ),
-                  )
-                  .toList(growable: false),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _PreviewQuestion extends StatelessWidget {
-  const _PreviewQuestion({required this.index, required this.question});
-
-  final int index;
-  final QuizBuilderQuestionDraft question;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-        border: Border.all(color: DashboardThemeTokens.of(context).border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '${index + 1}. ${question.prompt}',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          if (question.options.isEmpty)
-            Text(
-              question.type == 'paragraph'
-                  ? 'Student paragraph response area'
-                  : 'Student short answer field',
-            )
-          else
-            ...question.options.map((option) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                child: Row(
-                  children: [
-                    Icon(
-                      question.type == 'checkbox'
-                          ? Icons.check_box_outline_blank_rounded
-                          : Icons.radio_button_unchecked_rounded,
-                      size: 18,
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Text(option),
-                  ],
-                ),
-              );
-            }),
-        ],
-      ),
     );
   }
 }

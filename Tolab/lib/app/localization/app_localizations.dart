@@ -20,13 +20,18 @@ class AppLocalizations {
   final Locale locale;
   final Map<String, dynamic> _translations;
 
+  static AppLocalizations? _fallback;
+
   static AppLocalizations of(BuildContext context) {
     final localization = Localizations.of<AppLocalizations>(
       context,
       AppLocalizations,
     );
-    assert(localization != null, 'AppLocalizations is not available.');
-    return localization!;
+    if (localization != null) {
+      return localization;
+    }
+    _fallback ??= const AppLocalizations(Locale('en'), <String, dynamic>{});
+    return _fallback!;
   }
 
   static Future<AppLocalizations> load(Locale locale) async {

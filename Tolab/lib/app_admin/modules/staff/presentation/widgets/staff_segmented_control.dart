@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../design/staff_management_tokens.dart';
@@ -31,7 +32,7 @@ class StaffSegmentedControl extends StatelessWidget {
         children: [
           for (final option in options)
             ChoiceChip(
-              label: Text(option),
+              label: Text(context.l10n.byValue(option)),
               selected: option == value,
               onSelected: (_) => onChanged(option),
               showCheckmark: false,

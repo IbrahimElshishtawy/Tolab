@@ -3,6 +3,7 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 
 import '../../../../app_admin/core/spacing/app_spacing.dart';
+import '../../../../app/localization/app_localizations.dart';
 import '../../../core/models/session_user.dart';
 import '../../../core/navigation/app_routes.dart';
 import '../../../mock/doctor_assistant_mock_repository.dart';
@@ -11,6 +12,7 @@ import '../../../presentation/widgets/doctor_assistant_widgets.dart';
 import '../../../presentation/widgets/workspace/faculty_quick_actions_bar.dart';
 import '../../../state/app_state.dart';
 import '../../auth/state/session_selectors.dart';
+import '../../../../app/core/app_scope.dart';
 import '../state/settings_actions.dart';
 import 'models/settings_workspace_models.dart';
 import 'widgets/academic_controls_section.dart';
@@ -60,10 +62,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           unreadNotifications: DoctorAssistantMockRepository.instance
               .unreadNotificationsFor(user),
           child: DoctorAssistantPageScaffold(
-            title: 'Settings',
-            subtitle:
-                'Operational control panel for course rules, assistant permissions, notification policy, and academic publication behavior.',
-            breadcrumbs: const ['Workspace', 'Settings'],
+            title: context.l10n.byValue('Settings'),
+            subtitle: context.l10n.byValue(
+                'Operational control panel for course rules, assistant permissions, notification policy, and academic publication behavior.'),
+            breadcrumbs: [
+              context.l10n.byValue('Workspace'),
+              context.l10n.byValue('Settings'),
+            ],
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -200,9 +205,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 DoctorAssistantPanel(
-                  title: 'Save / reset',
-                  subtitle:
-                      'Run validation before saving, or reset to the current recommended academic defaults.',
+                  title: context.l10n.byValue('Save / reset'),
+                  subtitle: context.l10n.byValue(
+                      'Run validation before saving, or reset to the current recommended academic defaults.'),
                   child: Wrap(
                     spacing: AppSpacing.sm,
                     runSpacing: AppSpacing.sm,
@@ -214,7 +219,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 final validationMessage = validateFacultySettings(draft);
                                 if (validationMessage != null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(validationMessage)),
+                                    SnackBar(content: Text(context.l10n.byValue(validationMessage))),
                                   );
                                   return;
                                 }
@@ -246,19 +251,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     'final': draft.finalWeight.round(),
                                   },
                                 });
+                                AppScope.locale(context).setLanguage(draft.languageCode);
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Settings validated and saved for the current workspace session.')),
+                                  SnackBar(
+                                    content: Text(
+                                      context.l10n.byValue(
+                                        'Settings validated and saved for the current workspace session.',
+                                      ),
+                                    ),
+                                  ),
                                 );
                               },
                         icon: const Icon(Icons.save_rounded),
-                        label: const Text('Save settings'),
+                        label: Text(context.l10n.byValue('Save settings')),
                       ),
                       OutlinedButton.icon(
                         onPressed: vm.isSaving
                             ? null
                             : () => setState(() => _draft = FacultySettingsDraft.fromUser(user)),
                         icon: const Icon(Icons.refresh_rounded),
-                        label: const Text('Reset'),
+                        label: Text(context.l10n.byValue('Reset')),
                       ),
                     ],
                   ),

@@ -199,25 +199,31 @@ class _DesktopSidebarTileState extends State<_DesktopSidebarTile> {
                     ],
                   ),
                 )
-              : ListTile(
-                  onTap: widget.onTap,
-                  leading: Icon(
-                    widget.item.icon,
-                    color: widget.selected ? AppColors.primary : null,
-                  ),
-                  title: Text(context.l10n.byValue(widget.item.label)),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (widget.badgeCount > 0)
-                        _SidebarCounterBadge(count: widget.badgeCount),
-                      const SizedBox(width: AppSpacing.xs),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        size: 18,
-                        color: widget.selected ? AppColors.primary : null,
-                      ),
-                    ],
+              : Material(
+                  color: Colors.transparent,
+                  child: ListTile(
+                    onTap: widget.onTap,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppConstants.smallRadius),
+                    ),
+                    leading: Icon(
+                      widget.item.icon,
+                      color: widget.selected ? AppColors.primary : null,
+                    ),
+                    title: Text(context.l10n.byValue(widget.item.label)),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (widget.badgeCount > 0)
+                          _SidebarCounterBadge(count: widget.badgeCount),
+                        const SizedBox(width: AppSpacing.xs),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          size: 18,
+                          color: widget.selected ? AppColors.primary : null,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
         ),

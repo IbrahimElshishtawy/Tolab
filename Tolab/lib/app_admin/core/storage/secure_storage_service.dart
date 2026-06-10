@@ -20,5 +20,9 @@ class SecureStorageService {
 
   Future<String?> readRefreshToken() => _storage.read(key: refreshTokenKey);
 
-  Future<void> clearSession() => _storage.deleteAll();
+  Future<void> clearSession() async {
+    try {
+      await _storage.deleteAll();
+    } catch (_) {}
+  }
 }

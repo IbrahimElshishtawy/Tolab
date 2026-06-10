@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:go_router/go_router.dart';
 import 'package:redux/redux.dart';
+import 'package:file_picker/file_picker.dart';
 
+import '../../../../app/localization/app_localizations.dart';
 import '../../../../app_admin/core/spacing/app_spacing.dart';
 import '../../../../app_admin/core/widgets/app_card.dart';
 import '../../../../app_admin/shared/widgets/premium_button.dart';
@@ -38,10 +40,10 @@ class SubjectResultsPage extends StatelessWidget {
           activeRoute: AppRoutes.results,
           unreadNotifications: 0,
           child: DoctorAssistantPageScaffold(
-            title: 'Subject Results',
-            subtitle:
-                'View grade structure, recent activity, and role-based grading controls for the selected subject.',
-            breadcrumbs: const ['Workspace', 'Results', 'Subject'],
+            title: context.l10n.byValue('Subject Results'),
+            subtitle: context.l10n.byValue(
+                'View grade structure, recent activity, and role-based grading controls for the selected subject.'),
+            breadcrumbs: ['Workspace', 'Results', 'Subject'].map((s) => context.l10n.byValue(s)).toList(),
             child: _buildBody(context, vm),
           ),
         );
@@ -56,14 +58,14 @@ class SubjectResultsPage extends StatelessWidget {
     }
     if (vm.state.status == ViewStatus.failure && results == null) {
       return ErrorStateView(
-        message: vm.state.error ?? 'Unable to load subject results.',
+        message: context.l10n.byValue(vm.state.error ?? 'Unable to load subject results.'),
         onRetry: vm.reload,
       );
     }
     if (results == null) {
-      return const EmptyStateView(
-        title: 'No subject results',
-        message: 'Grading categories will appear here once result data is available.',
+      return EmptyStateView(
+        title: context.l10n.byValue('No subject results'),
+        message: context.l10n.byValue('Grading categories will appear here once result data is available.'),
       );
     }
 
@@ -74,12 +76,12 @@ class SubjectResultsPage extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                '${results.subjectCode} · ${results.subjectName}',
+                '${results.subjectCode} · ${context.l10n.byValue(results.subjectName)}',
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
             ),
             PremiumButton(
-              label: 'Manage grades',
+              label: context.l10n.byValue('Manage grades'),
               icon: Icons.table_rows_rounded,
               onPressed: () => context.go(AppRoutes.gradeEntry(subjectId)),
             ),
@@ -103,7 +105,7 @@ class SubjectResultsPage extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                category.label,
+                                context.l10n.byValue(category.label),
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                             ),
@@ -112,16 +114,19 @@ class SubjectResultsPage extends StatelessWidget {
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         Text(
-                          'Average ${category.averageScore.toStringAsFixed(1)} / ${category.maxScore.toStringAsFixed(0)}',
+                          '${context.l10n.byValue('Average')} ${category.averageScore.toStringAsFixed(1)} / ${category.maxScore.toStringAsFixed(0)}',
                         ),
                         const SizedBox(height: AppSpacing.xs),
                         Text(
-                          '${category.gradedCount} graded · ${category.missingCount} missing',
+                          context.l10n
+                              .byValue('{graded} graded · {missing} missing')
+                              .replaceAll('{graded}', category.gradedCount.toString())
+                              .replaceAll('{missing}', category.missingCount.toString()),
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         Text(
-                          category.isEditable ? 'Editable for this role' : 'View only for this role',
+                          context.l10n.byValue(category.isEditable ? 'Editable for this role' : 'View only for this role'),
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
@@ -130,6 +135,45 @@ class SubjectResultsPage extends StatelessWidget {
                 ),
               )
               .toList(growable: false),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        DoctorAssistantPanel(
+          title: 'Uploaded Grade Sheets',
+          subtitle: 'Official grades sheets, Excel, PDF or CSV files shared with students.',
+          trailing: PremiumButton(
+            label: context.l10n.byValue('Upload Grade File'),
+            icon: Icons.upload_file_rounded,
+            onPressed: () => _showUploadDialog(context, vm.store, results),
+          ),
+          child: results.uploadedSheets.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                  child: Center(
+                    child: Text(
+                      context.l10n.byValue('No files uploaded yet for this subject.'),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontStyle: FontStyle.italic,
+                            color: Theme.of(context).disabledColor,
+                          ),
+                    ),
+                  ),
+                )
+              : Column(
+                  children: results.uploadedSheets
+                      .map(
+                        (file) => Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                          child: DoctorAssistantItemCard(
+                            icon: Icons.insert_drive_file_outlined,
+                            title: file.name,
+                            subtitle: '${file.mimeType} · ${file.sizeLabel}',
+                            meta: file.url,
+                            statusLabel: 'Uploaded',
+                          ),
+                        ),
+                      )
+                      .toList(growable: false),
+                ),
         ),
         const SizedBox(height: AppSpacing.md),
         DoctorAssistantPanel(
@@ -156,6 +200,101 @@ class SubjectResultsPage extends StatelessWidget {
       ],
     );
   }
+
+  Future<void> _showUploadDialog(
+    BuildContext context,
+    Store<DoctorAssistantAppState> store,
+    SubjectResultsModel results,
+  ) async {
+    final categories = results.categories;
+    if (categories.isEmpty) return;
+
+    String selectedKey = categories.first.key;
+
+    final categoryKey = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(context.l10n.byValue('Select Category for Upload')),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(context.l10n.byValue('Choose the grading category this sheet belongs to:')),
+                  const SizedBox(height: AppSpacing.md),
+                  DropdownButtonFormField<String>(
+                    initialValue: selectedKey,
+                    items: categories
+                        .map(
+                          (cat) => DropdownMenuItem<String>(
+                            value: cat.key,
+                            child: Text(context.l10n.byValue(cat.label)),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        setState(() {
+                          selectedKey = val;
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: Text(context.l10n.byValue('Cancel')),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(dialogContext, selectedKey),
+                  child: Text(context.l10n.byValue('Proceed')),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (categoryKey == null) return;
+
+    try {
+      final pickerResult = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'csv', 'xlsx', 'xls'],
+        withData: true,
+      );
+
+      if (pickerResult == null || pickerResult.files.isEmpty) return;
+
+      final file = pickerResult.files.first;
+      final bytes = file.bytes;
+      if (bytes == null) return;
+
+      store.dispatch(UploadGradesFileAction(
+        subjectId: results.subjectId,
+        categoryKey: categoryKey,
+        fileName: file.name,
+        fileBytes: bytes,
+      ));
+
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${context.l10n.byValue('Uploading')} ${file.name}...'),
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${context.l10n.byValue('Failed to upload file')}: $e')),
+      );
+    }
+  }
 }
 
 class _SubjectResultsVm {
@@ -163,17 +302,20 @@ class _SubjectResultsVm {
     required this.user,
     required this.state,
     required this.reload,
+    required this.store,
   });
 
   final dynamic user;
   final AsyncState<SubjectResultsModel> state;
   final VoidCallback reload;
+  final Store<DoctorAssistantAppState> store;
 
   factory _SubjectResultsVm.fromStore(Store<DoctorAssistantAppState> store, int subjectId) {
     return _SubjectResultsVm(
       user: getCurrentUser(store.state),
       state: store.state.resultsState.subject,
       reload: () => store.dispatch(LoadSubjectResultsAction(subjectId)),
+      store: store,
     );
   }
 }

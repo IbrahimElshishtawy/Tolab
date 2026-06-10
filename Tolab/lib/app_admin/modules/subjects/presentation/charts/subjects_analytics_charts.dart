@@ -9,15 +9,17 @@ class SubjectsActivityLineChart extends StatelessWidget {
     super.key,
     required this.values,
     required this.color,
+    this.height = 86,
   });
 
   final List<double> values;
   final Color color;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 86,
+      height: height,
       child: LineChart(
         LineChartData(
           minY: 0,

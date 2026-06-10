@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../app/localization/app_localizations.dart';
+
 import '../../../../core/animations/app_motion.dart';
 import '../../../../core/colors/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -297,7 +299,7 @@ class SectionPortfolioCard extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.xxs),
               Text(
-                '${record.department}  ${record.yearLabel}',
+                '${context.l10n.byValue(record.department)}  ${context.l10n.byValue(record.yearLabel)}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodySmall,
@@ -305,7 +307,7 @@ class SectionPortfolioCard extends StatelessWidget {
               SizedBox(height: compact ? AppSpacing.xxs : AppSpacing.xs),
               SectionCapacityBar(
                 value: record.capacityUsage,
-                label: '${record.studentsCount}/${record.capacity} seats used',
+                label: '${record.studentsCount}/${record.capacity} ${context.l10n.byValue('seats used')}',
                 compact: compact,
               ),
             ],
@@ -369,14 +371,14 @@ class SectionAlertBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  alert.title,
+                  context.l10n.byValue(alert.title),
                   style: Theme.of(
                     context,
                   ).textTheme.titleSmall?.copyWith(color: color),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  alert.message,
+                  context.l10n.byValue(alert.message),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],

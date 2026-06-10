@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../app/localization/app_localizations.dart';
 import '../../../../../app_admin/core/spacing/app_spacing.dart';
 import '../../../../../app_admin/core/widgets/app_card.dart';
 import '../../../../../app_admin/shared/widgets/status_badge.dart';
@@ -25,13 +26,13 @@ class GradeTableWidget extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: DataTable(
           columnSpacing: 24,
-          columns: const [
-            DataColumn(label: Text('Student')),
-            DataColumn(label: Text('Code')),
-            DataColumn(label: Text('Current')),
-            DataColumn(label: Text('Status')),
-            DataColumn(label: Text('Edit')),
-            DataColumn(label: Text('Notes')),
+          columns: [
+            DataColumn(label: Text(context.l10n.byValue('Student'))),
+            DataColumn(label: Text(context.l10n.byValue('Code'))),
+            DataColumn(label: Text(context.l10n.byValue('Current'))),
+            DataColumn(label: Text(context.l10n.byValue('Status'))),
+            DataColumn(label: Text(context.l10n.byValue('Edit'))),
+            DataColumn(label: Text(context.l10n.byValue('Notes'))),
           ],
           rows: students.map((student) {
             final entry = student.entries[category.key];

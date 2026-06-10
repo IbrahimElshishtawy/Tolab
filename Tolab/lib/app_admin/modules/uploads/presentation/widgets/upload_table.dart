@@ -7,6 +7,7 @@ import '../../../../core/colors/app_colors.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../shared/widgets/status_badge.dart';
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../models/upload_model.dart';
 import 'progress_indicator.dart';
 
@@ -75,24 +76,24 @@ class UploadTable extends StatelessWidget {
                         onChanged: (value) => onToggleAll(value ?? false),
                       ),
                     ),
-                    const DataColumn2(label: Text('Name'), size: ColumnSize.L),
-                    const DataColumn2(label: Text('Type'), size: ColumnSize.S),
-                    const DataColumn2(label: Text('Size'), size: ColumnSize.S),
-                    const DataColumn2(
-                      label: Text('Material / Section'),
+                    DataColumn2(label: Text(context.l10n.byValue('Name')), size: ColumnSize.L),
+                    DataColumn2(label: Text(context.l10n.byValue('Type')), size: ColumnSize.S),
+                    DataColumn2(label: Text(context.l10n.byValue('Size')), size: ColumnSize.S),
+                    DataColumn2(
+                      label: Text(context.l10n.byValue('Material / Section')),
                       size: ColumnSize.L,
                     ),
-                    const DataColumn2(
-                      label: Text('Uploaded By'),
+                    DataColumn2(
+                      label: Text(context.l10n.byValue('Uploaded By')),
                       size: ColumnSize.M,
                     ),
-                    const DataColumn2(label: Text('Date'), size: ColumnSize.M),
-                    const DataColumn2(
-                      label: Text('Status'),
+                    DataColumn2(label: Text(context.l10n.byValue('Date')), size: ColumnSize.M),
+                    DataColumn2(
+                      label: Text(context.l10n.byValue('Status')),
                       size: ColumnSize.M,
                     ),
-                    const DataColumn2(
-                      label: Text('Actions'),
+                    DataColumn2(
+                      label: Text(context.l10n.byValue('Actions')),
                       size: ColumnSize.M,
                     ),
                   ],
@@ -149,7 +150,7 @@ class UploadTable extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        item.accessControl.level.label,
+                                        context.l10n.byValue(item.accessControl.level.label),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: Theme.of(
@@ -162,8 +163,8 @@ class UploadTable extends StatelessWidget {
                               ],
                             ),
                           ),
-                          DataCell(Text(item.type.label)),
-                          DataCell(Text(_formatFileSize(item.sizeBytes))),
+                          DataCell(Text(context.l10n.byValue(item.type.label))),
+                          DataCell(Text(_formatFileSize(context, item.sizeBytes))),
                           DataCell(
                             Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -193,7 +194,7 @@ class UploadTable extends StatelessWidget {
                           ),
                           DataCell(
                             Text(
-                              DateFormat('dd MMM yyyy').format(item.uploadedAt),
+                              DateFormat('dd MMM yyyy', context.l10n.locale.languageCode).format(item.uploadedAt),
                             ),
                           ),
                           DataCell(
@@ -204,28 +205,28 @@ class UploadTable extends StatelessWidget {
                                       progress: item.progress,
                                       status: item.status,
                                       compact: true,
-                                    )
-                                  : StatusBadge(item.status.label),
+                                      )
+                                  : StatusBadge(context.l10n.byValue(item.status.label)),
                             ),
                           ),
                           DataCell(
                             Row(
                               children: [
                                 IconButton(
-                                  tooltip: 'Preview',
+                                  tooltip: context.l10n.byValue('Preview'),
                                   visualDensity: VisualDensity.compact,
                                   onPressed: () => onPreview(item),
                                   icon: const Icon(Icons.visibility_rounded),
                                 ),
                                 IconButton(
-                                  tooltip: 'Assign',
+                                  tooltip: context.l10n.byValue('Assign'),
                                   visualDensity: VisualDensity.compact,
                                   onPressed: () => onAssign(item),
                                   icon: const Icon(Icons.rule_folder_rounded),
                                 ),
                                 if (item.isFailed)
                                   IconButton(
-                                    tooltip: 'Retry',
+                                    tooltip: context.l10n.byValue('Retry'),
                                     visualDensity: VisualDensity.compact,
                                     onPressed: onRetry == null
                                         ? null
@@ -234,7 +235,7 @@ class UploadTable extends StatelessWidget {
                                   ),
                                 if (item.isUploading)
                                   IconButton(
-                                    tooltip: 'Cancel',
+                                    tooltip: context.l10n.byValue('Cancel'),
                                     visualDensity: VisualDensity.compact,
                                     onPressed: onCancel == null
                                         ? null
@@ -242,7 +243,7 @@ class UploadTable extends StatelessWidget {
                                     icon: const Icon(Icons.close_rounded),
                                   ),
                                 IconButton(
-                                  tooltip: 'Delete',
+                                  tooltip: context.l10n.byValue('Delete'),
                                   visualDensity: VisualDensity.compact,
                                   onPressed: () => onDelete(item),
                                   icon: const Icon(
@@ -265,7 +266,7 @@ class UploadTable extends StatelessWidget {
   }
 }
 
-String _formatFileSize(int bytes) {
+String _formatFileSize(BuildContext context, int bytes) {
   const units = ['B', 'KB', 'MB', 'GB'];
   var size = bytes.toDouble();
   var unitIndex = 0;
@@ -273,5 +274,5 @@ String _formatFileSize(int bytes) {
     size /= 1024;
     unitIndex++;
   }
-  return '${size.toStringAsFixed(unitIndex == 0 ? 0 : 1)} ${units[unitIndex]}';
+  return '${size.toStringAsFixed(unitIndex == 0 ? 0 : 1)} ${context.l10n.byValue(units[unitIndex])}';
 }

@@ -4,6 +4,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:redux/redux.dart';
 
+import '../../../../app/localization/app_localizations.dart';
 import '../../../core/routing/route_paths.dart';
 import '../../../core/spacing/app_spacing.dart';
 import '../../../shared/enums/load_status.dart';
@@ -53,7 +54,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (feedback != null && feedback != previous?.feedbackMessage) {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(content: Text(feedback)));
+            ..showSnackBar(SnackBar(content: Text(context.l10n.byValue(feedback))));
           StoreProvider.of<AppState>(
             context,
             listen: false,
@@ -67,7 +68,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ..hideCurrentSnackBar()
             ..showSnackBar(
               SnackBar(
-                content: Text(searchError),
+                content: Text(context.l10n.byValue(searchError)),
                 duration: const Duration(seconds: 3),
               ),
             );
@@ -324,12 +325,12 @@ class _DashboardFailureState extends StatelessWidget {
               const Icon(Icons.cloud_off_rounded, size: 56),
               const SizedBox(height: AppSpacing.md),
               Text(
-                'Dashboard unavailable',
+                context.l10n.byValue('Dashboard unavailable'),
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                message,
+                context.l10n.byValue(message),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
@@ -337,7 +338,7 @@ class _DashboardFailureState extends StatelessWidget {
               FilledButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Retry'),
+                label: Text(context.l10n.byValue('Retry')),
               ),
             ],
           ),

@@ -13,6 +13,7 @@ import '../../../../shared/widgets/premium_button.dart';
 import '../../../../state/app_state.dart';
 import '../../models/upload_model.dart';
 import '../../state/uploads_actions.dart';
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 
 class UploadPreviewScreen extends StatelessWidget {
   const UploadPreviewScreen({
@@ -59,7 +60,7 @@ class UploadPreviewScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: AppSpacing.xs),
                             Text(
-                              'Preview, inspect, and validate upload quality before sharing.',
+                              context.l10n.byValue('Preview, inspect, and validate upload quality before sharing.'),
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ],
@@ -152,25 +153,25 @@ class _PreviewBody extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _MetaTile(
-                label: 'Type',
-                value: preview.mimeType,
+                label: context.l10n.byValue('Type'),
+                value: context.l10n.byValue(preview.mimeType),
                 icon: Icons.category_rounded,
               ),
               _MetaTile(
-                label: 'Size',
-                value: _formatFileSize(preview.sizeBytes),
+                label: context.l10n.byValue('Size'),
+                value: _formatFileSize(context, preview.sizeBytes),
                 icon: Icons.storage_rounded,
               ),
               if (preview.durationLabel != null)
                 _MetaTile(
-                  label: 'Duration',
+                  label: context.l10n.byValue('Duration'),
                   value: preview.durationLabel!,
                   icon: Icons.timer_outlined,
                 ),
               const Spacer(),
               if (preview.downloadUrl != null)
                 PremiumButton(
-                  label: 'Copy Download Link',
+                  label: context.l10n.byValue('Copy Download Link'),
                   icon: Icons.content_copy_rounded,
                   onPressed: () async {
                     await Clipboard.setData(
@@ -180,7 +181,7 @@ class _PreviewBody extends StatelessWidget {
                 ),
               const SizedBox(height: AppSpacing.sm),
               PremiumButton(
-                label: 'Close Preview',
+                label: context.l10n.byValue('Close Preview'),
                 icon: Icons.check_rounded,
                 isSecondary: true,
                 onPressed: () => Navigator.of(context).pop(),
@@ -311,7 +312,7 @@ class _VideoPreviewState extends State<_VideoPreview> {
         ),
         const SizedBox(height: AppSpacing.md),
         PremiumButton(
-          label: _controller!.value.isPlaying ? 'Pause' : 'Play',
+          label: context.l10n.byValue(_controller!.value.isPlaying ? 'Pause' : 'Play'),
           icon: _controller!.value.isPlaying
               ? Icons.pause_rounded
               : Icons.play_arrow_rounded,
@@ -343,7 +344,7 @@ class _PreviewErrorState extends StatelessWidget {
         children: [
           const Icon(Icons.error_outline_rounded, size: 42),
           const SizedBox(height: AppSpacing.md),
-          Text(message, textAlign: TextAlign.center),
+          Text(context.l10n.byValue(message), textAlign: TextAlign.center),
         ],
       ),
     );
@@ -365,7 +366,7 @@ class _UnsupportedPreview extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.md),
         Text(
-          'Rich preview is not available for this file.',
+          context.l10n.byValue('Rich preview is not available for this file.'),
           style: Theme.of(context).textTheme.titleMedium,
           textAlign: TextAlign.center,
         ),
@@ -403,9 +404,9 @@ class _MetaTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: Theme.of(context).textTheme.labelMedium),
+                Text(context.l10n.byValue(label), style: Theme.of(context).textTheme.labelMedium),
                 const SizedBox(height: 2),
-                Text(value, style: Theme.of(context).textTheme.titleSmall),
+                Text(context.l10n.byValue(value), style: Theme.of(context).textTheme.titleSmall),
               ],
             ),
           ),
@@ -415,7 +416,7 @@ class _MetaTile extends StatelessWidget {
   }
 }
 
-String _formatFileSize(int bytes) {
+String _formatFileSize(BuildContext context, int bytes) {
   const units = ['B', 'KB', 'MB', 'GB'];
   var size = bytes.toDouble();
   var unitIndex = 0;
@@ -423,5 +424,5 @@ String _formatFileSize(int bytes) {
     size /= 1024;
     unitIndex++;
   }
-  return '${size.toStringAsFixed(unitIndex == 0 ? 0 : 1)} ${units[unitIndex]}';
+  return '${size.toStringAsFixed(unitIndex == 0 ? 0 : 1)} ${context.l10n.byValue(units[unitIndex])}';
 }
