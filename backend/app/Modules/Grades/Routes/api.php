@@ -14,3 +14,13 @@ Route::middleware(['auth:sanctum', 'active', 'admin', 'throttle:api'])->prefix('
     Route::put('grades/{grade}', [GradeController::class, 'update'])->middleware('throttle:sensitive');
     Route::delete('grades/{grade}', [GradeController::class, 'destroy'])->middleware('throttle:sensitive');
 });
+
+Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->prefix('v1')->group(function () {
+    Route::get('subjects/{subject}/results', [\App\Modules\Grades\Controllers\GradingApiController::class, 'index']);
+    Route::post('subjects/{subject}/grades/draft', [\App\Modules\Grades\Controllers\GradingApiController::class, 'draft'])->middleware('throttle:sensitive');
+    Route::post('subjects/{subject}/grades/publish', [\App\Modules\Grades\Controllers\GradingApiController::class, 'publish'])->middleware('throttle:sensitive');
+    Route::post('subjects/{subject}/grades/upload-sheet', [\App\Modules\Grades\Controllers\GradingApiController::class, 'uploadSheet'])->middleware('throttle:sensitive');
+
+    Route::get('student/dashboard', [\App\Modules\Grades\Controllers\StudentPortalController::class, 'dashboard'])->middleware('student');
+});
+

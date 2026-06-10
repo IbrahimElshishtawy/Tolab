@@ -48,6 +48,9 @@ class AppServiceProvider extends ServiceProvider
             'post' => Post::class,
             'comment' => Comment::class,
             'message' => Message::class,
+            'grade_category' => \App\Modules\Grades\Models\GradeCategory::class,
+            'student_grade' => \App\Modules\Grades\Models\StudentGrade::class,
+            'uploaded_grade_sheet' => \App\Modules\Grades\Models\UploadedGradeSheet::class,
         ]);
 
         RateLimiter::for('login', function (Request $request) {

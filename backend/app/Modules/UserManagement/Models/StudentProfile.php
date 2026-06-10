@@ -49,4 +49,9 @@ class StudentProfile extends Model
     {
         return $this->belongsTo(Department::class);
     }
+
+    public function studentGrades(): HasMany
+    {
+        return $this->hasMany(\App\Modules\Grades\Models\StudentGrade::class, 'student_id');
+    }
 }

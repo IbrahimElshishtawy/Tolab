@@ -268,4 +268,14 @@ class User extends Authenticatable
     {
         return $this->isAdmin() || in_array($permission, $this->effectivePermissions(), true);
     }
+
+    public function gradedStudentGrades(): HasMany
+    {
+        return $this->hasMany(\App\Modules\Grades\Models\StudentGrade::class, 'graded_by');
+    }
+
+    public function uploadedGradeSheets(): HasMany
+    {
+        return $this->hasMany(\App\Modules\Grades\Models\UploadedGradeSheet::class, 'uploaded_by');
+    }
 }
