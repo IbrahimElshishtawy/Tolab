@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:go_router/go_router.dart';
 import 'package:redux/redux.dart';
 
 import '../../../../app_admin/core/spacing/app_spacing.dart';
-import '../../../../app_admin/shared/widgets/premium_button.dart';
 import '../../../core/navigation/app_routes.dart';
 import '../../../core/state/async_state.dart';
 import '../../../core/widgets/state_views.dart';
@@ -16,16 +16,29 @@ import '../state/groups_state.dart';
 import 'add_post_page.dart';
 import 'widgets/latest_posts_section.dart';
 
-class SubjectGroupPage extends StatelessWidget {
+class SubjectGroupPage extends StatefulWidget {
   const SubjectGroupPage({super.key, required this.subjectId});
 
   final int subjectId;
 
   @override
+  State<SubjectGroupPage> createState() => _SubjectGroupPageState();
+}
+
+class _SubjectGroupPageState extends State<SubjectGroupPage> {
+  final TextEditingController _messageController = TextEditingController();
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return StoreConnector<DoctorAssistantAppState, _GroupVm>(
-      onInit: (store) => store.dispatch(LoadSubjectGroupAction(subjectId)),
-      converter: (store) => _GroupVm.fromStore(store, subjectId),
+      onInit: (store) => store.dispatch(LoadSubjectGroupAction(widget.subjectId)),
+      converter: (store) => _GroupVm.fromStore(store, widget.subjectId),
       builder: (context, vm) {
         if (vm.user == null) {
           return const SizedBox.shrink();
@@ -40,6 +53,7 @@ class SubjectGroupPage extends StatelessWidget {
             subtitle:
                 'Posts, comments, and activity feed stay aligned to the academic teaching context.',
             breadcrumbs: const ['Workspace', 'Subjects', 'Group'],
+            scrollable: false,
             child: _buildBody(context, vm),
           ),
         );
@@ -65,6 +79,8 @@ class SubjectGroupPage extends StatelessWidget {
       );
     }
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -81,69 +97,178 @@ class SubjectGroupPage extends StatelessWidget {
                 ],
               ),
             ),
-            PremiumButton(
-              label: 'New post',
-              icon: Icons.post_add_rounded,
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => AddPostPage(subjectId: subjectId),
-                ),
-              ),
-            ),
           ],
         ),
         const SizedBox(height: AppSpacing.md),
         Text(group.summary, style: Theme.of(context).textTheme.bodyMedium),
         const SizedBox(height: AppSpacing.md),
-        LatestPostsSection(
-          posts: group.posts,
-          actionsBuilder: (context, post) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => AddPostPage(
-                        subjectId: subjectId,
-                        post: post,
+        Expanded(
+          child: SingleChildScrollView(
+            child: LatestPostsSection(
+              posts: group.posts,
+              currentUser: vm.user,
+              asChat: true,
+              actionsBuilder: (context, post) {
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => AddPostPage(
+                            subjectId: widget.subjectId,
+                            post: post,
+                          ),
+                        ),
                       ),
+                      icon: const Icon(Icons.edit_outlined, size: 18),
+                      tooltip: 'Edit post',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
-                  ),
-                  icon: const Icon(Icons.edit_outlined, size: 18),
-                  tooltip: 'Edit post',
-                ),
-                IconButton(
-                  onPressed: () => vm.store.dispatch(
-                    TogglePinnedPostAction(
-                      subjectId: subjectId,
-                      postId: post.id,
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: () => vm.store.dispatch(
+                        TogglePinnedPostAction(
+                          subjectId: widget.subjectId,
+                          postId: post.id,
+                        ),
+                      ),
+                      icon: Icon(
+                        post.isPinned
+                            ? Icons.push_pin_rounded
+                            : Icons.push_pin_outlined,
+                        size: 18,
+                      ),
+                      tooltip: 'Pin post',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
-                  ),
-                  icon: Icon(
-                    post.isPinned
-                        ? Icons.push_pin_rounded
-                        : Icons.push_pin_outlined,
-                    size: 18,
-                  ),
-                  tooltip: 'Pin post',
-                ),
-                IconButton(
-                  onPressed: () => vm.store.dispatch(
-                    DeleteGroupPostAction(
-                      subjectId: subjectId,
-                      postId: post.id,
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: () => vm.store.dispatch(
+                        DeleteGroupPostAction(
+                          subjectId: widget.subjectId,
+                          postId: post.id,
+                        ),
+                      ),
+                      icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                      tooltip: 'Delete post',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF2A3942) : Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 3,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
                   ),
-                  icon: const Icon(Icons.delete_outline_rounded, size: 18),
-                  tooltip: 'Delete post',
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.sentiment_satisfied_alt_rounded,
+                        color: isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
+                        size: 24,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextField(
+                          controller: _messageController,
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black87,
+                            fontSize: 15,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: Localizations.localeOf(context).languageCode == 'ar'
+                                ? 'اكتب رسالة...'
+                                : 'Type a message...',
+                            hintStyle: TextStyle(
+                              color: isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
+                              fontSize: 15,
+                            ),
+                            border: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                          ),
+                          onSubmitted: (_) => _sendMessage(vm),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      IconButton(
+                        icon: const Icon(Icons.attach_file_rounded),
+                        onPressed: () => context.go(AppRoutes.addSubjectPost(widget.subjectId)),
+                        color: isDark ? const Color(0xFF8696A0) : const Color(0xFF667781),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            );
-          },
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () => _sendMessage(vm),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF00A884), // WhatsApp green
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.send_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
+  }
+
+  void _sendMessage(_GroupVm vm) {
+    final text = _messageController.text.trim();
+    if (text.isEmpty) return;
+
+    vm.store.dispatch(
+      SaveGroupPostAction(
+        subjectId: widget.subjectId,
+        payload: <String, dynamic>{
+          'title': '',
+          'content': text,
+          'post_type': 'post',
+          'priority': 'normal',
+          'is_pinned': false,
+          'attachment_label': '',
+        },
+      ),
+    );
+
+    _messageController.clear();
   }
 }
 

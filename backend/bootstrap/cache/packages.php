@@ -6,7 +6,7 @@
       0 => 'Laravel\\Sanctum\\SanctumServiceProvider',
     ),
   ),
-  'laravel/socialite' =>
+  'laravel/socialite' => 
   array (
     'aliases' => 
     array (
@@ -17,9 +17,9 @@
       0 => 'Laravel\\Socialite\\SocialiteServiceProvider',
     ),
   ),
-  'maatwebsite/excel' =>
+  'maatwebsite/excel' => 
   array (
-    'aliases' =>
+    'aliases' => 
     array (
       'Excel' => 'Maatwebsite\\Excel\\Facades\\Excel',
     ),
@@ -28,11 +28,18 @@
       0 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
     ),
   ),
-  'nesbot/carbon' =>
+  'nesbot/carbon' => 
   array (
     'providers' => 
     array (
       0 => 'Carbon\\Laravel\\ServiceProvider',
+    ),
+  ),
+  'nunomaduro/collision' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
     ),
   ),
   'nunomaduro/termwind' => 
@@ -42,7 +49,14 @@
       0 => 'Termwind\\Laravel\\TermwindServiceProvider',
     ),
   ),
-  'socialiteproviders/manager' =>
+  'pestphp/pest-plugin-laravel' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Pest\\Laravel\\PestServiceProvider',
+    ),
+  ),
+  'socialiteproviders/manager' => 
   array (
     'providers' => 
     array (

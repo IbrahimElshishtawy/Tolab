@@ -10,6 +10,7 @@ import '../../../../app_admin/core/widgets/app_card.dart';
 import '../../../../app_admin/shared/widgets/premium_button.dart';
 import '../../../../app_admin/shared/widgets/status_badge.dart';
 import '../../../../app_doctor_assistant/mock/doctor_assistant_mock_repository.dart';
+import '../../../../app_doctor_assistant/core/models/notification_models.dart';
 import '../../../../app_doctor_assistant/modules/results/models/results_models.dart';
 import '../../../../app_doctor_assistant/presentation/widgets/doctor_assistant_shell.dart';
 import '../../../../app_doctor_assistant/presentation/widgets/doctor_assistant_widgets.dart';
@@ -89,7 +90,11 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
           subjectId: subject.id,
           subjectCode: subject.code,
           subjectName: subject.name,
-          instructorName: subject.doctorName ?? 'Dr. Salma Hassan',
+          instructorName: subject.department == 'Computer Science'
+              ? 'Dr. Salma Hassan'
+              : subject.department == 'Information Systems'
+                  ? 'Dr. Khaled Mostafa'
+                  : 'Dr. Hala Ezz',
           grades: categoriesList,
           files: sheets,
         ));
@@ -113,7 +118,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authController = AppScope.of(context).bootstrap.authController;
+    final authController = AppScope.auth(context);
     final user = authController.state.user!;
 
     return DoctorAssistantShell(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/localization/app_localizations.dart';
@@ -51,6 +52,17 @@ class ResponsiveScaffold extends StatefulWidget {
 class _ResponsiveScaffoldState extends State<ResponsiveScaffold> {
   bool _isSidebarCollapsed = false;
   DeviceScreenType? _lastScreenType;
+  bool _isNavbarVisible = true;
+
+  @override
+  void didUpdateWidget(ResponsiveScaffold oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.location != widget.location) {
+      setState(() {
+        _isNavbarVisible = true;
+      });
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -79,21 +91,7 @@ class _ResponsiveScaffoldState extends State<ResponsiveScaffold> {
 
     return Scaffold(
       drawer: isMobile ? _buildMobileDrawer(context) : null,
-      bottomNavigationBar: isMobile
-          ? DoctorAssistantMobileBottomNav(
-              items: widget.navigation.mobilePrimaryItems,
-              selectedIndex: widget.navigation.mobileSelectedIndex(
-                widget.location,
-              ),
-              onSelected: (item) {
-                if (item.opensMoreMenu) {
-                  _openMoreSheet(context);
-                  return;
-                }
-                context.go(item.path);
-              },
-            )
-          : null,
+      bottomNavigationBar: null,
       body: DecoratedBox(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -124,6 +122,7 @@ class _ResponsiveScaffoldState extends State<ResponsiveScaffold> {
               ),
             ),
             SafeArea(
+              bottom: !isMobile,
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.sm),
                 child: Row(
@@ -180,7 +179,32 @@ class _ResponsiveScaffoldState extends State<ResponsiveScaffold> {
                                 constraints: const BoxConstraints(
                                   maxWidth: AppConstants.shellMaxContentWidth,
                                 ),
-                                child: widget.child,
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                    bottom: isMobile ? 80.0 : 0.0,
+                                  ),
+                                  child: NotificationListener<UserScrollNotification>(
+                                    onNotification: (notification) {
+                                      if (notification.direction ==
+                                          ScrollDirection.reverse) {
+                                        if (_isNavbarVisible) {
+                                          setState(() {
+                                            _isNavbarVisible = false;
+                                          });
+                                        }
+                                      } else if (notification.direction ==
+                                          ScrollDirection.forward) {
+                                        if (!_isNavbarVisible) {
+                                          setState(() {
+                                            _isNavbarVisible = true;
+                                          });
+                                        }
+                                      }
+                                      return false;
+                                    },
+                                    child: widget.child,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -191,6 +215,37 @@ class _ResponsiveScaffoldState extends State<ResponsiveScaffold> {
                 ),
               ),
             ),
+            if (isMobile)
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 12,
+                child: SafeArea(
+                  top: false,
+                  child: AnimatedSlide(
+                    offset: _isNavbarVisible ? Offset.zero : const Offset(0, 1.8),
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeOutCubic,
+                    child: AnimatedOpacity(
+                      opacity: _isNavbarVisible ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 200),
+                      child: DoctorAssistantMobileBottomNav(
+                        items: widget.navigation.mobilePrimaryItems,
+                        selectedIndex: widget.navigation.mobileSelectedIndex(
+                          widget.location,
+                        ),
+                        onSelected: (item) {
+                          if (item.opensMoreMenu) {
+                            _openMoreSheet(context);
+                            return;
+                          }
+                          context.go(item.path);
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

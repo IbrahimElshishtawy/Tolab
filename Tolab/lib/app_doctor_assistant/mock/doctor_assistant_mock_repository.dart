@@ -1426,7 +1426,7 @@ class DoctorAssistantMockRepository {
     for (final subjectId in _subjectPosts.keys) {
       _subjectPosts[subjectId] = (_subjectPosts[subjectId] ?? const [])
           .where((post) => post.id != postId)
-          .toList(growable: false);
+          .toList(growable: true);
     }
   }
 
@@ -1458,7 +1458,7 @@ class DoctorAssistantMockRepository {
               attachmentUrl: post.attachmentUrl,
             ),
           )
-          .toList(growable: false)
+          .toList(growable: true)
         ..sort((left, right) {
           if (left.isPinned == right.isPinned) {
             return right.createdAt.compareTo(left.createdAt);
@@ -2218,7 +2218,7 @@ class DoctorAssistantMockRepository {
               attachmentLabel: comments.length > 1 ? 'Attached brief.pdf' : null,
             );
           })
-          .toList(growable: false)
+          .toList(growable: true)
         ..sort((left, right) {
           if (left.isPinned == right.isPinned) {
             return right.createdAt.compareTo(left.createdAt);

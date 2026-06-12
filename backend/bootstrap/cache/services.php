@@ -28,11 +28,13 @@
     24 => 'Laravel\\Socialite\\SocialiteServiceProvider',
     25 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
     26 => 'Carbon\\Laravel\\ServiceProvider',
-    27 => 'Termwind\\Laravel\\TermwindServiceProvider',
-    28 => 'SocialiteProviders\\Manager\\ServiceProvider',
-    29 => 'App\\Providers\\AppServiceProvider',
-    30 => 'App\\Providers\\AuthServiceProvider',
-    31 => 'Laravel\\Socialite\\SocialiteServiceProvider',
+    27 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
+    28 => 'Termwind\\Laravel\\TermwindServiceProvider',
+    29 => 'Pest\\Laravel\\PestServiceProvider',
+    30 => 'SocialiteProviders\\Manager\\ServiceProvider',
+    31 => 'App\\Providers\\AppServiceProvider',
+    32 => 'App\\Providers\\AuthServiceProvider',
+    33 => 'Laravel\\Socialite\\SocialiteServiceProvider',
   ),
   'eager' => 
   array (
@@ -49,9 +51,11 @@
     10 => 'Laravel\\Sanctum\\SanctumServiceProvider',
     11 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
     12 => 'Carbon\\Laravel\\ServiceProvider',
-    13 => 'Termwind\\Laravel\\TermwindServiceProvider',
-    14 => 'App\\Providers\\AppServiceProvider',
-    15 => 'App\\Providers\\AuthServiceProvider',
+    13 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
+    14 => 'Termwind\\Laravel\\TermwindServiceProvider',
+    15 => 'Pest\\Laravel\\PestServiceProvider',
+    16 => 'App\\Providers\\AppServiceProvider',
+    17 => 'App\\Providers\\AuthServiceProvider',
   ),
   'deferred' => 
   array (
@@ -255,7 +259,7 @@
     'Laravel\\Socialite\\SocialiteServiceProvider' => 
     array (
     ),
-    'SocialiteProviders\\Manager\\ServiceProvider' =>
+    'SocialiteProviders\\Manager\\ServiceProvider' => 
     array (
     ),
   ),

@@ -232,27 +232,31 @@ class _DrawerTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: ListTile(
-        onTap: onTap,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm,
-          vertical: 2,
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        tileColor: Theme.of(
-          context,
-        ).extension<AppColorsScheme>()!.surfaceElevated,
-        leading: Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(14),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(18),
+        child: ListTile(
+          onTap: onTap,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.sm,
+            vertical: 2,
           ),
-          child: Icon(icon, size: 20, color: AppColors.primary),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          tileColor: Theme.of(
+            context,
+          ).extension<AppColorsScheme>()!.surfaceElevated,
+          leading: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, size: 20, color: AppColors.primary),
+          ),
+          title: Text(title),
+          subtitle: Text(subtitle),
         ),
-        title: Text(title),
-        subtitle: Text(subtitle),
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app_admin/core/spacing/app_spacing.dart';
+import '../../../core/navigation/app_routes.dart';
 import '../../../presentation/widgets/doctor_assistant_widgets.dart';
 import '../../../state/app_state.dart';
 import '../models/group_models.dart';
@@ -82,14 +83,14 @@ class _AddPostPageState extends State<AddPostPage> {
           context.pop();
         } else {
           // This is the root page - navigate to subject home instead
-          context.go('/workspace/subjects/details');
+          context.go(AppRoutes.subjectDetails(widget.subjectId));
         }
       } catch (e) {
         debugPrint('Navigation error in _handleBackPressed: $e');
         // Fallback: navigate to subject home on any error
         if (mounted) {
           try {
-              context.go('/workspace/subjects/details');
+              context.go(AppRoutes.subjectDetails(widget.subjectId));
           } catch (fallbackError) {
             debugPrint('Fallback navigation also failed: $fallbackError');
           }
@@ -119,7 +120,7 @@ class _AddPostPageState extends State<AddPostPage> {
             },
           ),
         );
-        Navigator.of(context).maybePop();
+        _handleBackPressed();
       },
       builder: (context, submit) {
         return Scaffold(

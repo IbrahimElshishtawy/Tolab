@@ -1,6 +1,7 @@
 import 'package:redux/redux.dart';
 
 import '../../../state/app_state.dart';
+import '../../subjects/state/subjects_actions.dart';
 import '../repositories/groups_repository.dart';
 import 'groups_actions.dart';
 
@@ -29,6 +30,7 @@ List<Middleware<DoctorAssistantAppState>> createGroupsMiddleware(
       next(action);
       await repository.savePost(action.subjectId, action.payload);
       store.dispatch(LoadSubjectGroupAction(action.subjectId));
+      store.dispatch(LoadSubjectWorkspaceAction(action.subjectId));
     }).call,
     TypedMiddleware<DoctorAssistantAppState, DeleteGroupPostAction>((
       store,
@@ -38,6 +40,7 @@ List<Middleware<DoctorAssistantAppState>> createGroupsMiddleware(
       next(action);
       await repository.deletePost(action.postId);
       store.dispatch(LoadSubjectGroupAction(action.subjectId));
+      store.dispatch(LoadSubjectWorkspaceAction(action.subjectId));
     }).call,
     TypedMiddleware<DoctorAssistantAppState, TogglePinnedPostAction>((
       store,
@@ -47,6 +50,7 @@ List<Middleware<DoctorAssistantAppState>> createGroupsMiddleware(
       next(action);
       await repository.togglePin(action.postId);
       store.dispatch(LoadSubjectGroupAction(action.subjectId));
+      store.dispatch(LoadSubjectWorkspaceAction(action.subjectId));
     }).call,
   ];
 }

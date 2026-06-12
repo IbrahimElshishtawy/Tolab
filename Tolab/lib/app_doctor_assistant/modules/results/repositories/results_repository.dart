@@ -39,7 +39,7 @@ class ApiResultsRepository implements ResultsRepository {
   @override
   Future<SubjectResultsModel> fetchSubjectResults(int subjectId) async {
     final response = await _apiClient.get<Map<String, dynamic>>(
-      '/staff-portal/subjects/$subjectId/results',
+      '/v1/subjects/$subjectId/results',
       parser: (value) => Map<String, dynamic>.from(value as Map),
     );
 
@@ -49,7 +49,7 @@ class ApiResultsRepository implements ResultsRepository {
   @override
   Future<void> saveGradesDraft(int subjectId, Map<String, dynamic> payload) async {
     await _apiClient.post<Object?>(
-      '/staff-portal/subjects/$subjectId/grades/draft',
+      '/v1/subjects/$subjectId/grades/draft',
       data: payload,
       parser: (_) => null,
     );
@@ -58,7 +58,7 @@ class ApiResultsRepository implements ResultsRepository {
   @override
   Future<void> publishGrades(int subjectId, Map<String, dynamic> payload) async {
     await _apiClient.post<Object?>(
-      '/staff-portal/subjects/$subjectId/grades/publish',
+      '/v1/subjects/$subjectId/grades/publish',
       data: payload,
       parser: (_) => null,
     );
@@ -76,7 +76,7 @@ class ApiResultsRepository implements ResultsRepository {
       'file': MultipartFile.fromBytes(fileBytes, filename: fileName),
     });
     await _apiClient.upload<Object?>(
-      '/staff-portal/subjects/$subjectId/grades/upload-sheet',
+      '/v1/subjects/$subjectId/grades/upload-sheet',
       formData: formData,
       parser: (_) => null,
     );

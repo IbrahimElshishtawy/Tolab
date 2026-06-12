@@ -253,7 +253,10 @@ class SubjectDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: AppSpacing.md),
-                      LatestPostsSection(posts: workspace.group.posts.take(3).toList()),
+                      LatestPostsSection(
+                        posts: workspace.group.posts.take(3).toList(),
+                        currentUser: vm.user,
+                      ),
                     ],
                   ),
                 ),

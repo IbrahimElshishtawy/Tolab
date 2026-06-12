@@ -6,7 +6,6 @@ import '../../../core/models/session_user.dart';
 import '../../../presentation/widgets/doctor_assistant_shell.dart';
 import '../state/dashboard_view_model.dart';
 import 'theme/app_spacing.dart';
-import 'theme/dashboard_theme_tokens.dart';
 import 'widgets/action_center_section.dart';
 import 'widgets/course_health_section.dart';
 import 'widgets/group_activity_feed_section.dart';
@@ -39,39 +38,35 @@ class DoctorDashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final snapshot = vm.snapshot!;
-    final tokens = DashboardThemeTokens.of(context);
 
     return DoctorAssistantShell(
       user: user,
       activeRoute: '/workspace/home',
       unreadNotifications: snapshot.notificationsPreview.unreadCount,
-      child: Container(
-        color: tokens.pageBackground,
-        child: RefreshIndicator(
-          onRefresh: () async {
-            vm.load(force: true);
-            await Future<void>.delayed(const Duration(milliseconds: 400));
-          },
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(DashboardAppSpacing.xl),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final content = _DashboardContent(
-                  snapshot: snapshot,
-                  onToggleStyle: onToggleStyle,
-                  onRefresh: () => vm.load(force: true),
-                );
+      child: RefreshIndicator(
+        onRefresh: () async {
+          vm.load(force: true);
+          await Future<void>.delayed(const Duration(milliseconds: 400));
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(DashboardAppSpacing.xl),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final content = _DashboardContent(
+                snapshot: snapshot,
+                onToggleStyle: onToggleStyle,
+                onRefresh: () => vm.load(force: true),
+              );
 
-                if (constraints.maxWidth >= 1200) {
-                  return content.desktop(context);
-                }
-                if (constraints.maxWidth >= 760) {
-                  return content.tablet(context);
-                }
-                return content.mobile(context);
-              },
-            ),
+              if (constraints.maxWidth >= 1200) {
+                return content.desktop(context);
+              }
+              if (constraints.maxWidth >= 760) {
+                return content.tablet(context);
+              }
+              return content.mobile(context);
+            },
           ),
         ),
       ),

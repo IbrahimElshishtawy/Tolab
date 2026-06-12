@@ -42,7 +42,14 @@ class AppCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Padding(padding: padding, child: child),
+      child: Padding(
+        padding: padding,
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(AppRadii.lg),
+          child: child,
+        ),
+      ),
     );
   }
 }

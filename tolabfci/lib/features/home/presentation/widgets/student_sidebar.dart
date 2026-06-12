@@ -225,17 +225,21 @@ class _ShortcutTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: () => GoRouter.of(context).goNamed(routeName),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: 2,
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(16),
+      child: ListTile(
+        onTap: () => GoRouter.of(context).goNamed(routeName),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: 2,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        tileColor: context.appColors.surfaceElevated,
+        leading: Icon(icon, color: AppColors.primary),
+        title: Text(title),
+        subtitle: Text(subtitle),
       ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      tileColor: context.appColors.surfaceElevated,
-      leading: Icon(icon, color: AppColors.primary),
-      title: Text(title),
-      subtitle: Text(subtitle),
     );
   }
 }
