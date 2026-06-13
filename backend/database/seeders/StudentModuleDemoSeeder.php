@@ -12,7 +12,8 @@ use App\Modules\Academic\Infrastructure\Department;
 use App\Modules\Academic\Infrastructure\Section;
 use App\Modules\Academic\Infrastructure\Subject;
 use App\Modules\Enrollment\Models\Enrollment;
-use App\Modules\Grades\Models\GradeItem;
+use App\Modules\Grades\Models\StudentGrade;
+use App\Modules\Grades\Models\GradeCategory;
 use App\Modules\Group\Models\GroupChat;
 use App\Modules\Group\Models\GroupMember;
 use App\Modules\Notifications\Models\UserNotification;
@@ -156,10 +157,21 @@ class StudentModuleDemoSeeder extends Seeder
                 'week_pattern' => WeekPattern::ALL,
             ]);
 
-            GradeItem::factory()->create([
-                'course_offering_id' => $offering->id,
-                'student_user_id' => $student->id,
-                'updated_by' => $doctor->id,
+            $category = GradeCategory::firstOrCreate(
+                ['subject_id' => $subject->id, 'key_name' => 'midterm'],
+                [
+                    'label' => 'Midterm Exam',
+                    'max_score' => 20.00,
+                    'status' => 'published',
+                ]
+            );
+
+            StudentGrade::create([
+                'student_id' => $student->studentProfile->id,
+                'grade_category_id' => $category->id,
+                'score' => 15.00,
+                'status' => 'published',
+                'graded_by' => $doctor->id,
             ]);
 
             UserNotification::factory()->create([

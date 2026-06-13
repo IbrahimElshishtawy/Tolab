@@ -4,7 +4,7 @@ namespace App\Modules\Grades\Controllers;
 
 use App\Core\Base\ApiController;
 use App\Modules\Academic\Infrastructure\CourseOffering;
-use App\Modules\Grades\Models\GradeItem;
+use App\Modules\Grades\Models\StudentGrade;
 use App\Modules\Grades\Requests\StoreGradeRequest;
 use App\Modules\Grades\Requests\UpdateGradeRequest;
 use App\Modules\Grades\Resources\GradeItemResource;
@@ -29,14 +29,14 @@ class GradeController extends ApiController
         return $this->success('Grade created successfully.', GradeItemResource::make($grade), 201);
     }
 
-    public function update(UpdateGradeRequest $request, GradeItem $grade)
+    public function update(UpdateGradeRequest $request, StudentGrade $grade)
     {
         $grade = $this->gradeService->update($grade, $request->validated(), $request->user());
 
         return $this->success('Grade updated successfully.', GradeItemResource::make($grade));
     }
 
-    public function destroy(GradeItem $grade)
+    public function destroy(StudentGrade $grade)
     {
         $this->gradeService->delete($grade, request()->user());
 

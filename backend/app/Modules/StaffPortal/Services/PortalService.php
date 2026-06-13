@@ -9,7 +9,9 @@ use App\Modules\Content\Infrastructure\Attachment;
 use App\Modules\Content\Infrastructure\Lecture;
 use App\Modules\Enrollment\Models\Enrollment;
 use App\Modules\Grades\Enums\GradeType;
-use App\Modules\Grades\Models\GradeItem;
+use App\Modules\Grades\Models\StudentGrade;
+use App\Modules\Grades\Models\GradeCategory;
+use App\Modules\UserManagement\Models\StudentProfile;
 use App\Modules\Group\Models\Comment;
 use App\Modules\Group\Models\GroupChat;
 use App\Modules\Group\Models\Post;
@@ -756,14 +758,14 @@ class PortalService
         $subject = $this->subject($user, $subject);
         $offerings = $this->subjectOfferings($user, $subject);
         $students = $this->subjectStudents($user, $subject);
-        $gradeItems = GradeItem::query()
-            ->with(['student'])
-            ->whereIn('course_offering_id', $offerings->pluck('id'))
+        $gradeItems = StudentGrade::query()
+            ->with(['student.user', 'gradeCategory'])
+            ->whereHas('gradeCategory', fn($q) => $q->where('subject_id', $subject->id))
             ->get();
         $categories = $this->categoryDefinitions($user);
 
         $categoryPayload = collect($categories)->map(function (array $category) use ($gradeItems, $students, $user) {
-            $items = $gradeItems->where('type', $category['type']);
+            $items = $gradeItems->filter(fn($gi) => $gi->gradeCategory?->key_name === $category['type']->value);
             $gradedCount = $items->whereNotNull('score')->count();
             $averageScore = round((float) ($items->avg('score') ?? 0), 1);
 
@@ -785,13 +787,12 @@ class PortalService
             $entries = [];
             foreach ($categories as $category) {
                 $grade = $gradeItems
-                    ->where('student_user_id', $student['student_id'])
-                    ->where('type', $category['type'])
+                    ->filter(fn($gi) => $gi->student?->user_id === $student['student_id'] && $gi->gradeCategory?->key_name === $category['type']->value)
                     ->sortByDesc('updated_at')
                     ->first();
                 $entries[$category['key']] = [
                     'score' => $grade?->score !== null ? (float) $grade->score : null,
-                    'max_score' => $grade?->max_score !== null ? (float) $grade->max_score : $category['max_score'],
+                    'max_score' => $grade?->gradeCategory?->max_score !== null ? (float) $grade->gradeCategory->max_score : $category['max_score'],
                     'status_label' => $grade?->status ?? 'Draft',
                     'note' => $grade?->note,
                 ];
@@ -811,10 +812,10 @@ class PortalService
             ];
         })->values();
 
-        $recentActivity = $gradeItems->sortByDesc('updated_at')->take(6)->map(fn (GradeItem $grade) => [
+        $recentActivity = $gradeItems->sortByDesc('updated_at')->take(6)->map(fn (StudentGrade $grade) => [
             'id' => $grade->id,
-            'title' => ($grade->type?->value ?? 'GRADE').' updated',
-            'subtitle' => ($grade->student?->full_name ?: $grade->student?->username ?: 'Student').' in '.$subject->code,
+            'title' => ($grade->gradeCategory?->key_name ?? 'GRADE').' updated',
+            'subtitle' => ($grade->student?->user?->full_name ?: $grade->student?->user?->username ?: 'Student').' in '.$subject->code,
             'status_label' => match ($grade->status) {
                 'published' => 'Published',
                 'review' => 'Needs review',
@@ -835,8 +836,8 @@ class PortalService
                 'average_score' => round((float) ($gradeItems->avg('score') ?? 0), 1),
                 'missing_grades' => (int) $categoryPayload->sum('missing_count'),
                 'attendance_completion' => 90,
-                'graded_quizzes' => $gradeItems->where('type', GradeType::QUIZ)->count(),
-                'pending_quizzes' => max(0, count($students) - $gradeItems->where('type', GradeType::QUIZ)->count()),
+                'graded_quizzes' => $gradeItems->filter(fn($gi) => $gi->gradeCategory?->key_name === 'quiz')->count(),
+                'pending_quizzes' => max(0, count($students) - $gradeItems->filter(fn($gi) => $gi->gradeCategory?->key_name === 'quiz')->count()),
                 'top_performer_label' => $studentPayload->first()['student_name'] ?? '',
                 'low_performer_label' => $studentPayload->last()['student_name'] ?? '',
             ],
@@ -889,39 +890,42 @@ class PortalService
         $subject = $this->subject($user, $subject);
         abort_unless(in_array($payload['category_key'], $this->allowedEditableCategoryKeys($user), true), Response::HTTP_FORBIDDEN, 'This role cannot update the selected grading category.');
 
-        $offering = $this->resolveSubjectCourseOffering($user, $subject);
-        $type = $this->resolveGradeType($payload['category_key']);
+        $categoryKey = $payload['category_key'];
 
-        DB::transaction(function () use ($payload, $publish, $user, $offering, $type) {
+        DB::transaction(function () use ($payload, $publish, $user, $subject, $categoryKey) {
+            $category = GradeCategory::updateOrCreate(
+                ['subject_id' => $subject->id, 'key_name' => $categoryKey],
+                [
+                    'label' => ucfirst($categoryKey),
+                    'max_score' => $payload['max_score'],
+                    'status' => $publish ? 'published' : 'draft',
+                ]
+            );
+
             foreach ($payload['entries'] as $entry) {
-                $studentId = User::query()
-                    ->whereHas('studentProfile', fn (Builder $query) => $query->where('student_code', $entry['student_code']))
-                    ->value('id');
-
-                if (! $studentId) {
+                $studentProfile = StudentProfile::where('student_code', $entry['student_code'])->first();
+                if (!$studentProfile) {
                     continue;
                 }
 
-                GradeItem::query()->updateOrCreate(
+                StudentGrade::updateOrCreate(
                     [
-                        'course_offering_id' => $offering->id,
-                        'student_user_id' => $studentId,
-                        'type' => $type,
+                        'student_id' => $studentProfile->id,
+                        'grade_category_id' => $category->id,
                     ],
                     [
                         'score' => $entry['score'] ?? null,
-                        'max_score' => $payload['max_score'],
                         'status' => $publish ? 'published' : 'draft',
-                        'published_at' => $publish ? now() : null,
-                        'entered_by_role' => $user->role_type,
                         'note' => $entry['note'] ?? null,
-                        'updated_by' => $user->id,
-                    ],
+                        'graded_by' => $user->id,
+                    ]
                 );
             }
         });
 
         $this->auditLogService->log($user, $publish ? 'staff-portal.grades.publish' : 'staff-portal.grades.save-draft', $subject, $payload, request());
+
+        resolve(\App\Modules\StaffPortal\Services\DashboardService::class)->clearDashboardCache($user);
 
         return $this->subjectResults($user, $subject);
     }
@@ -1032,15 +1036,15 @@ class PortalService
         $postsCount = Post::query()
             ->whereHas('group.courseOffering', fn (Builder $query) => $query->where('subject_id', $subject->id))
             ->count();
-        $averageScore = GradeItem::query()
-            ->whereIn('course_offering_id', $offerings->pluck('id'))
+        $averageScore = StudentGrade::query()
+            ->whereHas('gradeCategory', fn($q) => $q->where('subject_id', $subject->id))
             ->avg('score');
-        $pendingGradesCount = GradeItem::query()
-            ->whereIn('course_offering_id', $offerings->pluck('id'))
+        $pendingGradesCount = StudentGrade::query()
+            ->whereHas('gradeCategory', fn($q) => $q->where('subject_id', $subject->id))
             ->where('status', '!=', 'published')
             ->count();
-        $publishedResultsCount = GradeItem::query()
-            ->whereIn('course_offering_id', $offerings->pluck('id'))
+        $publishedResultsCount = StudentGrade::query()
+            ->whereHas('gradeCategory', fn($q) => $q->where('subject_id', $subject->id))
             ->where('status', 'published')
             ->count();
         $lastLecture = Lecture::query()->where('subject_id', $subject->id)->latest('updated_at')->first();

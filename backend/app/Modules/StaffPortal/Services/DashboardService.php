@@ -9,7 +9,7 @@ use App\Modules\Academic\Infrastructure\CourseOffering;
 use App\Modules\Academic\Infrastructure\Subject;
 use App\Modules\Content\Infrastructure\Lecture;
 use App\Modules\Enrollment\Models\Enrollment;
-use App\Modules\Grades\Models\GradeItem;
+use App\Modules\Grades\Models\StudentGrade;
 use App\Modules\Group\Models\Comment;
 use App\Modules\Group\Models\Message;
 use App\Modules\Group\Models\Post;
@@ -60,6 +60,18 @@ class DashboardService
             now()->addSeconds(45),
             fn () => $this->buildDashboard($user),
         );
+    }
+
+    public function clearDashboardCache(User $user): void
+    {
+        $permissionHash = md5(implode('|', [
+            ...$user->effectivePermissions(),
+            'grades:'.($user->canManageGrades() ? '1' : '0'),
+            'content:'.($user->canManageContent() ? '1' : '0'),
+            'schedule:'.($user->canManageSchedule() ? '1' : '0'),
+        ]));
+
+        Cache::forget(sprintf('staff-dashboard:%d:%s:%s', $user->id, $user->role?->value ?? 'unknown', $permissionHash));
     }
 
     protected function buildDashboard(User $user): array
@@ -168,9 +180,9 @@ class DashboardService
             ->get();
 
         $gradeItems = $canManageGrades
-            ? GradeItem::query()
-                ->with(['courseOffering.subject', 'student'])
-                ->whereIn('course_offering_id', $offeringIds)
+            ? StudentGrade::query()
+                ->with(['gradeCategory.subject', 'student.user'])
+                ->whereHas('gradeCategory', fn($q) => $q->whereIn('subject_id', $subjectIds))
                 ->get()
             : new EloquentCollection;
 
@@ -1267,12 +1279,12 @@ class DashboardService
         }
 
         $normalized = $gradeItems
-            ->filter(fn (GradeItem $item) => (float) $item->max_score > 0)
-            ->map(fn (GradeItem $item) => [
-                'student_id' => $item->student_user_id,
-                'student_name' => $item->student?->full_name ?: $item->student?->username,
-                'subject_name' => $item->courseOffering?->subject?->name,
-                'percentage' => round((((float) $item->score) / ((float) $item->max_score)) * 100, 1),
+            ->filter(fn (StudentGrade $item) => (float) ($item->gradeCategory?->max_score ?? 0) > 0)
+            ->map(fn (StudentGrade $item) => [
+                'student_id' => $item->student?->user_id,
+                'student_name' => $item->student?->user?->full_name ?: $item->student?->user?->username,
+                'subject_name' => $item->gradeCategory?->subject?->name,
+                'percentage' => round((((float) $item->score) / ((float) ($item->gradeCategory?->max_score ?? 100))) * 100, 1),
             ]);
 
         $byStudent = $normalized

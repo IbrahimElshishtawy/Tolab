@@ -121,9 +121,16 @@ class CourseOffering extends Model
         return $this->hasMany(CourseFile::class);
     }
 
-    public function grades(): HasMany
+    public function grades()
     {
-        return $this->hasMany(GradeItem::class);
+        return $this->hasManyThrough(
+            \App\Modules\Grades\Models\StudentGrade::class,
+            \App\Modules\Grades\Models\GradeCategory::class,
+            'subject_id',
+            'grade_category_id',
+            'subject_id',
+            'id'
+        );
     }
 
     public function scheduleEvents(): HasMany

@@ -13,7 +13,7 @@ class TaskSubmissionService
 {
     public function submit(Task $task, User $student, array $data): TaskSubmission
     {
-        if ($task->due_at && $task->due_at->isPast()) {
+        if ($task->due_date && $task->due_date->isPast()) {
              throw new ApiException('The due date for this task has passed.', [], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 

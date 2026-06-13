@@ -2,7 +2,7 @@
 
 namespace App\Modules\Tasks\Infrastructure;
 
-use App\Modules\Academic\Infrastructure\CourseOffering;
+use App\Modules\Academic\Infrastructure\Subject;
 use App\Modules\UserManagement\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,10 +14,10 @@ class Task extends Model
     use HasFactory;
 
     protected $fillable = [
-        'course_offering_id',
+        'subject_id',
         'title',
         'description',
-        'due_at',
+        'due_date',
         'max_score',
         'created_by',
         'is_published',
@@ -26,15 +26,15 @@ class Task extends Model
     protected function casts(): array
     {
         return [
-            'due_at' => 'datetime',
+            'due_date' => 'datetime',
             'is_published' => 'boolean',
             'max_score' => 'decimal:2',
         ];
     }
 
-    public function courseOffering(): BelongsTo
+    public function subject(): BelongsTo
     {
-        return $this->belongsTo(CourseOffering::class);
+        return $this->belongsTo(Subject::class);
     }
 
     public function creator(): BelongsTo

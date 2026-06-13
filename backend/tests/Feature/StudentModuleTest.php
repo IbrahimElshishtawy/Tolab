@@ -11,7 +11,8 @@ use App\Modules\Academic\Infrastructure\Department;
 use App\Modules\Academic\Infrastructure\Section;
 use App\Modules\Academic\Infrastructure\Subject;
 use App\Modules\Enrollment\Models\Enrollment;
-use App\Modules\Grades\Models\GradeItem;
+use App\Modules\Grades\Models\StudentGrade;
+use App\Modules\Grades\Models\GradeCategory;
 use App\Modules\Group\Models\GroupChat;
 use App\Modules\Group\Models\GroupMember;
 use App\Modules\Notifications\Models\UserNotification;
@@ -59,16 +60,36 @@ class StudentModuleTest extends TestCase
         [$student, $offering] = $this->createStudentScenario();
         $otherStudent = User::factory()->create(['role' => UserRole::STUDENT]);
 
-        GradeItem::factory()->create([
-            'course_offering_id' => $offering->id,
-            'student_user_id' => $student->id,
-            'score' => 17,
+        $category = GradeCategory::create([
+            'subject_id' => $offering->subject_id,
+            'key_name' => 'midterm',
+            'label' => 'Midterm',
+            'max_score' => 20.0,
+            'status' => 'published',
         ]);
 
-        GradeItem::factory()->create([
-            'course_offering_id' => $offering->id,
-            'student_user_id' => $otherStudent->id,
+        $studentProfile = $student->studentProfile;
+        $otherStudentProfile = StudentProfile::factory()->create([
+            'user_id' => $otherStudent->id,
+            'department_id' => $offering->subject->department_id,
+            'section_id' => $offering->section_id,
+            'grade_year' => 3,
+        ]);
+
+        StudentGrade::create([
+            'student_id' => $studentProfile->id,
+            'grade_category_id' => $category->id,
+            'score' => 17,
+            'status' => 'published',
+            'graded_by' => $offering->doctor_user_id,
+        ]);
+
+        StudentGrade::create([
+            'student_id' => $otherStudentProfile->id,
+            'grade_category_id' => $category->id,
             'score' => 4,
+            'status' => 'published',
+            'graded_by' => $offering->doctor_user_id,
         ]);
 
         Sanctum::actingAs($student);

@@ -14,8 +14,8 @@ use App\Modules\Academic\Infrastructure\Section;
 use App\Modules\Academic\Infrastructure\Subject;
 use App\Modules\Content\Infrastructure\Lecture;
 use App\Modules\Enrollment\Models\Enrollment;
-use App\Modules\Grades\Enums\GradeType;
-use App\Modules\Grades\Models\GradeItem;
+use App\Modules\Grades\Models\StudentGrade;
+use App\Modules\Grades\Models\GradeCategory;
 use App\Modules\Group\Models\Comment;
 use App\Modules\Group\Models\GroupChat;
 use App\Modules\Group\Models\GroupMember;
@@ -540,29 +540,49 @@ class DoctorAssistantDashboardSeeder extends Seeder
 
     protected function seedGrades(CourseOffering $offering, User $doctor, Collection $students, CarbonImmutable $now): void
     {
+        $midtermCat = GradeCategory::firstOrCreate(
+            ['subject_id' => $offering->subject_id, 'key_name' => 'midterm'],
+            [
+                'label' => 'Midterm Exam',
+                'max_score' => 50.00,
+                'status' => 'published',
+            ]
+        );
+
+        $taskCat = GradeCategory::firstOrCreate(
+            ['subject_id' => $offering->subject_id, 'key_name' => 'coursework'],
+            [
+                'label' => 'Assignments / coursework',
+                'max_score' => 25.00,
+                'status' => 'published',
+            ]
+        );
+
         foreach ($students as $studentMeta) {
             $student = $studentMeta['user'];
+            $profile = $student->studentProfile;
+            if (!$profile) {
+                continue;
+            }
 
-            GradeItem::factory()->create([
-                'course_offering_id' => $offering->id,
-                'student_user_id' => $student->id,
-                'type' => GradeType::MIDTERM,
+            StudentGrade::create([
+                'student_id' => $profile->id,
+                'grade_category_id' => $midtermCat->id,
                 'score' => $studentMeta['midterm'],
-                'max_score' => 50,
                 'note' => $studentMeta['midterm'] < 25 ? 'Midterm needs intervention.' : 'Midterm performance on track.',
-                'updated_by' => $doctor->id,
+                'graded_by' => $doctor->id,
+                'status' => 'published',
                 'created_at' => $now->subDays(10),
                 'updated_at' => $now->subDays(2),
             ]);
 
-            GradeItem::factory()->create([
-                'course_offering_id' => $offering->id,
-                'student_user_id' => $student->id,
-                'type' => GradeType::TASK,
+            StudentGrade::create([
+                'student_id' => $profile->id,
+                'grade_category_id' => $taskCat->id,
                 'score' => $studentMeta['task'],
-                'max_score' => 25,
                 'note' => $studentMeta['task'] < 10 ? 'Low task score recorded.' : 'Task score recorded.',
-                'updated_by' => $doctor->id,
+                'graded_by' => $doctor->id,
+                'status' => 'published',
                 'created_at' => $now->subDays(4),
                 'updated_at' => $now->subDay(),
             ]);

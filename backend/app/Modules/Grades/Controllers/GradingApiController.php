@@ -14,6 +14,7 @@ use App\Modules\Notifications\Models\UserNotification;
 use App\Modules\Shared\Services\AuditLogService;
 use App\Modules\Academic\Infrastructure\CourseOffering;
 use App\Modules\Enrollment\Models\Enrollment;
+use App\Modules\Grades\Requests\UploadGradeSheetRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -23,23 +24,8 @@ class GradingApiController extends ApiController
 {
     public function index(Request $request, Subject $subject)
     {
+        $this->authorize('viewResults', $subject);
         $user = $request->user();
-        if (!$user->isAdmin() && !$user->isStaff()) {
-            return api_error('Unauthorized.', [], 403);
-        }
-
-        if (!$user->isAdmin()) {
-            $assignedIds = $user->staffAssignments()->pluck('subject_id')
-                ->merge(CourseOffering::query()
-                    ->where('doctor_user_id', $user->id)
-                    ->orWhere('ta_user_id', $user->id)
-                    ->pluck('subject_id')
-                )
-                ->unique();
-            if (!$assignedIds->contains($subject->id)) {
-                return api_error('Forbidden. You are not assigned to this subject.', [], 403);
-            }
-        }
 
         // Retrieve or seed categories
         $categories = GradeCategory::where('subject_id', $subject->id)->get();
@@ -72,7 +58,8 @@ class GradingApiController extends ApiController
 
         $studentProfileIds = $enrollments->map(fn($e) => $e->student?->studentProfile?->id)->filter();
 
-        $studentGrades = StudentGrade::whereIn('student_id', $studentProfileIds)
+        $studentGrades = StudentGrade::with('gradeCategory')
+            ->whereIn('student_id', $studentProfileIds)
             ->whereIn('grade_category_id', $categories->pluck('id'))
             ->get();
 
@@ -223,25 +210,15 @@ class GradingApiController extends ApiController
 
     public function saveGrades(Request $request, Subject $subject, $publish = false)
     {
+        $categoryKey = $request->input('category_key');
+        if (empty($categoryKey)) {
+            return api_error('Validation failed: category_key is required.', [
+                'category_key' => ['The category key field is required.']
+            ], 400);
+        }
+
+        $this->authorize('manageGrades', [$subject, (string)$categoryKey]);
         $user = $request->user();
-        if (!$user->isAdmin() && !$user->isStaff()) {
-            return api_error('Unauthorized.', [], 403);
-        }
-
-        if (!$user->isAdmin()) {
-            if ($user->role === UserRole::DOCTOR) {
-                $allowed = ['midterm', 'final'];
-            } elseif ($user->role === UserRole::TA) {
-                $allowed = ['quiz', 'oral', 'sheets', 'attendance', 'coursework'];
-            } else {
-                return api_error('You are not allowed to manage grades.', [], 403);
-            }
-
-            $categoryKey = $request->input('category_key');
-            if (!in_array($categoryKey, $allowed, true)) {
-                return api_error('You are not allowed to manage this grade category.', [], 403);
-            }
-        }
 
         $validator = Validator::make($request->all(), [
             'category_key' => 'required|string',
@@ -347,6 +324,8 @@ class GradingApiController extends ApiController
             $response['warnings'] = $warningLogs;
         }
 
+        resolve(\App\Modules\StaffPortal\Services\DashboardService::class)->clearDashboardCache($user);
+
         return response()->json($response, 200);
     }
 
@@ -360,23 +339,11 @@ class GradingApiController extends ApiController
         return $this->saveGrades($request, $subject, true);
     }
 
-    public function uploadSheet(Request $request, Subject $subject)
+    public function uploadSheet(UploadGradeSheetRequest $request, Subject $subject)
     {
-        $user = $request->user();
-        if (!$user->isAdmin() && !$user->isStaff()) {
-            return api_error('Unauthorized.', [], 403);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'category_key' => 'required|string',
-            'file' => 'required|file',
-        ]);
-
-        if ($validator->fails()) {
-            return api_error('Validation failed.', $validator->errors()->toArray(), 400);
-        }
-
         $categoryKey = $request->input('category_key');
+        $this->authorize('manageGrades', [$subject, $categoryKey]);
+        $user = $request->user();
         $file = $request->file('file');
 
         $category = GradeCategory::firstOrCreate(
@@ -509,6 +476,8 @@ class GradingApiController extends ApiController
         if (!empty($warningLogs)) {
             $resData['warnings'] = $warningLogs;
         }
+
+        resolve(\App\Modules\StaffPortal\Services\DashboardService::class)->clearDashboardCache($user);
 
         return response()->json($resData, 201);
     }

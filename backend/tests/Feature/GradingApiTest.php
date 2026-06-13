@@ -243,6 +243,44 @@ class GradingApiTest extends TestCase
             ->assertJsonPath('data.subjects.0.grades.1.status', 'Draft');
     }
 
+    public function test_invalid_file_extension_rejected_by_upload()
+    {
+        [$student, $doctor, $subject] = $this->createScenario();
+
+        Sanctum::actingAs($doctor);
+
+        $file = UploadedFile::fake()->create('malicious_script.php', 100, 'application/x-httpd-php');
+
+        $response = $this->postJson("/api/v1/subjects/{$subject->id}/grades/upload-sheet", [
+            'category_key' => 'midterm',
+            'file' => $file,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['file']);
+    }
+
+    public function test_doctor_cannot_manage_grades_for_unassigned_subject()
+    {
+        [$student, $doctor, $subject] = $this->createScenario();
+        $unassignedDoctor = User::factory()->doctor()->create();
+
+        Sanctum::actingAs($unassignedDoctor);
+
+        $response = $this->postJson("/api/v1/subjects/{$subject->id}/grades/draft", [
+            'category_key' => 'midterm',
+            'max_score' => 20.0,
+            'entries' => [
+                [
+                    'student_code' => $student->studentProfile->student_code,
+                    'score' => 18.5,
+                ]
+            ]
+        ]);
+
+        $response->assertStatus(403);
+    }
+
     private function createScenario(): array
     {
         $department = Department::factory()->create();

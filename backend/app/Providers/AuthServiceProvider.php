@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Modules\Academic\Infrastructure\CourseOffering;
+use App\Modules\Academic\Infrastructure\Subject;
 use App\Modules\Academic\Infrastructure\Policies\CourseOfferingPolicy;
-use App\Modules\Grades\Models\GradeItem;
+use App\Modules\Academic\Infrastructure\Policies\SubjectPolicy;
+use App\Modules\Grades\Models\StudentGrade;
 use App\Modules\Grades\Policies\GradePolicy;
 use App\Modules\Group\Models\Comment;
 use App\Modules\Group\Models\GroupChat;
@@ -25,11 +27,12 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         User::class => UserPolicy::class,
         CourseOffering::class => CourseOfferingPolicy::class,
+        Subject::class => SubjectPolicy::class,
         GroupChat::class => GroupPolicy::class,
         Post::class => PostPolicy::class,
         Comment::class => CommentPolicy::class,
         Message::class => MessagePolicy::class,
-        GradeItem::class => GradePolicy::class,
+        StudentGrade::class => GradePolicy::class,
         ScheduleEvent::class => SchedulePolicy::class,
     ];
 

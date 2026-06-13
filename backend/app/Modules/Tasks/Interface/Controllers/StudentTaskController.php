@@ -26,7 +26,7 @@ class StudentTaskController extends ApiController
 
     public function mySubmissions(Request $request): JsonResponse
     {
-        $submissions = $request->user()->taskSubmissions()->with('task.courseOffering.subject')->latest()->get();
+        $submissions = $request->user()->taskSubmissions()->with('task.subject')->latest()->get();
         return $this->success($submissions);
     }
 }

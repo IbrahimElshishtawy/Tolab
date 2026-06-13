@@ -176,9 +176,16 @@ class User extends Authenticatable
         return $this->hasMany(Message::class, 'sender_user_id');
     }
 
-    public function gradeItems(): HasMany
+    public function gradeItems()
     {
-        return $this->hasMany(GradeItem::class, 'student_user_id');
+        return $this->hasManyThrough(
+            \App\Modules\Grades\Models\StudentGrade::class,
+            StudentProfile::class,
+            'user_id',
+            'student_id',
+            'id',
+            'id'
+        );
     }
 
     public function notificationsFeed(): HasMany
