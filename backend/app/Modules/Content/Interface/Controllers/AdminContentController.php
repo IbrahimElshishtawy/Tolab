@@ -32,6 +32,42 @@ class AdminContentController extends ApiController
 {
     public function __construct(protected ContentService $contentService) {}
 
+        /**
+     * @OA\Post(
+     *     path="/api/admin/courses/{courseOffering}/lectures",
+     *     summary="storeLecture action in AdminContentController",
+     *     tags={"Content"},
+     *     @OA\Parameter(
+     *         name="courseOffering",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The courseOffering parameter"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"title"},
+     *             @OA\Property(property="title", type="string", description="Rules: required, string, max:180"),
+     *             @OA\Property(property="description", type="string", description="Rules: nullable, string"),
+     *             @OA\Property(property="date", type="string", description="Rules: nullable, date"),
+     *             @OA\Property(property="files", type="array", description="Rules: nullable, array"),
+     *             @OA\Property(property="files.*", type="string", description="Rules: file, max:10240, mimes:pdf,doc,docx,ppt,pptx,jpg,jpeg,png,zip,rar")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function storeLecture(StoreLectureRequest $request, CourseOffering $courseOffering)
     {
         $this->contentService->assertManageAllowed($request->user());
@@ -40,6 +76,41 @@ class AdminContentController extends ApiController
         return $this->success('Lecture created successfully.', LectureResource::make($lecture), 201);
     }
 
+        /**
+     * @OA\Put(
+     *     path="/api/admin/lectures/{lecture}",
+     *     summary="updateLecture action in AdminContentController",
+     *     tags={"Content"},
+     *     @OA\Parameter(
+     *         name="lecture",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The lecture parameter"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="title", type="string", description="Rules: sometimes, string, max:180"),
+     *             @OA\Property(property="description", type="string", description="Rules: nullable, string"),
+     *             @OA\Property(property="date", type="string", description="Rules: nullable, date"),
+     *             @OA\Property(property="files", type="array", description="Rules: nullable, array"),
+     *             @OA\Property(property="files.*", type="string", description="Rules: file, max:10240, mimes:pdf,doc,docx,ppt,pptx,jpg,jpeg,png,zip,rar")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function updateLecture(UpdateLectureRequest $request, Lecture $lecture)
     {
         $this->contentService->assertManageAllowed($request->user());
@@ -56,6 +127,41 @@ class AdminContentController extends ApiController
         return $this->success('Lecture deleted successfully.');
     }
 
+        /**
+     * @OA\Post(
+     *     path="/api/admin/courses/{courseOffering}/sections",
+     *     summary="storeSectionSession action in AdminContentController",
+     *     tags={"Content"},
+     *     @OA\Parameter(
+     *         name="courseOffering",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The courseOffering parameter"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"title"},
+     *             @OA\Property(property="title", type="string", description="Rules: required, string, max:180"),
+     *             @OA\Property(property="date", type="string", description="Rules: nullable, date"),
+     *             @OA\Property(property="files", type="array", description="Rules: nullable, array"),
+     *             @OA\Property(property="files.*", type="string", description="Rules: file, max:10240, mimes:pdf,doc,docx,ppt,pptx,jpg,jpeg,png,zip,rar")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function storeSectionSession(StoreSectionSessionRequest $request, CourseOffering $courseOffering)
     {
         $this->contentService->assertManageAllowed($request->user());
@@ -64,6 +170,40 @@ class AdminContentController extends ApiController
         return $this->success('Section session created successfully.', SectionSessionResource::make($session), 201);
     }
 
+        /**
+     * @OA\Put(
+     *     path="/api/admin/sections-sessions/{sectionSession}",
+     *     summary="updateSectionSession action in AdminContentController",
+     *     tags={"Content"},
+     *     @OA\Parameter(
+     *         name="sectionSession",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The sectionSession parameter"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="title", type="string", description="Rules: sometimes, string, max:180"),
+     *             @OA\Property(property="date", type="string", description="Rules: nullable, date"),
+     *             @OA\Property(property="files", type="array", description="Rules: nullable, array"),
+     *             @OA\Property(property="files.*", type="string", description="Rules: file, max:10240, mimes:pdf,doc,docx,ppt,pptx,jpg,jpeg,png,zip,rar")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function updateSectionSession(UpdateSectionSessionRequest $request, SectionSession $sectionSession)
     {
         $this->contentService->assertManageAllowed($request->user());
@@ -80,6 +220,39 @@ class AdminContentController extends ApiController
         return $this->success('Section session deleted successfully.');
     }
 
+        /**
+     * @OA\Post(
+     *     path="/api/admin/courses/{courseOffering}/summaries",
+     *     summary="storeSummary action in AdminContentController",
+     *     tags={"Content"},
+     *     @OA\Parameter(
+     *         name="courseOffering",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The courseOffering parameter"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"title", "file"},
+     *             @OA\Property(property="title", type="string", description="Rules: required, string, max:180"),
+     *             @OA\Property(property="file", type="string", description="Rules: required, file, max:10240, mimes:pdf,doc,docx,ppt,pptx")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function storeSummary(StoreSummaryRequest $request, CourseOffering $courseOffering)
     {
         $this->contentService->assertManageAllowed($request->user());
@@ -88,6 +261,30 @@ class AdminContentController extends ApiController
         return $this->success('Summary created successfully.', SummaryResource::make($summary), 201);
     }
 
+        /**
+     * @OA\Delete(
+     *     path="/api/admin/summaries/{summary}",
+     *     summary="deleteSummary action in AdminContentController",
+     *     tags={"Content"},
+     *     @OA\Parameter(
+     *         name="summary",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The summary parameter"
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function deleteSummary(Summary $summary)
     {
         $this->contentService->assertManageAllowed(request()->user());
@@ -96,6 +293,43 @@ class AdminContentController extends ApiController
         return $this->success('Summary deleted successfully.');
     }
 
+        /**
+     * @OA\Post(
+     *     path="/api/admin/courses/{courseOffering}/assessments",
+     *     summary="storeAssessment action in AdminContentController",
+     *     tags={"Content"},
+     *     @OA\Parameter(
+     *         name="courseOffering",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The courseOffering parameter"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"type", "title"},
+     *             @OA\Property(property="type", type="string", description="Rules: required, Illuminate\Validation\Rules\Enum"),
+     *             @OA\Property(property="title", type="string", description="Rules: required, string, max:180"),
+     *             @OA\Property(property="description", type="string", description="Rules: nullable, string"),
+     *             @OA\Property(property="due_at", type="string", description="Rules: nullable, date"),
+     *             @OA\Property(property="files", type="array", description="Rules: nullable, array"),
+     *             @OA\Property(property="files.*", type="string", description="Rules: file, max:10240, mimes:pdf,doc,docx,xls,xlsx,csv,jpg,jpeg,png,zip,rar")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function storeAssessment(StoreAssessmentRequest $request, CourseOffering $courseOffering)
     {
         $this->contentService->assertManageAllowed($request->user());
@@ -104,6 +338,42 @@ class AdminContentController extends ApiController
         return $this->success('Assessment created successfully.', AssessmentResource::make($assessment), 201);
     }
 
+        /**
+     * @OA\Put(
+     *     path="/api/admin/assessments/{assessment}",
+     *     summary="updateAssessment action in AdminContentController",
+     *     tags={"Content"},
+     *     @OA\Parameter(
+     *         name="assessment",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The assessment parameter"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="type", type="string", description="Rules: sometimes, Illuminate\Validation\Rules\Enum"),
+     *             @OA\Property(property="title", type="string", description="Rules: sometimes, string, max:180"),
+     *             @OA\Property(property="description", type="string", description="Rules: nullable, string"),
+     *             @OA\Property(property="due_at", type="string", description="Rules: nullable, date"),
+     *             @OA\Property(property="files", type="array", description="Rules: nullable, array"),
+     *             @OA\Property(property="files.*", type="string", description="Rules: file, max:10240, mimes:pdf,doc,docx,xls,xlsx,csv,jpg,jpeg,png,zip,rar")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function updateAssessment(UpdateAssessmentRequest $request, Assessment $assessment)
     {
         $this->contentService->assertManageAllowed($request->user());
@@ -120,6 +390,41 @@ class AdminContentController extends ApiController
         return $this->success('Assessment deleted successfully.');
     }
 
+        /**
+     * @OA\Post(
+     *     path="/api/admin/courses/{courseOffering}/exams",
+     *     summary="storeExam action in AdminContentController",
+     *     tags={"Content"},
+     *     @OA\Parameter(
+     *         name="courseOffering",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The courseOffering parameter"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"title", "exam_at"},
+     *             @OA\Property(property="title", type="string", description="Rules: required, string, max:180"),
+     *             @OA\Property(property="exam_at", type="string", description="Rules: required, date"),
+     *             @OA\Property(property="files", type="array", description="Rules: nullable, array"),
+     *             @OA\Property(property="files.*", type="string", description="Rules: file, max:10240, mimes:pdf,doc,docx,jpg,jpeg,png,zip,rar")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function storeExam(StoreExamRequest $request, CourseOffering $courseOffering)
     {
         $this->contentService->assertManageAllowed($request->user());
@@ -128,6 +433,40 @@ class AdminContentController extends ApiController
         return $this->success('Exam created successfully.', ExamResource::make($exam), 201);
     }
 
+        /**
+     * @OA\Put(
+     *     path="/api/admin/exams/{exam}",
+     *     summary="updateExam action in AdminContentController",
+     *     tags={"Content"},
+     *     @OA\Parameter(
+     *         name="exam",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The exam parameter"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="title", type="string", description="Rules: sometimes, string, max:180"),
+     *             @OA\Property(property="exam_at", type="string", description="Rules: sometimes, date"),
+     *             @OA\Property(property="files", type="array", description="Rules: nullable, array"),
+     *             @OA\Property(property="files.*", type="string", description="Rules: file, max:10240, mimes:pdf,doc,docx,jpg,jpeg,png,zip,rar")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function updateExam(UpdateExamRequest $request, Exam $exam)
     {
         $this->contentService->assertManageAllowed($request->user());
@@ -144,6 +483,40 @@ class AdminContentController extends ApiController
         return $this->success('Exam deleted successfully.');
     }
 
+        /**
+     * @OA\Post(
+     *     path="/api/admin/courses/{courseOffering}/files",
+     *     summary="storeCourseFile action in AdminContentController",
+     *     tags={"Content"},
+     *     @OA\Parameter(
+     *         name="courseOffering",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The courseOffering parameter"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"title", "file"},
+     *             @OA\Property(property="title", type="string", description="Rules: required, string, max:180"),
+     *             @OA\Property(property="category", type="string", description="Rules: nullable, string, max:80"),
+     *             @OA\Property(property="file", type="string", description="Rules: required, file, max:10240, mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,csv,jpg,jpeg,png,zip,rar")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function storeCourseFile(StoreCourseFileRequest $request, CourseOffering $courseOffering)
     {
         $this->contentService->assertManageAllowed($request->user());
@@ -152,6 +525,30 @@ class AdminContentController extends ApiController
         return $this->success('Course file created successfully.', CourseFileResource::make($courseFile), 201);
     }
 
+        /**
+     * @OA\Delete(
+     *     path="/api/admin/course-files/{courseFile}",
+     *     summary="deleteCourseFile action in AdminContentController",
+     *     tags={"Content"},
+     *     @OA\Parameter(
+     *         name="courseFile",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The courseFile parameter"
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function deleteCourseFile(CourseFile $courseFile)
     {
         $this->contentService->assertManageAllowed(request()->user());

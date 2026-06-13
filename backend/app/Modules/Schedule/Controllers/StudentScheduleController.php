@@ -12,6 +12,23 @@ class StudentScheduleController extends ApiController
 {
     public function __construct(protected ScheduleService $scheduleService) {}
 
+        /**
+     * @OA\Get(
+     *     path="/api/student/timetable",
+     *     summary="index action in StudentScheduleController",
+     *     tags={"Schedule"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function index(TimetableFilterRequest $request)
     {
         $week = WeekPattern::tryFrom((string) $request->validated('week', WeekPattern::ALL->value)) ?? WeekPattern::ALL;

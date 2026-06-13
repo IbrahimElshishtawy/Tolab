@@ -11,6 +11,23 @@ use Illuminate\Http\Request;
 
 class StudentPortalController extends ApiController
 {
+        /**
+     * @OA\Get(
+     *     path="/api/v1/student/dashboard",
+     *     summary="dashboard action in StudentPortalController",
+     *     tags={"Grades"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function dashboard(Request $request)
     {
         $user = $request->user();

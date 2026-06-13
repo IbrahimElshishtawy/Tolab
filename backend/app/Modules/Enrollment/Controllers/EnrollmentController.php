@@ -19,6 +19,23 @@ class EnrollmentController extends ApiController
         protected PaginationSanitizer $paginationSanitizer,
     ) {}
 
+        /**
+     * @OA\Get(
+     *     path="/api/admin/enrollments",
+     *     summary="index action in EnrollmentController",
+     *     tags={"Enrollment"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function index(Request $request)
     {
         $filters = $request->only([
@@ -57,6 +74,40 @@ class EnrollmentController extends ApiController
         return $this->success('Enrollment created successfully.', EnrollmentResource::make($enrollment), 201);
     }
 
+        /**
+     * @OA\Put(
+     *     path="/api/admin/enrollments/{enrollment}",
+     *     summary="update action in EnrollmentController",
+     *     tags={"Enrollment"},
+     *     @OA\Parameter(
+     *         name="enrollment",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The enrollment parameter"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"student_user_id", "course_offering_id"},
+     *             @OA\Property(property="student_user_id", type="integer", description="Rules: required, integer, exists:users,id"),
+     *             @OA\Property(property="course_offering_id", type="integer", description="Rules: required, integer, exists:course_offerings,id"),
+     *             @OA\Property(property="status", type="string", description="Rules: nullable, string, in:enrolled,pending,rejected")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function update(UpdateEnrollmentRequest $request, Enrollment $enrollment)
     {
         $updated = $this->enrollmentService->update($enrollment, $request->validated(), $request->user());
@@ -64,6 +115,34 @@ class EnrollmentController extends ApiController
         return $this->success('Enrollment updated successfully.', EnrollmentResource::make($updated));
     }
 
+        /**
+     * @OA\Post(
+     *     path="/api/admin/enrollments/bulk",
+     *     summary="bulk action in EnrollmentController",
+     *     tags={"Enrollment"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"enrollments", "enrollments.*.student_user_id", "enrollments.*.course_offering_id"},
+     *             @OA\Property(property="enrollments", type="array", description="Rules: required, array, min:1"),
+     *             @OA\Property(property="enrollments.*.student_user_id", type="integer", description="Rules: required, integer, exists:users,id"),
+     *             @OA\Property(property="enrollments.*.course_offering_id", type="integer", description="Rules: required, integer, exists:course_offerings,id"),
+     *             @OA\Property(property="enrollments.*.status", type="string", description="Rules: nullable, string, in:enrolled,pending,rejected")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function bulk(BulkEnrollmentRequest $request)
     {
         $enrollments = $this->enrollmentService->bulkCreate($request->validated(), $request->user());
@@ -71,6 +150,34 @@ class EnrollmentController extends ApiController
         return $this->success('Enrollments created successfully.', EnrollmentResource::collection(collect($enrollments)), 201);
     }
 
+        /**
+     * @OA\Post(
+     *     path="/api/admin/enrollments/bulk-upload",
+     *     summary="bulkUpload action in EnrollmentController",
+     *     tags={"Enrollment"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"enrollments", "enrollments.*.student_user_id", "enrollments.*.course_offering_id"},
+     *             @OA\Property(property="enrollments", type="array", description="Rules: required, array, min:1"),
+     *             @OA\Property(property="enrollments.*.student_user_id", type="integer", description="Rules: required, integer, exists:users,id"),
+     *             @OA\Property(property="enrollments.*.course_offering_id", type="integer", description="Rules: required, integer, exists:course_offerings,id"),
+     *             @OA\Property(property="enrollments.*.status", type="string", description="Rules: nullable, string, in:enrolled,pending,rejected")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function bulkUpload(BulkEnrollmentRequest $request)
     {
         return $this->bulk($request);

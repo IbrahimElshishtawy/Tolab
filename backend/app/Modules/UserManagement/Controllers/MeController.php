@@ -13,11 +13,45 @@ class MeController extends ApiController
 {
     public function __construct(protected UserService $userService) {}
 
+        /**
+     * @OA\Get(
+     *     path="/api/me",
+     *     summary="me action in MeController",
+     *     tags={"UserManagement"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function me(Request $request)
     {
         return $this->success('User profile retrieved successfully.', UserIdentityResource::make($request->user()));
     }
 
+        /**
+     * @OA\Get(
+     *     path="/api/me/profile",
+     *     summary="profile action in MeController",
+     *     tags={"UserManagement"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function profile(Request $request)
     {
         $user = $request->user()->load([

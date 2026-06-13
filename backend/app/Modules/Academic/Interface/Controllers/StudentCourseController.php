@@ -19,6 +19,23 @@ class StudentCourseController extends ApiController
         protected ContentService $contentService,
     ) {}
 
+        /**
+     * @OA\Get(
+     *     path="/api/student/courses",
+     *     summary="index action in StudentCourseController",
+     *     tags={"Academic"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function index(Request $request)
     {
         $courses = $this->repository->paginate($this->repository->forStudent($request->user()), $this->paginationSanitizer->perPage($request));
@@ -26,6 +43,30 @@ class StudentCourseController extends ApiController
         return $this->success('Student courses retrieved successfully.', CourseOfferingResource::collection($courses));
     }
 
+        /**
+     * @OA\Get(
+     *     path="/api/student/courses/{courseOffering}",
+     *     summary="show action in StudentCourseController",
+     *     tags={"Academic"},
+     *     @OA\Parameter(
+     *         name="courseOffering",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The courseOffering parameter"
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function show(CourseOffering $courseOffering)
     {
         $this->authorize('view', $courseOffering);
@@ -36,6 +77,30 @@ class StudentCourseController extends ApiController
         );
     }
 
+        /**
+     * @OA\Get(
+     *     path="/api/student/courses/{courseOffering}/content",
+     *     summary="content action in StudentCourseController",
+     *     tags={"Academic"},
+     *     @OA\Parameter(
+     *         name="courseOffering",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The courseOffering parameter"
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function content(CourseOffering $courseOffering)
     {
         $this->authorize('view', $courseOffering);

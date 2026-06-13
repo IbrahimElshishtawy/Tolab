@@ -22,6 +22,30 @@ use Illuminate\Support\Facades\Storage;
 
 class GradingApiController extends ApiController
 {
+        /**
+     * @OA\Get(
+     *     path="/api/v1/subjects/{subject}/results",
+     *     summary="index action in GradingApiController",
+     *     tags={"Grades"},
+     *     @OA\Parameter(
+     *         name="subject",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The subject parameter"
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function index(Request $request, Subject $subject)
     {
         $this->authorize('viewResults', $subject);
@@ -329,16 +353,115 @@ class GradingApiController extends ApiController
         return response()->json($response, 200);
     }
 
+        /**
+     * @OA\Post(
+     *     path="/api/v1/subjects/{subject}/grades/draft",
+     *     summary="draft action in GradingApiController",
+     *     tags={"Grades"},
+     *     @OA\Parameter(
+     *         name="subject",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The subject parameter"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"category_key", "file"},
+     *             @OA\Property(property="category_key", type="string", description="Rules: required, string, max:50"),
+     *             @OA\Property(property="file", type="string", description="Rules: required, file, mimes:pdf,csv,xls,xlsx, max:10240")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function draft(Request $request, Subject $subject)
     {
         return $this->saveGrades($request, $subject, false);
     }
 
+        /**
+     * @OA\Post(
+     *     path="/api/v1/subjects/{subject}/grades/publish",
+     *     summary="publish action in GradingApiController",
+     *     tags={"Grades"},
+     *     @OA\Parameter(
+     *         name="subject",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The subject parameter"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"category_key", "file"},
+     *             @OA\Property(property="category_key", type="string", description="Rules: required, string, max:50"),
+     *             @OA\Property(property="file", type="string", description="Rules: required, file, mimes:pdf,csv,xls,xlsx, max:10240")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function publish(Request $request, Subject $subject)
     {
         return $this->saveGrades($request, $subject, true);
     }
 
+        /**
+     * @OA\Post(
+     *     path="/api/v1/subjects/{subject}/grades/upload-sheet",
+     *     summary="uploadSheet action in GradingApiController",
+     *     tags={"Grades"},
+     *     @OA\Parameter(
+     *         name="subject",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The subject parameter"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"category_key", "file"},
+     *             @OA\Property(property="category_key", type="string", description="Rules: required, string, max:50"),
+     *             @OA\Property(property="file", type="string", description="Rules: required, file, mimes:pdf,csv,xls,xlsx, max:10240")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400BadRequest"),
+     *     @OA\Response(response=401, ref="#/components/responses/401Unauthenticated"),
+     *     @OA\Response(response=403, ref="#/components/responses/403Forbidden"),
+     *     security={
+     *         {"sanctum": {}}
+     *     }
+     * )
+     */
     public function uploadSheet(UploadGradeSheetRequest $request, Subject $subject)
     {
         $categoryKey = $request->input('category_key');
