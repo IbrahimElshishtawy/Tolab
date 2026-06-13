@@ -1,0 +1,112 @@
+services:
+  # 1. Laravel Web Application (PHP-FPM + Nginx)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tolab_app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8000}:80"
+    environment:
+      CONTAINER_ROLE: app
+      RUN_MIGRATIONS: "true"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - tolab_network
+
+  # 2. Queue Workers (Supervisor + Horizon)
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tolab_worker
+    restart: unless-stopped
+    environment:
+      CONTAINER_ROLE: worker
+      RUN_MIGRATIONS: "false"
+    env_file:
+      - .env
+    depends_on:
+      app:
+        condition: service_started
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - tolab_network
+
+  # 3. Task Scheduler (Laravel Cron Loop)
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tolab_scheduler
+    restart: unless-stopped
+    environment:
+      CONTAINER_ROLE: scheduler
+      RUN_MIGRATIONS: "false"
+    env_file:
+      - .env
+    depends_on:
+      app:
+        condition: service_started
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - tolab_network
+
+  # 4. Redis Cache & Queue Storage
+  redis:
+    image: redis:7.4-alpine
+    container_name: tolab_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-change_redis_password}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - tolab_network
+
+  # 5. MySQL Database (Optional - can be replaced with external DB in .env)
+  db:
+    image: mysql:8.0
+    container_name: tolab_db
+    restart: unless-stopped
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-tolab_university}
+      MYSQL_USER: ${DB_USERNAME:-tolab_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-tolab_password}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_password}
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - tolab_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${DB_USERNAME:-tolab_user}", "-p${DB_PASSWORD:-tolab_password}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+networks:
+  tolab_network:
+    driver: bridge
+
+volumes:
+  db_data:
+    driver: local
+  redis_data:
+    driver: local
