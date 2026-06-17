@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/localization/app_localization.dart';
 import '../../../../core/models/notification_item.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/adaptive_page_container.dart';
-import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/error_state_widget.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../data/repositories/mock_notifications_repository.dart';
 import '../providers/notifications_providers.dart';
+import '../widgets/notification_filters.dart';
+import '../widgets/notification_group.dart';
 
 class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
@@ -67,61 +68,58 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'التنبيهات',
+                        context.tr('التنبيهات', 'Notifications'),
                         style: Theme.of(context).textTheme.displaySmall,
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       Text(
-                        'تنبيهات أكاديمية قابلة للاستخدام الفعلي، مع تصفية سريعة، unread only، ووصول مباشر للعنصر المرتبط.',
+                        context.tr(
+                          'تنبيهات أكاديمية قابلة للاستخدام الفعلي، مع تصفية سريعة، والوصول المباشر للعنصر المرتبط.',
+                          'Academic notifications for practical use, with quick filtering and direct access to the related items.',
+                        ),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       const SizedBox(height: AppSpacing.lg),
-                      Wrap(
-                        spacing: AppSpacing.sm,
-                        runSpacing: AppSpacing.sm,
-                        children: [
-                          for (final filter in const {
-                            'all': 'All',
-                            'unread': 'Unread',
-                            'important': 'Important',
-                          }.entries)
-                            ChoiceChip(
-                              label: Text(filter.value),
-                              selected: _filter == filter.key,
-                              onSelected: (_) =>
-                                  setState(() => _filter = filter.key),
-                            ),
-                        ],
+                      NotificationFilters(
+                        selectedFilter: _filter,
+                        onFilterSelected: (newFilter) {
+                          setState(() => _filter = newFilter);
+                        },
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 if (filtered.isEmpty)
-                  const EmptyStateWidget(
-                    title: 'لا توجد تنبيهات ضمن هذا العرض',
-                    subtitle:
-                        'غيّر الفلاتر أو أوقف unread only لعرض المزيد من التحديثات.',
+                  EmptyStateWidget(
+                    title: context.tr(
+                      'لا توجد تنبيهات ضمن هذا العرض',
+                      'No notifications under this filter',
+                    ),
+                    subtitle: context.tr(
+                      'غيّر الفلاتر لعرض المزيد من التحديثات.',
+                      'Change the filters to see more updates.',
+                    ),
                   )
                 else ...[
                   if (todayItems.isNotEmpty)
-                    _NotificationGroup(
-                      title: 'اليوم',
+                    NotificationGroup(
+                      title: context.tr('اليوم', 'Today'),
                       items: todayItems,
                       onOpen: _openNotification,
                     ),
                   if (weekItems.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.lg),
-                    _NotificationGroup(
-                      title: 'هذا الأسبوع',
+                    NotificationGroup(
+                      title: context.tr('هذا الأسبوع', 'This Week'),
                       items: weekItems,
                       onOpen: _openNotification,
                     ),
                   ],
                   if (olderItems.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.lg),
-                    _NotificationGroup(
-                      title: 'أقدم',
+                    NotificationGroup(
+                      title: context.tr('أقدم', 'Older'),
                       items: olderItems,
                       onOpen: _openNotification,
                     ),
@@ -130,7 +128,9 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
               ],
             );
           },
-          loading: () => const LoadingWidget(label: 'جارٍ تحميل التنبيهات...'),
+          loading: () => LoadingWidget(
+            label: context.tr('جارٍ تحميل التنبيهات...', 'Loading notifications...'),
+          ),
           error: (error, _) => ErrorStateWidget(message: error.toString()),
         ),
       ),
@@ -149,141 +149,4 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     }
     context.goNamed(item.routeName, pathParameters: item.pathParameters);
   }
-}
-
-class _NotificationGroup extends StatelessWidget {
-  const _NotificationGroup({
-    required this.title,
-    required this.items,
-    required this.onOpen,
-  });
-
-  final String title;
-  final List<AppNotificationItem> items;
-  final Future<void> Function(BuildContext context, AppNotificationItem item)
-  onOpen;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: AppSpacing.md),
-        ...items.map(
-          (item) => Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.md),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(20),
-              onTap: () => onOpen(context, item),
-              child: _NotificationCard(item: item),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _NotificationCard extends StatelessWidget {
-  const _NotificationCard({required this.item});
-
-  final AppNotificationItem item;
-
-  @override
-  Widget build(BuildContext context) {
-    final accent = _urgencyColor(item.urgency);
-    final palette = context.appColors;
-
-    return AppCard(
-      backgroundColor: item.isRead ? palette.surface : palette.surfaceElevated,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 12,
-            height: 70,
-            decoration: BoxDecoration(
-              color: accent,
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  spacing: AppSpacing.sm,
-                  runSpacing: AppSpacing.sm,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    AppBadge(
-                      label: item.category,
-                      backgroundColor: palette.surfaceAlt,
-                      foregroundColor: accent,
-                    ),
-                    AppBadge(
-                      label: _urgencyLabel(item.urgency),
-                      backgroundColor: accent.withValues(alpha: 0.12),
-                      foregroundColor: accent,
-                    ),
-                    if (item.subjectName != null)
-                      AppBadge(
-                        label: item.subjectName!,
-                        backgroundColor: palette.surfaceAlt,
-                        foregroundColor: palette.textPrimary,
-                      ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  item.title,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(item.body, style: Theme.of(context).textTheme.bodySmall),
-                const SizedBox(height: AppSpacing.sm),
-                Row(
-                  children: [
-                    Text(
-                      item.createdAtLabel,
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                    const Spacer(),
-                    if (!item.isRead)
-                      Text(
-                        'جديد',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-String _urgencyLabel(NotificationUrgency urgency) {
-  return switch (urgency) {
-    NotificationUrgency.newItem => 'جديد',
-    NotificationUrgency.important => 'مهم',
-    NotificationUrgency.urgent => 'عاجل',
-  };
-}
-
-Color _urgencyColor(NotificationUrgency urgency) {
-  return switch (urgency) {
-    NotificationUrgency.newItem => AppColors.primary,
-    NotificationUrgency.important => AppColors.warning,
-    NotificationUrgency.urgent => AppColors.error,
-  };
 }
