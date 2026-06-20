@@ -106,7 +106,7 @@ class _GenderOption extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: selected ? activeColor : palette.textMuted,
+              color: selected ? activeColor : palette.textSecondary,
               size: 28,
             ),
             const SizedBox(width: AppSpacing.sm),
