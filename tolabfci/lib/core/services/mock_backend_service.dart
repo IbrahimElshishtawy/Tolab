@@ -765,8 +765,10 @@ class MockBackendService {
         .toList();
   }
 
-  Stream<List<AppNotificationItem>> watchNotifications() =>
-      _notificationsController.stream;
+  Stream<List<AppNotificationItem>> watchNotifications() async* {
+    yield _notifications;
+    yield* _notificationsController.stream;
+  }
 
   Future<List<AppNotificationItem>> fetchNotifications() async =>
       _notifications;
