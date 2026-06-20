@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/adaptive_page_container.dart';
+import '../widgets/gender_section.dart';
 import '../widgets/language_section.dart';
 import '../widgets/logout_tile.dart';
 import '../widgets/notification_settings_section.dart';
@@ -21,6 +22,8 @@ class SettingsPage extends StatelessWidget {
               ThemeModeSection(),
               SizedBox(height: AppSpacing.lg),
               LanguageSection(),
+              SizedBox(height: AppSpacing.lg),
+              GenderSection(),
               SizedBox(height: AppSpacing.lg),
               NotificationSettingsSection(),
               SizedBox(height: AppSpacing.lg),

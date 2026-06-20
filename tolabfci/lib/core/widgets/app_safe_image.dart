@@ -7,7 +7,7 @@ class AppSafeImage extends StatelessWidget {
   const AppSafeImage({
     super.key,
     this.imageUrl,
-    this.assetPath = 'assets/images/avatar_placeholder.svg',
+    this.assetPath = 'assets/images/avatar_placeholder_male.svg',
     this.width,
     this.height,
     this.fit = BoxFit.cover,

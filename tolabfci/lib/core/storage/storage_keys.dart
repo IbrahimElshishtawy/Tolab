@@ -8,4 +8,5 @@ class StorageKeys {
   static const preferredLocale = 'preferred_locale';
   static const notificationsEnabled = 'notifications_enabled';
   static const themeMode = 'theme_mode';
+  static const userGender = 'user_gender';
 }

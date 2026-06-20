@@ -274,6 +274,7 @@ class _HomeHero extends StatelessWidget {
                 name: viewModel.profile.fullName,
                 imageUrl: viewModel.profile.avatarUrl,
                 radius: 28,
+                isMale: viewModel.profile.isMale,
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(

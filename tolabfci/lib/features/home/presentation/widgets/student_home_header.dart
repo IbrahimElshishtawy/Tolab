@@ -36,6 +36,7 @@ class StudentHomeHeader extends StatelessWidget {
                 name: profile.fullName,
                 radius: 28,
                 imageUrl: profile.avatarUrl,
+                isMale: profile.isMale,
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(

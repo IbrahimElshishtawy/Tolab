@@ -40,7 +40,7 @@ class MockBackendService {
   late final List<SubjectFileItem> _subjectFiles;
   late List<AppNotificationItem> _notifications;
 
-  final StudentProfile _profile = const StudentProfile(
+  StudentProfile _profile = const StudentProfile(
     id: 'student-1',
     fullName: 'ابراهيم خالد الششتاوي احمد',
     email: 'student@test.com',
@@ -57,7 +57,24 @@ class MockBackendService {
     registeredHours: 15,
     seatNumber: 'FCI-24-1182',
     previousQualification: 'STEM High School',
+    gender: 'male',
   );
+
+  void updateProfileGender(String gender) {
+    if (gender == 'female') {
+      _profile = _profile.copyWith(
+        fullName: 'آية خالد الششتاوي احمد',
+        gender: 'female',
+        nationalId: '12345678901224',
+      );
+    } else {
+      _profile = _profile.copyWith(
+        fullName: 'ابراهيم خالد الششتاوي احمد',
+        gender: 'male',
+        nationalId: '12345678901234',
+      );
+    }
+  }
 
   final AuthSessionData _studentSession = const AuthSessionData(
     token: 'mock-student-access-token',

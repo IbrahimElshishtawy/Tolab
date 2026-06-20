@@ -25,6 +25,7 @@ class HomeHeader extends StatelessWidget {
         AppAvatar(
           name: dashboard.profile.fullName,
           imageUrl: dashboard.profile.avatarUrl,
+          isMale: dashboard.profile.isMale,
         ),
         const SizedBox(width: AppSpacing.md),
         Expanded(

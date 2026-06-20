@@ -92,6 +92,7 @@ class ProfilePage extends ConsumerWidget {
                         name: profile.fullName,
                         imageUrl: profile.avatarUrl,
                         radius: 34,
+                        isMale: profile.isMale,
                       ),
                       const SizedBox(width: AppSpacing.md),
                       Expanded(

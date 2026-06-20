@@ -9,11 +9,13 @@ class AppAvatar extends StatelessWidget {
     required this.name,
     this.radius = 22,
     this.imageUrl,
+    this.isMale = true,
   });
 
   final String name;
   final double radius;
   final String? imageUrl;
+  final bool isMale;
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +30,15 @@ class AppAvatar extends StatelessWidget {
         .toUpperCase();
 
     final size = radius * 2;
+    final defaultAssetPath = isMale
+        ? 'assets/images/avatar_placeholder_male.svg'
+        : 'assets/images/avatar_placeholder_female.svg';
 
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: palette.primarySoft,
+        color: isMale ? palette.primarySoft : Colors.pink.withValues(alpha: 0.08),
         shape: BoxShape.circle,
       ),
       clipBehavior: Clip.antiAlias,
@@ -42,6 +47,7 @@ class AppAvatar extends StatelessWidget {
         children: [
           AppSafeImage(
             imageUrl: imageUrl,
+            assetPath: defaultAssetPath,
             width: size,
             height: size,
             fit: BoxFit.cover,
@@ -55,7 +61,7 @@ class AppAvatar extends StatelessWidget {
               child: Text(
                 initials,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: isMale ? Theme.of(context).colorScheme.primary : Colors.pink,
                   fontWeight: FontWeight.w700,
                 ),
               ),
