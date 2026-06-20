@@ -13,31 +13,40 @@ return new class extends Migration
 
         // 1. Drop old indexes and foreign key constraints on course_offering_id
         Schema::table('staff_assignments', function (Blueprint $table) use ($isSqlite) {
-            $table->dropIndex('staff_assignments_user_course_offering_idx');
             if (!$isSqlite) {
+                $table->dropForeign(['user_id']);
                 $table->dropForeign(['course_offering_id']);
             }
+        });
+        Schema::table('staff_assignments', function (Blueprint $table) {
+            $table->dropIndex('staff_assignments_user_course_offering_idx');
         });
 
         Schema::table('academic_section_contents', function (Blueprint $table) use ($isSqlite) {
-            $table->dropIndex('section_contents_subject_publish_idx');
             if (!$isSqlite) {
                 $table->dropForeign(['course_offering_id']);
             }
+        });
+        Schema::table('academic_section_contents', function (Blueprint $table) {
+            $table->dropIndex('section_contents_subject_publish_idx');
         });
 
         Schema::table('quizzes', function (Blueprint $table) use ($isSqlite) {
-            $table->dropIndex('quizzes_subject_date_publish_idx');
             if (!$isSqlite) {
                 $table->dropForeign(['course_offering_id']);
             }
         });
+        Schema::table('quizzes', function (Blueprint $table) {
+            $table->dropIndex('quizzes_subject_date_publish_idx');
+        });
 
         Schema::table('tasks', function (Blueprint $table) use ($isSqlite) {
-            $table->dropIndex('tasks_subject_due_publish_idx');
             if (!$isSqlite) {
                 $table->dropForeign(['course_offering_id']);
             }
+        });
+        Schema::table('tasks', function (Blueprint $table) {
+            $table->dropIndex('tasks_subject_due_publish_idx');
         });
 
         // 2. Rename course_offering_id to subject_id in staff_assignments, academic_section_contents, quizzes, and tasks
@@ -59,8 +68,13 @@ return new class extends Migration
         });
 
         // 3. Recreate foreign keys and indexes
-        Schema::table('staff_assignments', function (Blueprint $table) {
-            $table->foreign('subject_id')->references('id')->on('subjects')->cascadeOnDelete();
+        Schema::table('staff_assignments', function (Blueprint $table) use ($isSqlite) {
+            if (!$isSqlite) {
+                $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
+                $table->foreign('subject_id')->references('id')->on('subjects')->cascadeOnDelete();
+            } else {
+                $table->foreign('subject_id')->references('id')->on('subjects')->cascadeOnDelete();
+            }
             $table->index(['user_id', 'subject_id'], 'staff_assignments_user_subject_idx');
         });
 

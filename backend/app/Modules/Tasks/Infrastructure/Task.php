@@ -46,4 +46,10 @@ class Task extends Model
     {
         return $this->hasMany(TaskSubmission::class);
     }
+
+    protected static function newFactory(): \Database\Factories\TaskFactory
+    {
+        return \Database\Factories\TaskFactory::new();
+    }
 }
+

@@ -40,4 +40,10 @@ class TaskSubmission extends Model
     {
         return $this->belongsTo(User::class, 'student_user_id');
     }
+
+    protected static function newFactory(): \Database\Factories\TaskSubmissionFactory
+    {
+        return \Database\Factories\TaskSubmissionFactory::new();
+    }
 }
+
