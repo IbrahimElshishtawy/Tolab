@@ -78,4 +78,48 @@ class StudentProfile {
       gender: gender ?? this.gender,
     );
   }
+
+  factory StudentProfile.fromJson(Map<String, dynamic> json) {
+    return StudentProfile(
+      id: json['id']?.toString() ?? '',
+      fullName: json['fullName']?.toString() ?? json['full_name']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      avatarUrl: json['avatarUrl']?.toString() ?? json['avatar_url']?.toString() ?? '',
+      studentNumber: json['studentNumber']?.toString() ?? json['student_number']?.toString() ?? '',
+      nationalId: json['nationalId']?.toString() ?? json['national_id']?.toString() ?? '',
+      faculty: json['faculty']?.toString() ?? '',
+      department: json['department']?.toString() ?? '',
+      level: json['level']?.toString() ?? '',
+      academicAdvisor: json['academicAdvisor']?.toString() ?? json['academic_advisor']?.toString() ?? '',
+      academicStatus: json['academicStatus']?.toString() ?? json['academic_status']?.toString() ?? '',
+      gpa: (json['gpa'] as num?)?.toDouble() ?? 0.0,
+      completedHours: (json['completedHours'] ?? json['completed_hours'] as num?)?.toInt() ?? 0,
+      registeredHours: (json['registeredHours'] ?? json['registered_hours'] as num?)?.toInt() ?? 0,
+      seatNumber: json['seatNumber']?.toString() ?? json['seat_number']?.toString() ?? '',
+      previousQualification: json['previousQualification']?.toString() ?? json['previous_qualification']?.toString() ?? '',
+      gender: json['gender']?.toString() ?? 'male',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'fullName': fullName,
+      'email': email,
+      'avatarUrl': avatarUrl,
+      'studentNumber': studentNumber,
+      'nationalId': nationalId,
+      'faculty': faculty,
+      'department': department,
+      'level': level,
+      'academicAdvisor': academicAdvisor,
+      'academicStatus': academicStatus,
+      'gpa': gpa,
+      'completedHours': completedHours,
+      'registeredHours': registeredHours,
+      'seatNumber': seatNumber,
+      'previousQualification': previousQualification,
+      'gender': gender,
+    };
+  }
 }

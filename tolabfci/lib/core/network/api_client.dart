@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../errors/app_exception.dart';
 import '../storage/storage_providers.dart';
 import 'api_endpoints.dart';
 import 'auth_interceptor.dart';
+import 'network_exceptions.dart';
 
 final dioProvider = Provider<Dio>((ref) {
   final secureStorage = ref.watch(secureStorageServiceProvider);
@@ -29,18 +31,81 @@ class ApiClient {
 
   final Dio _dio;
 
-  Future<Response<dynamic>> get(
+  Future<Response<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-  }) {
-    return _dio.get(path, queryParameters: queryParameters);
+    Options? options,
+  }) async {
+    try {
+      return await _dio.get<T>(
+        path,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException catch (e) {
+      throw NetworkExceptions.fromDioException(e);
+    } catch (e) {
+      throw AppException(e.toString(), code: 'unknown');
+    }
   }
 
-  Future<Response<dynamic>> post(
+  Future<Response<T>> post<T>(
     String path, {
     Object? data,
     Map<String, dynamic>? queryParameters,
-  }) {
-    return _dio.post(path, data: data, queryParameters: queryParameters);
+    Options? options,
+  }) async {
+    try {
+      return await _dio.post<T>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException catch (e) {
+      throw NetworkExceptions.fromDioException(e);
+    } catch (e) {
+      throw AppException(e.toString(), code: 'unknown');
+    }
+  }
+
+  Future<Response<T>> put<T>(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    try {
+      return await _dio.put<T>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException catch (e) {
+      throw NetworkExceptions.fromDioException(e);
+    } catch (e) {
+      throw AppException(e.toString(), code: 'unknown');
+    }
+  }
+
+  Future<Response<T>> delete<T>(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    try {
+      return await _dio.delete<T>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException catch (e) {
+      throw NetworkExceptions.fromDioException(e);
+    } catch (e) {
+      throw AppException(e.toString(), code: 'unknown');
+    }
   }
 }
