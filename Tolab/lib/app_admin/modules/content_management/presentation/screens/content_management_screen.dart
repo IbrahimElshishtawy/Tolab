@@ -570,7 +570,12 @@ class _ContentEditorSheetState extends State<_ContentEditorSheet> {
                   IconButton(
                     onPressed: _submitting
                         ? null
-                        : () => Navigator.of(context).pop(),
+                        : () {
+                            final navigator = Navigator.of(context);
+                            if (navigator.canPop()) {
+                              navigator.pop();
+                            }
+                          },
                     icon: const Icon(Icons.close_rounded),
                   ),
                 ],
@@ -808,7 +813,12 @@ class _ContentEditorSheetState extends State<_ContentEditorSheet> {
                       isSecondary: true,
                       onPressed: _submitting
                           ? null
-                          : () => Navigator.of(context).pop(),
+                          : () {
+                              final navigator = Navigator.of(context);
+                              if (navigator.canPop()) {
+                                navigator.pop();
+                              }
+                            },
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
@@ -840,6 +850,7 @@ class _ContentEditorSheetState extends State<_ContentEditorSheet> {
   }
 
   Future<void> _submit() async {
+    if (_submitting) return;
     if (_titleController.text.trim().isEmpty ||
         _descriptionController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -905,7 +916,14 @@ class _ContentEditorSheetState extends State<_ContentEditorSheet> {
           );
     store.dispatch(action);
     if (mounted) {
-      Navigator.of(context).pop();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          final navigator = Navigator.of(context);
+          if (navigator.canPop()) {
+            navigator.pop();
+          }
+        }
+      });
     }
   }
 }
@@ -956,12 +974,17 @@ class _SelectField<T> extends StatelessWidget {
       width: 220,
       child: DropdownButtonFormField<T>(
         initialValue: value,
+        isExpanded: true,
         decoration: InputDecoration(labelText: label),
         items: items
             .map(
               (item) => DropdownMenuItem<T>(
                 value: item,
-                child: Text(labelBuilder(item)),
+                child: Text(
+                  labelBuilder(item),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
               ),
             )
             .toList(growable: false),
