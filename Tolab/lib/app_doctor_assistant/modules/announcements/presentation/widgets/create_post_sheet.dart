@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../app/localization/app_localizations.dart';
+
 import '../../../../../app_admin/core/spacing/app_spacing.dart';
 import '../../../../presentation/widgets/doctor_assistant_widgets.dart';
 import '../models/announcements_workspace_models.dart';
@@ -107,33 +109,33 @@ class _CreatePostSheetState extends State<CreatePostSheet> {
           children: [
             TextFormField(
               controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Title'),
+              decoration: InputDecoration(labelText: context.l10n.byValue('Title')),
               validator: (value) =>
-                  (value == null || value.trim().isEmpty) ? 'Add a title' : null,
+                  (value == null || value.trim().isEmpty) ? context.l10n.byValue('Add a title') : null,
             ),
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _contentController,
               minLines: 4,
               maxLines: 6,
-              decoration: const InputDecoration(
-                labelText: 'Content',
-                hintText: 'Share the student-facing update, clarification, or alert.',
+              decoration: InputDecoration(
+                labelText: context.l10n.byValue('Content'),
+                hintText: context.l10n.byValue('Share the student-facing update, clarification, or alert.'),
               ),
               validator: (value) =>
                   (value == null || value.trim().length < 12)
-                      ? 'Add clearer post content'
+                      ? context.l10n.byValue('Add clearer post content')
                       : null,
             ),
             const SizedBox(height: AppSpacing.md),
             DropdownButtonFormField<AnnouncementSubjectOption>(
               initialValue: _selectedSubject,
-              decoration: const InputDecoration(labelText: 'Subject'),
+              decoration: InputDecoration(labelText: context.l10n.byValue('Subject')),
               items: widget.subjects
                   .map(
                     (subject) => DropdownMenuItem(
                       value: subject,
-                      child: Text('${subject.code} • ${subject.name}'),
+                      child: Text('${subject.code} • ${context.l10n.byValue(subject.name)}'),
                     ),
                   )
                   .toList(growable: false),
@@ -147,12 +149,12 @@ class _CreatePostSheetState extends State<CreatePostSheet> {
             const SizedBox(height: AppSpacing.md),
             DropdownButtonFormField<String>(
               initialValue: _type,
-              decoration: const InputDecoration(labelText: 'Type'),
-              items: const [
-                DropdownMenuItem(value: 'Announcement', child: Text('Announcement')),
-                DropdownMenuItem(value: 'Lecture update', child: Text('Lecture update')),
-                DropdownMenuItem(value: 'Quiz alert', child: Text('Quiz alert')),
-                DropdownMenuItem(value: 'General post', child: Text('General post')),
+              decoration: InputDecoration(labelText: context.l10n.byValue('Type')),
+              items: [
+                DropdownMenuItem(value: 'Announcement', child: Text(context.l10n.byValue('Announcement'))),
+                DropdownMenuItem(value: 'Lecture update', child: Text(context.l10n.byValue('Lecture update'))),
+                DropdownMenuItem(value: 'Quiz alert', child: Text(context.l10n.byValue('Quiz alert'))),
+                DropdownMenuItem(value: 'General post', child: Text(context.l10n.byValue('General post'))),
               ],
               onChanged: (value) {
                 if (value == null) {
@@ -164,24 +166,24 @@ class _CreatePostSheetState extends State<CreatePostSheet> {
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _attachmentController,
-              decoration: const InputDecoration(
-                labelText: 'Attach file / link / image',
-                hintText: 'Example: lecture-notes.pdf or https://...',
+              decoration: InputDecoration(
+                labelText: context.l10n.byValue('Attach file / link / image'),
+                hintText: context.l10n.byValue('Example: lecture-notes.pdf or https://...'),
               ),
             ),
             const SizedBox(height: AppSpacing.md),
             SwitchListTile.adaptive(
               contentPadding: EdgeInsets.zero,
               value: _pinPost,
-              title: const Text('Pin post'),
-              subtitle: const Text('Keep the post visible at the top of the course feed.'),
+              title: Text(context.l10n.byValue('Pin post')),
+              subtitle: Text(context.l10n.byValue('Keep the post visible at the top of the course feed.')),
               onChanged: (value) => setState(() => _pinPost = value),
             ),
             SwitchListTile.adaptive(
               contentPadding: EdgeInsets.zero,
               value: _urgent,
-              title: const Text('Mark as urgent / important'),
-              subtitle: const Text('Use for deadline changes, room updates, and critical quiz alerts.'),
+              title: Text(context.l10n.byValue('Mark as urgent / important')),
+              subtitle: Text(context.l10n.byValue('Use for deadline changes, room updates, and critical quiz alerts.')),
               onChanged: (value) => setState(() => _urgent = value),
             ),
           ],

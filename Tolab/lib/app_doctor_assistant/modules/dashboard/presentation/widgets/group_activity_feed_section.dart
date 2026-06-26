@@ -32,23 +32,26 @@ class GroupActivityFeedSection extends StatelessWidget {
       child: Column(
         children: feed.items
             .map(
-              (item) => ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Icon(
-                  dashboardIconForActivityType(item.activityType),
-                  color: dashboardToneColor(tokens, 'secondary'),
+              (item) => Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                    dashboardIconForActivityType(item.activityType),
+                    color: dashboardToneColor(tokens, 'secondary'),
+                  ),
+                  title: Text(
+                    item.content,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: tokens.textPrimary),
+                  ),
+                  subtitle: Text(
+                    '${item.authorName} • ${item.groupName} • ${dashboardRelativeTime(item.timestamp)}',
+                    style: TextStyle(color: tokens.textSecondary),
+                  ),
+                  onTap: () => onOpenRoute(item.route),
                 ),
-                title: Text(
-                  item.content,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: tokens.textPrimary),
-                ),
-                subtitle: Text(
-                  '${item.authorName} • ${item.groupName} • ${dashboardRelativeTime(item.timestamp)}',
-                  style: TextStyle(color: tokens.textSecondary),
-                ),
-                onTap: () => onOpenRoute(item.route),
               ),
             )
             .toList(),

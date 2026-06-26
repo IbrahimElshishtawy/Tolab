@@ -46,9 +46,10 @@ class AuthGuard {
 
     if (!state.isAuthenticated) {
       if (_publicRoutes.contains(location)) {
-        return location == UnifiedAppRoutes.launch
-            ? UnifiedAppRoutes.login
-            : null;
+        if (location == UnifiedAppRoutes.launch) {
+          return null;
+        }
+        return null;
       }
       return UnifiedAppRoutes.login;
     }

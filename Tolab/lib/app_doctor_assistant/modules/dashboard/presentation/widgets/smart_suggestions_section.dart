@@ -30,13 +30,16 @@ class SmartSuggestionsSection extends StatelessWidget {
       child: Column(
         children: suggestions.items
             .map(
-              (item) => ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(item.title),
-                subtitle: Text(item.explanation),
-                trailing: DashboardInlineAction(
-                  label: item.ctaLabel,
-                  onTap: () => onOpenRoute(item.route),
+              (item) => Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(item.title),
+                  subtitle: Text(item.explanation),
+                  trailing: DashboardInlineAction(
+                    label: item.ctaLabel,
+                    onTap: () => onOpenRoute(item.route),
+                  ),
                 ),
               ),
             )

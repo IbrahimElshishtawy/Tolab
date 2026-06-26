@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../../../app/localization/app_localizations.dart';
+
 import '../../../core/colors/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/spacing/app_spacing.dart';
@@ -140,8 +142,8 @@ class _HeroCopy extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final liveLabel = lastRealtimeSignalAt == null
-        ? 'Waiting for live dashboard signal'
-        : 'Live signal ${TimeOfDay.fromDateTime(lastRealtimeSignalAt!).format(context)}';
+        ? context.l10n.byValue('Waiting for live dashboard signal')
+        : '${context.l10n.byValue('Live signal')} ${TimeOfDay.fromDateTime(lastRealtimeSignalAt!).format(context)}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,7 +154,7 @@ class _HeroCopy extends StatelessWidget {
           children: [
             _Tag(
               icon: Icons.auto_awesome_rounded,
-              label: 'Admin Dashboard',
+              label: context.l10n.byValue('Admin Dashboard'),
               color: AppColors.primary,
             ),
             _Tag(
@@ -162,19 +164,21 @@ class _HeroCopy extends StatelessWidget {
             ),
             _Tag(
               icon: Icons.cloud_done_rounded,
-              label: bundle.isFallback ? 'Seeded local mode' : bundle.sourceLabel,
+              label: bundle.isFallback
+                  ? context.l10n.byValue('Seeded local mode')
+                  : context.l10n.byValue(bundle.sourceLabel),
               color: bundle.isFallback ? AppColors.warning : AppColors.info,
             ),
           ],
         ),
         const SizedBox(height: AppSpacing.lg),
         Text(
-          'One command surface for student intake, academic staffing, approvals, and moderation.',
+          context.l10n.byValue('One command surface for student intake, academic staffing, approvals, and moderation.'),
           style: theme.textTheme.headlineMedium,
         ),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          'Search people instantly, watch live enrollment and course movement, then act on uploads and review tasks without leaving the dashboard.',
+          context.l10n.byValue('Search people instantly, watch live enrollment and course movement, then act on uploads and review tasks without leaving the dashboard.'),
           style: theme.textTheme.bodyLarge,
         ),
         const SizedBox(height: AppSpacing.lg),
@@ -184,19 +188,19 @@ class _HeroCopy extends StatelessWidget {
           children: [
             _MicroStat(
               icon: Icons.timeline_rounded,
-              label: 'Analytics range',
-              value: filters.timeRange.label,
+              label: context.l10n.byValue('Analytics range'),
+              value: context.l10n.byValue(filters.timeRange.label),
             ),
             _MicroStat(
               icon: Icons.update_rounded,
-              label: 'Refreshed',
+              label: context.l10n.byValue('Refreshed'),
               value:
                   '${bundle.refreshedAt.day}/${bundle.refreshedAt.month}/${bundle.refreshedAt.year}',
             ),
             _MicroStat(
               icon: Icons.pending_actions_rounded,
-              label: 'Alerts in queue',
-              value: '${bundle.alerts.length} active',
+              label: context.l10n.byValue('Alerts in queue'),
+              value: '${bundle.alerts.length} ${context.l10n.byValue('active')}',
             ),
           ],
         ),
@@ -230,7 +234,7 @@ class _SearchControls extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Search directory',
+          context.l10n.byValue('Search directory'),
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -247,14 +251,14 @@ class _SearchControls extends StatelessWidget {
             for (final scope in DashboardSearchScope.values)
               ChoiceChip(
                 selected: scope == searchScope,
-                label: Text(scope.label),
+                label: Text(context.l10n.byValue(scope.label)),
                 onSelected: (_) => onScopeChanged(scope),
               ),
           ],
         ),
         const SizedBox(height: AppSpacing.md),
         Text(
-          'Chart window',
+          context.l10n.byValue('Chart window'),
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -265,7 +269,7 @@ class _SearchControls extends StatelessWidget {
             for (final range in DashboardTimeRange.values)
               ChoiceChip(
                 selected: filters.timeRange == range,
-                label: Text(range.label),
+                label: Text(context.l10n.byValue(range.label)),
                 onSelected: (_) => onTimeRangeChanged(range),
               ),
           ],
@@ -323,7 +327,7 @@ class _DashboardSearchInputState extends State<_DashboardSearchInput> {
       controller: _controller,
       onChanged: widget.onChanged,
       decoration: InputDecoration(
-        hintText: 'Search student, doctor, or assistant',
+        hintText: context.l10n.byValue('Search student, doctor, or assistant'),
         prefixIcon: const Icon(Icons.search_rounded),
         suffixIcon: widget.status == LoadStatus.loading
             ? const Padding(

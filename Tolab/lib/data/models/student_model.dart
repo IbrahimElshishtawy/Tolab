@@ -37,7 +37,7 @@ class StudentModel {
       status: json['status'] as String,
       gpa: (json['gpa'] as num).toDouble(),
       totalCreditsCompleted: json['totalCreditsCompleted'] as int? ?? 0,
-      enrollmentDate: DateTime.parse(json['enrollmentDate'] as String),
+      enrollmentDate: DateTime.tryParse(json['enrollmentDate']?.toString() ?? '') ?? DateTime.now(),
       advisorId: json['advisorId'] as String?,
       enrolledCourseIds:
           List<String>.from(json['enrolledCourseIds'] as List? ?? []),

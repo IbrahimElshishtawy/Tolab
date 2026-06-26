@@ -10,19 +10,16 @@ final communityControllerProvider =
       String
     >(CommunityController.new);
 
-class CommunityController extends AsyncNotifier<List<CommunityPost>> {
-  CommunityController(this._subjectId);
-  final String _subjectId;
-
+class CommunityController extends FamilyAsyncNotifier<List<CommunityPost>, String> {
   @override
-  Future<List<CommunityPost>> build() async {
-    return ref.watch(communityRepositoryProvider).getPosts(_subjectId);
+  Future<List<CommunityPost>> build(String arg) async {
+    return ref.watch(communityRepositoryProvider).getPosts(arg);
   }
 
   Future<void> createPost(String content) async {
-    await ref.read(communityRepositoryProvider).createPost(_subjectId, content);
+    await ref.read(communityRepositoryProvider).createPost(arg, content);
     state = AsyncData(
-      await ref.read(communityRepositoryProvider).getPosts(_subjectId),
+      await ref.read(communityRepositoryProvider).getPosts(arg),
     );
   }
 
@@ -32,14 +29,14 @@ class CommunityController extends AsyncNotifier<List<CommunityPost>> {
   }) async {
     await ref.read(communityRepositoryProvider).createComment(postId, content);
     state = AsyncData(
-      await ref.read(communityRepositoryProvider).getPosts(_subjectId),
+      await ref.read(communityRepositoryProvider).getPosts(arg),
     );
   }
 
   Future<void> reactToPost(String postId) async {
     await ref.read(communityRepositoryProvider).reactToPost(postId);
     state = AsyncData(
-      await ref.read(communityRepositoryProvider).getPosts(_subjectId),
+      await ref.read(communityRepositoryProvider).getPosts(arg),
     );
   }
 }

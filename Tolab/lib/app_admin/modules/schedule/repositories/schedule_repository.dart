@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import '../../../core/config/app_config.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/services/demo_data_service.dart';
 import '../../subjects/models/subject_management_models.dart';
@@ -20,11 +21,13 @@ class ScheduleRepository {
   }) async {
     _ensureSeeded();
 
-    try {
-      final remote = await _api.fetchEvents(filters: filters);
-      _cache = remote;
-      _rebuildLookups();
-    } catch (_) {}
+    if (!AppConfig.useMockData) {
+      try {
+        final remote = await _api.fetchEvents(filters: filters);
+        _cache = remote;
+        _rebuildLookups();
+      } catch (_) {}
+    }
 
     return ScheduleBundle(
       events: List<ScheduleEventItem>.unmodifiable(_cache!),
@@ -32,19 +35,157 @@ class ScheduleRepository {
     );
   }
 
+  ScheduleEventUpsertPayload _resolvePayloadMetadata(ScheduleEventUpsertPayload payload) {
+    var department = payload.department;
+    var yearLabel = payload.yearLabel;
+    var section = payload.section;
+    var subject = payload.subject;
+    var instructor = payload.instructor;
+    var sectionId = payload.sectionId;
+    var subjectId = payload.subjectId;
+    var instructorId = payload.instructorId;
+    var courseOfferingId = payload.courseOfferingId;
+
+    // 1. If subjectId is selected, resolve subject details
+    if (subjectId != null && subjectId.isNotEmpty) {
+      try {
+        final subRecord = _demoDataService.subjects().firstWhere((s) => s.id == subjectId);
+        if (subject == 'Subject' || subject.isEmpty) {
+          subject = subRecord.name;
+        }
+        if (department == 'Department' || department.isEmpty) {
+          department = subRecord.department;
+        }
+        if (yearLabel == 'Year' || yearLabel.isEmpty) {
+          yearLabel = subRecord.academicYear;
+        }
+      } catch (_) {}
+    }
+
+    // 2. If courseOfferingId is selected, resolve from cache
+    if (courseOfferingId != null && courseOfferingId.isNotEmpty) {
+      for (final event in _cache ?? const <ScheduleEventItem>[]) {
+        if (event.courseOfferingId == courseOfferingId || event.id == courseOfferingId) {
+          if (department == 'Department' || department.isEmpty) {
+            department = event.department;
+          }
+          if (yearLabel == 'Year' || yearLabel.isEmpty) {
+            yearLabel = event.yearLabel;
+          }
+          if (section == 'Section' || section.isEmpty) {
+            section = event.section;
+            sectionId = event.sectionId;
+          }
+          if (subject == 'Subject' || subject.isEmpty) {
+            subject = event.subject;
+            subjectId = event.subjectId;
+          }
+          if (instructor == 'Instructor' || instructor.isEmpty) {
+            instructor = event.instructor;
+            instructorId = event.instructorId;
+          }
+          break;
+        }
+      }
+    }
+
+    // 3. If sectionId is selected, resolve section name
+    if (sectionId != null && sectionId.isNotEmpty) {
+      try {
+        final secRecord = _demoDataService.sections().firstWhere((s) => s.id == sectionId);
+        if (section == 'Section' || section.isEmpty) {
+          section = secRecord.name;
+        }
+        if (department == 'Department' || department.isEmpty) {
+          department = secRecord.department;
+        }
+      } catch (_) {}
+    }
+
+    // 4. If instructorId is selected, resolve instructor name
+    if (instructorId != null && instructorId.isNotEmpty) {
+      try {
+        final staffList = _demoDataService.staffDirectory();
+        final staffRec = staffList.firstWhere((s) => s.id == instructorId);
+        if (instructor == 'Instructor' || instructor.isEmpty) {
+          instructor = staffRec.fullName;
+        }
+      } catch (_) {
+        try {
+          final staffCompact = _demoDataService.staff().firstWhere((s) => s.id == instructorId);
+          if (instructor == 'Instructor' || instructor.isEmpty) {
+            instructor = staffCompact.name;
+          }
+        } catch (_) {}
+      }
+    }
+
+    // 5. Fallback lookups from lookup options if available
+    final lookups = _lookups;
+    if (lookups != null) {
+      if (subject == 'Subject' && subjectId != null) {
+        final match = lookups.subjects.firstWhere((opt) => opt.id == subjectId, orElse: () => const ScheduleOption(id: '', label: ''));
+        if (match.label.isNotEmpty) subject = match.label;
+      }
+      if (section == 'Section' && sectionId != null) {
+        final match = lookups.sections.firstWhere((opt) => opt.id == sectionId, orElse: () => const ScheduleOption(id: '', label: ''));
+        if (match.label.isNotEmpty) section = match.label;
+      }
+      if (instructor == 'Instructor' && instructorId != null) {
+        final match = lookups.instructors.firstWhere((opt) => opt.id == instructorId, orElse: () => const ScheduleOption(id: '', label: ''));
+        if (match.label.isNotEmpty) instructor = match.label;
+      }
+    }
+
+    // 6. Make sure department/year are not placeholders if there is any other subject
+    if (department == 'Department' && lookups != null && lookups.departments.isNotEmpty) {
+      department = lookups.departments.first.label;
+    }
+    if (yearLabel == 'Year' && lookups != null && lookups.years.isNotEmpty) {
+      yearLabel = lookups.years.first.label;
+    }
+
+    return ScheduleEventUpsertPayload(
+      title: payload.title,
+      section: section,
+      subject: subject,
+      instructor: instructor,
+      location: payload.location,
+      status: payload.status,
+      type: payload.type,
+      startAt: payload.startAt,
+      endAt: payload.endAt,
+      department: department,
+      yearLabel: yearLabel,
+      note: payload.note,
+      courseOfferingId: courseOfferingId,
+      sectionId: sectionId,
+      subjectId: subjectId,
+      instructorId: instructorId,
+      studentScopeLabel: payload.studentScopeLabel == 'Section cohort' ? '$section cohort' : payload.studentScopeLabel,
+      repeatRule: payload.repeatRule,
+      assignedStaffIds: payload.assignedStaffIds,
+    );
+  }
+
   Future<ScheduleMutationResult> createEvent(
     ScheduleEventUpsertPayload payload,
   ) async {
     _ensureSeeded();
-    final local = payload.toEvent(
+    final resolvedPayload = _resolvePayloadMetadata(payload);
+    final local = resolvedPayload.toEvent(
       id: 'SCH-${DateTime.now().microsecondsSinceEpoch}',
       isSynced: false,
     );
 
-    try {
-      final remote = await _api.createEvent(payload);
-      _cache = [remote.copyWith(isSynced: true), ..._cache!];
-    } catch (_) {
+    if (!AppConfig.useMockData) {
+      try {
+        final remote = await _api.createEvent(resolvedPayload);
+        _cache = [remote.copyWith(isSynced: true), ..._cache!];
+      } catch (_) {
+        _cache = [local, ..._cache!];
+      }
+    } else {
       _cache = [local, ..._cache!];
     }
 
@@ -68,11 +209,16 @@ class ScheduleRepository {
           throw AppException('The selected schedule event was not found.'),
     );
 
-    final local = payload.toEvent(id: existing.id, isSynced: existing.isSynced);
-    try {
-      final remote = await _api.updateEvent(eventId, payload);
-      _replace(remote.copyWith(isSynced: true));
-    } catch (_) {
+    final resolvedPayload = _resolvePayloadMetadata(payload);
+    final local = resolvedPayload.toEvent(id: existing.id, isSynced: existing.isSynced);
+    if (!AppConfig.useMockData) {
+      try {
+        final remote = await _api.updateEvent(eventId, resolvedPayload);
+        _replace(remote.copyWith(isSynced: true));
+      } catch (_) {
+        _replace(local);
+      }
+    } else {
       _replace(local);
     }
 
@@ -90,9 +236,11 @@ class ScheduleRepository {
     _cache = _cache!
         .where((event) => event.id != eventId)
         .toList(growable: false);
-    try {
-      await _api.deleteEvent(eventId);
-    } catch (_) {}
+    if (!AppConfig.useMockData) {
+      try {
+        await _api.deleteEvent(eventId);
+      } catch (_) {}
+    }
 
     _rebuildLookups();
     return ScheduleMutationResult(
@@ -155,79 +303,90 @@ class ScheduleRepository {
         .take(5)
         .toList(growable: false);
     final now = DateTime.now();
+    final startDate = now.subtract(const Duration(days: 35));
+    final items = <ScheduleEventItem>[];
+
+    var eventIndex = 1;
+    for (var dayOffset = 0; dayOffset < 70; dayOffset++) {
+      final date = startDate.add(Duration(days: dayOffset));
+      if (date.weekday == DateTime.saturday || date.weekday == DateTime.sunday) {
+        continue;
+      }
+
+      final eventsForDay = (dayOffset % 2) + 1;
+      for (var j = 0; j < eventsForDay; j++) {
+        final subject = subjects[(dayOffset + j) % subjects.length];
+        final isAssistantLead = (dayOffset + j).isOdd;
+        final instructorName = isAssistantLead
+            ? subject.assistant.name
+            : subject.doctor.name;
+        final instructorId = isAssistantLead
+            ? subject.assistant.id
+            : subject.doctor.id;
+
+        final type = switch ((dayOffset + j) % 4) {
+          0 => ScheduleEventType.lecture,
+          1 => ScheduleEventType.quiz,
+          2 => ScheduleEventType.exam,
+          _ => ScheduleEventType.task,
+        };
+
+        final status = date.isBefore(now)
+            ? ScheduleEventStatus.completed
+            : ScheduleEventStatus.planned;
+
+        final startHour = 8 + (j * 3);
+        final start = DateTime(date.year, date.month, date.day, startHour, 0);
+        final durationHours = type == ScheduleEventType.exam ? 3 : 2;
+        final sectionCode =
+            '${subject.department.substring(0, 2).toUpperCase()}-${((dayOffset + j) % 4) + 1}A';
+
+        items.add(
+          ScheduleEventItem(
+            id: 'SCH-$eventIndex',
+            title: '${type.label} - ${subject.code}',
+            section: sectionCode,
+            subject: subject.name,
+            instructor: instructorName,
+            location: eventIndex % 5 == 0
+                ? 'Hall A${(eventIndex % 4) + 1}'
+                : 'Lab ${String.fromCharCode(65 + (eventIndex % 5))}${(eventIndex % 3) + 1}',
+            status: status,
+            type: type,
+            startAt: start,
+            endAt: start.add(Duration(hours: durationHours)),
+            department: subject.department,
+            yearLabel: subject.academicYear,
+            note: type == ScheduleEventType.exam
+                ? 'Seating plan and invigilation checklist required.'
+                : 'Prepared for ${subject.enrolledStudents} enrolled students.',
+            courseOfferingId: 'OFF-${subject.id}',
+            sectionId: 'SEC-$sectionCode',
+            subjectId: subject.id,
+            instructorId: instructorId,
+            studentScopeLabel:
+                '$sectionCode - ${math.max(subject.enrolledStudents - (eventIndex % 10), 24)} students',
+            repeatRule: eventIndex < 20
+                ? ScheduleRepeatRule.weekly
+                : ScheduleRepeatRule.none,
+            assignedStaffIds: <String>[
+              instructorId,
+              if (!isAssistantLead) subject.assistant.id,
+            ],
+            isSynced: date.isBefore(now),
+          ),
+        );
+        eventIndex++;
+      }
+    }
+
     final weekStart = DateTime(
       now.year,
       now.month,
       now.day,
     ).subtract(Duration(days: now.weekday - 1));
-
-    final items = <ScheduleEventItem>[];
-    for (var index = 0; index < 14; index++) {
-      final subject = subjects[index % subjects.length];
-      final isAssistantLead = index.isOdd;
-      final instructorName = isAssistantLead
-          ? subject.assistant.name
-          : subject.doctor.name;
-      final instructorId = isAssistantLead
-          ? subject.assistant.id
-          : subject.doctor.id;
-      final type = switch (index % 4) {
-        0 => ScheduleEventType.lecture,
-        1 => ScheduleEventType.quiz,
-        2 => ScheduleEventType.exam,
-        _ => ScheduleEventType.task,
-      };
-      final status = index < 4
-          ? ScheduleEventStatus.completed
-          : ScheduleEventStatus.planned;
-      final start = weekStart.add(
-        Duration(
-          days: index,
-          hours: 8 + ((index % 4) * 2),
-          minutes: index.isOdd ? 30 : 0,
-        ),
-      );
-      final durationHours = type == ScheduleEventType.exam ? 3 : 2;
-      final sectionCode =
-          '${subject.department.substring(0, 2).toUpperCase()}-${(index % 4) + 1}A';
-      items.add(
-        ScheduleEventItem(
-          id: 'SCH-${index + 1}',
-          title: '${type.label} ${index + 1}',
-          section: sectionCode,
-          subject: subject.name,
-          instructor: instructorName,
-          location: index % 5 == 0
-              ? 'Hall A${index + 2}'
-              : 'Lab ${String.fromCharCode(65 + (index % 5))}${index + 1}',
-          status: status,
-          type: type,
-          startAt: start,
-          endAt: start.add(Duration(hours: durationHours)),
-          department: subject.department,
-          yearLabel: subject.academicYear,
-          note: type == ScheduleEventType.exam
-              ? 'Seating plan and invigilation checklist required.'
-              : 'Prepared for ${subject.enrolledStudents} enrolled students.',
-          courseOfferingId: 'OFF-${subject.id}',
-          sectionId: 'SEC-$sectionCode',
-          subjectId: subject.id,
-          instructorId: instructorId,
-          studentScopeLabel:
-              '$sectionCode - ${math.max(subject.enrolledStudents - (index * 2), 24)} students',
-          repeatRule: index < 8
-              ? ScheduleRepeatRule.weekly
-              : ScheduleRepeatRule.none,
-          assignedStaffIds: <String>[
-            instructorId,
-            if (!isAssistantLead) subject.assistant.id,
-          ],
-          isSynced: index < 6,
-        ),
-      );
-    }
-
     final conflictDay = weekStart.add(const Duration(days: 2, hours: 10));
+
     items.addAll([
       ScheduleEventItem(
         id: 'SCH-CONFLICT-1',
@@ -285,17 +444,27 @@ class ScheduleRepository {
   ScheduleLookupBundle _buildLookups(List<ScheduleEventItem> events) {
     final subjects = _demoDataService.subjects();
     final staffOptions = _buildStaffOptions(subjects);
+
+    final validDepartments = events
+        .map((e) => e.department.trim())
+        .where((d) => d.isNotEmpty && d != 'Department' && d != 'القسم');
+
+    final validYears = events
+        .map((e) => e.yearLabel.trim())
+        .where((y) => y.isNotEmpty && y != 'Year' && y != 'السنة الدراسية');
+
+    final validSections = events
+        .where((e) => e.section.isNotEmpty && e.section != 'Section' && e.section != 'السكشن');
+
     return ScheduleLookupBundle(
       departments: _distinctOptions(
-        events.map(
-          (event) =>
-              ScheduleOption(id: event.department, label: event.department),
+        validDepartments.map(
+          (dept) => ScheduleOption(id: dept, label: dept),
         ),
       ),
       years: _distinctOptions(
-        events.map(
-          (event) =>
-              ScheduleOption(id: event.yearLabel, label: event.yearLabel),
+        validYears.map(
+          (year) => ScheduleOption(id: year, label: year),
         ),
       ),
       subjects: _distinctOptions(
@@ -309,7 +478,7 @@ class ScheduleRepository {
       ),
       instructors: _distinctOptions(staffOptions),
       sections: _distinctOptions(
-        events.map(
+        validSections.map(
           (event) => ScheduleOption(
             id: event.sectionId ?? event.section,
             label: event.section,
@@ -318,7 +487,7 @@ class ScheduleRepository {
         ),
       ),
       offerings: _distinctOptions(
-        events.map(
+        validSections.map(
           (event) => ScheduleOption(
             id: event.courseOfferingId ?? event.id,
             label: '${event.subject} - ${event.section}',

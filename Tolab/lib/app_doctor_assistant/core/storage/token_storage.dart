@@ -9,16 +9,22 @@ class TokenStorage {
   final FlutterSecureStorage _storage;
 
   Future<void> write(Map<String, dynamic> payload) async {
-    await _storage.write(key: _key, value: jsonEncode(payload));
+    try {
+      await _storage.write(key: _key, value: jsonEncode(payload));
+    } catch (_) {}
   }
 
   Future<Map<String, dynamic>?> read() async {
-    final raw = await _storage.read(key: _key);
-    if (raw == null || raw.isEmpty) {
+    try {
+      final raw = await _storage.read(key: _key);
+      if (raw == null || raw.isEmpty) {
+        return null;
+      }
+
+      return Map<String, dynamic>.from(jsonDecode(raw) as Map);
+    } catch (_) {
       return null;
     }
-
-    return Map<String, dynamic>.from(jsonDecode(raw) as Map);
   }
 
   Future<void> clear() async {

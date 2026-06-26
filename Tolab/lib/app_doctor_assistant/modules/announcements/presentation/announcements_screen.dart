@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
+import '../../../../app/localization/app_localizations.dart';
+
 import '../../../../app_admin/core/spacing/app_spacing.dart';
 import '../../../core/models/session_user.dart';
 import '../../../core/navigation/app_routes.dart';
@@ -63,7 +65,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                 );
               });
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Draft saved to the local academic feed.')),
+                SnackBar(content: Text(context.l10n.byValue('Draft saved to the local academic feed.'))),
               );
               return;
             }
@@ -78,7 +80,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
             }, user);
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Post published to the academic feed.')),
+                SnackBar(content: Text(context.l10n.byValue('Post published to the academic feed.'))),
               );
               setState(() {});
             }
@@ -118,19 +120,19 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                     Text(item.title, style: Theme.of(context).textTheme.headlineSmall),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      '${item.subjectCode} • ${item.authorName} • ${item.type}',
+                      '${context.l10n.byValue(item.subjectCode)} • ${item.authorName} • ${context.l10n.byValue(item.type)}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     Text(item.content, style: Theme.of(context).textTheme.bodyMedium),
                     const SizedBox(height: AppSpacing.lg),
-                    Text('Comments & replies', style: Theme.of(context).textTheme.titleLarge),
+                    Text(context.l10n.byValue('Comments & replies'), style: Theme.of(context).textTheme.titleLarge),
                     const SizedBox(height: AppSpacing.md),
                     if (comments.isEmpty)
-                      const DoctorAssistantEmptyState(
-                        title: 'Start the discussion',
-                        subtitle:
-                            'No comments yet. Add the first clarification, reply, or student follow-up note.',
+                      DoctorAssistantEmptyState(
+                        title: context.l10n.byValue('Start the discussion'),
+                        subtitle: context.l10n.byValue(
+                            'No comments yet. Add the first clarification, reply, or student follow-up note.'),
                       )
                     else
                       Column(
@@ -141,9 +143,9 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                                 child: DoctorAssistantItemCard(
                                   icon: Icons.comment_rounded,
                                   title: comment.authorName,
-                                  subtitle: '${comment.authorRole} • ${_threadTime(comment.createdAt)}',
+                                  subtitle: '${context.l10n.byValue(comment.authorRole)} • ${_threadTime(context, comment.createdAt)}',
                                   meta: comment.message,
-                                  statusLabel: comment.authorRole,
+                                  statusLabel: context.l10n.byValue(comment.authorRole),
                                 ),
                               ),
                             )
@@ -154,9 +156,9 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                       controller: commentController,
                       minLines: 2,
                       maxLines: 4,
-                      decoration: const InputDecoration(
-                        labelText: 'Add comment / reply',
-                        hintText: 'Use @mentions if needed, for example @Eng. Mariam please confirm.',
+                      decoration: InputDecoration(
+                        labelText: context.l10n.byValue('Add comment / reply'),
+                        hintText: context.l10n.byValue('Use @mentions if needed, for example @Eng. Mariam please confirm.'),
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
@@ -184,7 +186,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                         commentController.clear();
                       },
                       icon: const Icon(Icons.send_rounded),
-                      label: const Text('Post reply'),
+                      label: Text(context.l10n.byValue('Post reply')),
                     ),
                   ],
                 ),
@@ -219,15 +221,15 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
           activeRoute: AppRoutes.announcements,
           unreadNotifications: repository.unreadNotificationsFor(user),
           child: DoctorAssistantPageScaffold(
-            title: 'Announcements / group activity',
-            subtitle:
-                'Academic social feed for publishing updates, tracking threads, and keeping the teaching team aligned.',
+            title: context.l10n.byValue('Announcements / group activity'),
+            subtitle: context.l10n.byValue(
+                'Academic social feed for publishing updates, tracking threads, and keeping the teaching team aligned.'),
             breadcrumbs: const ['Workspace', 'Announcements'],
             actions: [
               FilledButton.icon(
                 onPressed: () => _openComposer(context, workspace, repository, user),
                 icon: const Icon(Icons.add_comment_rounded),
-                label: const Text('Create post'),
+                label: Text(context.l10n.byValue('Create post')),
               ),
             ],
             child: Column(
@@ -241,7 +243,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                   children: AnnouncementFeedFilter.values
                       .map(
                         (filter) => ChoiceChip(
-                          label: Text(filter.label),
+                          label: Text(context.l10n.byValue(filter.label)),
                           selected: _filter == filter,
                           onSelected: (_) => setState(() => _filter = filter),
                         ),
@@ -256,10 +258,10 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (filteredFeed.isEmpty)
-                          const DoctorAssistantEmptyState(
-                            title: 'Start your first announcement',
-                            subtitle:
-                                'No items match the current filter. Publish a course update or save a draft to begin the feed.',
+                          DoctorAssistantEmptyState(
+                            title: context.l10n.byValue('Start your first announcement'),
+                            subtitle: context.l10n.byValue(
+                                'No items match the current filter. Publish a course update or save a draft to begin the feed.'),
                           )
                         else
                           Column(
@@ -340,13 +342,13 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
   }
 }
 
-String _threadTime(DateTime value) {
+String _threadTime(BuildContext context, DateTime value) {
   final diff = DateTime(2026, 4, 23, 12).difference(value);
   if (diff.inHours < 1) {
-    return '${diff.inMinutes}m ago';
+    return '${diff.inMinutes}${context.l10n.byValue('m ago')}';
   }
   if (diff.inDays < 1) {
-    return '${diff.inHours}h ago';
+    return '${diff.inHours}${context.l10n.byValue('h ago')}';
   }
-  return '${diff.inDays}d ago';
+  return '${diff.inDays}${context.l10n.byValue('d ago')}';
 }

@@ -64,7 +64,7 @@ class DepartmentsRepository {
         _cache = remote;
       }
     } on AppException catch (error) {
-      if (error.statusCode != null && error.statusCode! >= 500) {
+      if (error.statusCode == null || error.statusCode! >= 500) {
         _remoteUnavailable = true;
       }
     } on DioException {

@@ -35,29 +35,32 @@ class NotificationsPreviewSection extends StatelessWidget {
       child: Column(
         children: section.items
             .map(
-              (item) => ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Icon(
-                  item.isUnread
-                      ? Icons.notifications_active_rounded
-                      : Icons.notifications_none_rounded,
-                  color: item.isUnread ? tokens.warning : tokens.secondary,
+              (item) => Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                    item.isUnread
+                        ? Icons.notifications_active_rounded
+                        : Icons.notifications_none_rounded,
+                    color: item.isUnread ? tokens.warning : tokens.secondary,
+                  ),
+                  title: Text(
+                    item.title,
+                    style: TextStyle(color: tokens.textPrimary),
+                  ),
+                  subtitle: Text(
+                    '${item.body} • ${dashboardRelativeTime(item.time)}',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: tokens.textSecondary),
+                  ),
+                  trailing: DashboardToneBadge(
+                    label: item.category,
+                    tone: item.isUnread ? 'warning' : 'secondary',
+                  ),
+                  onTap: () => onOpenRoute(item.route),
                 ),
-                title: Text(
-                  item.title,
-                  style: TextStyle(color: tokens.textPrimary),
-                ),
-                subtitle: Text(
-                  '${item.body} • ${dashboardRelativeTime(item.time)}',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: tokens.textSecondary),
-                ),
-                trailing: DashboardToneBadge(
-                  label: item.category,
-                  tone: item.isUnread ? 'warning' : 'secondary',
-                ),
-                onTap: () => onOpenRoute(item.route),
               ),
             )
             .toList(),

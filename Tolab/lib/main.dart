@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app/app.dart';
 import 'app/bootstrap/app_bootstrap.dart';
+import 'app/auth/presentation/widgets/unified_splash_widget.dart';
 import 'app_admin/core/theme/app_theme.dart';
 
 Future<void> main() async {
@@ -106,14 +107,8 @@ class _BootstrapLoadingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: SizedBox(
-          width: 42,
-          height: 42,
-          child: CircularProgressIndicator(strokeWidth: 3),
-        ),
-      ),
+    return const UnifiedSplashWidget(
+      showLoadingIndicator: true,
     );
   }
 }

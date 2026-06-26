@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../core/spacing/app_spacing.dart';
 import '../../../core/widgets/page_header.dart';
 import '../../../shared/widgets/async_state_view.dart';
@@ -53,31 +54,34 @@ class ModerationScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     PageHeader(
-                      title: 'Moderation',
-                      subtitle:
-                          'University-wide safety operations for groups, posts, comments, reports, messaging, and moderator permissions.',
-                      breadcrumbs: const ['Admin', 'Safety', 'Moderation'],
+                      title: context.l10n.byValue('Moderation'),
+                      subtitle: context.l10n.byValue(
+                        'University-wide safety operations for groups, posts, comments, reports, messaging, and moderator permissions.',
+                      ),
+                      breadcrumbs: ['Admin', 'Safety', 'Moderation']
+                          .map(context.l10n.byValue)
+                          .toList(),
                       actions: [
                         PremiumButton(
-                          label: 'Refresh',
+                          label: context.l10n.byValue('Refresh'),
                           icon: Icons.refresh_rounded,
                           isSecondary: true,
                           onPressed: () =>
                               StoreProvider.of<AppState>(context).dispatch(
-                                const LoadModerationDashboardRequestedAction(
-                                  silent: true,
-                                ),
-                              ),
+                            const LoadModerationDashboardRequestedAction(
+                              silent: true,
+                            ),
+                          ),
                         ),
                         PremiumButton(
-                          label: 'Assign moderators',
+                          label: context.l10n.byValue('Assign moderators'),
                           icon: Icons.admin_panel_settings_outlined,
                           onPressed: () =>
                               StoreProvider.of<AppState>(context).dispatch(
-                                const ModerationTabChangedAction(
-                                  ModerationWorkspaceTab.permissions,
-                                ),
-                              ),
+                            const ModerationTabChangedAction(
+                              ModerationWorkspaceTab.permissions,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -111,9 +115,10 @@ class ModerationScreen extends StatelessWidget {
                             vm.state.posts.isEmpty &&
                             vm.state.comments.isEmpty &&
                             vm.state.reports.isEmpty,
-                        emptyTitle: 'No moderation data yet',
-                        emptySubtitle:
-                            'Connect the Laravel moderation endpoints or wait for new reports to arrive.',
+                        emptyTitle: context.l10n.byValue('No moderation data yet'),
+                        emptySubtitle: context.l10n.byValue(
+                          'Connect the Laravel moderation endpoints or wait for new reports to arrive.',
+                        ),
                         child: AnimatedSwitcher(
                           duration: const Duration(milliseconds: 260),
                           layoutBuilder: (currentChild, previousChildren) {
@@ -173,7 +178,7 @@ class _TabBarStrip extends StatelessWidget {
                 padding: const EdgeInsets.only(right: AppSpacing.sm),
                 child: ChoiceChip(
                   avatar: Icon(tab.icon, size: 18),
-                  label: Text(tab.label),
+                  label: Text(context.l10n.byValue(tab.label)),
                   selected: tab == activeTab,
                   onSelected: (_) => StoreProvider.of<AppState>(
                     context,

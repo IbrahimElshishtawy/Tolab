@@ -19,22 +19,34 @@ class TokenStorageService {
 
   /// Write access token to secure storage
   Future<void> writeAccessToken(String token) async {
-    await _secureStorage.write(key: _accessTokenKey, value: token);
+    try {
+      await _secureStorage.write(key: _accessTokenKey, value: token);
+    } catch (_) {}
   }
 
   /// Read access token from secure storage
   Future<String?> readAccessToken() async {
-    return await _secureStorage.read(key: _accessTokenKey);
+    try {
+      return await _secureStorage.read(key: _accessTokenKey);
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Write refresh token to secure storage
   Future<void> writeRefreshToken(String token) async {
-    await _secureStorage.write(key: _refreshTokenKey, value: token);
+    try {
+      await _secureStorage.write(key: _refreshTokenKey, value: token);
+    } catch (_) {}
   }
 
   /// Read refresh token from secure storage
   Future<String?> readRefreshToken() async {
-    return await _secureStorage.read(key: _refreshTokenKey);
+    try {
+      return await _secureStorage.read(key: _refreshTokenKey);
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Write user ID to shared preferences (non-sensitive)

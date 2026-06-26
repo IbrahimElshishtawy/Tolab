@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/animations/app_motion.dart';
 import '../../../../core/colors/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -251,4 +252,81 @@ class ModerationNoticeBanner extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> showModerationReplyDialog({
+  required BuildContext context,
+  required String recipientName,
+  required String contentPreview,
+  required String contentTypeLabel,
+  required void Function(String replyText) onSend,
+}) {
+  final controller = TextEditingController();
+  return showDialog<void>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text(
+          '${context.l10n.byValue('Reply to student')} (${context.l10n.byValue(recipientName)})',
+        ),
+        content: SizedBox(
+          width: 500,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${context.l10n.byValue('Content')}:',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).canvasColor,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Theme.of(context).dividerColor),
+                ),
+                child: Text(
+                  contentPreview,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontStyle: FontStyle.italic,
+                      ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              TextField(
+                controller: controller,
+                maxLines: 4,
+                decoration: InputDecoration(
+                  labelText: context.l10n.byValue('Reply'),
+                  hintText: context.l10n.byValue('Write your response here...'),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(context.l10n.byValue('Cancel')),
+          ),
+          PremiumButton(
+            label: context.l10n.byValue('Send reply'),
+            icon: Icons.send_rounded,
+            onPressed: () {
+              final text = controller.text.trim();
+              Navigator.of(context).pop();
+              onSend(text);
+            },
+          ),
+        ],
+      );
+    },
+  );
 }

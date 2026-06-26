@@ -39,9 +39,9 @@ class UserModel {
       profileImageUrl: json['profileImageUrl'] as String?,
       role: json['role'] as String,
       isActive: json['isActive'] as bool? ?? true,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.now(),
       lastLoginAt: json['lastLoginAt'] != null
-          ? DateTime.parse(json['lastLoginAt'] as String)
+          ? DateTime.tryParse(json['lastLoginAt'].toString())
           : null,
       departmentId: json['departmentId'] as String?,
       bio: json['bio'] as String?,

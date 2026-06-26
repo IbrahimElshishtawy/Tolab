@@ -39,43 +39,48 @@ class SmartTimelineSection extends StatelessWidget {
               (group) => Container(
                 width: double.infinity,
                 margin: const EdgeInsets.only(bottom: DashboardAppSpacing.md),
-                padding: const EdgeInsets.all(DashboardAppSpacing.md),
-                decoration: BoxDecoration(
+                child: Material(
                   color: tokens.surfaceAlt,
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: tokens.border),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    DashboardToneBadge(label: group.label, tone: 'secondary'),
-                    const SizedBox(height: DashboardAppSpacing.sm),
-                    ...group.items.map(
-                      (item) => Material(
-                        color: Colors.transparent,
-                        child: ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: Icon(
-                            dashboardIconForTimelineType(item.type),
-                            color: dashboardToneColor(tokens, item.status),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(22),
+                    side: BorderSide(color: tokens.border),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Padding(
+                    padding: const EdgeInsets.all(DashboardAppSpacing.md),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DashboardToneBadge(label: group.label, tone: 'secondary'),
+                        const SizedBox(height: DashboardAppSpacing.sm),
+                        ...group.items.map(
+                          (item) => Material(
+                            color: Colors.transparent,
+                            child: ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: Icon(
+                                dashboardIconForTimelineType(item.type),
+                                color: dashboardToneColor(tokens, item.status),
+                              ),
+                              title: Text(
+                                item.title,
+                                style: TextStyle(color: tokens.textPrimary),
+                              ),
+                              subtitle: Text(
+                                '${item.subjectName} • ${item.whenLabel}',
+                                style: TextStyle(color: tokens.textSecondary),
+                              ),
+                              trailing: DashboardToneBadge(
+                                label: item.status,
+                                tone: item.status,
+                              ),
+                              onTap: () => onOpenRoute(item.route),
+                            ),
                           ),
-                          title: Text(
-                            item.title,
-                            style: TextStyle(color: tokens.textPrimary),
-                          ),
-                          subtitle: Text(
-                            '${item.subjectName} • ${item.whenLabel}',
-                            style: TextStyle(color: tokens.textSecondary),
-                          ),
-                          trailing: DashboardToneBadge(
-                            label: item.status,
-                            tone: item.status,
-                          ),
-                          onTap: () => onOpenRoute(item.route),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             )

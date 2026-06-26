@@ -277,10 +277,10 @@ class EnrollmentRecord {
       sectionCapacity: sectionCapacity,
       sectionOccupancy: sectionOccupancy,
       createdAt:
-          DateTime.tryParse(_stringOf(json['created_at']) ?? '') ??
+          _parseDateTime(json['created_at']) ??
           DateTime.now(),
       updatedAt:
-          DateTime.tryParse(_stringOf(json['updated_at']) ?? '') ??
+          _parseDateTime(json['updated_at']) ??
           DateTime.now(),
     );
   }
@@ -1035,6 +1035,19 @@ String? _stringOf(dynamic value) {
   final text = value.toString().trim();
   if (text.isEmpty) return null;
   return text;
+}
+
+DateTime? _parseDateTime(dynamic value) {
+  final str = _stringOf(value);
+  if (str == null) return null;
+  if (str.startsWith('0000-00-00') || str.startsWith('0000/00/00')) {
+    return null;
+  }
+  final hasDatePattern = RegExp(r'^\d{4}[-\/]\d{2}[-\/]\d{2}').hasMatch(str);
+  if (!hasDatePattern) {
+    return null;
+  }
+  return DateTime.tryParse(str);
 }
 
 int? _intOf(dynamic value) {

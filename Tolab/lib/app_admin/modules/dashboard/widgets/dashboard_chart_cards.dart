@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../app/localization/app_localizations.dart';
+
 import '../../../core/colors/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/spacing/app_spacing.dart';
@@ -108,7 +110,7 @@ class _StudentsCoursesTrendCardState extends State<StudentsCoursesTrendCard> {
                                 top: AppSpacing.sm,
                               ),
                               child: Text(
-                                widget.points[index].label,
+                                context.l10n.byValue(widget.points[index].label),
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                             );
@@ -139,10 +141,10 @@ class _StudentsCoursesTrendCardState extends State<StudentsCoursesTrendCard> {
                               .map((spot) {
                                 final point = widget.points[spot.x.toInt()];
                                 final label = spot.barIndex == 0
-                                    ? 'Students ${point.totalStudents.toStringAsFixed(0)}'
-                                    : 'Courses ${point.activeCourses.toStringAsFixed(0)}';
+                                    ? '${context.l10n.byValue('Students')} ${point.totalStudents.toStringAsFixed(0)}'
+                                    : '${context.l10n.byValue('Courses')} ${point.activeCourses.toStringAsFixed(0)}';
                                 return LineTooltipItem(
-                                  '$label\n${point.label}',
+                                  '$label\n${context.l10n.byValue(point.label)}',
                                   Theme.of(context).textTheme.bodySmall!,
                                 );
                               })
@@ -298,7 +300,7 @@ class _EnrollmentDepartmentBarCardState
                                 top: AppSpacing.sm,
                               ),
                               child: Text(
-                                widget.points[index].department,
+                                context.l10n.byValue(widget.points[index].department),
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                             );
@@ -319,7 +321,7 @@ class _EnrollmentDepartmentBarCardState
                         getTooltipItem: (group, groupIndex, rod, rodIndex) {
                           final point = widget.points[group.x.toInt()];
                           return BarTooltipItem(
-                            '${point.department}\n${point.enrollments.toStringAsFixed(0)} enrollments',
+                            '${context.l10n.byValue(point.department)}\n${point.enrollments.toStringAsFixed(0)} ${context.l10n.byValue('enrollments')}',
                             Theme.of(context).textTheme.bodySmall!,
                           );
                         },
@@ -429,12 +431,12 @@ class _PendingApprovalsDonutCardState extends State<PendingApprovalsDonutCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${total.toStringAsFixed(0)} open tasks',
+                      '${total.toStringAsFixed(0)} ${context.l10n.byValue('open tasks')}',
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
-                      'Every segment feeds the notification badge and FIFO toast pipeline in the top shell.',
+                      context.l10n.byValue('Every segment feeds the notification badge and FIFO toast pipeline in the top shell.'),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: AppSpacing.lg),
@@ -468,9 +470,9 @@ class _CardHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: Theme.of(context).textTheme.titleLarge),
+        Text(context.l10n.byValue(title), style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.xs),
-        Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
+        Text(context.l10n.byValue(subtitle), style: Theme.of(context).textTheme.bodyMedium),
       ],
     );
   }
@@ -508,7 +510,7 @@ class _LegendItem extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: AppSpacing.xs),
-        Text(label, style: Theme.of(context).textTheme.bodySmall),
+        Text(context.l10n.byValue(label), style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }
@@ -541,7 +543,7 @@ class _LegendTile extends StatelessWidget {
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: AppSpacing.sm),
-          Expanded(child: Text(label)),
+          Expanded(child: Text(context.l10n.byValue(label))),
           Text(value, style: Theme.of(context).textTheme.titleSmall),
         ],
       ),

@@ -1,4 +1,5 @@
 import '../../../shared/enums/load_status.dart';
+import '../models/schedule_models.dart';
 import 'schedule_actions.dart';
 import 'schedule_state.dart';
 
@@ -44,6 +45,13 @@ ScheduleState scheduleReducer(ScheduleState state, dynamic action) {
         clearError: true,
       );
     case ScheduleMutationSucceededAction():
+      final createdEvent = action.result.highlightedEventId == null
+          ? null
+          : action.result.events.cast<ScheduleEventItem?>().firstWhere(
+                (e) => e?.id == action.result.highlightedEventId,
+                orElse: () => null,
+              );
+      final eventDay = createdEvent != null ? _stripTime(createdEvent.startAt) : null;
       return state.copyWith(
         mutationStatus: LoadStatus.success,
         status: LoadStatus.success,
@@ -51,6 +59,8 @@ ScheduleState scheduleReducer(ScheduleState state, dynamic action) {
         lookups: action.result.lookups,
         feedbackMessage: action.result.message,
         highlightedEventId: action.result.highlightedEventId,
+        focusedDay: eventDay ?? state.focusedDay,
+        selectedDay: eventDay ?? state.selectedDay,
         clearError: true,
       );
     case ScheduleMutationFailedAction():

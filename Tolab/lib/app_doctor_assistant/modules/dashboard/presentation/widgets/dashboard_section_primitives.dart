@@ -67,7 +67,7 @@ class DashboardSectionCard extends StatelessWidget {
             ),
             const SizedBox(height: DashboardAppSpacing.md),
             Material(
-              color: Colors.transparent,
+              color: isHero ? Colors.transparent : tokens.surface,
               child: child,
             ),
           ],

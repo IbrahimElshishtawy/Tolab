@@ -10,13 +10,10 @@ final summariesControllerProvider =
       String
     >(SummariesController.new);
 
-class SummariesController extends AsyncNotifier<List<SummaryItem>> {
-  SummariesController(this._subjectId);
-  final String _subjectId;
-
+class SummariesController extends FamilyAsyncNotifier<List<SummaryItem>, String> {
   @override
-  Future<List<SummaryItem>> build() async {
-    return ref.watch(summariesRepositoryProvider).fetchSummaries(_subjectId);
+  Future<List<SummaryItem>> build(String arg) async {
+    return ref.watch(summariesRepositoryProvider).fetchSummaries(arg);
   }
 
   Future<void> addSummary({
@@ -27,13 +24,13 @@ class SummariesController extends AsyncNotifier<List<SummaryItem>> {
     await ref
         .read(summariesRepositoryProvider)
         .addSummary(
-          subjectId: _subjectId,
+          subjectId: arg,
           title: title,
           videoUrl: videoUrl,
           attachmentName: attachmentName,
         );
     state = AsyncData(
-      await ref.read(summariesRepositoryProvider).fetchSummaries(_subjectId),
+      await ref.read(summariesRepositoryProvider).fetchSummaries(arg),
     );
   }
 }

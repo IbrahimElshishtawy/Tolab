@@ -30,15 +30,18 @@ class RiskAlertsSection extends StatelessWidget {
       child: Column(
         children: alerts.items
             .map(
-              (item) => ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(item.title),
-                subtitle: Text(item.explanation),
-                trailing: DashboardToneBadge(
-                  label: item.severity,
-                  tone: item.severity,
+              (item) => Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(item.title),
+                  subtitle: Text(item.explanation),
+                  trailing: DashboardToneBadge(
+                    label: item.severity,
+                    tone: item.severity,
+                  ),
+                  onTap: () => onOpenRoute(item.route),
                 ),
-                onTap: () => onOpenRoute(item.route),
               ),
             )
             .toList(),

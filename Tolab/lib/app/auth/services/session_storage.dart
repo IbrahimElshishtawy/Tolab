@@ -12,18 +12,24 @@ class SessionStorage {
   final FlutterSecureStorage _storage;
 
   Future<void> write(AuthSession session) async {
-    await _storage.write(key: _sessionKey, value: jsonEncode(session.toJson()));
+    try {
+      await _storage.write(key: _sessionKey, value: jsonEncode(session.toJson()));
+    } catch (_) {}
   }
 
   Future<AuthSession?> read() async {
-    final raw = await _storage.read(key: _sessionKey);
-    if (raw == null || raw.isEmpty) {
+    try {
+      final raw = await _storage.read(key: _sessionKey);
+      if (raw == null || raw.isEmpty) {
+        return null;
+      }
+
+      return AuthSession.fromJson(
+        Map<String, dynamic>.from(jsonDecode(raw) as Map),
+      );
+    } catch (_) {
       return null;
     }
-
-    return AuthSession.fromJson(
-      Map<String, dynamic>.from(jsonDecode(raw) as Map),
-    );
   }
 
   Future<void> clear() async {

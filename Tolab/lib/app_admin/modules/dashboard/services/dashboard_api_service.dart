@@ -45,7 +45,7 @@ class DashboardApiService {
     String? userId,
   }) async* {
     final url = AppConfig.dashboardSocketUrl.trim();
-    if (url.isEmpty) {
+    if (AppConfig.useMockData || url.isEmpty) {
       yield* _fallbackRealtimeSignals();
       return;
     }
@@ -63,7 +63,14 @@ class DashboardApiService {
       );
 
       channel = WebSocketChannel.connect(uri);
-      await channel.ready;
+      bool connected = true;
+      await channel.ready.catchError((_) {
+        connected = false;
+      });
+      if (!connected) {
+        yield* _fallbackRealtimeSignals();
+        return;
+      }
       yield DashboardRealtimeSignal.heartbeat('socket');
 
       await for (final event in channel.stream) {

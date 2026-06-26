@@ -35,15 +35,18 @@ class PendingGradingCenterSection extends StatelessWidget {
       child: Column(
         children: section.items
             .map(
-              (item) => ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(item.title),
-                subtitle: Text(
-                  '${item.subjectName} • ${item.pendingCount} waiting',
-                ),
-                trailing: DashboardInlineAction(
-                  label: item.ctaLabel,
-                  onTap: () => onOpenRoute(item.route),
+              (item) => Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(item.title),
+                  subtitle: Text(
+                    '${item.subjectName} • ${item.pendingCount} waiting',
+                  ),
+                  trailing: DashboardInlineAction(
+                    label: item.ctaLabel,
+                    onTap: () => onOpenRoute(item.route),
+                  ),
                 ),
               ),
             )

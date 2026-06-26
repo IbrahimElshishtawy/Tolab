@@ -172,7 +172,7 @@ class _DesktopSidebarTileState extends State<_DesktopSidebarTile> {
           duration: AppMotion.fast,
           curve: AppMotion.emphasized,
           decoration: BoxDecoration(
-            color: color,
+            color: widget.isCollapsed ? color : Colors.transparent,
             borderRadius: BorderRadius.circular(AppConstants.smallRadius),
             border: Border.all(
               color: widget.selected
@@ -200,7 +200,8 @@ class _DesktopSidebarTileState extends State<_DesktopSidebarTile> {
                   ),
                 )
               : Material(
-                  color: Colors.transparent,
+                  color: color,
+                  borderRadius: BorderRadius.circular(AppConstants.smallRadius),
                   child: ListTile(
                     onTap: widget.onTap,
                     shape: RoundedRectangleBorder(

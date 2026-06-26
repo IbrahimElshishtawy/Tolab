@@ -190,7 +190,7 @@ class NotificationService {
 
   Future<void> _connectWebSocket({String? accessToken, String? userId}) async {
     final url = AppConfig.notificationSocketUrl.trim();
-    if (url.isEmpty) {
+    if (AppConfig.useMockData || url.isEmpty) {
       _statusController.add(NotificationRealtimeStatus.polling);
       return;
     }
@@ -205,7 +205,16 @@ class NotificationService {
       final uri = baseUri.replace(queryParameters: queryParameters);
 
       _socketChannel = WebSocketChannel.connect(uri);
-      await _socketChannel!.ready;
+      bool connected = true;
+      await _socketChannel!.ready.catchError((_) {
+        connected = false;
+      });
+      if (!connected) {
+        await _socketChannel?.sink.close();
+        _socketChannel = null;
+        _statusController.add(NotificationRealtimeStatus.polling);
+        return;
+      }
       _socketSubscription = _socketChannel!.stream.listen(
         (event) {
           final payload = _decodeSocketPayload(event);

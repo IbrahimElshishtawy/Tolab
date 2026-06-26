@@ -2,6 +2,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../shared/widgets/premium_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
@@ -37,26 +38,26 @@ class ModerationCommentsScreen extends StatelessWidget {
         return Column(
           children: [
             ModerationFiltersBar(
-              searchHint: 'Search comments by content, post, or author',
+              searchHint: context.l10n.byValue('Search comments by content, post, or author'),
               searchValue: vm.query.searchQuery,
               onSearchChanged: (value) => _updateQuery(
                 context,
                 vm.query.copyWith(searchQuery: value, resetPage: true),
               ),
-              statusOptions: const ['All', 'Active', 'Pending', 'Approved', 'Flagged', 'Removed'],
+              statusOptions: ['All', 'Active', 'Pending', 'Approved', 'Flagged', 'Removed'].map(context.l10n.byValue).toList(),
               selectedStatus: vm.query.statusFilter,
               onStatusChanged: (value) => _updateQuery(
                 context,
                 vm.query.copyWith(statusFilter: value, resetPage: true),
               ),
-              secondaryLabel: 'Post',
+              secondaryLabel: context.l10n.byValue('Post'),
               secondaryOptions: vm.posts,
               selectedSecondary: vm.query.secondaryFilter,
               onSecondaryChanged: (value) => _updateQuery(
                 context,
                 vm.query.copyWith(secondaryFilter: value, resetPage: true),
               ),
-              dateOptions: const ['Any time', 'Today', 'Last 7 days', 'Last 30 days'],
+              dateOptions: ['Any time', 'Today', 'Last 7 days', 'Last 30 days'].map(context.l10n.byValue).toList(),
               selectedDate: vm.query.dateFilter,
               onDateChanged: (value) => _updateQuery(
                 context,
@@ -65,7 +66,7 @@ class ModerationCommentsScreen extends StatelessWidget {
               trailing: [
                 if (vm.selectedIds.isNotEmpty)
                   PremiumButton(
-                    label: 'Approve ${vm.selectedIds.length}',
+                    label: '${context.l10n.byValue('Approve')} (${vm.selectedIds.length})',
                     icon: Icons.check_circle_outline_rounded,
                     isSecondary: true,
                     onPressed: () => dispatchModerationCommand(
@@ -79,7 +80,7 @@ class ModerationCommentsScreen extends StatelessWidget {
                   ),
                 if (vm.selectedIds.isNotEmpty)
                   PremiumButton(
-                    label: 'Delete ${vm.selectedIds.length}',
+                    label: '${context.l10n.byValue('Delete')} (${vm.selectedIds.length})',
                     icon: Icons.delete_outline_rounded,
                     isDestructive: true,
                     onPressed: () => dispatchModerationCommand(
@@ -96,14 +97,14 @@ class ModerationCommentsScreen extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
             Expanded(
               child: ModerationTableCard<ModerationComment>(
-                title: 'Comments by post',
-                subtitle:
-                    'Handle comment threads quickly before discussions escalate across groups.',
+                title: context.l10n.byValue('Comments by post'),
+                subtitle: context.l10n.byValue(
+                    'Handle comment threads quickly before discussions escalate across groups.'),
                 items: vm.page.items,
                 columns: [
                   ModerationTableColumn<ModerationComment>(
                     key: 'content',
-                    label: 'Comment',
+                    label: context.l10n.byValue('Comment'),
                     size: ColumnSize.L,
                     cellBuilder: (context, comment) => Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,33 +118,33 @@ class ModerationCommentsScreen extends StatelessWidget {
                   ),
                   ModerationTableColumn<ModerationComment>(
                     key: 'author',
-                    label: 'Author',
+                    label: context.l10n.byValue('Author'),
                     sortable: true,
                     cellBuilder: (context, comment) => Text(comment.authorName),
                   ),
                   ModerationTableColumn<ModerationComment>(
                     key: 'reports',
-                    label: 'Status',
+                    label: context.l10n.byValue('Status'),
                     sortable: true,
                     cellBuilder: (context, comment) => Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        StatusBadge(comment.status.label),
+                        StatusBadge(context.l10n.byValue(comment.status.label)),
                         const SizedBox(width: AppSpacing.sm),
-                        Text('${comment.reportsCount} reports'),
+                        Text('${comment.reportsCount} ${context.l10n.byValue('Reports')}'),
                       ],
                     ),
                   ),
                   ModerationTableColumn<ModerationComment>(
                     key: 'createdAt',
-                    label: 'Date',
+                    label: context.l10n.byValue('Date'),
                     sortable: true,
                     cellBuilder: (context, comment) =>
                         Text(formatModerationDate(comment.createdAt)),
                   ),
                   ModerationTableColumn<ModerationComment>(
                     key: 'actions',
-                    label: 'Actions',
+                    label: context.l10n.byValue('Actions'),
                     size: ColumnSize.S,
                     cellBuilder: (context, comment) => IconButton(
                       onPressed: () => _openPreview(context, comment),
@@ -221,15 +222,15 @@ class ModerationCommentsScreen extends StatelessWidget {
       context: context,
       title: comment.authorName,
       subtitle: comment.postTitle,
-      status: comment.status.label,
+      status: context.l10n.byValue(comment.status.label),
       content: comment.content,
       metadata: [
-        MapEntry('Reports', comment.reportsCount.toString()),
-        MapEntry('Created', formatModerationDate(comment.createdAt)),
+        MapEntry(context.l10n.byValue('Reports'), comment.reportsCount.toString()),
+        MapEntry(context.l10n.byValue('Date'), formatModerationDate(comment.createdAt)),
       ],
       actions: [
         buildPreviewActionButton(
-          label: 'Approve',
+          label: context.l10n.byValue('Approve'),
           icon: Icons.check_circle_outline_rounded,
           onPressed: () => dispatchModerationCommand(
             context,
@@ -241,7 +242,7 @@ class ModerationCommentsScreen extends StatelessWidget {
           ),
         ),
         buildPreviewActionButton(
-          label: 'Warn',
+          label: context.l10n.byValue('Warn'),
           icon: Icons.warning_amber_rounded,
           onPressed: () => dispatchModerationCommand(
             context,
@@ -253,7 +254,31 @@ class ModerationCommentsScreen extends StatelessWidget {
           ),
         ),
         buildPreviewActionButton(
-          label: 'Delete',
+          label: context.l10n.byValue('Reply'),
+          icon: Icons.reply_rounded,
+          onPressed: () {
+            Navigator.of(context).pop();
+            showModerationReplyDialog(
+              context: context,
+              recipientName: comment.authorName,
+              contentPreview: comment.content,
+              contentTypeLabel: 'comment',
+              onSend: (replyText) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      replyText.isEmpty
+                          ? context.l10n.byValue('Reply sent successfully.')
+                          : '${context.l10n.byValue('Official response sent to student.')}: "$replyText"',
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+        buildPreviewActionButton(
+          label: context.l10n.byValue('Delete'),
           icon: Icons.delete_outline_rounded,
           destructive: true,
           onPressed: () => dispatchModerationCommand(

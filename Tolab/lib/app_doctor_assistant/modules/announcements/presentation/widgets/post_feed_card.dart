@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../app/localization/app_localizations.dart';
+
 import '../../../../../app_admin/core/spacing/app_spacing.dart';
 import '../../../../../app_admin/core/widgets/app_card.dart';
 import '../../../../../app_admin/shared/widgets/status_badge.dart';
@@ -32,18 +34,18 @@ class PostFeedCard extends StatelessWidget {
             runSpacing: AppSpacing.sm,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              StatusBadge(item.subjectCode),
-              StatusBadge(item.type),
-              StatusBadge(item.statusLabel),
-              if (item.isUrgent) StatusBadge('Urgent'),
-              if (item.isPinned) StatusBadge('Pinned'),
+              StatusBadge(context.l10n.byValue(item.subjectCode)),
+              StatusBadge(context.l10n.byValue(item.type)),
+              StatusBadge(context.l10n.byValue(item.statusLabel)),
+              if (item.isUrgent) StatusBadge(context.l10n.byValue('Urgent')),
+              if (item.isPinned) StatusBadge(context.l10n.byValue('Pinned')),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(item.title, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            '${item.authorName} • ${item.subjectName} • ${_timestamp(item.createdAt)}',
+            '${item.authorName} • ${context.l10n.byValue(item.subjectName)} • ${_timestamp(context, item.createdAt)}',
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -75,19 +77,19 @@ class PostFeedCard extends StatelessWidget {
             children: [
               Icon(Icons.chat_bubble_outline_rounded, size: 18, color: accent),
               const SizedBox(width: AppSpacing.xs),
-              Text('${item.commentsCount} comments'),
+              Text('${item.commentsCount} ${context.l10n.byValue('comments')}'),
               const SizedBox(width: AppSpacing.md),
               Icon(Icons.favorite_border_rounded, size: 18, color: accent),
               const SizedBox(width: AppSpacing.xs),
-              Text('${item.reactionsCount} reactions'),
+              Text('${item.reactionsCount} ${context.l10n.byValue('reactions')}'),
               const Spacer(),
               TextButton(
                 onPressed: onTogglePin,
-                child: Text(item.isPinned ? 'Unpin' : 'Pin'),
+                child: Text(context.l10n.byValue(item.isPinned ? 'Unpin' : 'Pin')),
               ),
               FilledButton.tonal(
                 onPressed: onOpenThread,
-                child: const Text('Open thread'),
+                child: Text(context.l10n.byValue('Open thread')),
               ),
             ],
           ),
@@ -97,13 +99,13 @@ class PostFeedCard extends StatelessWidget {
   }
 }
 
-String _timestamp(DateTime value) {
+String _timestamp(BuildContext context, DateTime value) {
   final difference = DateTime(2026, 4, 23, 12).difference(value);
   if (difference.inHours < 1) {
-    return '${difference.inMinutes}m ago';
+    return '${difference.inMinutes}${context.l10n.byValue('m ago')}';
   }
   if (difference.inDays < 1) {
-    return '${difference.inHours}h ago';
+    return '${difference.inHours}${context.l10n.byValue('h ago')}';
   }
-  return '${difference.inDays}d ago';
+  return '${difference.inDays}${context.l10n.byValue('d ago')}';
 }

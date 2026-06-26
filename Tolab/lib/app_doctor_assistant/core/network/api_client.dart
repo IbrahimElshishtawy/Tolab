@@ -130,6 +130,12 @@ class ApiClient {
     bool requiresAuth = false,
     required T Function(Object? value) parser,
   }) async {
+    if (AppConfig.useMockData) {
+      return ApiResponse<T>(
+        success: false,
+        message: 'Running in offline mock mode.',
+      );
+    }
     try {
       final response = await _dio.get<JsonMap>(
         path,
@@ -152,6 +158,12 @@ class ApiClient {
     bool requiresAuth = false,
     required T Function(Object? value) parser,
   }) async {
+    if (AppConfig.useMockData) {
+      return ApiResponse<T>(
+        success: false,
+        message: 'Running in offline mock mode.',
+      );
+    }
     try {
       final response = await _dio.post<JsonMap>(
         path,
@@ -174,6 +186,12 @@ class ApiClient {
     bool requiresAuth = false,
     required T Function(Object? value) parser,
   }) async {
+    if (AppConfig.useMockData) {
+      return ApiResponse<T>(
+        success: false,
+        message: 'Running in offline mock mode.',
+      );
+    }
     try {
       final response = await _dio.put<JsonMap>(
         path,
@@ -195,6 +213,12 @@ class ApiClient {
     bool requiresAuth = false,
     required T Function(Object? value) parser,
   }) async {
+    if (AppConfig.useMockData) {
+      return ApiResponse<T>(
+        success: false,
+        message: 'Running in offline mock mode.',
+      );
+    }
     try {
       final response = await _dio.patch<JsonMap>(
         path,
@@ -216,6 +240,12 @@ class ApiClient {
     bool requiresAuth = false,
     required T Function(Object? value) parser,
   }) async {
+    if (AppConfig.useMockData) {
+      return ApiResponse<T>(
+        success: false,
+        message: 'Running in offline mock mode.',
+      );
+    }
     try {
       final response = await _dio.delete<JsonMap>(
         path,
@@ -238,6 +268,12 @@ class ApiClient {
     bool requiresAuth = false,
     required T Function(Object? value) parser,
   }) async {
+    if (AppConfig.useMockData) {
+      return ApiResponse<T>(
+        success: false,
+        message: 'Running in offline mock mode.',
+      );
+    }
     try {
       final response = await _dio.post<JsonMap>(
         path,
@@ -254,6 +290,9 @@ class ApiClient {
   }
 
   Future<bool> _refreshSession() async {
+    if (AppConfig.useMockData) {
+      return false;
+    }
     final session = await _tokenStorage.read();
     final isLocalSession = session?['local_session'] == true;
     final refreshToken = session?['refresh_token']?.toString();

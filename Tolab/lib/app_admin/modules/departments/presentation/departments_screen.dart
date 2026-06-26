@@ -95,157 +95,156 @@ class _DepartmentsScreenState extends State<DepartmentsScreen> {
               const Expanded(child: DepartmentLoadingSkeleton())
             else
               Expanded(
-                child: AsyncStateView(
-                  status: vm.status,
-                  errorMessage: vm.errorMessage,
-                  onRetry: () => StoreProvider.of<AppState>(
-                    context,
-                  ).dispatch(const LoadDepartmentsAction()),
-                  isEmpty: vm.filteredDepartments.isEmpty,
-                  emptyTitle: context.l10n.byValue('No departments match these filters'),
-                  emptySubtitle: context.l10n.byValue(
-                      'Clear one or more filters to restore the management surface.'),
-                  child: ListView(
-                    children: [
-                      DepartmentsSummaryStrip(metrics: vm.summary),
-                      const SizedBox(height: AppSpacing.lg),
-                      DepartmentsToolbar(
-                        searchController: _searchController,
-                        filters: vm.filters,
-                        sort: vm.sort,
-                        faculties: vm.faculties,
-                        canCreateDepartment: vm.canCreateDepartment,
-                        onSearchChanged: (value) => _updateFilters(
-                          context,
-                          vm.filters.copyWith(searchQuery: value),
-                        ),
-                        onStatusChanged: (value) => _updateFilters(
-                          context,
-                          vm.filters.copyWith(status: value),
-                        ),
-                        onFacultyChanged: (value) => _updateFilters(
-                          context,
-                          value == null
-                              ? vm.filters.copyWith(clearFaculty: true)
-                              : vm.filters.copyWith(faculty: value),
-                        ),
-                        onDensityChanged: (value) => _updateFilters(
-                          context,
-                          vm.filters.copyWith(density: value),
-                        ),
-                        onSortFieldChanged: (value) => _updateSort(
-                          context,
-                          vm.sort.copyWith(field: value),
-                        ),
-                        onSortDirectionChanged: (value) => _updateSort(
-                          context,
-                          vm.sort.copyWith(ascending: value),
-                        ),
-                        onClearFilters: () {
-                          _searchController.clear();
-                          _updateFilters(context, const DepartmentFilters());
-                        },
-                        onCreateDepartment: () => DepartmentFormSheet.show(
-                          context,
-                          faculties: vm.faculties,
-                        ),
+                child: ListView(
+                  children: [
+                    DepartmentsSummaryStrip(metrics: vm.summary),
+                    const SizedBox(height: AppSpacing.lg),
+                    DepartmentsToolbar(
+                      searchController: _searchController,
+                      filters: vm.filters,
+                      sort: vm.sort,
+                      faculties: vm.faculties,
+                      canCreateDepartment: vm.canCreateDepartment,
+                      onSearchChanged: (value) => _updateFilters(
+                        context,
+                        vm.filters.copyWith(searchQuery: value),
                       ),
-                      if (vm.selectedIds.isNotEmpty) ...[
-                        const SizedBox(height: AppSpacing.md),
-                        DepartmentBulkActionBar(
-                          count: vm.selectedIds.length,
-                          onActivate: () =>
-                              _toggleActivation(context, vm.selectedIds, true),
-                          onDeactivate: () =>
-                              _toggleActivation(context, vm.selectedIds, false),
-                          onArchive: () =>
-                              _archiveDepartments(context, vm.selectedIds),
-                          onClear: () => StoreProvider.of<AppState>(
-                            context,
-                          ).dispatch(const DepartmentSelectionClearedAction()),
-                        ),
-                      ],
-                      const SizedBox(height: AppSpacing.lg),
-                      if (isMobile)
-                        SizedBox(
-                          height: 680,
-                          child: DepartmentsMobileCards(
-                            departments: vm.visibleDepartments,
-                            selectedIds: vm.selectedIds,
-                            onToggleSelection: (value) =>
-                                StoreProvider.of<AppState>(context).dispatch(
-                                  DepartmentSelectionToggledAction(
-                                    departmentId: value.$1,
-                                    selected: value.$2,
-                                  ),
-                                ),
-                            onOpenDepartment: (department) =>
-                                _openDepartment(context, department),
-                            onEditDepartment: (department) =>
-                                DepartmentFormSheet.show(
-                                  context,
-                                  initialDepartment: department,
-                                  faculties: vm.faculties,
-                                ),
-                            onToggleActivation: (department, isActive) =>
-                                _toggleActivation(context, {
-                                  department.id,
-                                }, isActive),
-                            onArchiveDepartment: (department) =>
-                                _archiveDepartments(context, {department.id}),
-                          ),
-                        )
-                      else
-                        DepartmentsTableCard(
-                          departments: vm.visibleDepartments,
-                          selectedIds: vm.selectedIds,
-                          areAllVisibleSelected: vm.areAllVisibleSelected,
-                          currentPage: vm.pagination.page,
-                          totalPages: vm.totalPages,
-                          perPage: vm.pagination.perPage,
-                          onToggleSelection: (value) =>
-                              StoreProvider.of<AppState>(context).dispatch(
-                                DepartmentSelectionToggledAction(
-                                  departmentId: value.$1,
-                                  selected: value.$2,
-                                ),
-                              ),
-                          onToggleSelectAll: (selected) =>
-                              StoreProvider.of<AppState>(context).dispatch(
-                                DepartmentVisibleSelectionChangedAction(
-                                  visibleIds: vm.visibleDepartments
-                                      .map((department) => department.id)
-                                      .toSet(),
-                                  selected: selected,
-                                ),
-                              ),
-                          onOpenDepartment: (department) =>
-                              _openDepartment(context, department),
-                          onEditDepartment: (department) =>
-                              DepartmentFormSheet.show(
-                                context,
-                                initialDepartment: department,
-                                faculties: vm.faculties,
-                              ),
-                          onToggleActivation: (department, isActive) =>
-                              _toggleActivation(context, {
-                                department.id,
-                              }, isActive),
-                          onArchiveDepartment: (department) =>
-                              _archiveDepartments(context, {department.id}),
-                          onPageChanged: (page) => _updatePagination(
-                            context,
-                            vm.pagination.copyWith(page: page),
-                          ),
-                          onPerPageChanged: (perPage) => _updatePagination(
-                            context,
-                            vm.pagination.copyWith(page: 1, perPage: perPage),
-                          ),
-                        ),
-                      const SizedBox(height: AppSpacing.lg),
-                      _InsightCard(summary: vm.summary),
+                      onStatusChanged: (value) => _updateFilters(
+                        context,
+                        vm.filters.copyWith(status: value),
+                      ),
+                      onFacultyChanged: (value) => _updateFilters(
+                        context,
+                        value == null
+                            ? vm.filters.copyWith(clearFaculty: true)
+                            : vm.filters.copyWith(faculty: value),
+                      ),
+                      onDensityChanged: (value) => _updateFilters(
+                        context,
+                        vm.filters.copyWith(density: value),
+                      ),
+                      onSortFieldChanged: (value) => _updateSort(
+                        context,
+                        vm.sort.copyWith(field: value),
+                      ),
+                      onSortDirectionChanged: (value) => _updateSort(
+                        context,
+                        vm.sort.copyWith(ascending: value),
+                      ),
+                      onClearFilters: () {
+                        _searchController.clear();
+                        _updateFilters(context, const DepartmentFilters());
+                      },
+                      onCreateDepartment: () => DepartmentFormSheet.show(
+                        context,
+                        faculties: vm.faculties,
+                      ),
+                    ),
+                    if (vm.selectedIds.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.md),
+                      DepartmentBulkActionBar(
+                        count: vm.selectedIds.length,
+                        onActivate: () =>
+                            _toggleActivation(context, vm.selectedIds, true),
+                        onDeactivate: () =>
+                            _toggleActivation(context, vm.selectedIds, false),
+                        onArchive: () =>
+                            _archiveDepartments(context, vm.selectedIds),
+                        onClear: () => StoreProvider.of<AppState>(
+                          context,
+                        ).dispatch(const DepartmentSelectionClearedAction()),
+                      ),
                     ],
-                  ),
+                    const SizedBox(height: AppSpacing.lg),
+                    AsyncStateView(
+                      status: vm.status,
+                      errorMessage: vm.errorMessage,
+                      onRetry: () => StoreProvider.of<AppState>(
+                        context,
+                      ).dispatch(const LoadDepartmentsAction()),
+                      isEmpty: vm.filteredDepartments.isEmpty,
+                      emptyTitle: context.l10n.byValue('No departments match these filters'),
+                      emptySubtitle: context.l10n.byValue(
+                          'Clear one or more filters to restore the management surface.'),
+                      child: isMobile
+                          ? SizedBox(
+                              height: 680,
+                              child: DepartmentsMobileCards(
+                                departments: vm.visibleDepartments,
+                                selectedIds: vm.selectedIds,
+                                onToggleSelection: (value) =>
+                                    StoreProvider.of<AppState>(context).dispatch(
+                                      DepartmentSelectionToggledAction(
+                                        departmentId: value.$1,
+                                        selected: value.$2,
+                                      ),
+                                    ),
+                                onOpenDepartment: (department) =>
+                                    _openDepartment(context, department),
+                                onEditDepartment: (department) =>
+                                    DepartmentFormSheet.show(
+                                      context,
+                                      initialDepartment: department,
+                                      faculties: vm.faculties,
+                                    ),
+                                onToggleActivation: (department, isActive) =>
+                                    _toggleActivation(context, {
+                                      department.id,
+                                    }, isActive),
+                                onArchiveDepartment: (department) =>
+                                    _archiveDepartments(context, {department.id}),
+                              ),
+                            )
+                          : DepartmentsTableCard(
+                              departments: vm.visibleDepartments,
+                              selectedIds: vm.selectedIds,
+                              areAllVisibleSelected: vm.areAllVisibleSelected,
+                              currentPage: vm.pagination.page,
+                              totalPages: vm.totalPages,
+                              perPage: vm.pagination.perPage,
+                              onToggleSelection: (value) =>
+                                  StoreProvider.of<AppState>(context).dispatch(
+                                    DepartmentSelectionToggledAction(
+                                      departmentId: value.$1,
+                                      selected: value.$2,
+                                    ),
+                                  ),
+                              onToggleSelectAll: (selected) =>
+                                  StoreProvider.of<AppState>(context).dispatch(
+                                    DepartmentVisibleSelectionChangedAction(
+                                      visibleIds: vm.visibleDepartments
+                                          .map((department) => department.id)
+                                          .toSet(),
+                                      selected: selected,
+                                    ),
+                                  ),
+                              onOpenDepartment: (department) =>
+                                  _openDepartment(context, department),
+                              onEditDepartment: (department) =>
+                                  DepartmentFormSheet.show(
+                                    context,
+                                    initialDepartment: department,
+                                    faculties: vm.faculties,
+                                  ),
+                              onToggleActivation: (department, isActive) =>
+                                  _toggleActivation(context, {
+                                    department.id,
+                                  }, isActive),
+                              onArchiveDepartment: (department) =>
+                                  _archiveDepartments(context, {department.id}),
+                              onPageChanged: (page) => _updatePagination(
+                                context,
+                                vm.pagination.copyWith(page: page),
+                              ),
+                              onPerPageChanged: (perPage) => _updatePagination(
+                                context,
+                                vm.pagination.copyWith(page: 1, perPage: perPage),
+                              ),
+                            ),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    _InsightCard(summary: vm.summary),
+                  ],
                 ),
               ),
           ],

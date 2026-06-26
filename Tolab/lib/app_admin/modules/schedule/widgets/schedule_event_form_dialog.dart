@@ -502,7 +502,7 @@ class _ScheduleEventFormDialogState extends State<ScheduleEventFormDialog> {
       _startTime.hour,
       _startTime.minute,
     );
-    final endAt = DateTime(
+    var endAt = DateTime(
       _date.year,
       _date.month,
       _date.day,
@@ -510,8 +510,7 @@ class _ScheduleEventFormDialogState extends State<ScheduleEventFormDialog> {
       _endTime.minute,
     );
     if (!endAt.isAfter(startAt)) {
-      _showError('End time must be later than start time.');
-      return;
+      endAt = startAt.add(const Duration(hours: 2));
     }
 
     final sectionLabel = _labelOf(

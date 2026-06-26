@@ -2,6 +2,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
+import 'package:tolab_fci/app/localization/app_localizations.dart';
 import '../../../../core/spacing/app_spacing.dart';
 import '../../../../shared/widgets/premium_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
@@ -37,26 +38,26 @@ class ModerationReportsScreen extends StatelessWidget {
         return Column(
           children: [
             ModerationFiltersBar(
-              searchHint: 'Search reports, reasons, reporters, or linked content',
+              searchHint: context.l10n.byValue('Search reports, reasons, reporters, or linked content'),
               searchValue: vm.query.searchQuery,
               onSearchChanged: (value) => _updateQuery(
                 context,
                 vm.query.copyWith(searchQuery: value, resetPage: true),
               ),
-              statusOptions: const ['All', 'Pending', 'Flagged', 'Ignored', 'Removed', 'Suspended'],
+              statusOptions: ['All', 'Pending', 'Flagged', 'Ignored', 'Removed', 'Suspended'].map(context.l10n.byValue).toList(),
               selectedStatus: vm.query.statusFilter,
               onStatusChanged: (value) => _updateQuery(
                 context,
                 vm.query.copyWith(statusFilter: value, resetPage: true),
               ),
-              secondaryLabel: 'Type',
+              secondaryLabel: context.l10n.byValue('Type'),
               secondaryOptions: vm.types,
               selectedSecondary: vm.query.secondaryFilter,
               onSecondaryChanged: (value) => _updateQuery(
                 context,
                 vm.query.copyWith(secondaryFilter: value, resetPage: true),
               ),
-              dateOptions: const ['Any time', 'Today', 'Last 7 days', 'Last 30 days'],
+              dateOptions: ['Any time', 'Today', 'Last 7 days', 'Last 30 days'].map(context.l10n.byValue).toList(),
               selectedDate: vm.query.dateFilter,
               onDateChanged: (value) => _updateQuery(
                 context,
@@ -65,7 +66,7 @@ class ModerationReportsScreen extends StatelessWidget {
               trailing: [
                 if (vm.selectedIds.isNotEmpty)
                   PremiumButton(
-                    label: 'Ignore ${vm.selectedIds.length}',
+                    label: '${context.l10n.byValue('Ignore')} (${vm.selectedIds.length})',
                     icon: Icons.do_disturb_alt_outlined,
                     isSecondary: true,
                     onPressed: () => dispatchModerationCommand(
@@ -79,7 +80,7 @@ class ModerationReportsScreen extends StatelessWidget {
                   ),
                 if (vm.selectedIds.isNotEmpty)
                   PremiumButton(
-                    label: 'Ban ${vm.selectedIds.length}',
+                    label: '${context.l10n.byValue('Ban')} (${vm.selectedIds.length})',
                     icon: Icons.gpp_bad_outlined,
                     isDestructive: true,
                     onPressed: () => dispatchModerationCommand(
@@ -96,14 +97,14 @@ class ModerationReportsScreen extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
             Expanded(
               child: ModerationTableCard<ModerationReport>(
-                title: 'Reports register',
-                subtitle:
-                    'Link each report to its source content and resolve the right policy action.',
+                title: context.l10n.byValue('Reports register'),
+                subtitle: context.l10n.byValue(
+                    'Link each report to its source content and resolve the right policy action.'),
                 items: vm.page.items,
                 columns: [
                   ModerationTableColumn<ModerationReport>(
                     key: 'subject',
-                    label: 'Linked content',
+                    label: context.l10n.byValue('Linked content'),
                     size: ColumnSize.L,
                     cellBuilder: (context, report) => Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,31 +124,31 @@ class ModerationReportsScreen extends StatelessWidget {
                   ),
                   ModerationTableColumn<ModerationReport>(
                     key: 'type',
-                    label: 'Type',
+                    label: context.l10n.byValue('Type'),
                     sortable: true,
                     cellBuilder: (context, report) => Text(report.contentType),
                   ),
                   ModerationTableColumn<ModerationReport>(
                     key: 'reporter',
-                    label: 'Reporter',
+                    label: context.l10n.byValue('Reporter'),
                     sortable: true,
                     cellBuilder: (context, report) => Text(report.reporterName),
                   ),
                   ModerationTableColumn<ModerationReport>(
                     key: 'status',
-                    label: 'Status',
-                    cellBuilder: (context, report) => StatusBadge(report.status.label),
+                    label: context.l10n.byValue('Status'),
+                    cellBuilder: (context, report) => StatusBadge(context.l10n.byValue(report.status.label)),
                   ),
                   ModerationTableColumn<ModerationReport>(
                     key: 'createdAt',
-                    label: 'Date',
+                    label: context.l10n.byValue('Date'),
                     sortable: true,
                     cellBuilder: (context, report) =>
                         Text(formatModerationDate(report.createdAt)),
                   ),
                   ModerationTableColumn<ModerationReport>(
                     key: 'actions',
-                    label: 'Actions',
+                    label: context.l10n.byValue('Actions'),
                     size: ColumnSize.S,
                     cellBuilder: (context, report) => IconButton(
                       onPressed: () => _openPreview(context, report),
@@ -225,17 +226,17 @@ class ModerationReportsScreen extends StatelessWidget {
     await showModerationPreviewDialog(
       context: context,
       title: report.subjectTitle,
-      subtitle: '${report.contentType} report in ${report.groupName}',
-      status: report.status.label,
+      subtitle: '${report.contentType} report ${context.l10n.byValue('in')} ${report.groupName}',
+      status: context.l10n.byValue(report.status.label),
       content: report.contentPreview,
       metadata: [
-        MapEntry('Reporter', report.reporterName),
-        MapEntry('Reason', report.reason),
-        MapEntry('Created', formatModerationDate(report.createdAt)),
+        MapEntry(context.l10n.byValue('Reporter'), report.reporterName),
+        MapEntry(context.l10n.byValue('Reason'), report.reason),
+        MapEntry(context.l10n.byValue('Date'), formatModerationDate(report.createdAt)),
       ],
       actions: [
         buildPreviewActionButton(
-          label: 'Ignore',
+          label: context.l10n.byValue('Ignore'),
           icon: Icons.do_disturb_alt_outlined,
           onPressed: () => dispatchModerationCommand(
             context,
@@ -247,7 +248,7 @@ class ModerationReportsScreen extends StatelessWidget {
           ),
         ),
         buildPreviewActionButton(
-          label: 'Warn',
+          label: context.l10n.byValue('Warn'),
           icon: Icons.warning_amber_rounded,
           onPressed: () => dispatchModerationCommand(
             context,
@@ -259,7 +260,31 @@ class ModerationReportsScreen extends StatelessWidget {
           ),
         ),
         buildPreviewActionButton(
-          label: 'Remove',
+          label: context.l10n.byValue('Reply'),
+          icon: Icons.reply_rounded,
+          onPressed: () {
+            Navigator.of(context).pop();
+            showModerationReplyDialog(
+              context: context,
+              recipientName: report.reporterName,
+              contentPreview: report.contentPreview,
+              contentTypeLabel: 'report',
+              onSend: (replyText) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      replyText.isEmpty
+                          ? context.l10n.byValue('Reply sent successfully.')
+                          : '${context.l10n.byValue('Official response sent to student.')}: "$replyText"',
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+        buildPreviewActionButton(
+          label: context.l10n.byValue('Remove'),
           icon: Icons.delete_outline_rounded,
           destructive: true,
           onPressed: () => dispatchModerationCommand(
@@ -272,7 +297,7 @@ class ModerationReportsScreen extends StatelessWidget {
           ),
         ),
         buildPreviewActionButton(
-          label: 'Ban',
+          label: context.l10n.byValue('Ban'),
           icon: Icons.gpp_bad_outlined,
           destructive: true,
           onPressed: () => dispatchModerationCommand(

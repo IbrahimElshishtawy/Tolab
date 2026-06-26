@@ -1582,6 +1582,62 @@ class DemoDataService {
         source: 'seed',
         audienceLabel: 'Moderation hub',
       ),
+      AdminNotification(
+        id: 'NT-9',
+        title: 'Flagged group chat activity',
+        body:
+            'Student reported inappropriate message in CS-4A collaborative community group.',
+        category: AdminNotificationCategory.messages,
+        createdAt: now.subtract(const Duration(minutes: 2)),
+        isRead: false,
+        rawType: 'MODERATION',
+        refType: 'message',
+        refId: 'MSG-FLAG-9',
+        source: 'seed',
+        audienceLabel: 'Group chat moderation',
+      ),
+      AdminNotification(
+        id: 'NT-10',
+        title: 'Flagged group post pending review',
+        body:
+            'Post titled "Algorithms midterm leakage link" was flagged multiple times in CS-4A.',
+        category: AdminNotificationCategory.announcements,
+        createdAt: now.subtract(const Duration(minutes: 11)),
+        isRead: false,
+        rawType: 'CONTENT',
+        refType: 'announcement',
+        refId: 'POST-FLAG-10',
+        source: 'seed',
+        audienceLabel: 'Group posts moderation',
+      ),
+      AdminNotification(
+        id: 'NT-11',
+        title: 'System database latency warning',
+        body:
+            'Database connection pool response time exceeded 1200ms threshold during schedule changes.',
+        category: AdminNotificationCategory.system,
+        createdAt: now.subtract(const Duration(minutes: 25)),
+        isRead: false,
+        rawType: 'SYSTEM',
+        refType: 'settings',
+        refId: 'SYS-DB-11',
+        source: 'seed',
+        audienceLabel: 'Systems operations desk',
+      ),
+      AdminNotification(
+        id: 'NT-12',
+        title: 'Flagged comment spike in group',
+        body:
+            'System alert: 12 flagged comments detected in "Enterprise Cohort" group within 15 minutes.',
+        category: AdminNotificationCategory.system,
+        createdAt: now.subtract(const Duration(hours: 1, minutes: 5)),
+        isRead: false,
+        rawType: 'SYSTEM',
+        refType: 'settings',
+        refId: 'SYS-SPIKE-12',
+        source: 'seed',
+        audienceLabel: 'Moderation monitor',
+      ),
     ];
   }
 

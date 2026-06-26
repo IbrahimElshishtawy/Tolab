@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../app/localization/app_localizations.dart';
+
 import '../../../../../app_admin/core/spacing/app_spacing.dart';
 import '../../../../presentation/widgets/doctor_assistant_widgets.dart';
 import '../models/announcements_workspace_models.dart';
@@ -19,9 +21,9 @@ class GroupActivitySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DoctorAssistantPanel(
-      title: 'Group activity panel',
-      subtitle:
-          'Latest posts, fresh comments, unresolved threads, and the newest student questions in one place.',
+      title: context.l10n.byValue('Group activity panel'),
+      subtitle: context.l10n.byValue(
+          'Latest posts, fresh comments, unresolved threads, and the newest student questions in one place.'),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -47,11 +49,11 @@ class _ActivityGroup extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: Theme.of(context).textTheme.titleMedium),
+        Text(context.l10n.byValue(title), style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: AppSpacing.sm),
         if (items.isEmpty)
           Text(
-            'No items in this queue yet.',
+            context.l10n.byValue('No items in this queue yet.'),
             style: Theme.of(context).textTheme.bodySmall,
           )
         else

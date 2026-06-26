@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../app/localization/app_localizations.dart';
+
 import '../../../../../app_admin/core/spacing/app_spacing.dart';
 import '../../../../../app_admin/core/widgets/app_card.dart';
 import '../../../core/models/session_user.dart';
@@ -62,9 +64,9 @@ class FacultyQuickActionsBar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: Theme.of(context).textTheme.titleLarge),
+          Text(context.l10n.byValue(title), style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: AppSpacing.xs),
-          Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+          Text(context.l10n.byValue(subtitle), style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: AppSpacing.md),
           Wrap(
             spacing: AppSpacing.sm,
@@ -74,7 +76,7 @@ class FacultyQuickActionsBar extends StatelessWidget {
                   (action) => FilledButton.tonalIcon(
                     onPressed: () => context.go(action.route),
                     icon: Icon(action.icon),
-                    label: Text(action.label),
+                    label: Text(context.l10n.byValue(action.label)),
                   ),
                 )
                 .toList(growable: false),

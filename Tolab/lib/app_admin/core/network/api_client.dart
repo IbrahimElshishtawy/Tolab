@@ -177,6 +177,17 @@ class ApiClient {
     Future<Response<dynamic>> Function() request, {
     required T Function(dynamic json) decoder,
   }) async {
+    if (AppConfig.useMockData) {
+      try {
+        return decoder(const <String, dynamic>{});
+      } catch (_) {
+        try {
+          return decoder(const <dynamic>[]);
+        } catch (_) {
+          return decoder(null);
+        }
+      }
+    }
     if (_requiresAuthentication(path) && !await _hasUsableSession()) {
       await _handleUnauthorized('Session expired, please login again.');
       throw AppException('Unauthenticated.', statusCode: 401);
@@ -228,6 +239,9 @@ class ApiClient {
   }
 
   Future<bool> _refreshToken() async {
+    if (AppConfig.useMockData) {
+      return false;
+    }
     final refreshToken = await _secureStorage.readRefreshToken();
     if (!_hasUsableRefreshToken(refreshToken)) {
       return false;

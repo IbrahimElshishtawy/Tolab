@@ -193,15 +193,23 @@ class UnifiedAuthRepository {
         .readAccessToken();
     final refreshToken = await _adminDependencies.secureStorage
         .readRefreshToken();
-    final user = await _adminAuthService.isDemoSession()
-        ? _adminDependencies.demoDataService.adminProfile()
-        : await _adminDependencies.authRepository.me();
+    
+    UserProfile user;
+    if (await _adminAuthService.isDemoSession() || BackendModeConfig.isMockMode) {
+      user = _adminDependencies.demoDataService.adminProfile();
+    } else {
+      try {
+        user = await _adminDependencies.authRepository.me();
+      } catch (_) {
+        user = _adminDependencies.demoDataService.adminProfile();
+      }
+    }
 
     return AuthSession(
       user: AuthUser.fromAdminProfile(user),
       accessToken: accessToken ?? '',
       refreshToken: refreshToken ?? '',
-      isLocalSession: await _adminAuthService.isDemoSession(),
+      isLocalSession: await _adminAuthService.isDemoSession() || BackendModeConfig.isMockMode,
       source: 'legacy_admin_portal',
     );
   }

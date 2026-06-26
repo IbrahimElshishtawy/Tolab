@@ -40,16 +40,14 @@ final chatControllerProvider =
       ChatController.new,
     );
 
-class ChatController extends AsyncNotifier<ChatState> {
-  ChatController(this._subjectId);
-  final String _subjectId;
+class ChatController extends FamilyAsyncNotifier<ChatState, String> {
   static const _pageSize = 15;
 
   @override
-  Future<ChatState> build() async {
+  Future<ChatState> build(String arg) async {
     final messages = await ref
         .watch(communityRepositoryProvider)
-        .getMessages(_subjectId, pageSize: _pageSize);
+        .getMessages(arg, pageSize: _pageSize);
     return ChatState(
       messages: messages,
       page: 0,
@@ -66,7 +64,7 @@ class ChatController extends AsyncNotifier<ChatState> {
     final nextPage = current.page + 1;
     final olderMessages = await ref
         .read(communityRepositoryProvider)
-        .getMessages(_subjectId, page: nextPage, pageSize: _pageSize);
+        .getMessages(arg, page: nextPage, pageSize: _pageSize);
     state = AsyncData(
       current.copyWith(
         messages: [...olderMessages, ...current.messages],
@@ -85,10 +83,10 @@ class ChatController extends AsyncNotifier<ChatState> {
     state = AsyncData(current.copyWith(isSending: true));
     await ref
         .read(communityRepositoryProvider)
-        .sendMessage(_subjectId, content);
+        .sendMessage(arg, content);
     final refreshed = await ref
         .read(communityRepositoryProvider)
-        .getMessages(_subjectId, pageSize: _pageSize);
+        .getMessages(arg, pageSize: _pageSize);
     state = AsyncData(
       ChatState(
         messages: refreshed,
@@ -112,6 +110,6 @@ class ChatController extends AsyncNotifier<ChatState> {
     );
     await ref
         .read(communityRepositoryProvider)
-        .deleteMessage(_subjectId, messageId);
+        .deleteMessage(arg, messageId);
   }
 }
