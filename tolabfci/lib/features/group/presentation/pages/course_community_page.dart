@@ -8,6 +8,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/adaptive_page_container.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/safe_text_field_wrapper.dart';
 import '../../data/repositories/mock_group_repository.dart';
 import '../../../subject_details/presentation/providers/community_providers.dart';
 import '../../../subjects/presentation/providers/subjects_providers.dart';
@@ -356,16 +357,18 @@ class _CreatePostBox extends StatelessWidget {
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: AppSpacing.sm),
-          TextField(
-            controller: controller,
-            minLines: 2,
-            maxLines: 4,
-            decoration: InputDecoration(
-              hintText: context.tr(
-                'اسأل سؤالا أو شارك تحديثا مع زملائك...',
-                'Ask a question or share an update with classmates...',
+          SafeTextFieldWrapper(
+            child: TextField(
+              controller: controller,
+              minLines: 2,
+              maxLines: 4,
+              decoration: InputDecoration(
+                hintText: context.tr(
+                  'اسأل سؤالا أو شارك تحديثا مع زملائك...',
+                  'Ask a question or share an update with classmates...',
+                ),
+                prefixIcon: const Icon(Icons.edit_note_rounded),
               ),
-              prefixIcon: const Icon(Icons.edit_note_rounded),
             ),
           ),
           const SizedBox(height: AppSpacing.sm),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/safe_text_field_wrapper.dart';
 
 class ChatInputBar extends StatefulWidget {
   const ChatInputBar({
@@ -61,28 +62,30 @@ class _ChatInputBarState extends State<ChatInputBar> {
         ),
         const SizedBox(width: AppSpacing.xs),
         Expanded(
-          child: TextField(
-            controller: _controller,
-            minLines: 1,
-            maxLines: widget.compact ? 2 : 3,
-            decoration: const InputDecoration(
-              hintText: 'اكتب رسالة للمجموعة...',
-              isDense: true,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 12,
+          child: SafeTextFieldWrapper(
+            child: TextField(
+              controller: _controller,
+              minLines: 1,
+              maxLines: widget.compact ? 2 : 3,
+              decoration: const InputDecoration(
+                hintText: 'اكتب رسالة للمجموعة...',
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
               ),
+              onSubmitted: widget.isSending
+                  ? null
+                  : (value) async {
+                      final content = value.trim();
+                      if (content.isEmpty) {
+                        return;
+                      }
+                      await widget.onSend(content);
+                      _controller.clear();
+                    },
             ),
-            onSubmitted: widget.isSending
-                ? null
-                : (value) async {
-                    final content = value.trim();
-                    if (content.isEmpty) {
-                      return;
-                    }
-                    await widget.onSend(content);
-                    _controller.clear();
-                  },
           ),
         ),
         const SizedBox(width: AppSpacing.xs),

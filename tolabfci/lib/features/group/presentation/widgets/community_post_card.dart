@@ -7,6 +7,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/safe_text_field_wrapper.dart';
 import '../../../subject_details/presentation/providers/community_providers.dart';
 
 class CommunityPostCard extends ConsumerWidget {
@@ -252,12 +253,14 @@ class CommunityPostCard extends ConsumerWidget {
                 ),
               ),
             const SizedBox(height: AppSpacing.sm),
-            TextField(
-              controller: controller,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'التعليق',
-                alignLabelWithHint: true,
+            SafeTextFieldWrapper(
+              child: TextField(
+                controller: controller,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'التعليق',
+                  alignLabelWithHint: true,
+                ),
               ),
             ),
             const SizedBox(height: AppSpacing.md),

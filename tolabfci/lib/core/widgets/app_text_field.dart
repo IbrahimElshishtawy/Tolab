@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'safe_text_field_wrapper.dart';
 
 class AppTextField extends StatelessWidget {
   const AppTextField({
@@ -28,18 +29,20 @@ class AppTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      obscureText: obscureText,
-      maxLines: maxLines,
-      validator: validator,
-      onChanged: onChanged,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hintText,
-        prefixIcon: prefixIcon == null ? null : Icon(prefixIcon),
-        suffixIcon: suffixIcon,
+    return SafeTextFieldWrapper(
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        obscureText: obscureText,
+        maxLines: maxLines,
+        validator: validator,
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hintText,
+          prefixIcon: prefixIcon == null ? null : Icon(prefixIcon),
+          suffixIcon: suffixIcon,
+        ),
       ),
     );
   }

@@ -5,6 +5,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/safe_text_field_wrapper.dart';
 
 class ComplaintForm extends StatefulWidget {
   const ComplaintForm({
@@ -168,9 +169,11 @@ class _ComplaintFormState extends State<ComplaintForm> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('اسم الملف المرفق'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: 'مثال: screenshot.png'),
+        content: SafeTextFieldWrapper(
+          child: TextField(
+            controller: controller,
+            decoration: const InputDecoration(hintText: 'مثال: screenshot.png'),
+          ),
         ),
         actions: [
           TextButton(

@@ -9,6 +9,7 @@ import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/safe_text_field_wrapper.dart';
 import '../../../../features/profile/presentation/providers/profile_providers.dart';
 import '../providers/support_providers.dart';
 
@@ -253,9 +254,11 @@ class _ItSupportChatPageState extends ConsumerState<ItSupportChatPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('اسم الملف أو الصورة'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: 'مثال: error-shot.png'),
+        content: SafeTextFieldWrapper(
+          child: TextField(
+            controller: controller,
+            decoration: const InputDecoration(hintText: 'مثال: error-shot.png'),
+          ),
         ),
         actions: [
           TextButton(
